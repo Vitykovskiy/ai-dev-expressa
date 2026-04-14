@@ -6,7 +6,7 @@
 
 ## Источники
 
-- `expressa-customer-ui-contract.json`
+- `docs/system/ui-contracts/expressa-customer-ui-contract.json`
 - `docs/business/business-rules/access-and-roles.md`
 - `docs/business/business-rules/menu-catalog-and-options.md`
 - `docs/business/business-rules/pickup-slots-and-capacity.md`

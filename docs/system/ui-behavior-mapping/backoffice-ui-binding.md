@@ -6,7 +6,7 @@
 
 ## Источники
 
-- `expressa-backoffice-ui-contract.json`
+- `docs/system/ui-contracts/expressa-backoffice-ui-contract.json`
 - `docs/business/business-rules/access-and-roles.md`
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/business-rules/menu-catalog-and-options.md`

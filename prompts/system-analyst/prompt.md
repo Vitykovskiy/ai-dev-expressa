@@ -95,7 +95,7 @@ Additional required file:
 
 The common description of business analysis documents is in `docs/business/README.md`
 
-Approved UI contracts may exist outside `docs/`, including repository-root contract files. When they exist, treat them as implementation-relevant behavioral input, not as optional design references.
+Approved UI contracts may exist in `docs/system/ui-contracts/` or in another explicitly assigned repository path. When they exist, treat them as implementation-relevant behavioral input, not as optional design references.
 
 ## Information gathering protocol
 

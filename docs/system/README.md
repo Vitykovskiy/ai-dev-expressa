@@ -10,6 +10,7 @@
 - Если нужно понять входы, выходы, проверки, ошибки и side effects конкретного взаимодействия: `contracts`.
 - Если нужно понять жизненный цикл заказа и допустимые переходы: `state-models`.
 - Если нужно понять, как экран, действие, UI-state или role-guard связаны с системным поведением: `ui-behavior-mapping`.
+- Если нужен исходный экранный контракт, который системный аналитик обязан формализовать: `ui-contracts`.
 
 ## Семейства артефактов
 
@@ -115,6 +116,16 @@
   - Файл: [contracts/telegram-notifications.md](./contracts/telegram-notifications.md)
   - Использовать для customer-уведомлений и barista-напоминаний.
 
+### `ui-contracts`
+
+- `Expressa Customer UI Contract`
+  - Файл: [ui-contracts/expressa-customer-ui-contract.json](./ui-contracts/expressa-customer-ui-contract.json)
+  - Использовать как входной UI-контракт customer-facing Telegram WebApp перед формализацией системного поведения.
+
+- `Expressa Backoffice UI Contract`
+  - Файл: [ui-contracts/expressa-backoffice-ui-contract.json](./ui-contracts/expressa-backoffice-ui-contract.json)
+  - Использовать как входной UI-контракт backoffice Telegram WebApp перед формализацией системного поведения.
+
 ### `ui-behavior-mapping`
 
 - `Customer Ordering`
@@ -133,6 +144,7 @@
 - Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
 - Если задача приходит из UI-контракта или экранного флоу: читать соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`.
+- Если задача начинается с экранного контракта: сначала читать соответствующий файл в `ui-contracts/`, затем соответствующий файл в `ui-behavior-mapping/`.
 
 ## Зафиксированные blockers и вопросы
 
