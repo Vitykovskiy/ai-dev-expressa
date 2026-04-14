@@ -97,6 +97,8 @@ Additional required file:
 
 The common description of business analysis documents is in `docs/business/README.md`
 
+When the task requires creating or updating development task cards, additionally apply `prompts/system-analyst/task-tree-rules.md` as the source of truth for the task-tree structure around one delivery unit.
+
 Approved UI contracts may exist in `docs/system/ui-contracts/` or in another explicitly assigned repository path. When they exist, treat them as implementation-relevant behavioral input, not as optional design references.
 
 ## Information gathering protocol
@@ -134,6 +136,7 @@ Do not confuse delivery-unit decomposition with sprint planning. The system anal
 Apply this section only when the assigned task explicitly requires creating or updating cards in `tasks/`.
 
 - Use `templates/task-template.md` and `templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
+- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how one delivery unit must be represented as a parent task with child development tasks split by implementation contour.
 - One implementation task card must correspond to exactly one delivery unit or one explicitly named sub-unit derived from a single delivery unit.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
 - Each task card must make explicit:
