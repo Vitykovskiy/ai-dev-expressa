@@ -40,6 +40,7 @@
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
 - `docs/architecture/code-style.md` — единый coding standard и правила unit tests.
+- `docs/architecture/du-01-administration.md` — архитектурная рамка первой административной поставки и правила декомпозиции child-задач `DU-01`.
 - `docs/architecture/application-map.md` — обязательная карта приложения: модули, entrypoints, зависимости, запуск, тестирование и deployment-маршруты.
 - `docs/architecture/deployment-map.md` — карта окружений, CI/CD, env vars, smoke-check и rollback.
 - `docs/business/` — бизнес-артефакты, описывающие продукт, правила и сценарии.
