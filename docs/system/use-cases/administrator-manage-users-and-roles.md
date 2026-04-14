@@ -9,7 +9,6 @@
 - `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - `docs/business/business-rules/access-and-roles.md`
 - `docs/business/business-rules/backoffice-operations.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Триггер
 

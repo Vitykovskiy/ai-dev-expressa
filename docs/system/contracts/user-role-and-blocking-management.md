@@ -10,7 +10,6 @@
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - `docs/business/scenarios/administrator-block-user.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Contract `Bootstrap main administrator`
 

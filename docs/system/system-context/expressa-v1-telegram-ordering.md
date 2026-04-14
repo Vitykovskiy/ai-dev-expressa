@@ -14,7 +14,6 @@
 - `docs/business/business-rules/order-lifecycle-and-history.md`
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/scenarios/*.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Назначение системы
 
@@ -103,4 +102,4 @@
 
 ### Несогласованности входных материалов
 
-- `docs/business/business-rules/access-and-roles.md` и сценарий `administrator-manage-users-and-roles.md` допускают трактовку, что любой `administrator` может назначать новых `administrator`. В `Expressa — Требования к продукту.txt` требование `FR-026` фиксирует, что остальных administrator назначает главный administrator. До разрешения противоречия нельзя считать границу полномочий по назначению `administrator` окончательно установленной.
+- `docs/business/business-rules/access-and-roles.md` и сценарий `administrator-manage-users-and-roles.md` не фиксируют однозначно, может ли любой `administrator` назначать новых `administrator`, или это право принадлежит только главному administrator. До разрешения противоречия нельзя считать границу полномочий по назначению `administrator` окончательно установленной.

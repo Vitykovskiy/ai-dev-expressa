@@ -12,7 +12,6 @@
 - `docs/business/scenarios/barista-reject-order.md`
 - `docs/business/scenarios/barista-mark-order-ready.md`
 - `docs/business/scenarios/barista-receive-order-reminder.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Contract `Notify customer about order status change`
 
