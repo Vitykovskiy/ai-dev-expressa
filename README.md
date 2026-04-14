@@ -7,6 +7,7 @@
 ```text
 .
 |-- docs/
+|   |-- architecture/
 |   |-- business/
 |   |   |-- business-rules/
 |   |   |-- glossary/
@@ -21,7 +22,11 @@
 |       |-- ui-contracts/
 |       `-- use-cases/
 |-- prompts/
+|   |-- architect/
+|   |-- backend/
 |   |-- business-analyst/
+|   |-- devops/
+|   |-- frontend/
 |   `-- system-analyst/
 |-- tasks/
 |-- templates/
@@ -31,6 +36,12 @@
 ## Что где находится
 
 - `docs/` — проектная документация.
+- `docs/architecture/` — архитектурные решения, карта приложения, кодстайл и deployment guidance.
+- `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
+- `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
+- `docs/architecture/code-style.md` — единый coding standard и правила unit tests.
+- `docs/architecture/application-map.md` — обязательная карта приложения: модули, entrypoints, зависимости, запуск, тестирование и deployment-маршруты.
+- `docs/architecture/deployment-map.md` — карта окружений, CI/CD, env vars, smoke-check и rollback.
 - `docs/business/` — бизнес-артефакты, описывающие продукт, правила и сценарии.
 - `docs/business/vision/` — материалы о границах продукта, целях и scope.
 - `docs/business/scenarios/` — бизнес-сценарии и пользовательские потоки.
@@ -54,7 +65,18 @@
 - Новые задачи оформляются по шаблону из `templates/`.
 - Итоговые задачи хранятся в каталоге `tasks/`.
 - Аналитические роли используют промпты из каталога `prompts/`.
-- Для задач, которые идут в delivery-поток, одна карточка должна соответствовать ровно одной единице поставки.
+- Родительская карточка `DEV-*` в delivery-потоке соответствует ровно одной delivery unit.
+- Дочерние карточки `AR/FE/BE/DO/QA` ссылаются на родительскую `DEV-*` через поле `Родительская задача` и описывают один reviewable outcome в одном контуре.
+- Системный аналитик готовит родительскую delivery unit, архитектор фиксирует стек и кодстайл, обновляет архитектурные артефакты и нарезает child-задачи для реализации.
+
+## Обязательные архитектурные артефакты
+
+- Перед стартом разработки должны быть определены и зафиксированы `docs/architecture/stack.md` и `docs/architecture/code-style.md`.
+- `docs/architecture/application-map.md` обязателен для проекта и должен оставаться актуальным.
+- При изменении структуры кода, entrypoints, интерфейсов между модулями, env/config, способов запуска, тестирования или деплоя нужно обновить:
+  - `docs/architecture/application-map.md`
+  - `docs/architecture/README.md`
+  - `README.md`, если корневая навигация по репозиторию устарела
 
 ## Выбор задачи
 
@@ -65,6 +87,7 @@
 
 ## Навигация
 
+- Для архитектурного контекста переходите в `docs/architecture/`.
 - Для бизнес-контекста переходите в `docs/business/`.
 - Для системного контекста переходите в `docs/system/`.
 - Для запуска роли используйте каталог `prompts/`.
