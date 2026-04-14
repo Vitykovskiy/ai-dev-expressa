@@ -25,6 +25,13 @@
   - `Docker Compose` для локальной сборки контуров
   - `GitHub Actions` для CI/CD
 
+## Срез первой поставки `DU-01`
+
+- В `DU-01` обязательны только `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot`, `packages/shared-types`, `infra/` и `.github/workflows`.
+- `PostgreSQL` подключается уже в `DU-01`, потому что административный контур хранит пользователей, роли, блокировку, каталог и настройки слотов.
+- `apps/customer-web` и `apps/customer-bot` в `DU-01` не создаются.
+- `packages/ui` не является обязательным артефактом `DU-01`; общий UI-пакет добавляется только при подтверждённой переиспользуемости между несколькими web-контурами.
+
 ## Базовая структура монорепозитория
 
 ```text
@@ -49,3 +56,4 @@ infra/
 - Стек должен оставаться совместимым с технологическими constraints из `docs/system/system-context/expressa-v1-telegram-ordering.md`.
 - Новые технологические решения фиксируются здесь до начала реализации, а не по факту в коде.
 - Нельзя вводить новый framework, persistence layer, deployment tool или runtime contour без обновления этого файла, `application-map.md` и связанных child-задач.
+- Для `DU-01` нельзя добавлять customer- или barista-runtime как "техническую подготовку"; такие контуры вводятся только в соответствующих delivery units.
