@@ -7,12 +7,21 @@
 ```text
 .
 |-- docs/
-|   `-- business/
+|   |-- business/
+|   |   |-- README.md
+|   |   |-- business-rules/
+|   |   |-- glossary/
+|   |   |-- scenarios/
+|   |   `-- vision/
+|   `-- system/
 |       |-- README.md
-|       |-- business-rules/
-|       |-- glossary/
-|       |-- scenarios/
-|       `-- vision/
+|       |-- contracts/
+|       |-- domain-model/
+|       |-- state-models/
+|       |-- system-context/
+|       |-- ui-contracts/
+|       |-- ui-behavior-mapping/
+|       `-- use-cases/
 |-- prompts/
 |   |-- business-analyst/
 |   |   `-- prompt.md
@@ -30,11 +39,22 @@
 
 - `docs/` — проектная документация.
 - `docs/business/` — бизнес-артефакты по продукту Expressa.
+- `docs/system/` — системные артефакты по продукту Expressa.
 - `docs/business/vision/` — vision-документы с границами, целями и scope.
 - `docs/business/scenarios/` — пользовательские и операционные сценарии.
 - `docs/business/business-rules/` — бизнес-правила и ограничения.
 - `docs/business/glossary/` — термины и определения предметной области.
 - `docs/business/README.md` — карта документации по бизнес-разделу.
+- `docs/system/system-context/` — границы системы, внешние акторы, delivery units и системные ограничения.
+- `docs/system/domain-model/` — системные сущности, связи и инварианты доменной модели.
+- `docs/system/use-cases/` — системное поведение по отдельным сценариям и исходам.
+- `docs/system/contracts/` — контракты взаимодействий, входы, выходы, проверки и ошибки.
+- `docs/system/state-models/` — модели состояний и допустимые переходы сущностей.
+- `docs/system/ui-contracts/` — входные UI/UX-контракты для системного аналитика.
+- `docs/system/ui-behavior-mapping/` — трассировка между UI-контрактами, бизнес-правилами и системным поведением.
+- `docs/system/README.md` — карта документации по системному разделу.
+- `docs/system/ui-contracts/expressa-customer-ui-contract.json` — UI/UX-контракт customer-facing Telegram WebApp.
+- `docs/system/ui-contracts/expressa-backoffice-ui-contract.json` — UI/UX-контракт backoffice Telegram WebApp для `barista` и `administrator`.
 - `prompts/` — системные промпты для рабочих ролей и агентов проекта.
 - `prompts/business-analyst/prompt.md` — промпт бизнес-аналитика для подготовки и актуализации бизнес-артефактов.
 - `prompts/system-analyst/prompt.md` — промпт системного аналитика для проработки системных требований и проектирования решений.
@@ -60,5 +80,7 @@
 
 - Если нужен общий контекст продукта, начинайте с [docs/business/vision/expressa-v1-telegram-ordering.md](./docs/business/vision/expressa-v1-telegram-ordering.md).
 - Если нужно понять состав бизнес-документов, откройте [docs/business/README.md](./docs/business/README.md).
+- Если нужно понять состав системных документов, откройте [docs/system/README.md](./docs/system/README.md).
+- Если нужно понять экранные контракты, откройте [docs/system/ui-contracts/expressa-customer-ui-contract.json](./docs/system/ui-contracts/expressa-customer-ui-contract.json) и [docs/system/ui-contracts/expressa-backoffice-ui-contract.json](./docs/system/ui-contracts/expressa-backoffice-ui-contract.json).
 - Если нужно запустить работу аналитической роли, используйте [prompts/business-analyst/prompt.md](./prompts/business-analyst/prompt.md) или [prompts/system-analyst/prompt.md](./prompts/system-analyst/prompt.md).
 - Если нужно завести новую задачу, используйте [templates/task-template.md](./templates/task-template.md) и [templates/task-template-instruction.md](./templates/task-template-instruction.md).
