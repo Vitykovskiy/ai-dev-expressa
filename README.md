@@ -19,6 +19,7 @@
 |       |-- domain-model/
 |       |-- state-models/
 |       |-- system-context/
+|       |-- ui-behavior-mapping/
 |       `-- use-cases/
 |-- prompts/
 |   |-- business-analyst/
@@ -30,6 +31,8 @@
 |-- templates/
 |   |-- task-template-instruction.md
 |   `-- task-template.md
+|-- expressa-backoffice-ui-contract.json
+|-- expressa-customer-ui-contract.json
 `-- Expressa — Требования к продукту.txt
 ```
 
@@ -48,7 +51,10 @@
 - `docs/system/use-cases/` — системное поведение по отдельным сценариям и исходам.
 - `docs/system/contracts/` — контракты взаимодействий, входы, выходы, проверки и ошибки.
 - `docs/system/state-models/` — модели состояний и допустимые переходы сущностей.
+- `docs/system/ui-behavior-mapping/` — трассировка между UI-контрактами, бизнес-правилами и системным поведением.
 - `docs/system/README.md` — карта документации по системному разделу.
+- `expressa-customer-ui-contract.json` — UI/UX-контракт customer-facing Telegram WebApp.
+- `expressa-backoffice-ui-contract.json` — UI/UX-контракт backoffice Telegram WebApp для `barista` и `administrator`.
 - `prompts/` — системные промпты для рабочих ролей и агентов проекта.
 - `prompts/business-analyst/prompt.md` — промпт бизнес-аналитика для подготовки и актуализации бизнес-артефактов.
 - `prompts/system-analyst/prompt.md` — промпт системного аналитика для проработки системных требований и проектирования решений.
@@ -75,5 +81,6 @@
 - Если нужен общий контекст продукта, начинайте с [docs/business/vision/expressa-v1-telegram-ordering.md](./docs/business/vision/expressa-v1-telegram-ordering.md).
 - Если нужно понять состав бизнес-документов, откройте [docs/business/README.md](./docs/business/README.md).
 - Если нужно понять состав системных документов, откройте [docs/system/README.md](./docs/system/README.md).
+- Если нужно понять экранные контракты, откройте [expressa-customer-ui-contract.json](./expressa-customer-ui-contract.json) и [expressa-backoffice-ui-contract.json](./expressa-backoffice-ui-contract.json).
 - Если нужно запустить работу аналитической роли, используйте [prompts/business-analyst/prompt.md](./prompts/business-analyst/prompt.md) или [prompts/system-analyst/prompt.md](./prompts/system-analyst/prompt.md).
 - Если нужно завести новую задачу, используйте [templates/task-template.md](./templates/task-template.md) и [templates/task-template-instruction.md](./templates/task-template-instruction.md).

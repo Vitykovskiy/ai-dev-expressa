@@ -9,6 +9,7 @@
 - Если нужно понять поведение системы от триггера до исхода: `use-cases`.
 - Если нужно понять входы, выходы, проверки, ошибки и side effects конкретного взаимодействия: `contracts`.
 - Если нужно понять жизненный цикл заказа и допустимые переходы: `state-models`.
+- Если нужно понять, как экран, действие, UI-state или role-guard связаны с системным поведением: `ui-behavior-mapping`.
 
 ## Семейства артефактов
 
@@ -114,6 +115,16 @@
   - Файл: [contracts/telegram-notifications.md](./contracts/telegram-notifications.md)
   - Использовать для customer-уведомлений и barista-напоминаний.
 
+### `ui-behavior-mapping`
+
+- `Customer Ordering`
+  - Файл: [ui-behavior-mapping/customer-ordering-ui-binding.md](./ui-behavior-mapping/customer-ordering-ui-binding.md)
+  - Использовать для привязки customer UI-контракта к use cases, contracts, validations, state-model и экранным состояниям.
+
+- `Backoffice Operations`
+  - Файл: [ui-behavior-mapping/backoffice-ui-binding.md](./ui-behavior-mapping/backoffice-ui-binding.md)
+  - Использовать для привязки backoffice UI-контракта к ролевому доступу, операциям заказа, управлению меню, пользователями и настройками.
+
 ## Быстрый маршрут для следующей роли
 
 - Если задача про создание заказа customer: читать `system-context/expressa-v1-telegram-ordering.md`, `domain-model/ordering-and-pickup.md`, `use-cases/customer-create-pickup-order.md`, `contracts/customer-ordering.md`, `state-models/order-lifecycle.md`.
@@ -121,6 +132,7 @@
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
 - Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
+- Если задача приходит из UI-контракта или экранного флоу: читать соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`.
 
 ## Зафиксированные blockers и вопросы
 
@@ -128,3 +140,4 @@
 - Не определена периодичность Telegram-напоминаний barista.
 - Не зафиксировано системное поведение при конкурентной попытке занять последний слот выдачи.
 - Не определён требуемый уровень snapshot-данных каталога внутри заказа после последующего изменения меню.
+- UI-контракты содержат дополнительные расхождения: англоязычные статусы против русскоязычной каноники, действие `unblock_user`, диапазон `slot_capacity 1..50`, real-time индикатор новых заказов и атрибуты товара, не подтверждённые текущими бизнес-правилами.
