@@ -15,7 +15,7 @@
 
 | Контур | Обязателен в `DU-01` | Назначение |
 | --- | --- | --- |
-| `apps/api` | Да | Административные read/write контракты, Telegram/test-mode auth, bootstrap главного administrator, доступ к PostgreSQL. |
+| `apps/api` | Да | `NestJS`-backend с административными read/write контрактами, Telegram/test-mode auth, bootstrap главного administrator и доступом к PostgreSQL. |
 | `apps/backoffice-web` | Да | Telegram WebApp для administrator с вкладками `Меню`, `Пользователи`, `Настройки`. |
 | `apps/backoffice-bot` | Да | Telegram entrypoint для запуска административного WebApp. |
 | `packages/shared-types` | Да | Единый источник DTO, enum и схем для `apps/api` и `apps/backoffice-web`. |
@@ -37,6 +37,7 @@
 - Telegram остаётся обязательным каналом доступа в рабочем режиме; прямой доступ по URL не считается штатным сценарием.
 - Исключение без Telegram допустимо только в test environment и должно быть централизовано через `DISABLE_TG_AUTH=true`, а не через отдельные обходы в `frontend`.
 - `apps/backoffice-bot` в `DU-01` отвечает только за вход в административный WebApp; логика напоминаний barista в него не входит.
+- Backend `DU-01` реализуется на `NestJS`; ввод другого backend framework без отдельного архитектурного решения не допускается.
 - `apps/api` публикует только административные контракты `DU-01`: bootstrap/auth session, menu catalog management, user role and blocking management, slot settings management.
 - Любая проверка прав доступа и спорных полномочий должна жить в backend policy/service-слое; `frontend` не должен хардкодить правило, кто именно может назначать новых `administrator`.
 - `packages/shared-types` обязателен для синхронизации DTO и enum между `apps/api` и `apps/backoffice-web`; ручное дублирование контрактов недопустимо.
@@ -45,6 +46,7 @@
 
 ### `apps/api`
 
+- Runtime: `NestJS`.
 - `auth-session`
   - Проверка Telegram init data или включение test mode.
   - Bootstrap главного administrator из `ADMIN_TELEGRAM_ID`.
