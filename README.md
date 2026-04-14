@@ -37,7 +37,7 @@
 - `docs/business/business-rules/` — бизнес-правила, ограничения и допущения.
 - `docs/business/glossary/` — термины предметной области.
 - `docs/system/` — системные артефакты, описывающие границы системы, поведение и контракты.
-- `docs/system/system-context/` — границы системы, внешние роли и delivery units.
+- `docs/system/system-context/` — границы системы, внешние роли и системные срезы для анализа.
 - `docs/system/domain-model/` — системные сущности, атрибуты, связи и инварианты.
 - `docs/system/use-cases/` — системное поведение по отдельным use case.
 - `docs/system/contracts/` — контракты взаимодействий, входы, выходы и ошибки.

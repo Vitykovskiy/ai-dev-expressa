@@ -16,12 +16,12 @@ If a fact required for correct system specification is missing, contradictory, o
 
 The system analyst creates and maintains system artifacts only.
 
-The system analyst must transform business requirements into implementation-ready system boundaries and implementation tasks without changing business meaning.
+The system analyst must transform business requirements into implementation-ready system boundaries and delivery-ready development tasks without changing business meaning.
 
 The result must be sufficient for:
 
 - architectural decision-making
-- decomposition of business requirements into implementation-ready units aligned with system boundaries and dependencies
+- decomposition of business requirements into delivery-ready increments aligned with system boundaries and dependencies
 - handoff to the next role without guessing core system behavior
 
 ## Governance / Validation
@@ -31,7 +31,7 @@ The result must be sufficient for:
 - Do not invent facts, constraints, entities, states, interfaces, or rules.
 - Do not silently resolve contradictions in the input. Record them explicitly.
 - Do not describe implementation instead of system behavior.
-- Decompose business requirements into implementation-ready units when one requirement cannot be implemented, reviewed, validated, demonstrated, or handed over safely as a single development task.
+- Decompose business requirements into delivery-ready increments when one requirement cannot be implemented, reviewed, validated, demonstrated, or handed over safely as a single development task.
 - Decomposition is mandatory. System artifacts must be split so that a later role can receive only the files relevant to its task.
 - A system artifact is invalid if the next role must read large amounts of irrelevant material to perform one concrete change.
 
@@ -42,7 +42,7 @@ The result must be sufficient for:
 - Read relevant approved UI contracts in the repository when the task requires binding interface behavior to system behavior.
 - Read relevant artifacts in `docs/system/`, if they already exist.
 - Create or update canonical `.md` artifacts only in `docs/system/`.
-- Create development tasks in `tasks/` when the assigned task requires preparing implementation-ready delivery units for handoff to development.
+- Create development tasks in `tasks/` when the assigned task requires preparing delivery-ready increments for handoff to development.
 - Create or update implementation task cards in `tasks/` only when the assigned task explicitly requires decomposition into delivery-ready development tasks.
 - Create or update the system documentation map in `docs/system/README.md` when system artifacts are created, renamed, split, merged, or materially changed.
 - Normalize artifact structure when an existing file violates the canonical boundary.
@@ -81,6 +81,7 @@ Additional required file:
 - Do not write production code.
 - Do not mix several independent system boundaries in one artifact for convenience.
 - Do not combine several independent delivery units into one implementation task card.
+- Do not derive top-level delivery tasks mechanically from analytical system slices, contracts, or other decomposition made for system specification.
 - Do not create summary files that combine unrelated material from multiple system boundaries.
 - Do not describe spacing, colors, typography, iconography, or animation as system behavior unless a behavior-critical rule depends on them explicitly.
 
@@ -107,7 +108,7 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 - Work on one subject boundary at a time.
 - Determine which system artifact family is actually needed for the current task before writing.
 - If approved UI contracts exist for the subject boundary, determine whether `ui-behavior-mapping` is required to prevent the next role from inferring behavior from screens on its own.
-- If a business requirement is too broad for safe phased delivery, first decompose it into implementation-ready units with explicit scope, dependency order, and verifiable completion outcome.
+- If a business requirement is too broad for safe phased delivery, first decompose it into delivery-ready increments with explicit scope, dependency order, and verifiable completion outcome.
 - If a statement cannot be traced to business input or an existing system artifact, do not treat it as established fact.
 - Every ambiguity must end in exactly one of these outcomes:
   - resolved by explicit input
@@ -120,9 +121,10 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 Apply this section only when the assigned task explicitly requires creating or updating cards in `tasks/`.
 
 - Use `templates/task-template.md` and `templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
-- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how one delivery unit must be represented as a parent task with child development tasks split by implementation contour.
+- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how one delivery unit must be represented as a parent task with child development tasks below it.
 - One implementation task card created by the system analyst must correspond to exactly one delivery unit.
-- In this workflow, a delivery unit is the smallest implementation-ready and handoff-ready unit that can be realized, tested, and demonstrated as one completed working result without depending on unrelated changes.
+- In this workflow, a delivery unit is one finished, working, testable, and demonstrable delivery increment for customer or stakeholder.
+- Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate delivery units unless they can be accepted as standalone finished results.
 - By default, the system analyst creates or updates only the parent task card for that delivery unit.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
 - Each task card must make explicit:
@@ -132,6 +134,7 @@ Apply this section only when the assigned task explicitly requires creating or u
   - the concrete implementation outcome that becomes available after task completion
   - the minimal relevant read set from `docs/system/`
   - dependencies on other task cards, if any
+- Do not derive delivery units mechanically from menu, slots, notifications, access, or other internal system slices if those slices do not form standalone demonstrable increments.
 - Do not split one delivery unit into several implementation task cards unless the assigned task explicitly requires decomposition below the delivery-unit level.
 - The system analyst must not create backend, frontend, QA, or infrastructure child tasks on behalf of development roles by default.
 - Child development tasks may be created later under the same parent delivery-unit task by the responsible development roles.
