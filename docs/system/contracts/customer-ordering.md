@@ -1,4 +1,4 @@
-# Contract: Customer Ordering
+﻿# Contract: Customer Ordering
 
 ## Граница
 
@@ -136,3 +136,4 @@
 ### Constraints
 
 - Возвращаются только заказы, принадлежащие текущему customer.
+

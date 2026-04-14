@@ -1,4 +1,4 @@
-# Сценарий: administrator управляет ролями пользователей
+﻿# Сценарий: administrator управляет ролями пользователей
 
 ## Граница
 
@@ -13,7 +13,7 @@
 
 ## Основной поток
 
-1. Administrator открывает backoffice через Telegram backoffice-бота.
+1. Administrator открывает backoffice через служебного Telegram-бота.
 2. Administrator переходит во вкладку `Пользователи`.
 3. Administrator выбирает пользователя.
 4. Administrator назначает пользователю роль `barista` или `administrator`.
@@ -28,3 +28,5 @@
 
 - `AR-006`, `AR-007`, `AR-008`
 - `BO-013`
+
+

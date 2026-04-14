@@ -1,12 +1,17 @@
-# UI Behavior Mapping: Backoffice Operations
+﻿# UI Behavior Mapping: Backoffice Operations
 
 ## Граница
 
-Одна карта привязки: backoffice Telegram WebApp для ролей `barista` и `administrator`.
+Одна карта привязки: backoffice Telegram веб-приложение для ролей `barista` и `administrator`.
 
 ## Источники
 
 - `docs/system/ui-contracts/expressa-backoffice-ui-contract.json`
+- `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`
+- `.references/Expressa_admin/src/app/components/AddCategoryDialog.tsx`
+- `.references/Expressa_admin/src/app/components/EditCategoryDialog.tsx`
+- `.references/Expressa_admin/src/app/components/AddProductDialog.tsx`
+- `.references/Expressa_admin/src/app/components/EditProductDialog.tsx`
 - `docs/business/business-rules/access-and-roles.md`
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/business-rules/menu-catalog-and-options.md`
@@ -32,9 +37,24 @@
 - `docs/system/contracts/telegram-notifications.md`
 - `docs/system/state-models/order-lifecycle.md`
 
+## Правило parity для подпотока `menu`
+
+Визуальный канон для `layout` и подпотока `menu` задается не этим файлом, а `docs/system/ui-contracts/expressa-backoffice-ui-contract.json` вместе с `.references/Expressa_admin`.
+
+Этот документ фиксирует только системно значимую привязку UI к:
+
+- действиям;
+- состояниям;
+- guards;
+- валидациям;
+- ограничениям;
+- подтвержденным расхождениям.
+
+Для `addon_group_detail` отдельный экран в `.references/Expressa_admin` не выделен, поэтому здесь сохраняется только системное требование: реализация не должна терять действия `save_addon_group`, `delete_addon_group`, `toggle selection_type`, `bind_parent_group`, `add_addon_inline` и `delete_addon_inline`, если иное не продиктовано действующими системными артефактами.
+
 ## Экран к системному поведению
 
-| Экран / UI boundary | Системная цель | Связанные use cases | Связанные contracts | Связанные правила / модели |
+| Экран / UI boundary | Системная цель | Связанные варианты использования | Связанные contracts | Связанные правила / модели |
 |---|---|---|---|---|
 | `orders` | Очередь заказов и операционные действия по статусам | `barista-confirm-order`, `barista-reject-order`, `barista-mark-order-ready`, `barista-close-order` | `Read order queue and order details`, `Confirm order`, `Reject order`, `Mark order ready`, `Close order` | `BO-001`, `BO-008`–`BO-010`, `OL-004`–`OL-010`, `order-lifecycle.md` |
 | `availability` | Временное управление доступностью каталога | `barista-manage-menu-availability` | `Change temporary availability` | `BO-002`, `BO-003`, `BO-012`, `MC-005`–`MC-009` |
@@ -61,10 +81,13 @@
 | `orders` | `ready_order` | `Mark order ready` | Допустимо только для заказа в статусе `Подтвержден`. |
 | `orders` | `close_order` | `Close order` | Допустимо только для заказа в статусе `Готов к выдаче`. |
 | `availability` | `toggle item` | `Change temporary availability` | Меняет только признак доступности. |
-| `menu.menu_categories` | `open_add_category_modal`, `delete_category` | `Manage menu catalog` | Изменяет структуру категорий. |
+| `menu.menu_categories` | `open_add_category_modal`, `open_edit_category_modal`, `save_category`, `delete_category` | `Manage menu catalog` | Изменяет структуру категорий и настройки групп опций. |
+| `menu.menu_categories` | `navigate to menu_products` | `Manage menu catalog` | Переносит оператора к составу товаров выбранной группы без смены предметной области. |
 | `menu.menu_products` | `open_add_product_modal`, `delete_product` | `Manage menu catalog` | Изменяет состав товаров выбранной категории. |
-| `menu.menu_product_detail` | `save_product` | `Manage menu catalog` | Сохраняет товар, цены, размеры и связанные группы допов. |
-| `menu.addon_group_detail` | `save_addon_group` | `Manage menu catalog` | Сохраняет тип выбора и состав группы допов. |
+| `menu.menu_products` | `navigate to menu_product_detail` | `Manage menu catalog` | Открывает детальную настройку товара выбранной группы. |
+| `menu.menu_product_detail` | `save_product`, `toggle product.has_sizes`, `edit base_price`, `edit size_prices`, `change_category` | `Manage menu catalog` | Сохраняет товар, ценовую схему и принадлежность к группе. |
+| `menu.menu_product_detail` | `open_add_addon_group_modal`, `navigate to addon_group_detail` | `Manage menu catalog` | Открывает настройку связанных групп допов из формы товара. |
+| `menu.addon_group_detail` | `save_addon_group`, `delete_addon_group`, `toggle selection_type`, `bind_parent_group`, `add_addon_inline`, `delete_addon_inline` | `Manage menu catalog` | Сохраняет тип выбора, связь с родительской группой и состав элементов группы допов. |
 | `users` | `assign_barista` | `Assign user role` | Назначает роль `barista`. |
 | `users` | `block_user` | `Block user` | Переводит пользователя в blocked-состояние. |
 | `users` | `unblock_user` | Не зафиксировано текущими системными artifacts | UI-контракт предполагает действие, отсутствующее в текущих бизнес- и системных документах. |
@@ -101,3 +124,6 @@
 - UI-контракт backoffice вводит конкретный диапазон `slot_capacity` `1..50`, но в бизнес-артефактах есть только право менять вместимость и дефолт `5`; верхняя граница `50` пока не подтверждена.
 - UI-контракт backoffice предполагает real-time индикатор новых заказов и анимацию появления, но это не отражено в бизнес- или системных требованиях как обязательное поведение.
 - UI-контракт `menu_product_detail` включает поле `image`, хотя в текущей бизнес- и системной модели меню наличие изображений товаров не зафиксировано как обязательный или подтверждённый атрибут.
+- React-референс `.references/Expressa_admin` не содержит отдельного экрана `addon_group_detail`; в документации он зафиксирован как обязательный производный экран на основе паттерна групп опций из диалогов категорий. При реализации нужно отдельно проверить, что состав полей и действий не был сокращён относительно этого эталона.
+
+

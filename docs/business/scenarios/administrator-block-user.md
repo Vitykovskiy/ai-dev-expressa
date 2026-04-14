@@ -1,4 +1,4 @@
-# Сценарий: administrator блокирует пользователя
+﻿# Сценарий: administrator блокирует пользователя
 
 ## Граница
 
@@ -13,7 +13,7 @@
 
 ## Основной поток
 
-1. Administrator открывает backoffice через Telegram backoffice-бота.
+1. Administrator открывает backoffice через служебного Telegram-бота.
 2. Administrator переходит во вкладку `Пользователи`.
 3. Administrator выбирает пользователя.
 4. Administrator выполняет блокировку пользователя.
@@ -28,3 +28,5 @@
 
 - `AR-004`
 - `BO-006`, `BO-013`
+
+
