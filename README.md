@@ -6,6 +6,8 @@
 
 ```text
 .
+|-- apps/
+|   `-- api/
 |-- docs/
 |   |-- architecture/
 |   |-- business/
@@ -21,6 +23,8 @@
 |       |-- ui-behavior-mapping/
 |       |-- ui-contracts/
 |       `-- use-cases/
+|-- packages/
+|   `-- shared-types/
 |-- prompts/
 |   |-- architect/
 |   |-- backend/
@@ -30,12 +34,15 @@
 |   `-- system-analyst/
 |-- tasks/
 |-- templates/
-`-- исходные материалы
+|-- package.json
+|-- pnpm-workspace.yaml
+`-- tsconfig.base.json
 ```
 
 ## Что где находится
 
 - `docs/` — проектная документация.
+- `apps/api` — фактический `NestJS` backend `DU-01` c auth/bootstrap, users, menu, slot-settings, Prisma schema и Jest smoke/unit tests.
 - `docs/architecture/` — архитектурные решения, карта приложения, кодстайл и deployment guidance.
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
@@ -56,10 +63,11 @@
 - `docs/system/state-models/` — жизненные циклы сущностей и допустимые переходы.
 - `docs/system/ui-contracts/` — входные UI-контракты для системного анализа.
 - `docs/system/ui-behavior-mapping/` — привязка UI-поведения к системным артефактам.
+- `packages/shared-types` — workspace-пакет с общими DTO и enum для административных контрактов.
 - `prompts/` — промпты для рабочих ролей и агентов проекта.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
-- Корневые исходные материалы — входные документы, от которых строится проектная документация.
+- `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json` — корневые workspace-конфиги монорепозитория.
 
 ## Работа с задачами
 
@@ -88,6 +96,8 @@
 
 ## Навигация
 
+- Для backend-кода `DU-01` переходите в `apps/api`.
+- Для shared DTO и enum переходите в `packages/shared-types`.
 - Для архитектурного контекста переходите в `docs/architecture/`.
 - Для бизнес-контекста переходите в `docs/business/`.
 - Для системного контекста переходите в `docs/system/`.

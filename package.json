@@ -1,0 +1,21 @@
+{
+  "name": "expressa",
+  "private": true,
+  "packageManager": "pnpm@8.15.4",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm --filter @expressa/api test",
+    "test:unit": "pnpm --filter @expressa/api test:unit",
+    "test:smoke": "pnpm --filter @expressa/api test:smoke",
+    "prisma:generate": "pnpm --filter @expressa/api prisma:generate"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}
+

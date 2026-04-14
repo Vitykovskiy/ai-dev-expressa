@@ -6,21 +6,20 @@
 
 ## Текущее состояние
 
-- На текущем этапе прикладной код еще не добавлен в репозиторий.
-- Эта карта фиксирует целевую структуру, по которой должны создаваться первые модули и каталоги.
-- Первая фактическая реализация в репозитории должна соответствовать срезу `DU-01` из `du-01-administration.md`, а не полному scope всех будущих delivery units.
-- Первый разработчик, который создаёт новый реальный каталог из карты, должен актуализировать этот документ по фактическим путям.
+- В репозитории реализован backend-срез `DU-01`: `apps/api` и `packages/shared-types`.
+- `apps/backoffice-web`, `apps/backoffice-bot`, `infra/` и `.github/workflows` остаются обязательными контурами `DU-01`, но ещё не добавлены в репозиторий в рамках `BE-001`.
+- Backend запускается как `NestJS`-приложение с переключаемым persistence driver: `prisma` для `PostgreSQL` и `memory` для smoke/unit сценариев.
 
 ## Контуры, обязательные для `DU-01`
 
-| Контур | Планируемый путь | Ответственность в `DU-01` | Основные зависимости |
+| Контур | Фактический статус / путь | Ответственность в `DU-01` | Основные зависимости |
 | --- | --- | --- | --- |
-| Backend API | `apps/api` | Telegram/test-mode auth session, bootstrap главного administrator, административные read/write контракты меню, пользователей и настроек | `packages/shared-types`, `PostgreSQL`, Telegram init data |
-| Backoffice WebApp | `apps/backoffice-web` | Telegram WebApp для administrator, вкладки `Меню`, `Пользователи`, `Настройки`, route guards и typed API adapters | `apps/api`, `packages/shared-types` |
-| Backoffice Bot | `apps/backoffice-bot` | Telegram entrypoint для запуска административного WebApp | `apps/api`, Telegram Bot API |
-| Shared Types | `packages/shared-types` | Общие DTO, enum и schema fragments для административных контрактов | `apps/api`, `apps/backoffice-web` |
-| Infra | `infra/` | Локальный runtime административного среза, env templates, deploy scripts, smoke scripts | `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot`, `PostgreSQL` |
-| CI/CD | `.github/workflows` | Build, test, image publish, deploy, smoke-check административного среза | Все обязательные контуры `DU-01` |
+| Backend API | Реализован: `apps/api` | Telegram/test-mode auth session, bootstrap главного administrator, административные read/write контракты меню, пользователей и настроек | `packages/shared-types`, `Prisma`, `PostgreSQL`, Telegram init data |
+| Backoffice WebApp | Планируется: `apps/backoffice-web` | Telegram WebApp для administrator, вкладки `Меню`, `Пользователи`, `Настройки`, route guards и typed API adapters | `apps/api`, `packages/shared-types` |
+| Backoffice Bot | Планируется: `apps/backoffice-bot` | Telegram entrypoint для запуска административного WebApp | `apps/api`, Telegram Bot API |
+| Shared Types | Реализован: `packages/shared-types` | Общие DTO, enum для административных контрактов `auth-session`, `user-role-blocking`, `menu-catalog`, `slot-settings` | `apps/api`, `apps/backoffice-web` |
+| Infra | Планируется: `infra/` | Локальный runtime административного среза, env templates, deploy scripts, smoke scripts | `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot`, `PostgreSQL` |
+| CI/CD | Планируется: `.github/workflows` | Build, test, image publish, deploy, smoke-check административного среза | Все обязательные контуры `DU-01` |
 
 ## Контуры, явно отложенные после `DU-01`
 
@@ -34,12 +33,15 @@
 
 ### `apps/api`
 
-| Планируемый модуль | Назначение |
+| Фактический модуль | Назначение |
 | --- | --- |
-| `src/modules/auth-session` | Валидация Telegram init data, включение test mode, bootstrap главного administrator. |
-| `src/modules/identity-access` | Пользователи, назначение ролей, блокировка, policy по полномочиям administrator. |
-| `src/modules/menu-catalog` | Категории, товары, цены, размеры напитков, группы допов и дополнительные опции. |
-| `src/modules/slot-settings` | Рабочие часы и вместимость слотов. |
+| `src/modules/auth-session` | Валидация Telegram init data или test-mode header, bootstrap главного administrator, session DTO. |
+| `src/modules/identity-access` | Список пользователей, назначение ролей, блокировка, policy `ADMINISTRATOR_PROMOTION_MODE`. |
+| `src/modules/menu-catalog` | Чтение и сохранение административного каталога меню с validator/mapper/service слоями. |
+| `src/modules/slot-settings` | Чтение дефолтных и сохранение административных настроек слотов. |
+| `src/modules/persistence` | In-memory и Prisma adapters для пользователей, каталога и slot settings. |
+| `prisma/schema.prisma` | PostgreSQL schema для users, menu catalog snapshot и slot settings snapshot. |
+| `test/unit`, `test/smoke` | Unit tests для policy/service/validator/mapper и интеграционный smoke `DU-01`. |
 
 ### `apps/backoffice-web`
 
@@ -59,7 +61,7 @@
 
 ### `packages/shared-types`
 
-| Планируемый пакетный срез | Назначение |
+| Фактический пакетный срез | Назначение |
 | --- | --- |
 | `auth-session` | Session bootstrap и информация о текущем пользователе/ролях. |
 | `menu-catalog` | DTO для административного чтения и изменения меню. |
@@ -68,9 +70,13 @@
 
 ## Точки входа и маршруты
 
+- `apps/api/src/main.ts`: основной backend runtime административного контура, стартует `NestJS` c global prefix `api`.
+- `GET /api/auth/session`: bootstrap/auth session для administrator; test mode использует заголовок `x-test-telegram-id`, production path принимает `Authorization: tma <initData>` или `x-telegram-init-data`.
+- `GET /api/users`, `POST /api/users/roles`, `POST /api/users/block`: административное управление пользователями и ролями.
+- `GET /api/menu`, `PUT /api/menu`: административное чтение и сохранение каталога меню.
+- `GET /api/slot-settings`, `PUT /api/slot-settings`: чтение и сохранение рабочих часов и вместимости слотов.
 - `apps/backoffice-web`: entrypoint административного Telegram WebApp; прямой рабочий доступ по URL не считается штатным сценарием.
 - `apps/backoffice-bot`: Telegram backoffice bot webhook/polling entrypoint для открытия WebApp.
-- `apps/api`: основной backend runtime административного контура.
 - `apps/customer-web` и `apps/customer-bot` не являются точками входа `DU-01` и не должны появляться в child-задачах этой delivery unit.
 
 ## Зафиксированные ограничения по scope `DU-01`
@@ -81,8 +87,12 @@
 
 ## Где запускать и проверять
 
-- Локальный запуск обязательных контуров `DU-01` и compose orchestration описываются в `infra/` и дублируются ссылкой здесь после появления реальных файлов.
-- Команды unit tests и smoke-проверок для `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot` и `packages/shared-types` должны быть добавлены сюда после первого появления кода.
+- Установка зависимостей: `pnpm install`.
+- Генерация Prisma client: `pnpm prisma:generate`.
+- Сборка backend slice: `pnpm build`.
+- Unit + smoke проверки backend slice: `pnpm test`.
+- Локальный запуск API: `pnpm --filter @expressa/api start`.
+- Для smoke/unit сценариев backend использует `PERSISTENCE_DRIVER=memory`; для runtime с `PostgreSQL` требуется `PERSISTENCE_DRIVER=prisma` и валидный `DATABASE_URL`.
 - Deployment path и environment-specific маршруты читаются из `deployment-map.md`.
 
 ## Когда обновлять карту
