@@ -11,7 +11,6 @@
 - `docs/business/business-rules/menu-catalog-and-options.md`
 - `docs/business/business-rules/pickup-slots-and-capacity.md`
 - `docs/business/business-rules/order-lifecycle-and-history.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Триггер
 

@@ -11,7 +11,6 @@
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/scenarios/administrator-manage-menu.md`
 - `docs/business/scenarios/barista-manage-menu-availability.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Сущности и value objects
 

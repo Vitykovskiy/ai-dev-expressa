@@ -8,7 +8,6 @@
 
 - `docs/business/scenarios/barista-receive-order-reminder.md`
 - `docs/business/business-rules/backoffice-operations.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Триггер
 

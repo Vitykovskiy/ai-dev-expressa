@@ -14,7 +14,7 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/customer-place-pickup-order.md`
 - Требования / правила: `docs/business/business-rules/order-lifecycle-and-history.md`
-- Дополнительные материалы: `docs/business/README.md`, `Expressa — Требования к продукту.txt`
+- Дополнительные материалы: `docs/business/README.md`
 
 ## Примечания
 

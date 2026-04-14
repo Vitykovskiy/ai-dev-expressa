@@ -11,7 +11,6 @@
 - `docs/business/business-rules/backoffice-operations.md`
 - `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - `docs/business/scenarios/administrator-block-user.md`
-- `Expressa — Требования к продукту.txt`
 
 ## Сущности и value objects
 
@@ -73,4 +72,4 @@
 
 - Право назначения новых `administrator` противоречиво:
   - `docs/business/business-rules/access-and-roles.md` и `docs/business/scenarios/administrator-manage-users-and-roles.md` допускают назначение `administrator` со стороны `administrator`;
-  - `Expressa — Требования к продукту.txt` (`FR-026`) фиксирует назначение остальных administrator только главным administrator.
+  - Бизнес-артефакты не фиксируют однозначно, может ли любой `administrator` назначать новых `administrator`, или это право есть только у главного administrator.

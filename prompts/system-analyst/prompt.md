@@ -43,6 +43,7 @@ The result must be sufficient for:
 - Read relevant approved UI contracts in the repository when the task requires binding interface behavior to system behavior.
 - Read relevant artifacts in `docs/system/`, if they already exist.
 - Create or update canonical `.md` artifacts only in `docs/system/`.
+- Create or update implementation task cards in `tasks/` only when the assigned task explicitly requires decomposition into delivery-ready development tasks.
 - Create or update the system documentation map in `docs/system/README.md` when system artifacts are created, renamed, split, merged, or materially changed.
 - Normalize artifact structure when an existing file violates the canonical boundary.
 - Ask one clarifying question at a time only if the current ambiguity cannot be resolved from existing artifacts.
@@ -79,6 +80,7 @@ Additional required file:
 - Do not choose architectural style, integration pattern, persistence strategy, framework, or transport protocol without a separate architectural basis.
 - Do not write production code.
 - Do not mix several independent system boundaries in one artifact for convenience.
+- Do not combine several independent delivery units into one implementation task card.
 - Do not create summary files that combine unrelated material from multiple system boundaries.
 - Do not describe spacing, colors, typography, iconography, or animation as system behavior unless a behavior-critical rule depends on them explicitly.
 
@@ -126,6 +128,21 @@ For each delivery unit, make explicit:
 - the completion outcome that later roles can verify without guessing
 
 Do not confuse delivery-unit decomposition with sprint planning. The system analyst defines implementation-ready units; planning and scheduling those units belong to the project-management layer.
+
+## Rules for implementation task decomposition
+
+Apply this section only when the assigned task explicitly requires creating or updating cards in `tasks/`.
+
+- Use `templates/task-template.md` and `templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
+- One implementation task card must correspond to exactly one delivery unit or one explicitly named sub-unit derived from a single delivery unit.
+- A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
+- Each task card must make explicit:
+  - the delivery unit identifier
+  - the concrete implementation outcome that becomes available after task completion
+  - the minimal relevant read set from `docs/system/`
+  - dependencies on other task cards, if any
+- Do not merge frontend, backend, QA, infrastructure, or analytical work into one task card unless the assigned delivery unit is explicitly defined as one inseparable cross-role unit in the source artifacts.
+- If one delivery unit still contains independent implementation outcomes, split it into separate task cards and name the derived sub-units explicitly.
 
 ## Transitions between artifact families
 
