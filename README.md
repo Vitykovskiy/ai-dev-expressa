@@ -6,6 +6,8 @@
 
 ```text
 .
+|-- apps/
+|   `-- backoffice-web/
 |-- docs/
 |   |-- architecture/
 |   |-- business/
@@ -28,14 +30,20 @@
 |   |-- devops/
 |   |-- frontend/
 |   `-- system-analyst/
+|-- packages/
+|   `-- shared-types/
 |-- tasks/
 |-- templates/
+|-- package-lock.json
+|-- package.json
+|-- tsconfig.base.json
 `-- исходные материалы
 ```
 
 ## Что где находится
 
 - `docs/` — проектная документация.
+- `apps/` — прикладные контуры monorepo. На текущем этапе фактически создан `apps/backoffice-web` для frontend foundation `FEATURE-001`.
 - `docs/architecture/` — архитектурные решения, карта приложения, кодстайл и deployment guidance.
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
@@ -56,9 +64,11 @@
 - `docs/system/state-models/` — жизненные циклы сущностей и допустимые переходы.
 - `docs/system/ui-contracts/` — входные UI-контракты для системного анализа.
 - `docs/system/ui-behavior-mapping/` — привязка UI-поведения к системным артефактам.
+- `packages/` — shared-пакеты monorepo. На текущем этапе фактически создан `packages/shared-types` для typed foundation DTO.
 - `prompts/` — промпты для рабочих ролей и агентов проекта.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
+- `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, сборки и typecheck первых прикладных контуров.
 - Корневые исходные материалы — входные документы, от которых строится проектная документация.
 
 ## Работа с задачами

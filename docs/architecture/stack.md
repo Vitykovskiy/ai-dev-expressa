@@ -2,15 +2,15 @@
 
 ## Решение
 
-- Формат репозитория: `pnpm` workspace monorepo.
+- Формат репозитория: `npm workspaces` monorepo.
 - Основной язык: `TypeScript` во всех прикладных контурах.
 - Frontend:
   - `Vue 3`
   - `Vite`
   - `Vuetify`
-  - `Pinia`
   - `Vue Router`
   - `Vitest`
+- Для текущего `FEATURE-001` отдельный state-management framework не обязателен; foundation-срез может опираться на local reactive state, composables и adapter-layer.
 - Backend:
   - `NestJS`
   - `PostgreSQL`
