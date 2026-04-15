@@ -1,0 +1,20 @@
+{
+  "name": "expressa",
+  "private": true,
+  "packageManager": "npm@11.6.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:backoffice-web",
+    "dev:backoffice-web": "npm run dev -w @expressa/backoffice-web",
+    "build:backoffice-web": "npm run build -w @expressa/backoffice-web",
+    "build:shared-types": "npm run build -w @expressa/shared-types",
+    "test:backoffice-web": "npm run test -w @expressa/backoffice-web",
+    "typecheck:backoffice-web": "npm run typecheck -w @expressa/backoffice-web"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}

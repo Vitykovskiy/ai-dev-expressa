@@ -6,10 +6,12 @@
 
 ## Текущее состояние
 
-- На текущем этапе прикладной код еще не добавлен в репозиторий.
-- Эта карта фиксирует целевую структуру, по которой должны создаваться первые модули и каталоги.
-- Первая фактическая реализация в репозитории должна соответствовать срезу `DU-01` из `du-01-administration.md`, а не полному scope всех будущих delivery units.
-- Первый разработчик, который создаёт новый реальный каталог из карты, должен актуализировать этот документ по фактическим путям.
+- В репозитории уже добавлен первый фактический код для `FEATURE-001`: root `npm workspaces`, `apps/backoffice-web` и `packages/shared-types`.
+- Первая фактическая реализация соответствует срезу `DU-01` из `du-01-administration.md`, а не полному scope всех будущих delivery units.
+- Первый рабочий slice `FEATURE-001` должен вводить только `apps/api`, `apps/backoffice-web`, `packages/shared-types`, `infra/` и `.github/workflows`; `apps/backoffice-bot` и `PostgreSQL` остаются частью `DU-01`, но не стартуют в foundation-срезе.
+- Для текущего frontend foundation отдельный глобальный state-management layer не обязателен: local state, composables и adapter-layer достаточно для первого smoke-slice.
+- Root bootstrap для первого slice зафиксирован в `package.json`, `package-lock.json` и `tsconfig.base.json`.
+- `apps/api`, `infra/` и `.github/workflows` для полного `FEATURE-001` ещё не реализованы и должны появиться в соответствующих `BE-*` / `DO-*` задачах.
 
 ## Контуры, обязательные для `DU-01`
 
@@ -30,12 +32,25 @@
 | Customer Bot | `apps/customer-bot` | Не создаётся в `DU-01`; вводится в customer delivery unit. |
 | Shared UI | `packages/ui` | Не обязателен в `DU-01`; выделяется позже только при подтверждённой переиспользуемости. |
 
+## Минимальный контур `FEATURE-001`
+
+| Контур | Планируемый путь | Обязателен в `FEATURE-001` | Минимальная ответственность |
+| --- | --- | --- | --- |
+| Backend foundation | `apps/api` | Да | Поднять `NestJS` runtime, принять config и отдать `GET /api/foundation/health`. |
+| Frontend foundation | `apps/backoffice-web` | Да | Поднять минимальный shell по root route `/` и выполнить запрос в backend foundation. |
+| Shared foundation contract | `packages/shared-types` | Да | Экспортировать typed DTO ответа foundation endpoint для обеих сторон. |
+| Infra foundation | `infra/` | Да | Дать воспроизводимый запуск `api + backoffice-web`, env templates и smoke path `client -> server`. |
+| CI validation | `.github/workflows` | Да | Проверять install/test/build foundation-среза без обязательного bot/database runtime. |
+| Backoffice Bot | `apps/backoffice-bot` | Нет | Подключается после `FEATURE-001`, когда появляется Telegram entrypoint. |
+| PostgreSQL runtime | `infra/` + сервис БД | Нет | Подключается с первой feature, где требуется persistence или bootstrap administrator. |
+
 ## Внутренняя декомпозиция обязательных контуров
 
 ### `apps/api`
 
 | Планируемый модуль | Назначение |
 | --- | --- |
+| `src/modules/foundation-runtime` | Foundation endpoint `GET /api/foundation/health`, config bootstrap и минимальная логика smoke-ответа. |
 | `src/modules/auth-session` | Валидация Telegram init data, включение test mode, bootstrap главного administrator. |
 | `src/modules/identity-access` | Пользователи, назначение ролей, блокировка, policy по полномочиям administrator. |
 | `src/modules/menu-catalog` | Категории, товары, цены, размеры напитков, группы допов и дополнительные опции. |
@@ -43,13 +58,19 @@
 
 ### `apps/backoffice-web`
 
-| Планируемый модуль | Назначение |
+| Фактический модуль / путь | Назначение |
 | --- | --- |
-| `src/app` | Session bootstrap, router, layout, guards и навигация administrator. |
-| `src/features/menu-management` | UI и state management для управления меню. |
-| `src/features/user-access-management` | UI и state management для пользователей, ролей и блокировки. |
-| `src/features/slot-settings` | UI и state management для рабочих часов и вместимости. |
-| `src/shared/api` | Typed API-клиенты и адаптеры на базе `packages/shared-types`. |
+| `index.html` | HTML entrypoint Vite-приложения для foundation shell. |
+| `src/main.ts` | Frontend bootstrap: инициализация `Vue 3`, `Vue Router` и `Vuetify`. |
+| `src/app/router.ts` | Root route `/` для foundation screen без Telegram session и guards. |
+| `src/app/plugins` | Инициализация `Vuetify` и других app-level plugins, необходимых для `FEATURE-001`. |
+| `src/features/foundation-runtime/views/FoundationRuntimeView.vue` | Экран foundation smoke, который отображает состояние запроса `client -> server`. |
+| `src/features/foundation-runtime/composables/foundationHealth.ts` | Branching UI-state для загрузки, успеха и ошибки health-check на local reactive state без глобального state-management framework. |
+| `src/shared/api/foundationRuntime.ts` | Typed adapter к `GET /api/foundation/health` на базе `packages/shared-types`. |
+| `src/shared/config/env.ts` | Чтение и нормализация `VITE_API_BASE_URL`. |
+| `src/**/*.spec.ts` | Unit tests для UI-state слоя и API adapter. |
+
+Следующие модули пока остаются запланированными и не должны появляться в `FE-001`: `menu-management`, `user-access-management`, `slot-settings`, session bootstrap и role guards.
 
 ### `apps/backoffice-bot`
 
@@ -59,18 +80,20 @@
 
 ### `packages/shared-types`
 
-| Планируемый пакетный срез | Назначение |
+| Фактический пакетный срез | Назначение |
 | --- | --- |
-| `auth-session` | Session bootstrap и информация о текущем пользователе/ролях. |
-| `menu-catalog` | DTO для административного чтения и изменения меню. |
-| `user-role-blocking` | DTO для списка пользователей, смены ролей и блокировки. |
-| `slot-settings` | DTO для чтения и сохранения рабочих часов и вместимости. |
+| `src/lib/foundation-runtime.ts` | `FoundationHealthResponse` и runtime type guard для smoke-контракта `GET /api/foundation/health`. |
+| `src/index.ts` | Публичный entrypoint shared foundation DTO. |
+| `package.json` / `tsconfig.json` | Workspace package bootstrap и build-конфигурация shared types. |
+
+Следующие пакетные срезы пока только запланированы и не входят в `FEATURE-001`: `auth-session`, `menu-catalog`, `user-role-blocking`, `slot-settings`.
 
 ## Точки входа и маршруты
 
-- `apps/backoffice-web`: entrypoint административного Telegram WebApp; прямой рабочий доступ по URL не считается штатным сценарием.
+- `apps/backoffice-web`: фактический entrypoint находится в `apps/backoffice-web/src/main.ts`; для `FEATURE-001` root route `/` из `src/app/router.ts` временно используется как direct URL foundation entrypoint в `local`/`test` runtime.
 - `apps/backoffice-bot`: Telegram backoffice bot webhook/polling entrypoint для открытия WebApp.
-- `apps/api`: основной backend runtime административного контура.
+- `apps/api`: основной backend runtime административного контура; в `FEATURE-001` обязателен только foundation endpoint `GET /api/foundation/health`.
+- `packages/shared-types`: фактический build-time entrypoint находится в `packages/shared-types/src/index.ts`; пакет экспортирует shared foundation DTO и последующие административные контракты.
 - `apps/customer-web` и `apps/customer-bot` не являются точками входа `DU-01` и не должны появляться в child-задачах этой delivery unit.
 
 ## Зафиксированные ограничения по scope `DU-01`
@@ -81,8 +104,17 @@
 
 ## Где запускать и проверять
 
-- Локальный запуск обязательных контуров `DU-01` и compose orchestration описываются в `infra/` и дублируются ссылкой здесь после появления реальных файлов.
-- Команды unit tests и smoke-проверок для `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot` и `packages/shared-types` должны быть добавлены сюда после первого появления кода.
+- Установка workspace-зависимостей выполняется из корня командой `npm install`.
+- Для `FEATURE-001` первым воспроизводимым маршрутом запуска считается только связка `apps/api + apps/backoffice-web`; подключение `apps/backoffice-bot` и `PostgreSQL` начинается в следующих фичах.
+- Для текущего frontend foundation уже доступны команды:
+  - `npm run dev`
+  - `npm run dev:backoffice-web`
+  - `npm run dev -w @expressa/backoffice-web`
+  - `npm run test:backoffice-web`
+  - `npm run typecheck:backoffice-web`
+  - `npm run build:shared-types`
+  - `npm run build:backoffice-web`
+- `apps/backoffice-web` читает `VITE_API_BASE_URL` и ожидает backend foundation endpoint `GET /api/foundation/health`; полноценный smoke `client -> server` станет воспроизводим после появления `apps/api` в `BE-001`.
 - Deployment path и environment-specific маршруты читаются из `deployment-map.md`.
 
 ## Когда обновлять карту

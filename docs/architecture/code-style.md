@@ -11,7 +11,8 @@
 ## Frontend
 
 - Использовать `Vue 3` Composition API и `Vuetify`.
-- UI-логика с ветвлением должна жить в composables, stores или adapter-слое, а не быть размазана по шаблонам.
+- Во `Vue` single-file components секции располагать в порядке: `template`, затем `script`, затем `style`.
+- UI-логика с ветвлением должна жить в composables, local reactive state modules или adapter-слое, а не быть размазана по шаблонам.
 - Не дублировать API-контракты вручную между приложениями; shared types выносить в `packages/shared-types/`.
 
 ## Backend
@@ -27,7 +28,7 @@
 
 ## Unit tests и проверки
 
-- `FE`: обязательны unit tests для stores, composables, форматтеров, адаптеров API, валидаторов и любой UI-логики с ветвлением.
+- `FE`: обязательны unit tests для state modules, composables, форматтеров, адаптеров API, валидаторов и любой UI-логики с ветвлением.
 - `BE`: обязательны unit tests для доменных правил, сервисов, валидаторов, мапперов, вычислений и правил переходов состояния.
 - `DO`: вместо unit tests обязательны pipeline-validation, deploy smoke-check и документированный rollback/restore path.
 - Исключение из unit tests допустимо только для тривиальной разметки или тривиальной конфигурации и должно быть явно указано в задаче или PR.
