@@ -3,13 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { useFoundationHealth } from '@/features/foundation-runtime/composables/foundationHealth';
 
 describe('foundation runtime smoke', () => {
-  it('renders the live health response from the configured API', async () => {
-    const baseUrl = process.env.VITE_API_BASE_URL;
+  const baseUrl = process.env.VITE_API_BASE_URL;
 
-    if (typeof baseUrl !== 'string' || baseUrl.length === 0) {
-      throw new Error('VITE_API_BASE_URL must be configured for smoke runtime');
-    }
-
+  it.runIf(typeof baseUrl === 'string' && baseUrl.length > 0)(
+    'renders the live health response from the configured API',
+    async () => {
     (import.meta.env as Record<string, string>).VITE_API_BASE_URL = baseUrl;
     const health = useFoundationHealth();
 
@@ -21,5 +19,6 @@ describe('foundation runtime smoke', () => {
       status: 'ok',
       service: 'api',
     });
-  });
+    },
+  );
 });

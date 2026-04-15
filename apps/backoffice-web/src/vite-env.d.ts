@@ -9,3 +9,17 @@ declare module '*.vue' {
 }
 
 declare module 'vuetify/styles';
+
+interface TelegramWebApp {
+  expand?: () => void;
+  initData?: string;
+  ready?: () => void;
+}
+
+interface TelegramRoot {
+  WebApp?: TelegramWebApp;
+}
+
+interface Window {
+  Telegram?: TelegramRoot;
+}
