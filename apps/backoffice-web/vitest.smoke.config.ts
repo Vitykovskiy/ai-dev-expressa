@@ -6,9 +6,9 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
-      exclude: ['src/**/*.smoke.spec.ts'],
       environment: 'jsdom',
       globals: true,
+      include: ['src/**/*.smoke.spec.ts'],
     },
   }),
 );

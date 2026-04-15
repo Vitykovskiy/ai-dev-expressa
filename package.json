@@ -7,16 +7,22 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev:backoffice-web",
+    "dev": "node infra/feature-001/scripts/dev-runtime.mjs",
     "dev:api": "npm run dev -w @expressa/api",
     "dev:backoffice-web": "npm run dev -w @expressa/backoffice-web",
+    "dev:feature-001": "node infra/feature-001/scripts/dev-runtime.mjs",
     "build:api": "npm run build -w @expressa/api",
     "build:backoffice-web": "npm run build -w @expressa/backoffice-web",
     "build:shared-types": "npm run build -w @expressa/shared-types",
+    "build:feature-001": "npm run build:shared-types && npm run build:api && npm run build:backoffice-web",
     "test:api": "npm run test -w @expressa/api",
     "test:backoffice-web": "npm run test -w @expressa/backoffice-web",
+    "test:feature-001": "npm run test:api && npm run test:backoffice-web",
     "typecheck:api": "npm run typecheck -w @expressa/api",
-    "typecheck:backoffice-web": "npm run typecheck -w @expressa/backoffice-web"
+    "typecheck:backoffice-web": "npm run typecheck -w @expressa/backoffice-web",
+    "typecheck:feature-001": "npm run typecheck:api && npm run typecheck:backoffice-web",
+    "smoke:feature-001": "node infra/feature-001/scripts/smoke-runtime.mjs",
+    "verify:feature-001": "npm run typecheck:feature-001 && npm run test:feature-001 && npm run build:feature-001 && npm run smoke:feature-001"
   },
   "devDependencies": {
     "typescript": "^6.0.2"
