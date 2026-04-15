@@ -33,6 +33,13 @@
 |   `-- system-analyst/
 |-- packages/
 |   `-- shared-types/
+|-- infra/
+|   `-- feature-001/
+|       |-- env/
+|       |-- scripts/
+|       `-- README.md
+|-- .github/
+|   `-- workflows/
 |-- tasks/
 |-- templates/
 |-- package-lock.json
@@ -66,10 +73,12 @@
 - `docs/system/ui-contracts/` — входные UI-контракты для системного анализа.
 - `docs/system/ui-behavior-mapping/` — привязка UI-поведения к системным артефактам.
 - `packages/` — shared-пакеты monorepo. На текущем этапе фактически создан `packages/shared-types` для typed foundation DTO.
+- `infra/` — runtime- и smoke-артефакты инфраструктурного среза. Для `FEATURE-001` здесь лежат env templates, скрипты запуска и smoke-проверка.
+- `.github/workflows/` — CI-пайплайны проекта. Для foundation-среза `FEATURE-001` здесь зафиксирована проверка `typecheck + test + build + smoke`.
 - `prompts/` — промпты для рабочих ролей и агентов проекта.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
-- `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, сборки и typecheck первых прикладных контуров `api + backoffice-web + shared-types`.
+- `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, smoke-проверки, сборки и typecheck foundation-среза `api + backoffice-web + shared-types`.
 - Корневые исходные материалы — входные документы, от которых строится проектная документация.
 
 ## Работа с задачами

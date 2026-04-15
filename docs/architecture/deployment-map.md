@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `local` | Разработка и ручная проверка child-задач | для `FEATURE-001`: локальный запуск `api + backoffice-web`, unit tests и smoke `client -> server`; для полного `DU-01`: `api + backoffice-web + backoffice-bot + postgres` |
 | `test` | Lightweight runtime для foundation- и feature-smoke без полного production-shaped контура | deploy или запуск `api + backoffice-web`, проверка env/config feature-среза и smoke `client -> server` |
-| `ci` | Проверка pull request и merge readiness | install, lint, unit tests, build административного среза |
+| `ci` | Проверка pull request и merge readiness | install, typecheck, unit tests, build и smoke административного среза |
 | `staging` | Проверка интеграции перед выпуском | deploy административного среза, smoke-check сценария administrator, проверка env/config |
 | `production` | Боевой выпуск | controlled deploy административного среза, post-deploy smoke-check, rollback path |
 
@@ -49,7 +49,10 @@
 Для local runtime foundation:
 
 - `apps/api/.env.example` задаёт шаблон backend-конфига;
+- `apps/backoffice-web/.env.example` задаёт шаблон frontend-конфига;
+- `infra/feature-001/env/api.env.example` и `infra/feature-001/env/backoffice-web.env.example` фиксируют минимальные значения foundation runtime;
 - `apps/api/.env.local` используется как локальный override для `API_PORT` и `API_CORS_ALLOWED_ORIGIN`;
+- `apps/backoffice-web/.env.local` используется как локальный override для `VITE_API_BASE_URL`;
 - значения из `process.env` имеют приоритет над файлами.
 
 ## Базовые env vars полного `DU-01`
@@ -72,6 +75,7 @@
   - `apps/api` отвечает `200 OK` на `GET /api/foundation/health`;
   - ответ `apps/api` имеет форму `{ status: 'ok', service: 'api' }`;
   - `apps/backoffice-web` с `VITE_API_BASE_URL`, указывающим на `apps/api`, получает этот ответ и отображает успешный статус;
+  - foundation smoke воспроизводится командами `npm run smoke:feature-001` локально и workflow `.github/workflows/feature-001-foundation.yml` в CI;
   - smoke выполняется без `backoffice-bot`, Telegram auth/session и `PostgreSQL`.
 - Для `DU-01` smoke-check обязан подтвердить:
   - bootstrap главного administrator из `ADMIN_TELEGRAM_ID`;

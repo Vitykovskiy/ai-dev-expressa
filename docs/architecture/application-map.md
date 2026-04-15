@@ -11,7 +11,7 @@
 - Первый рабочий slice `FEATURE-001` должен вводить только `apps/api`, `apps/backoffice-web`, `packages/shared-types`, `infra/` и `.github/workflows`; `apps/backoffice-bot` и `PostgreSQL` остаются частью `DU-01`, но не стартуют в foundation-срезе.
 - Для текущего frontend foundation отдельный глобальный state-management layer не обязателен: local state, composables и adapter-layer достаточно для первого smoke-slice.
 - Root bootstrap для первого slice зафиксирован в `package.json`, `package-lock.json` и `tsconfig.base.json`.
-- `infra/` и `.github/workflows` для полного `FEATURE-001` ещё не реализованы и должны появиться в соответствующих `DO-*` задачах.
+- Для `FEATURE-001` уже реализованы `infra/feature-001` и `.github/workflows/feature-001-foundation.yml`; они покрывают минимальный runtime, env templates, smoke path и CI-валидацию foundation-среза.
 
 ## Контуры, обязательные для `DU-01`
 
@@ -21,8 +21,8 @@
 | Backoffice WebApp | `apps/backoffice-web` | Telegram WebApp для administrator, вкладки `Меню`, `Пользователи`, `Настройки`, route guards и typed API adapters | `apps/api`, `packages/shared-types` |
 | Backoffice Bot | `apps/backoffice-bot` | Telegram entrypoint для запуска административного WebApp | `apps/api`, Telegram Bot API |
 | Shared Types | `packages/shared-types` | Общие DTO, enum и schema fragments для административных контрактов | `apps/api`, `apps/backoffice-web` |
-| Infra | `infra/` | Локальный runtime административного среза, env templates, deploy scripts, smoke scripts | `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot`, `PostgreSQL` |
-| CI/CD | `.github/workflows` | Build, test, image publish, deploy, smoke-check административного среза | Все обязательные контуры `DU-01` |
+| Infra | `infra/` | Локальный runtime административного среза, env templates, deploy scripts, smoke scripts; для `FEATURE-001` фактически реализован `infra/feature-001` | `apps/api`, `apps/backoffice-web`, `apps/backoffice-bot`, `PostgreSQL` |
+| CI/CD | `.github/workflows` | Build, test, image publish, deploy, smoke-check административного среза; foundation-срез уже валидируется workflow `feature-001-foundation.yml` | Все обязательные контуры `DU-01` |
 
 ## Контуры, явно отложенные после `DU-01`
 
@@ -67,11 +67,12 @@
 | `src/main.ts` | Frontend bootstrap: инициализация `Vue 3`, `Vue Router` и `Vuetify`. |
 | `src/app/router.ts` | Root route `/` для foundation screen без Telegram session и guards. |
 | `src/app/plugins` | Инициализация `Vuetify` и других app-level plugins, необходимых для `FEATURE-001`. |
+| `src/app/foundation-runtime.smoke.spec.ts` | Smoke-спека, которая запускает frontend foundation layer против живого backend foundation и подтверждает путь `client -> server`. |
 | `src/features/foundation-runtime/views/FoundationRuntimeView.vue` | Экран foundation smoke, который отображает состояние запроса `client -> server`. |
 | `src/features/foundation-runtime/composables/foundationHealth.ts` | Branching UI-state для загрузки, успеха и ошибки health-check на local reactive state без глобального state-management framework. |
 | `src/shared/api/foundationRuntime.ts` | Typed adapter к `GET /api/foundation/health` на базе `packages/shared-types`. |
 | `src/shared/config/env.ts` | Чтение и нормализация `VITE_API_BASE_URL`. |
-| `src/**/*.spec.ts` | Unit tests для UI-state слоя и API adapter. |
+| `src/**/*.spec.ts` | Unit tests и targeted smoke tests для UI-state слоя, frontend foundation layer и API adapter. |
 
 Следующие модули пока остаются запланированными и не должны появляться в `FE-001`: `menu-management`, `user-access-management`, `slot-settings`, session bootstrap и role guards.
 
@@ -97,6 +98,10 @@
 - `apps/backoffice-bot`: Telegram backoffice bot webhook/polling entrypoint для открытия WebApp.
 - `apps/api`: фактический backend entrypoint находится в `apps/api/src/main.ts`; в `FEATURE-001` обязателен только foundation endpoint `GET /api/foundation/health`.
 - `apps/api/.env.example`: шаблон локальной конфигурации foundation runtime; фактический local override читается из `apps/api/.env.local`.
+- `apps/backoffice-web/.env.example`: шаблон frontend-конфигурации foundation runtime; фактический local override читается из `apps/backoffice-web/.env.local`.
+- `infra/feature-001/README.md`: точка входа в минимальный runtime foundation, env templates и сценарии `dev/smoke/verify`.
+- `infra/feature-001/scripts/*.mjs`: воспроизводимый запуск `api + backoffice-web` и smoke-маршрут foundation-среза.
+- `.github/workflows/feature-001-foundation.yml`: CI entrypoint для `typecheck + test + build + smoke` по `FEATURE-001`.
 - `packages/shared-types`: фактический build-time entrypoint находится в `packages/shared-types/src/index.ts`; пакет экспортирует shared foundation DTO и последующие административные контракты.
 - `apps/customer-web` и `apps/customer-bot` не являются точками входа `DU-01` и не должны появляться в child-задачах этой delivery unit.
 
@@ -111,17 +116,20 @@
 - Установка workspace-зависимостей выполняется из корня командой `npm install`.
 - Для `FEATURE-001` первым воспроизводимым маршрутом запуска считается только связка `apps/api + apps/backoffice-web`; подключение `apps/backoffice-bot` и `PostgreSQL` начинается в следующих фичах.
 - Для текущего frontend foundation уже доступны команды:
-  - `npm run dev:api`
   - `npm run dev`
+  - `npm run dev:feature-001`
+  - `npm run smoke:feature-001`
+  - `npm run verify:feature-001`
+  - `npm run dev:api`
   - `npm run dev:backoffice-web`
   - `npm run test:api`
-  - `npm run dev -w @expressa/backoffice-web`
   - `npm run typecheck:api`
   - `npm run build:api`
   - `npm run test:backoffice-web`
   - `npm run typecheck:backoffice-web`
   - `npm run build:shared-types`
   - `npm run build:backoffice-web`
+  - `npm run build:feature-001`
 - `apps/api` читает `API_PORT` и `API_CORS_ALLOWED_ORIGIN`; для local runtime backend сначала подхватывает `apps/api/.env.local`, затем `apps/api/.env`, а `process.env` остаётся приоритетным источником. `apps/backoffice-web` читает `VITE_API_BASE_URL` и ожидает backend foundation endpoint `GET /api/foundation/health`.
 - Deployment path и environment-specific маршруты читаются из `deployment-map.md`.
 

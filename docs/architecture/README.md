@@ -25,7 +25,7 @@
   - Обязательная карта приложения: контуры, модули, entrypoints, зависимости, запуск, тестирование и deployment-маршруты.
 
 - `deployment-map.md`
-  - Карта окружений, CI/CD-конвейеров, env vars, smoke-check и rollback.
+  - Карта окружений, CI/CD-конвейеров, env vars, smoke-check и rollback, включая `infra/feature-001` и `.github/workflows/feature-001-foundation.yml`.
 
 ## Правила актуализации
 
