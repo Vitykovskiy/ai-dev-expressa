@@ -1,1 +1,1 @@
-export * from './lib/foundation-runtime';
+export * from './lib/foundation-runtime.js';

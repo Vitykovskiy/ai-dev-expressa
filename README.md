@@ -7,6 +7,7 @@
 ```text
 .
 |-- apps/
+|   |-- api/
 |   `-- backoffice-web/
 |-- docs/
 |   |-- architecture/
@@ -43,7 +44,7 @@
 ## Что где находится
 
 - `docs/` — проектная документация.
-- `apps/` — прикладные контуры monorepo. На текущем этапе фактически создан `apps/backoffice-web` для frontend foundation `FEATURE-001`.
+- `apps/` — прикладные контуры monorepo. На текущем этапе фактически созданы `apps/api` и `apps/backoffice-web` для foundation-среза `FEATURE-001`.
 - `docs/architecture/` — архитектурные решения, карта приложения, кодстайл и deployment guidance.
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
@@ -68,7 +69,7 @@
 - `prompts/` — промпты для рабочих ролей и агентов проекта.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
-- `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, сборки и typecheck первых прикладных контуров.
+- `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, сборки и typecheck первых прикладных контуров `api + backoffice-web + shared-types`.
 - Корневые исходные материалы — входные документы, от которых строится проектная документация.
 
 ## Работа с задачами

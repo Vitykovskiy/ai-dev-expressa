@@ -8,10 +8,14 @@
   ],
   "scripts": {
     "dev": "npm run dev:backoffice-web",
+    "dev:api": "npm run dev -w @expressa/api",
     "dev:backoffice-web": "npm run dev -w @expressa/backoffice-web",
+    "build:api": "npm run build -w @expressa/api",
     "build:backoffice-web": "npm run build -w @expressa/backoffice-web",
     "build:shared-types": "npm run build -w @expressa/shared-types",
+    "test:api": "npm run test -w @expressa/api",
     "test:backoffice-web": "npm run test -w @expressa/backoffice-web",
+    "typecheck:api": "npm run typecheck -w @expressa/api",
     "typecheck:backoffice-web": "npm run typecheck -w @expressa/backoffice-web"
   },
   "devDependencies": {

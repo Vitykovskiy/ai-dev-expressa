@@ -46,6 +46,12 @@
 - `API_CORS_ALLOWED_ORIGIN`
 - `VITE_API_BASE_URL`
 
+Для local runtime foundation:
+
+- `apps/api/.env.example` задаёт шаблон backend-конфига;
+- `apps/api/.env.local` используется как локальный override для `API_PORT` и `API_CORS_ALLOWED_ORIGIN`;
+- значения из `process.env` имеют приоритет над файлами.
+
 ## Базовые env vars полного `DU-01`
 
 - `ADMIN_TELEGRAM_ID`
