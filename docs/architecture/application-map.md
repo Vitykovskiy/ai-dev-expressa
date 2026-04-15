@@ -66,12 +66,14 @@
 | --- | --- |
 | `src/main.ts` | Backend bootstrap: читает `API_PORT` и `API_CORS_ALLOWED_ORIGIN`, создает NestJS app и публикует runtime. |
 | `src/app/create-app.ts` | Конфигурирует NestJS application и CORS для foundation runtime. |
-| `src/shared/config/runtime-env.ts` | Читает и валидирует `API_PORT`, `API_CORS_ALLOWED_ORIGIN`, а начиная с `FEATURE-002` также `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH` и `DATABASE_URL`; для local runtime автоматически подхватывает `apps/api/.env.local` и `apps/api/.env`. |
+| `src/shared/config/runtime-env.ts` | Читает и валидирует `API_PORT`, `API_CORS_ALLOWED_ORIGIN`, а начиная с `FEATURE-002` также `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH`, `DATABASE_URL` и `TG_BACKOFFICE_BOT_TOKEN`; для local runtime автоматически подхватывает `apps/api/.env.local` и `apps/api/.env`. |
 | `src/modules/foundation-runtime` | Foundation endpoint `GET /api/foundation/health` и минимальная логика smoke-ответа. |
 | `src/modules/auth-session` | Стартует в `FEATURE-002`: валидация Telegram init data, включение test mode, bootstrap главного administrator и выдача auth/session response для backoffice. |
 | `src/modules/identity-access` | Стартует минимально в `FEATURE-002` для user lookup, roles и blocked-state; полные операции назначения ролей и блокировки появляются только в `FEATURE-004`. |
+| `src/shared/persistence/prisma.service.ts` | Точка подключения `PrismaClient` к `PostgreSQL` для `identity-access` и последующих backend-модулей. |
 | `src/modules/menu-catalog` | Категории, товары, цены, размеры напитков, группы допов и дополнительные опции. |
 | `src/modules/slot-settings` | Рабочие часы и вместимость слотов. |
+| `prisma.config.ts` | Prisma 7 config entrypoint: задаёт datasource URL и путь к `schema` / `migrations` для backend auth/session persistence. |
 | `prisma/schema.prisma` | Канонический путь persistence-модели `DU-01`; в `FEATURE-002` здесь должна появиться минимальная схема для пользователя, ролей и blocked-state. |
 | `prisma/migrations` | Migration path для `FEATURE-002+`; schema changes вне этого каталога не допускаются без отдельного архитектурного решения. |
 
@@ -124,7 +126,7 @@
 - `apps/backoffice-web`: protected route `/backoffice` открывает минимальный administrator shell только после успешного backend auth/session bootstrap; прямой рабочий URL без Telegram допустим только при `DISABLE_TG_AUTH=true`.
 - `apps/backoffice-bot`: `FEATURE-002` должен ввести `apps/backoffice-bot/src/main.ts` как Telegram runtime entrypoint для открытия WebApp.
 - `apps/api`: фактический backend entrypoint находится в `apps/api/src/main.ts`; в `FEATURE-001` обязателен только foundation endpoint `GET /api/foundation/health`, а в `FEATURE-002` добавляется auth/session boundary и persistence bootstrap.
-- `apps/api/prisma/schema.prisma` и `apps/api/prisma/migrations`: planned persistence entrypoints для `FEATURE-002`.
+- `apps/api/prisma.config.ts`, `apps/api/prisma/schema.prisma` и `apps/api/prisma/migrations`: persistence entrypoints `FEATURE-002`.
 - `apps/api/.env.example`: шаблон локальной конфигурации foundation runtime; фактический local override читается из `apps/api/.env.local`.
 - `apps/backoffice-web/.env.example`: шаблон frontend-конфигурации foundation runtime; фактический local override читается из `apps/backoffice-web/.env.local`.
 - `infra/feature-001/README.md`: точка входа в минимальный runtime foundation, env templates и сценарии `dev/smoke/verify`.
@@ -162,7 +164,7 @@
   - `npm run build:shared-types`
   - `npm run build:backoffice-web`
   - `npm run build:feature-001`
-- `FEATURE-002` должен расширить этот маршрут новыми env/config и scripts: `apps/api` читает `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH` и `DATABASE_URL`, `apps/backoffice-web` продолжает использовать `VITE_API_BASE_URL`, а `apps/backoffice-bot` требует `TG_BACKOFFICE_BOT_TOKEN`.
+- `FEATURE-002` должен расширить этот маршрут новыми env/config и scripts: `apps/api` читает `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH`, `DATABASE_URL` и `TG_BACKOFFICE_BOT_TOKEN` для валидации Telegram init data, `apps/backoffice-web` продолжает использовать `VITE_API_BASE_URL`, а `apps/backoffice-bot` использует тот же `TG_BACKOFFICE_BOT_TOKEN`.
 - Для lightweight `test` smoke `FEATURE-002` разрешён test-mode branch через `DISABLE_TG_AUTH=true`, но он обязан использовать тот же backend auth/session path, что и штатный Telegram вход.
 - Deployment path и environment-specific маршруты читаются из `deployment-map.md`.
 

@@ -79,6 +79,7 @@
 Для local/test runtime auth-session:
 
 - `apps/api/.env.example` должен быть расширен до auth/session и persistence-конфига;
+- `apps/api` должен получать `TG_BACKOFFICE_BOT_TOKEN`, потому что backend сам валидирует Telegram WebApp init data и не может полагаться только на runtime бота;
 - `apps/backoffice-web/.env.example` остаётся шаблоном frontend-конфига и продолжает указывать на `apps/api`;
 - `apps/backoffice-bot/.env.example` должен появиться вместе с `FEATURE-002` и фиксировать bot runtime;
 - `infra/feature-002/env/*.env.example` должны описывать согласованный набор переменных для `api`, `backoffice-web`, `backoffice-bot` и `postgres`;

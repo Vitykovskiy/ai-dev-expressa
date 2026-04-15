@@ -12,7 +12,7 @@ export interface CreateApiAppOptions {
 export async function createApiApp(
   options: CreateApiAppOptions,
 ): Promise<INestApplication> {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create(AppModule.register(options.runtimeEnv), {
     logger: options.logger ?? ['log', 'error', 'warn'],
   });
 

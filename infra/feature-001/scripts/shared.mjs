@@ -5,6 +5,11 @@ const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const NPM_COMMAND = 'npm';
 const DEFAULT_API_PORT = '3100';
 const DEFAULT_BACKOFFICE_ORIGIN = 'http://127.0.0.1:5173';
+const DEFAULT_ADMIN_TELEGRAM_ID = '1001';
+const DEFAULT_DISABLE_TG_AUTH = 'true';
+const DEFAULT_DATABASE_URL =
+  'postgresql://expressa:expressa@127.0.0.1:5432/expressa?schema=public';
+const DEFAULT_BACKOFFICE_BOT_TOKEN = '000000:foundation-placeholder';
 
 function parsePort(rawValue) {
   const parsedValue = Number.parseInt(rawValue, 10);
@@ -23,8 +28,13 @@ export function getFoundationRuntimeConfig(env = process.env) {
 
   return {
     api: {
+      ADMIN_TELEGRAM_ID: env.ADMIN_TELEGRAM_ID ?? DEFAULT_ADMIN_TELEGRAM_ID,
       API_CORS_ALLOWED_ORIGIN: backofficeOrigin,
       API_PORT: String(apiPort),
+      DATABASE_URL: env.DATABASE_URL ?? DEFAULT_DATABASE_URL,
+      DISABLE_TG_AUTH: env.DISABLE_TG_AUTH ?? DEFAULT_DISABLE_TG_AUTH,
+      TG_BACKOFFICE_BOT_TOKEN:
+        env.TG_BACKOFFICE_BOT_TOKEN ?? DEFAULT_BACKOFFICE_BOT_TOKEN,
     },
     backoffice: {
       VITE_API_BASE_URL: apiBaseUrl,

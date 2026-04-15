@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String         @id @default(cuid())
+  telegramId  String         @unique
+  displayName String
+  blocked     Boolean        @default(false)
+  roles       IdentityRole[] @default([])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+enum IdentityRole {
+  customer
+  barista
+  administrator
+}
