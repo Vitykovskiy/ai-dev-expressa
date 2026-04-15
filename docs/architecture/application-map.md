@@ -13,6 +13,7 @@
 - Root bootstrap для первого slice зафиксирован в `package.json`, `package-lock.json` и `tsconfig.base.json`.
 - Для `FEATURE-001` уже реализованы `infra/feature-001` и `.github/workflows/feature-001-foundation.yml`; они покрывают минимальный runtime, env templates, smoke path и CI-валидацию foundation-среза.
 - `FEATURE-002` является первым slice, который обязан включить `apps/backoffice-bot`, `PostgreSQL` / `Prisma`, auth/session shared contracts и production-shaped administrator login path; эти контуры должны стартовать именно здесь, а не откладываться до `FEATURE-003+`.
+- Во frontend-контуре `FEATURE-002` уже появились фактические модули session bootstrap, administrator guard и минимального shell в `apps/backoffice-web`, а также shared auth/session DTO в `packages/shared-types`; backend/runtime контуры `FEATURE-002` при этом остаются отдельными задачами `BE-002` и `DO-002`.
 
 ## Контуры, обязательные для `DU-01`
 
@@ -80,23 +81,22 @@
 | --- | --- |
 | `index.html` | HTML entrypoint Vite-приложения для foundation shell. |
 | `src/main.ts` | Frontend bootstrap: инициализация `Vue 3`, `Vue Router` и `Vuetify`. |
-| `src/app/router.ts` | Root route `/` для foundation screen без Telegram session и guards. |
+| `src/app/router.ts` | Root route `/` как auth/session boundary и protected route `/backoffice` с administrator guard. |
 | `src/app/plugins` | Инициализация `Vuetify` и других app-level plugins, необходимых для `FEATURE-001`. |
 | `src/app/foundation-runtime.smoke.spec.ts` | Smoke-спека, которая запускает frontend foundation layer против живого backend foundation и подтверждает путь `client -> server`. |
+| `src/app/auth-session.smoke.spec.ts` | Frontend smoke `FEATURE-002`: проверяет путь до protected shell и redirect blocked-пользователя через router guard. |
 | `src/features/foundation-runtime/views/FoundationRuntimeView.vue` | Экран foundation smoke, который отображает состояние запроса `client -> server`. |
 | `src/features/foundation-runtime/composables/foundationHealth.ts` | Branching UI-state для загрузки, успеха и ошибки health-check на local reactive state без глобального state-management framework. |
+| `src/features/auth-session/views/AuthSessionEntryView.vue` | UI-boundary для Telegram/test-mode session bootstrap, отображения success/denied/blocked/error веток и перехода в shell. |
+| `src/features/auth-session/composables/authSessionStore.ts` | Local reactive session-store для bootstrap, хранения административной сессии и terminal branches `denied` / `blocked`. |
+| `src/features/auth-session/composables/authSessionViewModel.ts` | UI-модель текстов и alert-состояний для auth/session boundary без размазывания ветвления по шаблону. |
+| `src/features/auth-session/router/administratorGuard.ts` | Router guard, который пропускает только server-backed `administrator` session и редиректит отказанные ветки на entry boundary. |
+| `src/features/app-shell/views/AppShellView.vue` | Минимальный административный shell после успешного входа без реализации `menu/users/settings` операций. |
 | `src/shared/api/foundationRuntime.ts` | Typed adapter к `GET /api/foundation/health` на базе `packages/shared-types`. |
+| `src/shared/api/authSession.ts` | Typed adapter к `POST /api/auth/session` на базе `packages/shared-types`, принимающий как success, так и denied/blocked ветки. |
 | `src/shared/config/env.ts` | Чтение и нормализация `VITE_API_BASE_URL`. |
+| `src/shared/telegram/webApp.ts` | Чтение Telegram WebApp init data и подготовка Telegram runtime перед bootstrap-запросом. |
 | `src/**/*.spec.ts` | Unit tests и targeted smoke tests для UI-state слоя, frontend foundation layer и API adapter. |
-
-Следующие модули должны стартовать вместе с `FEATURE-002`:
-
-| Планируемый модуль / путь | Назначение |
-| --- | --- |
-| `src/features/auth-session` | Session bootstrap boundary: обработка Telegram/test-mode входа, UI-ветки ошибки, blocked-state и insufficient-role. |
-| `src/features/app-shell` | Минимальный административный shell после входа без реализации `menu/users/settings` capability. |
-| `src/shared/api/authSession.ts` | Typed adapter к backend auth/session-контракту на базе `packages/shared-types`. |
-| `src/app/router.ts` | После `FEATURE-002` должен содержать administrator guard и блокировать прямой рабочий доступ без валидной серверной сессии. |
 
 Следующие модули пока остаются запланированными и не должны появляться в `FEATURE-002`: `menu-management`, `user-access-management`, `slot-settings`.
 
@@ -112,21 +112,16 @@
 | Фактический пакетный срез | Назначение |
 | --- | --- |
 | `src/lib/foundation-runtime.ts` | `FoundationHealthResponse` и runtime type guard для smoke-контракта `GET /api/foundation/health`. |
+| `src/lib/auth-session.ts` | Request-response DTO, enum и runtime type guards для auth/session bootstrap, administrator session и denied/blocked веток `FEATURE-002`. |
 | `src/index.ts` | Публичный entrypoint shared foundation DTO. |
 | `package.json` / `tsconfig.json` | Workspace package bootstrap и build-конфигурация shared types. |
-
-Следующие пакетные срезы должны стартовать вместе с `FEATURE-002`:
-
-| Планируемый пакетный срез | Назначение |
-| --- | --- |
-| `src/lib/auth-session.ts` | Request-response DTO и enum для auth/session bootstrap, administrator session state и error branches. |
 
 Следующие пакетные срезы пока только запланированы и не входят в `FEATURE-002`: `menu-catalog`, `user-role-blocking`, `slot-settings`.
 
 ## Точки входа и маршруты
 
-- `apps/backoffice-web`: фактический entrypoint находится в `apps/backoffice-web/src/main.ts`; для `FEATURE-001` root route `/` из `src/app/router.ts` временно используется как direct URL foundation entrypoint в `local`/`test` runtime.
-- `apps/backoffice-web`: начиная с `FEATURE-002` root route `/` становится boundary для server-backed session bootstrap; прямой рабочий URL без Telegram допустим только при `DISABLE_TG_AUTH=true`.
+- `apps/backoffice-web`: фактический entrypoint находится в `apps/backoffice-web/src/main.ts`; начиная с `FEATURE-002` root route `/` из `src/app/router.ts` является boundary для server-backed session bootstrap.
+- `apps/backoffice-web`: protected route `/backoffice` открывает минимальный administrator shell только после успешного backend auth/session bootstrap; прямой рабочий URL без Telegram допустим только при `DISABLE_TG_AUTH=true`.
 - `apps/backoffice-bot`: `FEATURE-002` должен ввести `apps/backoffice-bot/src/main.ts` как Telegram runtime entrypoint для открытия WebApp.
 - `apps/api`: фактический backend entrypoint находится в `apps/api/src/main.ts`; в `FEATURE-001` обязателен только foundation endpoint `GET /api/foundation/health`, а в `FEATURE-002` добавляется auth/session boundary и persistence bootstrap.
 - `apps/api/prisma/schema.prisma` и `apps/api/prisma/migrations`: planned persistence entrypoints для `FEATURE-002`.
