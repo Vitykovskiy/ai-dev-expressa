@@ -30,6 +30,7 @@
 |   |-- business-analyst/
 |   |-- devops/
 |   |-- frontend/
+|   |-- qa/
 |   `-- system-analyst/
 |-- packages/
 |   `-- shared-types/
@@ -56,7 +57,7 @@
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и технологическим ограничениям.
 - `docs/architecture/code-style.md` — единый coding standard и правила unit tests.
-- `docs/architecture/du-01-administration.md` — архитектурная рамка первой административной поставки `DU-01`, backlog фич `Sprint-001` и правила feature-декомпозиции.
+- `docs/architecture/du-01/README.md` — архитектурная рамка первой административной поставки `DU-01`, backlog фич `Sprint-001` и правила feature-декомпозиции.
 - `docs/architecture/application-map.md` — обязательная карта приложения: модули, entrypoints, зависимости, запуск, тестирование и deployment-маршруты.
 - `docs/architecture/deployment-map.md` — карта окружений, CI/CD, env vars, smoke-check и rollback.
 - `docs/business/` — бизнес-артефакты, описывающие продукт, правила и сценарии.
@@ -75,7 +76,14 @@
 - `packages/` — shared-пакеты monorepo. На текущем этапе фактически создан `packages/shared-types` для typed foundation DTO.
 - `infra/` — runtime- и smoke-артефакты инфраструктурного среза. Для `FEATURE-001` здесь лежат env templates, скрипты запуска и smoke-проверка.
 - `.github/workflows/` — CI-пайплайны проекта. Для foundation-среза `FEATURE-001` здесь зафиксирована проверка `typecheck + test + build + smoke`.
-- `prompts/` — промпты для рабочих ролей и агентов проекта.
+- `prompts/` — промпты для рабочих ролей и агентов проекта; каждая подпапка соответствует отдельной роли и содержит ее рабочие инструкции.
+- `prompts/architect/` — промпты архитектора: фиксация архитектурного контура, актуализация `docs/architecture/`, декомпозиция `Sprint-*` в `FEATURE-*` и активной `FEATURE-*` в `AR/FE/BE/DO`.
+- `prompts/backend/` — промпты backend-разработчика: реализация серверной части feature-срезов в `apps/api` и связанных shared/backend-контрактов.
+- `prompts/business-analyst/` — промпты бизнес-аналитика: работа с `docs/business/`, границами продукта, правилами и сценариями.
+- `prompts/devops/` — промпты DevOps-инженера: runtime, env/config, CI/CD, smoke-маршруты и deployment-потоки.
+- `prompts/frontend/` — промпты frontend-разработчика: реализация клиентской части feature-срезов в `apps/backoffice-web`.
+- `prompts/qa/` — каталог роли QA; используется для материалов приемки и проверки sprint/feature-инкрементов, даже если отдельный `prompt.md` еще не добавлен.
+- `prompts/system-analyst/` — промпты системного аналитика: подготовка системных артефактов и `Sprint-*`; файл `task-tree-rules.md` фиксирует правила дерева задач `Sprint -> Feature`.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
 - `package.json`, `package-lock.json`, `tsconfig.base.json` — root workspace-конфигурация `npm workspaces` для запуска, smoke-проверки, сборки и typecheck foundation-среза `api + backoffice-web + shared-types`.

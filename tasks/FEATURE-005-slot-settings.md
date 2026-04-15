@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-slot-settings.md`
 - Требования / правила: `docs/business/business-rules/pickup-slots-and-capacity.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/architecture/du-01-administration.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/architecture/du-01/README.md`
 
 ## Примечания
 
 - Зависимости: `FEATURE-002`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/architecture/du-01-administration.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/architecture/du-01/README.md`
 - Ожидаемый результат для ревью: `Administrator может отдельно пройти сценарий настройки рабочих часов и вместимости слотов как самостоятельный vertical slice.`
 - Проверки: `Smoke чтения и сохранения настроек слотов; unit/integration checks валидаторов и доменных ограничений.`
 - Обновление карты приложения: `Обязательно при изменении slot-settings модулей, env/config или entrypoints.`

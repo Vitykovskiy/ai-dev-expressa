@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-menu.md`, `docs/business/scenarios/administrator-manage-slot-settings.md`, `docs/business/scenarios/administrator-manage-users-and-roles.md`, `docs/business/scenarios/administrator-block-user.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/menu-catalog-and-options.md`, `docs/business/business-rules/pickup-slots-and-capacity.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `tasks/AR-001-feature-001-foundation-slicing.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `tasks/AR-001-feature-001-foundation-slicing.md`, `docs/architecture/du-01/features/feature-001-foundation-runtime.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 
 ## Примечания
 
 - Зависимости: `AR-001`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `tasks/AR-001-feature-001-foundation-slicing.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `tasks/AR-001-feature-001-foundation-slicing.md`, `docs/architecture/du-01/features/feature-001-foundation-runtime.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `NestJS backend foundation поднимает минимальный runtime и предоставляет `GET /api/foundation/health`, который можно вызвать из frontend foundation и использовать в smoke-проверке `client -> server`.`
 - Проверки: `Jest unit tests для bootstrap/config/foundation service logic; интеграционный smoke `GET /api/foundation/health` и ответа `{ status: 'ok', service: 'api' }` в локальном/test runtime.`
 - Обновление карты приложения: `Обязательно при изменении фактических модулей, entrypoints, shared contracts, env/config или deployment path относительно AR-001: docs/architecture/application-map.md, docs/architecture/README.md, README.md при изменении корневой навигации.`

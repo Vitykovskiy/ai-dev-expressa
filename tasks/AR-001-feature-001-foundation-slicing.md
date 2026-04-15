@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-menu.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `docs/architecture/du-01/features/feature-001-foundation-runtime.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 
 ## Примечания
 
 - Зависимости: `нет`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-001-foundation-runtime-bootstrap.md`, `docs/architecture/du-01/features/feature-001-foundation-runtime.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `Для `FEATURE-001` зафиксирован минимальный архитектурный контур первого working slice с явными границами для backend, frontend и devops.`
 - Проверки: `Обновлены релевантные архитектурные артефакты при необходимости; scope `FEATURE-001` не содержит административные capability следующих фич и допускает отдельный smoke `client -> server`.`
 - Обновление карты приложения: `Обязательно при изменении модулей, entrypoints, env/config, run/test/deploy path: docs/architecture/application-map.md, docs/architecture/README.md, README.md при изменении корневой навигации.`

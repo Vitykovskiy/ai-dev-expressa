@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01-administration.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`
 
 ## Примечания
 
 - Зависимости: `FEATURE-001`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01-administration.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`
 - Ожидаемый результат для ревью: `Administrator может получить валидную сессию и открыть административный shell как отдельный feature slice.`
 - Проверки: `Smoke входа через Telegram/test mode; проверка session bootstrap и role guard для administrator.`
 - Обновление карты приложения: `Обязательно при изменении auth entrypoints, env/config или runtime path.`

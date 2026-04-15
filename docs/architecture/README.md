@@ -6,7 +6,8 @@
 
 - Если нужно понять утвержденный стек и базовые технологические ограничения: `stack.md`.
 - Если нужно понять coding standard, правила unit tests и ожидания к ревью: `code-style.md`.
-- Если задача относится к первой административной поставке `DU-01` и backlog-модели `Sprint-001 -> FEATURE-*`: `du-01-administration.md`.
+- Если задача относится к первой административной поставке `DU-01` и backlog-модели `Sprint-001 -> FEATURE-*`: `du-01/README.md`.
+- Если задача относится к уже проработанному feature-контуру `DU-01.F01` или `DU-01.F02`: сначала откройте `du-01/README.md`, затем соответствующий файл в `du-01/features/`.
 - Если нужно быстро найти модуль, entrypoint, зависимость, способ запуска или точку обновления документации: `application-map.md`.
 - Если задача касается окружений, CI/CD, env vars, smoke-check или rollback: `deployment-map.md`.
 
@@ -18,14 +19,20 @@
 - `code-style.md`
   - Общие правила кодстайла, unit tests и review gates для `AR/FE/BE/DO`.
 
-- `du-01-administration.md`
+- `du-01/README.md`
   - Архитектурная рамка первой административной delivery unit: обязательные контуры, backlog фич `Sprint-001`, исключения из scope и правила feature-декомпозиции.
+
+- `du-01/features/feature-001-foundation-runtime.md`
+  - Детальный архитектурный контур foundation-slice `DU-01.F01`.
+
+- `du-01/features/feature-002-auth-session.md`
+  - Детальный архитектурный контур auth/session-slice `DU-01.F02`.
 
 - `application-map.md`
   - Обязательная карта приложения: контуры, модули, entrypoints, зависимости, запуск, тестирование и deployment-маршруты.
 
 - `deployment-map.md`
-  - Карта окружений, CI/CD-конвейеров, env vars, smoke-check и rollback, включая `infra/feature-001` и `.github/workflows/feature-001-foundation.yml`.
+  - Карта окружений, CI/CD-конвейеров, env vars, smoke-check и rollback, включая фактический foundation runtime `FEATURE-001` и обязательный auth/session contour `FEATURE-002`.
 
 ## Правила актуализации
 
