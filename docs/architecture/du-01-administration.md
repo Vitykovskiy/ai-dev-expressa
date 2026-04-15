@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот документ фиксирует архитектурные ограничения первой delivery unit `DU-01`, чтобы `frontend`, `backend`, `devops` и `qa` работали от одной и той же рамки и не расширяли scope административной поставки за пределы подтвержденных артефактов.
+Этот документ фиксирует архитектурные ограничения первой delivery unit `DU-01`, backlog фич `Sprint-001` и правила их реализации, чтобы `frontend`, `backend`, `devops` и `qa` работали от одной и той же рамки и не расширяли scope административной поставки за пределы подтвержденных артефактов.
 
 ## Reviewable outcome `DU-01`
 
@@ -83,12 +83,25 @@
 - `user-role-blocking`
 - `slot-settings`
 
-## Правила декомпозиции child-задач
+## Feature backlog `Sprint-001`
 
-- `FE` получает один reviewable outcome: administrator может пройти административный UI-сценарий `Меню` / `Пользователи` / `Настройки`.
-- `BE` получает один reviewable outcome: административные API и доменные правила работают в test mode и готовы к интеграции с Telegram backoffice entrypoint.
-- `DO` получает один reviewable outcome: административный контур поднимается локально и проходит CI/deploy smoke-check как отдельный runtime slice.
-- `QA` получает один reviewable outcome: есть проверяемый приёмочный сценарий `administrator` и зафиксирован результат проверки `DU-01`.
+- `FEATURE-001` — foundation/runtime bootstrap: локальный и test runtime поднят, frontend ходит в backend и получает валидный ответ.
+- `FEATURE-002` — administrator auth/session: Telegram/test-mode session bootstrap и роль administrator.
+- `FEATURE-003` — menu management: administrator управляет меню в подтвержденном scope `DU-01`.
+- `FEATURE-004` — user access management: administrator управляет ролями и блокировкой пользователей.
+- `FEATURE-005` — slot settings: administrator управляет рабочими часами и вместимостью слотов.
+
+## Правила декомпозиции feature-задач
+
+- Архитектор сначала создает backlog фич `Sprint-001`, а не весь комплект `AR/FE/BE/DO` на весь спринт.
+- `FEATURE-*` должна давать один independently reviewable vertical slice с собственным smoke/scenario.
+- Если фичу нельзя развернуть, проверить отдельно и показать без недостающих соседних change set, она декомпозирована недостаточно.
+- Для активной фичи сначала создается `AR-*`, фиксирующая контур фичи и правила дальнейшей нарезки, и только затем `FE/BE/DO-*`.
+- Для `FEATURE-001` reviewable outcome распределяется так:
+  - `BE`: базовый runtime поднимается и публикует минимальный endpoint для smoke-проверки.
+  - `FE`: базовый клиент поднимается и подтверждает рабочий вызов в backend.
+  - `DO`: локальный/test runtime, deploy path и smoke-маршрут воспроизводимы.
+- `QA` по умолчанию относится к `Sprint-001` и фиксирует финальную приемку всего административного инкремента после завершения обязательных фич.
 - Если для реализации требуется новый runtime contour, shared package, env var или deployment path, это считается изменением архитектурной рамки и должно быть сначала отражено в `application-map.md`, `deployment-map.md` и при необходимости в `README.md`.
 
 ## Зафиксированные риски и открытые вопросы

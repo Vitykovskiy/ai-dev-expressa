@@ -7,7 +7,7 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 ## Before coding
 
 - Verify the branch is synchronized with the remote base branch.
-- Read the parent `DEV-*` task, your `DO-*` task, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`, and the minimal relevant `docs/system/` set from the task.
+- Read the parent `Sprint-*` task, the parent `FEATURE-*` task, your `DO-*` task, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`, and the minimal relevant `docs/system/` set from the task.
 - Do not start implementation until stack, code style, and deployment guidance are fixed in `docs/architecture/`.
 
 ## Implementation rules
