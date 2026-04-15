@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
 
 ## Примечания
 
 - Зависимости: `AR-002`, `BE-002`
-- Минимальный read set: `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
 - Ожидаемый результат для ревью: `Administrator может пройти Telegram/test-mode session bootstrap и открыть минимальный backoffice shell с корректным administrator guard как отдельный user-visible slice `DU-01.F02`.`
 - Проверки: `Vitest unit tests для session-store, router guard и typed API adapter; smoke входа через Telegram/test mode до административного shell; проверка UI-веток access denied и blocked-состояния без смешивания с последующими вкладками управления.`
 - Обновление карты приложения: `Обязательно при изменении frontend entrypoints, router/guard path, shared adapters или env/config относительно `AR-002`: docs/architecture/application-map.md, docs/architecture/README.md, README.md при изменении корневой навигации.`

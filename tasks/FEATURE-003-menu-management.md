@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-menu.md`
 - Требования / правила: `docs/business/business-rules/menu-catalog-and-options.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/architecture/du-01-administration.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/architecture/du-01/README.md`
 
 ## Примечания
 
 - Зависимости: `FEATURE-002`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/architecture/du-01-administration.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/architecture/du-01/README.md`
 - Ожидаемый результат для ревью: `Administrator может отдельно пройти сценарий управления меню как самостоятельный vertical slice.`
 - Проверки: `Smoke CRUD-сценария меню; unit/integration checks доменных правил каталога.`
 - Обновление карты приложения: `Обязательно при изменении модулей каталога, shared contracts или entrypoints.`

@@ -10,19 +10,19 @@
 - Роль: `Архитектор`
 - Изменяемый контур: `architecture`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 
 ## Примечания
 
 - Зависимости: `нет`
-- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Минимальный read set: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `Для `FEATURE-002` зафиксирован отдельный independently reviewable auth/session-slice с явными границами для backend, frontend и devops, включая Telegram/test-mode вход, bootstrap главного administrator и administrator guard.`
 - Проверки: `Обновлены релевантные архитектурные артефакты при необходимости; контур `FEATURE-002` допускает отдельный smoke входа через `Telegram backoffice-бота` или test mode; scope фичи не включает управление меню, ролями пользователей и слотами.`
 - Обновление карты приложения: `Обязательно при изменении модулей, entrypoints, env/config, persistence contour, run/test/deploy path: docs/architecture/application-map.md, docs/architecture/README.md, README.md при изменении корневой навигации.`

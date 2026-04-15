@@ -17,12 +17,12 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/administrator-manage-users-and-roles.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Дополнительные материалы: `tasks/Sprint-001-administration-foundation.md`, `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 
 ## Примечания
 
 - Зависимости: `AR-002`
-- Минимальный read set: `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/architecture/du-01-administration.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Минимальный read set: `tasks/FEATURE-002-administrator-auth-session.md`, `tasks/AR-002-feature-002-auth-session-slicing.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/architecture/du-01/features/feature-002-auth-session.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `Runtime `FEATURE-002` воспроизводимо поднимает `api + backoffice-web + backoffice-bot + postgres`, поддерживает bootstrap главного administrator и проходит отдельный smoke входа в административный shell через Telegram/test mode.`
 - Проверки: `Локальный или lightweight test runtime для всех обязательных контуров `FEATURE-002`; применение migrations/bootstrap для auth/session persistence; pipeline validation install/test/build/smoke для нового runtime; smoke входа administrator через `Telegram backoffice-бота` или test mode при `DISABLE_TG_AUTH=true`.`
 - Обновление карты приложения: `Обязательно при изменении runtime-контуров, env vars, migrations/bootstrap path, deployment path, pipeline stages или smoke-check относительно `AR-002`: docs/architecture/application-map.md, docs/architecture/README.md, README.md при изменении корневой навигации.`

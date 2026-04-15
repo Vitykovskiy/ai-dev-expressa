@@ -4,8 +4,8 @@
 
 | Окружение | Назначение | Обязательные проверки |
 | --- | --- | --- |
-| `local` | Разработка и ручная проверка child-задач | для `FEATURE-001`: локальный запуск `api + backoffice-web`, unit tests и smoke `client -> server`; для полного `DU-01`: `api + backoffice-web + backoffice-bot + postgres` |
-| `test` | Lightweight runtime для foundation- и feature-smoke без полного production-shaped контура | deploy или запуск `api + backoffice-web`, проверка env/config feature-среза и smoke `client -> server` |
+| `local` | Разработка и ручная проверка child-задач | для `FEATURE-001`: локальный запуск `api + backoffice-web`, unit tests и smoke `client -> server`; для `FEATURE-002+`: production-shaped локальный запуск `api + backoffice-web + backoffice-bot + postgres` |
+| `test` | Lightweight runtime для foundation- и feature-smoke без полного production-shaped контура | для `FEATURE-001`: запуск `api + backoffice-web`; для `FEATURE-002`: auth/session smoke через backend test-mode branch при `DISABLE_TG_AUTH=true`, но с тем же persistence и session-контрактом, что и в рабочем runtime |
 | `ci` | Проверка pull request и merge readiness | install, typecheck, unit tests, build и smoke административного среза |
 | `staging` | Проверка интеграции перед выпуском | deploy административного среза, smoke-check сценария administrator, проверка env/config |
 | `production` | Боевой выпуск | controlled deploy административного среза, post-deploy smoke-check, rollback path |
@@ -26,17 +26,28 @@
 - `infra/` как носитель env templates, startup scripts и smoke-маршрута
 - `apps/backoffice-bot`, `PostgreSQL`, Prisma migrations и Telegram auth/session не входят в runtime `FEATURE-001`
 
+## Минимальный runtime для `FEATURE-002`
+
+- `apps/api`
+- `apps/backoffice-web`
+- `apps/backoffice-bot`
+- `PostgreSQL`
+- `packages/shared-types` как build-time и contract-sync зависимость между `client` и `server`
+- `apps/api/prisma/schema.prisma` и `apps/api/prisma/migrations` как обязательный persistence path
+- `infra/feature-002` как носитель env templates, startup scripts, migration/bootstrap scripts и smoke-маршрута auth/session-среза
+- В lightweight `test` runtime допустим branch без живой Telegram-авторизации через `DISABLE_TG_AUTH=true`, но это не убирает `backoffice-bot` из обязательного feature scope и не заменяет production-shaped local/staging runtime
+
 ## CI/CD-поток
 
 - `pull request pipeline`
   - install dependencies
   - run lint
   - run unit tests по затронутым контурам; для `FEATURE-001` обязательны `apps/api`, `apps/backoffice-web`, `packages/shared-types`
-  - run build для `apps/api` и `apps/backoffice-web`; `apps/backoffice-bot` подключается к обязательным build jobs после появления самой feature с Telegram entrypoint
+  - run build для `apps/api` и `apps/backoffice-web`; начиная с `FEATURE-002` `apps/backoffice-bot` становится обязательным build job
 - `main/release pipeline`
   - build runtime artifacts затронутого среза
-  - publish container images для обязательных runtime-контуров текущего feature-slice; для `FEATURE-001` достаточно `api` и `backoffice-web`
-  - apply schema/migration changes только если feature реально вводит `PostgreSQL`/Prisma runtime
+  - publish container images для обязательных runtime-контуров текущего feature-slice; для `FEATURE-001` достаточно `api` и `backoffice-web`, для `FEATURE-002` обязательны `api`, `backoffice-web` и `backoffice-bot`
+  - apply schema/migration changes обязательно начиная с `FEATURE-002`, где впервые появляется `PostgreSQL`/Prisma runtime
   - deploy target environment
   - execute smoke-check затронутого outcome (`FEATURE-001` или полный `DU-01`)
 
@@ -54,6 +65,25 @@
 - `apps/api/.env.local` используется как локальный override для `API_PORT` и `API_CORS_ALLOWED_ORIGIN`;
 - `apps/backoffice-web/.env.local` используется как локальный override для `VITE_API_BASE_URL`;
 - значения из `process.env` имеют приоритет над файлами.
+
+## Базовые env vars `FEATURE-002`
+
+- `API_PORT`
+- `API_CORS_ALLOWED_ORIGIN`
+- `VITE_API_BASE_URL`
+- `ADMIN_TELEGRAM_ID`
+- `DISABLE_TG_AUTH`
+- `DATABASE_URL`
+- `TG_BACKOFFICE_BOT_TOKEN`
+
+Для local/test runtime auth-session:
+
+- `apps/api/.env.example` должен быть расширен до auth/session и persistence-конфига;
+- `apps/backoffice-web/.env.example` остаётся шаблоном frontend-конфига и продолжает указывать на `apps/api`;
+- `apps/backoffice-bot/.env.example` должен появиться вместе с `FEATURE-002` и фиксировать bot runtime;
+- `infra/feature-002/env/*.env.example` должны описывать согласованный набор переменных для `api`, `backoffice-web`, `backoffice-bot` и `postgres`;
+- значения из `process.env` сохраняют приоритет над файлами;
+- если для запуска bot/WebApp потребуется отдельная deployment-specific переменная сверх перечисленных выше, она должна быть добавлена в этот документ в той же задаче, где вводится.
 
 ## Базовые env vars полного `DU-01`
 
@@ -77,6 +107,13 @@
   - `apps/backoffice-web` с `VITE_API_BASE_URL`, указывающим на `apps/api`, получает этот ответ и отображает успешный статус;
   - foundation smoke воспроизводится командами `npm run smoke:feature-001` локально и workflow `.github/workflows/feature-001-foundation.yml` в CI;
   - smoke выполняется без `backoffice-bot`, Telegram auth/session и `PostgreSQL`.
+- Для `FEATURE-002` smoke-check обязан подтвердить:
+  - применён persistence path `Prisma` / schema migrations для user/session слоя;
+  - backend идемпотентно bootstrap-ит главного administrator из `ADMIN_TELEGRAM_ID`;
+  - administrator проходит вход через `Telegram backoffice-бота` или через test mode при `DISABLE_TG_AUTH=true`;
+  - backend auth/session contract возвращает typed административную сессию и отклоняет blocked/non-administrator доступ;
+  - `apps/backoffice-web` открывает минимальный administrator shell после успешного bootstrap;
+  - smoke воспроизводится отдельными маршрутами `FEATURE-002`, а не foundation-smoke `FEATURE-001`.
 - Для `DU-01` smoke-check обязан подтвердить:
   - bootstrap главного administrator из `ADMIN_TELEGRAM_ID`;
   - вход в backoffice через `Telegram backoffice-бота` или test mode при `DISABLE_TG_AUTH=true`;
