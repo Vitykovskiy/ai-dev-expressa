@@ -1,4 +1,4 @@
-# Сценарий: administrator управляет меню
+﻿# Сценарий: administrator управляет меню
 
 ## Граница
 
@@ -13,7 +13,7 @@
 
 ## Основной поток
 
-1. Administrator открывает backoffice через Telegram backoffice-бота.
+1. Administrator открывает backoffice через служебного Telegram-бота.
 2. Administrator переходит во вкладку `Меню`.
 3. Administrator создаёт или изменяет категории меню.
 4. Administrator создаёт или изменяет товары.
@@ -32,3 +32,5 @@
 - `AR-002`, `AR-008`
 - `MC-001`–`MC-009`
 - `BO-004`, `BO-013`
+
+

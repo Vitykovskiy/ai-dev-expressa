@@ -1,4 +1,4 @@
-# Domain Model: Identity And Access
+﻿# Domain Model: Identity And Access
 
 ## Граница
 
@@ -55,9 +55,9 @@
 
 ## Инварианты и ограничения
 
-- Любой пользователь, активировавший customer-бота, получает роль `customer`.
+- Любой пользователь, активировавший клиентского бота, получает роль `customer`.
 - Пользователь с `blocked=true` не может пользоваться приложением.
-- Прямой рабочий доступ к web-интерфейсу по URL без Telegram не поддерживается.
+- Прямой рабочий доступ к веб-интерфейсу по URL без Telegram не поддерживается.
 - Исключение без Telegram допускается только в test environment.
 - Доступ к вкладкам backoffice определяется ролью пользователя.
 - Роль `barista` даёт доступ только к вкладкам `Заказы` и `Доступность`.
@@ -73,3 +73,5 @@
 - Право назначения новых `administrator` противоречиво:
   - `docs/business/business-rules/access-and-roles.md` и `docs/business/scenarios/administrator-manage-users-and-roles.md` допускают назначение `administrator` со стороны `administrator`;
   - Бизнес-артефакты не фиксируют однозначно, может ли любой `administrator` назначать новых `administrator`, или это право есть только у главного administrator.
+
+

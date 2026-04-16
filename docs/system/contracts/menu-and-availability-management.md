@@ -1,4 +1,4 @@
-# Contract: Menu And Availability Management
+﻿# Contract: Menu And Availability Management
 
 ## Граница
 
@@ -65,3 +65,4 @@
 
 - `availability-target-not-found`
 - `availability-change-not-allowed`
+

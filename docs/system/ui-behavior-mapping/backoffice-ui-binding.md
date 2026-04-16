@@ -1,8 +1,8 @@
-# UI Behavior Mapping: Backoffice Operations
+﻿# UI Behavior Mapping: Backoffice Operations
 
 ## Граница
 
-Одна карта привязки: backoffice Telegram WebApp для ролей `barista` и `administrator`.
+Одна карта привязки: backoffice Telegram веб-приложение для ролей `barista` и `administrator`.
 
 ## Источники
 
@@ -34,7 +34,7 @@
 
 ## Экран к системному поведению
 
-| Экран / UI boundary | Системная цель | Связанные use cases | Связанные contracts | Связанные правила / модели |
+| Экран / UI boundary | Системная цель | Связанные варианты использования | Связанные contracts | Связанные правила / модели |
 |---|---|---|---|---|
 | `orders` | Очередь заказов и операционные действия по статусам | `barista-confirm-order`, `barista-reject-order`, `barista-mark-order-ready`, `barista-close-order` | `Read order queue and order details`, `Confirm order`, `Reject order`, `Mark order ready`, `Close order` | `BO-001`, `BO-008`–`BO-010`, `OL-004`–`OL-010`, `order-lifecycle.md` |
 | `availability` | Временное управление доступностью каталога | `barista-manage-menu-availability` | `Change temporary availability` | `BO-002`, `BO-003`, `BO-012`, `MC-005`–`MC-009` |
@@ -101,3 +101,5 @@
 - UI-контракт backoffice вводит конкретный диапазон `slot_capacity` `1..50`, но в бизнес-артефактах есть только право менять вместимость и дефолт `5`; верхняя граница `50` пока не подтверждена.
 - UI-контракт backoffice предполагает real-time индикатор новых заказов и анимацию появления, но это не отражено в бизнес- или системных требованиях как обязательное поведение.
 - UI-контракт `menu_product_detail` включает поле `image`, хотя в текущей бизнес- и системной модели меню наличие изображений товаров не зафиксировано как обязательный или подтверждённый атрибут.
+
+

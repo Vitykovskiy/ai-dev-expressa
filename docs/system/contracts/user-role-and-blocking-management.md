@@ -1,4 +1,4 @@
-# Contract: User Role And Blocking Management
+﻿# Contract: User Role And Blocking Management
 
 ## Граница
 
@@ -78,3 +78,4 @@
 
 - `administrator-role-required`
 - `user-not-found`
+
