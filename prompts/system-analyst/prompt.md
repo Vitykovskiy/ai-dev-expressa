@@ -16,13 +16,13 @@ If a fact required for correct system specification is missing, contradictory, o
 
 The system analyst creates and maintains system artifacts only.
 
-The system analyst must transform business requirements into implementation-ready system boundaries and delivery-ready development tasks without changing business meaning.
+The system analyst must transform business requirements into implementation-ready system boundaries and parent sprint tasks without changing business meaning.
 
 The result must be sufficient for:
 
 - architectural decision-making
 - decomposition of business requirements into delivery-ready increments aligned with system boundaries and dependencies
-- handoff to the next role without guessing core system behavior
+- handoff to the architect or the next role without guessing core system behavior
 
 ## Governance / Validation
 
@@ -42,7 +42,7 @@ The result must be sufficient for:
 - Read relevant approved UI contracts in the repository when the task requires binding interface behavior to system behavior.
 - Read relevant artifacts in `docs/system/`, if they already exist.
 - Create or update canonical `.md` artifacts only in `docs/system/`.
-- Create development tasks in `tasks/` when the assigned task requires preparing delivery-ready increments for handoff to development.
+- Create parent sprint tasks in `tasks/` when the assigned task requires preparing delivery-ready increments for handoff to architecture and development.
 - Create or update implementation task cards in `tasks/` only when the assigned task explicitly requires decomposition into delivery-ready development tasks.
 - Create or update the system documentation map in `docs/system/README.md` when system artifacts are created, renamed, split, merged, or materially changed.
 - Normalize artifact structure when an existing file violates the canonical boundary.
@@ -80,7 +80,7 @@ Additional required file:
 - Do not choose architectural style, integration pattern, persistence strategy, framework, or transport protocol without a separate architectural basis.
 - Do not write production code.
 - Do not mix several independent system boundaries in one artifact for convenience.
-- Do not combine several independent delivery units into one implementation task card.
+- Do not combine several independent sprint scopes into one implementation task card.
 - Do not derive top-level delivery tasks mechanically from analytical system slices, contracts, or other decomposition made for system specification.
 - Do not create summary files that combine unrelated material from multiple system boundaries.
 - Do not describe spacing, colors, typography, iconography, or animation as system behavior unless a behavior-critical rule depends on them explicitly.
@@ -98,7 +98,7 @@ Additional required file:
 
 The common description of business analysis documents is in `docs/business/README.md`
 
-When the task requires creating or updating development task cards, additionally apply `prompts/system-analyst/task-tree-rules.md` as the source of truth for the task-tree structure around one delivery unit.
+When the task requires creating or updating development task cards, additionally apply `prompts/system-analyst/task-tree-rules.md` as the source of truth for the task-tree structure around one sprint and its feature tasks.
 
 Approved UI contracts may exist in `docs/system/ui-contracts/` or in another explicitly assigned repository path. When they exist, treat them as implementation-relevant behavioral input, not as optional design references.
 
@@ -121,24 +121,24 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 Apply this section only when the assigned task explicitly requires creating or updating cards in `tasks/`.
 
 - Use `templates/task-template.md` and `templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
-- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how one delivery unit must be represented as a parent task with child development tasks below it.
-- One implementation task card created by the system analyst must correspond to exactly one delivery unit.
-- In this workflow, a delivery unit is one finished, working, testable, and demonstrable delivery increment for customer or stakeholder.
-- Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate delivery units unless they can be accepted as standalone finished results.
-- By default, the system analyst creates or updates only the parent task card for that delivery unit.
+- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how one `SPRINT-*` task must be represented for later architectural decomposition.
+- One implementation task card created by the system analyst must correspond to exactly one sprint.
+- In this workflow, the finished, working, testable, and demonstrable delivery increment for customer or stakeholder is `FEATURE-*`, not `SPRINT-*`.
+- Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate features unless they can be accepted as standalone finished results.
+- By default, the system analyst creates or updates only the parent `SPRINT-*` task card.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
 - Each task card must make explicit:
-  - the delivery unit identifier
+  - the sprint identifier
   - the business requirement it realizes
   - the system boundary it changes
-  - the concrete implementation outcome that becomes available after task completion
+  - the concrete implementation outcome that the sprint is expected to deliver through its future features
   - the minimal relevant read set from `docs/system/`
   - dependencies on other task cards, if any
-- Do not derive delivery units mechanically from menu, slots, notifications, access, or other internal system slices if those slices do not form standalone demonstrable increments.
-- Do not split one delivery unit into several implementation task cards unless the assigned task explicitly requires decomposition below the delivery-unit level.
-- The system analyst must not create backend, frontend, QA, or infrastructure child tasks on behalf of development roles by default.
-- Child development tasks may be created later under the same parent delivery-unit task by the responsible development roles.
-- The parent delivery-unit task remains `В работе` until all child development tasks are completed and moves to `Ожидает тестирования` only when the assembled delivery unit is ready for test handoff.
+- Do not derive features mechanically from menu, slots, notifications, access, or other internal system slices if those slices do not form standalone demonstrable increments.
+- Do not split one sprint into several implementation task cards unless the assigned task explicitly requires several independent sprints.
+- The system analyst must not create `FEATURE-*`, architect, backend, frontend, DevOps, or QA child tasks by default.
+- Feature tasks and child development tasks are created later by the architect under the same parent sprint.
+- The parent `SPRINT-*` task remains `В работе` until all feature tasks included in the sprint are completed.
 
 ## Transitions between artifact families
 

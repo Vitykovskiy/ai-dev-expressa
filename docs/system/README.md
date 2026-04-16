@@ -1,4 +1,4 @@
-# Карта документации `docs/system`
+﻿# Карта документации `docs/system`
 
 Этот файл нужен только для навигации по системным артефактам. Источником правды являются документы в соответствующих семействах.
 
@@ -121,17 +121,17 @@
 
 - `Expressa Customer UI Contract`
   - Файл: [ui-contracts/expressa-customer-ui-contract.json](./ui-contracts/expressa-customer-ui-contract.json)
-  - Использовать как входной UI-контракт customer-facing Telegram WebApp перед формализацией системного поведения.
+  - Использовать как входной UI-контракт клиентского Telegram веб-приложения перед формализацией системного поведения.
 
 - `Expressa Backoffice UI Contract`
   - Файл: [ui-contracts/expressa-backoffice-ui-contract.json](./ui-contracts/expressa-backoffice-ui-contract.json)
-  - Использовать как входной UI-контракт backoffice Telegram WebApp перед формализацией системного поведения.
+  - Использовать как входной UI-контракт backoffice Telegram веб-приложения перед формализацией системного поведения.
 
 ### `ui-behavior-mapping`
 
 - `Customer Ordering`
   - Файл: [ui-behavior-mapping/customer-ordering-ui-binding.md](./ui-behavior-mapping/customer-ordering-ui-binding.md)
-  - Использовать для привязки customer UI-контракта к use cases, contracts, validations, state-model и экранным состояниям.
+  - Использовать для привязки customer UI-контракта к вариантам использования, contracts, validations, state-model и экранным состояниям.
 
 - `Backoffice Operations`
   - Файл: [ui-behavior-mapping/backoffice-ui-binding.md](./ui-behavior-mapping/backoffice-ui-binding.md)
@@ -154,3 +154,6 @@
 - Не зафиксировано системное поведение при конкурентной попытке занять последний слот выдачи.
 - Не определён требуемый уровень snapshot-данных каталога внутри заказа после последующего изменения меню.
 - UI-контракты содержат дополнительные расхождения: англоязычные статусы против русскоязычной каноники, действие `unblock_user`, диапазон `slot_capacity 1..50`, real-time индикатор новых заказов и атрибуты товара, не подтверждённые текущими бизнес-правилами.
+
+
+

@@ -1,4 +1,4 @@
-# Contract: Backoffice Order Processing
+﻿# Contract: Backoffice Order Processing
 
 ## Граница
 
@@ -16,7 +16,7 @@
 
 ## Общие требования доступа
 
-- Взаимодействие доступно только пользователю, вошедшему через Telegram backoffice-бота.
+- Взаимодействие доступно только пользователю, вошедшему через служебного Telegram-бота.
 - Взаимодействие доступно только роли с правом работы во вкладке `Заказы`.
 
 ## Contract `Read order queue and order details`
@@ -124,3 +124,6 @@
 ### Business errors
 
 - `order-state-transition-not-allowed`
+
+
+

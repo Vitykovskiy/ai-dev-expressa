@@ -1,0 +1,29 @@
+# Карточка задачи
+
+## Карточка задачи
+
+- Идентификатор: `DO-001`
+- Родительская задача: `FEATURE-001`
+- Заголовок: `Окружение, конвейер и дымовая проверка для Telegram-входа administrator`
+- Описание: `Нужно подготовить окружение и маршрут развёртывания для FEATURE-001: описание и подключение ADMIN_TELEGRAM_ID, DISABLE_TG_AUTH и TG_BACKOFFICE_BOT_TOKEN в нужных окружениях, обновление этапов конвейера и smoke-check для входа administrator во внутренний административный контур через Telegram. Задача должна покрывать только окружение, GitHub Actions, VPS-маршрут развёртывания, дымовую проверку и порядок восстановления без создания прикладных e2e-тестов.`
+- Единица поставки: `FEATURE-001`
+- Роль: `Девопс`
+- Изменяемый контур: `devops`
+- Приоритет: `Высокий`
+- Статус: `Готова к работе`
+
+## Ссылки на документы
+
+- Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
+- Сценарии: `docs/business/scenarios/administrator-manage-menu.md`
+- Требования / правила: `docs/business/business-rules/access-and-roles.md`
+- Дополнительные материалы: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+
+## Примечания
+
+- Зависимости: `AR-001`, `BE-001`, `FE-001`
+- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Ожидаемый результат для ревью: `Для FEATURE-001 описан и воспроизводим маршрут развёртывания с нужными секретами и переменными окружения, конвейер готов прогонять требуемые проверки, а дымовая проверка подтверждает вход administrator через Telegram и отказ при некорректном рабочем доступе.`
+- Проверки: `Pipeline-validation для затронутых workflow; staging или локальная дымовая проверка критического сценария FEATURE-001; документированный порядок восстановления для неуспешного развёртывания Telegram-входа administrator.`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Критерии готовности: `Задача завершена, когда FEATURE-001 можно предсказуемо провести через окружения, проверить дымовым сценарием и при необходимости откатить без ручных догадок о секретах, переменных окружения и шагах конвейера.`

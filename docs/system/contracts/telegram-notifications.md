@@ -1,4 +1,4 @@
-# Contract: Telegram Notifications
+﻿# Contract: Telegram Notifications
 
 ## Граница
 
@@ -37,7 +37,7 @@
 
 ### Outputs
 
-- Telegram-напоминание через backoffice-бота.
+- Telegram-напоминание через служебного Telegram-бота.
 
 ### Constraints
 
@@ -47,3 +47,5 @@
 
 - Периодичность отправки не зафиксирована.
 - Во входных материалах не определено, как выбирается адресат напоминания при наличии нескольких barista.
+
+
