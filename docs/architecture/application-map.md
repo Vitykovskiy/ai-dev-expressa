@@ -14,23 +14,23 @@
 
 | Контур | Планируемый путь | Ответственность | Основные зависимости |
 | --- | --- | --- | --- |
-| Backend API | `apps/api` | Доменные операции, контракты, интеграция с БД, оркестрация вариантов использования | `packages/shared-types`, `PostgreSQL`, Telegram bots |
-| Клиентское веб-приложение | `apps/customer-web` | Customer UI внутри Telegram веб-приложения | `apps/api`, `packages/shared-types`, `packages/ui` |
-| Backoffice веб-приложение | `apps/backoffice-web` | Backoffice UI для `barista` и `administrator` | `apps/api`, `packages/shared-types`, `packages/ui` |
-| Клиентский бот | `apps/customer-bot` | Telegram-точка входа и уведомления customer | `apps/api`, Telegram Bot API |
-| Служебный бот | `apps/backoffice-bot` | Telegram-точка входа backoffice и напоминания barista | `apps/api`, Telegram Bot API |
-| Общие типы | `packages/shared-types` | Общие DTO, enum, schema fragments и типы контрактов | Backend и оба frontend-клиента |
-| Shared UI | `packages/ui` | Переиспользуемые UI-строительные блоки для web-клиентов | `Vuetify`, frontend apps |
+| Server | `apps/server` | Единое NestJS-приложение: HTTP API, доменная логика, интеграция с БД, клиентский и служебный Telegram-боты, уведомления и напоминания | `packages/shared-types`, `PostgreSQL`, `TypeORM`, Telegram Bot API |
+| Клиентское веб-приложение | `apps/customer-web` | Customer UI внутри Telegram веб-приложения | `apps/server`, `packages/shared-types` |
+| Backoffice веб-приложение | `apps/backoffice-web` | Backoffice UI для `barista` и `administrator` | `apps/server`, `packages/shared-types` |
+| Общие типы | `packages/shared-types` | Общие DTO, enum, schema fragments и типы контрактов | `apps/server` и оба frontend-клиента |
 | Infra | `infra/` | Локальные compose-файлы, скрипты развёртывания, шаблоны окружения | Все исполняемые контуры |
 | CI/CD | `.github/workflows` | Сборка, тестирование, публикация образов, развёртывание, smoke-check | Все исполняемые контуры |
+
+## Архитектурные оговорки
+
+- Каталоги `apps/customer-bot` и `apps/backoffice-bot` не планируются: оба Telegram-контура реализуются как NestJS-модули внутри `apps/server`.
+- Пакет `packages/ui` не планируется: customer UI и backoffice UI развиваются независимо в своих приложениях.
 
 ## Точки входа и маршруты
 
 - `apps/customer-web`: точка входа в клиентское Telegram веб-приложение.
 - `apps/backoffice-web`: точка входа в backoffice Telegram веб-приложение.
-- `apps/customer-bot`: точка входа webhook/polling для клиентского Telegram-бота.
-- `apps/backoffice-bot`: точка входа webhook/polling для служебного Telegram-бота.
-- `apps/api`: основной backend-контур для бизнес-логики и интеграций.
+- `apps/server`: единая точка входа NestJS для HTTP API, webhook/polling Telegram-ботов и фоновых процессов уведомлений.
 
 ## Где запускать и проверять
 

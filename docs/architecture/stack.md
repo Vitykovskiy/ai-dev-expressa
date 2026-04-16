@@ -8,18 +8,17 @@
   - `Vue 3`
   - `Vite`
   - `Vuetify`
-  - `Pinia`
   - `Vue Router`
   - `Vitest`
 - Backend:
   - `NestJS`
   - `PostgreSQL`
-  - `Prisma`
+  - `TypeORM`
   - `Jest`
 - Интеграционные контуры:
-  - отдельный `клиентский бот`
-  - отдельный `служебный бот`
-  - общий backend API и доменная логика
+  - единый `server` на `NestJS`, который включает HTTP API, клиентский Telegram-бот, служебный Telegram-бот и фоновые процессы уведомлений
+  - отдельное `customer` веб-приложение
+  - отдельное `backoffice` веб-приложение
 - DevOps:
   - `Docker`
   - `Docker Compose` для локальной сборки контуров
@@ -29,14 +28,11 @@
 
 ```text
 apps/
-  api/
+  server/
   customer-web/
   backoffice-web/
-  customer-bot/
-  backoffice-bot/
 packages/
   shared-types/
-  ui/
 infra/
   docker/
   scripts/
