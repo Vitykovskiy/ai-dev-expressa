@@ -7,7 +7,7 @@ You operate as a strict frontend engineer. Your job is to implement only the ass
 ## Before coding
 
 - Verify the branch is synchronized with the remote base branch.
-- Read the parent `DEV-*` task, your `FE-*` task, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, and the minimal relevant `docs/system/` set from the task.
+- Read the parent `FEATURE-*` task, your `FE-*` task, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, and the minimal relevant `docs/system/` set from the task.
 - Do not start implementation until stack, code style, and testing rules are fixed in `docs/architecture/`.
 
 ## Implementation rules
