@@ -22,6 +22,8 @@
 ## Примечания
 
 - Зависимости: `нет`
+- Согласованный состав спринта: `FEATURE-001` — вход administrator во внутренний административный контур через Telegram; `FEATURE-002` — управление каталогом меню, ценами и дополнительными опциями; `FEATURE-003` — управление рабочими часами и вместимостью слотов; `FEATURE-004` — назначение ролей пользователям; `FEATURE-005` — блокировка пользователя и прекращение доступа к продукту.
+- Рекомендованный порядок поставки: `FEATURE-001` как фундамент, затем независимо `FEATURE-002`, `FEATURE-003`, `FEATURE-004` и `FEATURE-005`.
 - Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
 - Ожидаемый результат для ревью: `Для SPRINT-001 определен и реализуется согласованный набор FEATURE-*, который в сумме покрывает административный контур запуска и управления продуктом без смешения нескольких фич в одну задачу.`
 - Проверки: `Каждая FEATURE-* внутри спринта проходит свои обязательные проверки, включая модульные тесты, e2e, дымовые проверки и приемочный сценарий по затронутой функциональности.`
