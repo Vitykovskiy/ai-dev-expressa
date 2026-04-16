@@ -7,7 +7,9 @@
 ```text
 .
 |-- apps/
-|   `-- api/ (пустой placeholder-каталог, не канонический путь для задач поставки)
+|   `-- server/
+|       |-- src/
+|       `-- test/
 |-- docs/
 |   |-- architecture/
 |   |-- business/
@@ -31,8 +33,13 @@
 |   |-- frontend/
 |   |-- qa/
 |   `-- system-analyst/
+|-- packages/
+|   `-- shared-types/
 |-- tasks/
+|-- package.json
+|-- package-lock.json
 |-- terms-map.md
+|-- tsconfig.base.json
 |-- templates/
 `-- исходные материалы
 ```
@@ -40,7 +47,10 @@
 ## Что где находится
 
 - `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в `docs/architecture/application-map.md`.
+- `apps/server/` — серверная часть на `NestJS`; текущая реализация содержит модуль доступа для `FEATURE-001` и пример переменных окружения в `apps/server/.env.example`.
 - `docs/` — проектная документация.
+- `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами.
+- `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования.
 - `terms-map.md` — таблица англицизмов и рекомендуемых русских аналогов для архитектурной документации.
 - `docs/architecture/` — архитектурные решения, карта приложения, кодстайл и инструкции по развёртыванию.
 - `docs/architecture/README.md` — навигационная карта по архитектурным артефактам.
