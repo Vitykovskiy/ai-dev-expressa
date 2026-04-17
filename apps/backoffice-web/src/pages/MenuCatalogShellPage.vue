@@ -19,13 +19,23 @@
             color="primary"
             variant="flat"
             :loading="isBusy"
-            :disabled="!accessToken"
+            :disabled="!accessToken || menuState.isDirty"
             @click="reloadCatalog"
           >
             Обновить снимок
           </v-btn>
         </div>
       </v-card>
+    </v-col>
+
+    <v-col v-if="menuState.catalog" cols="12">
+      <MenuCatalogSavePanel
+        :disabled="!accessToken"
+        :error="saveError"
+        :is-dirty="menuState.isDirty"
+        :status="menuState.status"
+        @save="saveCatalog"
+      />
     </v-col>
 
     <v-col v-if="showInitialLoading" cols="12">
@@ -73,6 +83,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import MenuCatalogSavePanel from '../components/MenuCatalogSavePanel.vue';
 import { backofficeAccessStore } from '../stores/backoffice-access-store';
 import { menuCatalogStore } from '../stores/menu-catalog-store';
 
@@ -87,6 +98,9 @@ const counts = computed(() => ({
 const showInitialLoading = computed(() => menuState.status === 'loading' && !menuState.catalog);
 const showBlockingError = computed(() => menuState.status === 'error' && !menuState.catalog);
 const showNonBlockingError = computed(() => menuState.status === 'error' && !!menuState.catalog);
+const saveError = computed(() =>
+  menuState.status === 'error' && !!menuState.catalog ? menuState.error : null,
+);
 
 function reloadCatalog() {
   if (!accessToken.value) {
@@ -94,6 +108,14 @@ function reloadCatalog() {
   }
 
   void menuCatalogStore.reload(accessToken.value);
+}
+
+function saveCatalog() {
+  if (!accessToken.value) {
+    return;
+  }
+
+  void menuCatalogStore.save(accessToken.value);
 }
 
 onMounted(() => {
