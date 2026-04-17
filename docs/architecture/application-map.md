@@ -8,7 +8,7 @@
 
 - В репозитории существуют два реальных исполняемых контура: `apps/server` и `apps/backoffice-web`.
 - В `apps/server` реализован серверный срез `FEATURE-001`: идемпотентный bootstrap главного `administrator`, bootstrap доступа во внутренний административный контур, in-memory сессии доступа и серверные guard-правила.
-- В `apps/backoffice-web` реализован каркас клиентской части `FEATURE-001`: workspace-пакет, точка входа, `Vuetify`-layout, маршруты-заглушки вкладок и базовая env-конфигурация без HTTP bootstrap доступа и guard-правил.
+- В `apps/backoffice-web` реализован клиентский интеграционный слой `FEATURE-001`: HTTP bootstrap доступа, восстановление сессии по `accessToken`, хранение пользовательского контекста, серверно-управляемая навигация вкладок и маршруты-заглушки без финальных guard-правил.
 - В `packages/shared-types` добавлен общий пакет деклараций типов для bootstrap доступа во внутренний административный контур.
 - Каталог `apps/customer-web` пока не создан и остаётся целевым путём следующих задач.
 
@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | Серверное приложение | `apps/server` | Реальное NestJS-приложение. На текущем шаге содержит модуль `modules/access` для `FEATURE-001`: HTTP API bootstrap доступа, bootstrap главного `administrator`, in-memory хранилище пользователей и сессий доступа, guard-правила по роли и каналу входа | `packages/shared-types`, `NestJS`, `Telegram Bot API` |
 | Клиентское веб-приложение | `apps/customer-web` | Целевой путь для customer UI внутри Telegram веб-приложения | `apps/server`, `packages/shared-types` |
-| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, маршруты-заглушки `orders/availability/menu/users/settings`, адаптивную навигацию и базовую env-конфигурацию для следующих FE-задач | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
+| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, HTTP-клиент bootstrap доступа, восстановление сессии через `GET /api/backoffice/access/me`, хранение `accessToken`, маршруты-заглушки `orders/availability/menu/users/settings` и серверно-управляемую навигацию вкладок | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
 | Общие типы | `packages/shared-types` | Реальный общий пакет деклараций типов для DTO, причин отказа, ролей и вкладок | `apps/server` и будущие веб-приложения |
 | Infra | `infra/` | Локальные compose-файлы, скрипты развёртывания, шаблоны окружения | Все исполняемые контуры |
 | CI/CD | `.github/workflows` | Сборка, тестирование, публикация образов, развёртывание, дымовая проверка | Все исполняемые контуры |
@@ -30,7 +30,7 @@
 | Контур | Ответственность в `FEATURE-001` | Не входит в контур |
 | --- | --- | --- |
 | `apps/server` | Идемпотентно создаёт главного `administrator` из `ADMIN_TELEGRAM_ID` при старте; принимает и валидирует Telegram-контекст служебного бота; вычисляет пользовательский контекст доступа; применяет серверные guard-правила по каналу входа, роли и блокировке | Рендеринг вкладок, маршрутизация клиентской части, визуальный экран отказа |
-| `apps/backoffice-web` | Читает Telegram-контекст из веб-приложения; выполняет bootstrap доступа в серверную часть; хранит контекст текущего пользователя; скрывает недоступные вкладки; блокирует прямой переход по маршруту экраном отказа | Проверка подписи Telegram, bootstrap главного `administrator`, окончательное решение о доступе |
+| `apps/backoffice-web` | Читает Telegram-контекст из веб-приложения; выполняет bootstrap доступа в серверную часть; хранит `accessToken` и контекст текущего пользователя; восстанавливает сессию через `GET /api/backoffice/access/me`; строит навигационный каркас по `availableTabs` | Проверка подписи Telegram, bootstrap главного `administrator`, окончательное решение о доступе и финальные route guards |
 | `packages/shared-types` | Хранит общие типы для bootstrap доступа: DTO запроса и ответа, перечисления ролей, причин отказа и списка допустимых вкладок | Доменные сервисы, HTTP-клиент, UI-логика и guard-реализация |
 
 ### Реализованный серверный контракт `FEATURE-001`
@@ -96,6 +96,7 @@
 - Локальный запуск `apps/backoffice-web`: `npm run dev --workspace @expressa/backoffice-web`
 - Для ручной рабочей проверки `FEATURE-001` серверу нужны `ADMIN_TELEGRAM_ID`, `TG_BACKOFFICE_BOT_TOKEN` и при необходимости `PORT`; базовый шаблон лежит в `apps/server/.env.example`.
 - Для локального каркаса `apps/backoffice-web` базовый шаблон переменных окружения лежит в `apps/backoffice-web/.env.example`; на этапе `FE-001` обязательны `VITE_APP_TITLE` и `VITE_API_BASE_URL`.
+- На этапе `FE-002` клиентская часть дополнительно хранит `accessToken` в `localStorage`, при старте сначала пытается восстановить сессию через `GET /api/backoffice/access/me`, а затем при необходимости выполняет `POST /api/backoffice/access/bootstrap`.
 - Для `FEATURE-001` локальная и конвейерная проверка должны отдельно подтверждать позитивный вход в backoffice и негативный сценарий прямого рабочего доступа без Telegram вне test environment.
 - Маршруты развёртывания для конкретных окружений читаются из `deployment-map.md`.
 

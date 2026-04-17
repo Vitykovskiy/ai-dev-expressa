@@ -10,9 +10,7 @@
       <div class="backoffice-app__brand">
         <p class="backoffice-app__eyebrow">Внутренний административный контур</p>
         <h1 class="backoffice-app__brand-title">{{ environment.appTitle }}</h1>
-        <p class="backoffice-app__brand-subtitle">
-          Каркас FEATURE-001 уже запущен и готов для следующих задач по bootstrap доступа.
-        </p>
+        <p class="backoffice-app__brand-subtitle">{{ brandSummary }}</p>
       </div>
 
       <v-list nav class="backoffice-app__nav-list">
@@ -29,8 +27,10 @@
 
       <template #append>
         <div class="backoffice-app__drawer-footer">
-          <span class="backoffice-app__footer-label">API</span>
-          <code class="backoffice-app__footer-value">{{ environment.apiBaseUrl }}</code>
+          <span class="backoffice-app__footer-label">Сессия</span>
+          <strong class="backoffice-app__footer-status">{{ sessionLabel }}</strong>
+          <span class="backoffice-app__footer-value">{{ sessionSummary }}</span>
+          <code class="backoffice-app__footer-api">{{ environment.apiBaseUrl }}</code>
         </div>
       </template>
     </v-navigation-drawer>
@@ -43,19 +43,39 @@
       <v-container class="backoffice-app__container" fluid>
         <div class="backoffice-app__hero">
           <div>
-            <p class="backoffice-app__eyebrow">Vue 3 · Vite · Vuetify · Vue Router · Vitest</p>
-            <h2 class="backoffice-app__hero-title">{{ currentItem.label }}</h2>
-            <p class="backoffice-app__hero-text">
-              Каркас маршрутов и root layout зафиксированы. HTTP-bootstrap, хранение контекста и guard-правила будут добавлены следующими задачами.
-            </p>
+            <p class="backoffice-app__eyebrow">{{ heroEyebrow }}</p>
+            <h2 class="backoffice-app__hero-title">{{ heroTitle }}</h2>
+            <p class="backoffice-app__hero-text">{{ heroText }}</p>
           </div>
 
           <v-chip color="primary" variant="flat" size="large">
-            FEATURE-001 / FE-001
+            {{ heroChip }}
           </v-chip>
         </div>
 
-        <router-view />
+        <div v-if="isLoading" class="backoffice-app__state-card">
+          <v-progress-circular indeterminate color="primary" />
+          <div>
+            <h3 class="backoffice-app__state-title">Инициализация контекста доступа</h3>
+            <p class="backoffice-app__state-text">
+              Клиентская часть синхронизирует текущую сессию с `apps/server` и готовит навигацию вкладок.
+            </p>
+          </div>
+        </div>
+
+        <div v-else-if="accessState.error" class="backoffice-app__state-card backoffice-app__state-card--error">
+          <div>
+            <h3 class="backoffice-app__state-title">Не удалось получить контекст доступа</h3>
+            <p class="backoffice-app__state-text">{{ accessState.error.message }}</p>
+            <p class="backoffice-app__state-meta">
+              Причина: <code>{{ accessState.error.reason }}</code>
+            </p>
+          </div>
+
+          <v-btn color="primary" variant="flat" @click="retryBootstrap">Повторить</v-btn>
+        </div>
+
+        <router-view v-else />
       </v-container>
     </v-main>
 
@@ -82,23 +102,112 @@ import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { appEnvironment } from '../services/app-environment';
-import { backofficeNavigation, defaultBackofficeRoute } from '../router/backoffice-navigation';
+import {
+  backofficeNavigation,
+  defaultBackofficeRoute,
+  resolveBackofficeNavigation,
+} from '../router/backoffice-navigation';
+import { backofficeAccessStore } from '../stores/backoffice-access-store';
 
 const router = useRouter();
 const route = useRoute();
 const display = useDisplay();
 
 const environment = appEnvironment;
-const navigationItems = backofficeNavigation;
+const accessState = backofficeAccessStore.state;
 const isDesktop = computed(() => display.mdAndUp.value);
+const isLoading = computed(
+  () => accessState.status === 'idle' || accessState.status === 'restoring' || accessState.status === 'bootstrapping',
+);
+const navigationItems = computed(() =>
+  accessState.context
+    ? resolveBackofficeNavigation(accessState.context.availableTabs)
+    : backofficeNavigation,
+);
 const currentTab = computed(() =>
   typeof route.name === 'string' ? route.name : defaultBackofficeRoute.tab,
 );
 const currentItem = computed(
   () =>
-    navigationItems.find((item) => item.tab === currentTab.value) ??
-    defaultBackofficeRoute,
+    backofficeNavigation.find((item) => item.tab === currentTab.value) ?? defaultBackofficeRoute,
 );
+const brandSummary = computed(() => {
+  if (accessState.context) {
+    return `Контекст ${accessState.context.user.telegramId} синхронизирован с server, навигация строится по availableTabs.`;
+  }
+
+  if (accessState.error) {
+    return 'Bootstrap доступа завершился ошибкой. Контекст можно запросить повторно без перезагрузки страницы.';
+  }
+
+  return 'Клиентская часть восстанавливает текущую сессию и готовит серверно-управляемую навигацию вкладок.';
+});
+const heroEyebrow = computed(() => {
+  if (accessState.context) {
+    return 'Контекст доступа получен из apps/server';
+  }
+
+  return 'Vue 3 · Vite · Vuetify · Vue Router · Vitest';
+});
+const heroTitle = computed(() => {
+  if (accessState.error) {
+    return 'Bootstrap доступа требует повторной попытки';
+  }
+
+  if (!accessState.context) {
+    return 'Контекст доступа инициализируется';
+  }
+
+  return currentItem.value.label;
+});
+const heroText = computed(() => {
+  if (accessState.error) {
+    return 'HTTP-клиент получил ответ об ошибке или не смог связаться с server. Финальные guard-правила и экран отказа остаются задачей FE-003.';
+  }
+
+  if (!accessState.context) {
+    return 'Клиентская часть восстанавливает accessToken, читает текущий контекст через GET /api/backoffice/access/me и при необходимости выполняет POST /api/backoffice/access/bootstrap.';
+  }
+
+  return `Доступные вкладки приходят из server без локального вычисления ролей. Активная сессия: ${accessState.context.user.roles.join(', ')}.`;
+});
+const heroChip = computed(() => {
+  if (accessState.context?.isTestMode) {
+    return 'FEATURE-001 / test-mode session';
+  }
+
+  if (accessState.context) {
+    return 'FEATURE-001 / Telegram session';
+  }
+
+  return 'FEATURE-001 / FE-002';
+});
+const sessionLabel = computed(() => {
+  if (accessState.context?.isTestMode) {
+    return 'Test environment';
+  }
+
+  if (accessState.context) {
+    return 'Telegram-вход';
+  }
+
+  if (accessState.error) {
+    return 'Ошибка bootstrap';
+  }
+
+  return 'Инициализация';
+});
+const sessionSummary = computed(() => {
+  if (accessState.context) {
+    return `@${accessState.context.user.telegramId} · вкладок: ${accessState.context.availableTabs.length}`;
+  }
+
+  if (accessState.error) {
+    return accessState.error.message;
+  }
+
+  return 'Ожидается серверный контекст текущего пользователя.';
+});
 
 function goToTab(path: string) {
   if (route.path === path) {
@@ -106,6 +215,10 @@ function goToTab(path: string) {
   }
 
   void router.push(path);
+}
+
+function retryBootstrap() {
+  void backofficeAccessStore.retry();
 }
 </script>
 
@@ -175,10 +288,27 @@ function goToTab(path: string) {
     text-transform: uppercase;
   }
 
-  &__footer-value {
+  &__footer-status {
+    display: block;
     color: var(--expressa-text);
-    font-family: 'Consolas', 'SFMono-Regular', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  &__footer-value {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--expressa-text);
     font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  &__footer-api {
+    display: block;
+    margin-top: 0.75rem;
+    color: var(--expressa-secondary);
+    font-family: 'Consolas', 'SFMono-Regular', monospace;
+    font-size: 0.8rem;
   }
 
   &__topbar {
@@ -209,6 +339,35 @@ function goToTab(path: string) {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(16px);
   }
+
+  &__state-card {
+    display: grid;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.5rem;
+    border: 1px solid var(--expressa-border);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.94);
+  }
+
+  &__state-card--error {
+    border-color: rgba(183, 28, 28, 0.16);
+    background: linear-gradient(180deg, rgba(255, 245, 245, 0.96), rgba(255, 255, 255, 0.94));
+  }
+
+  &__state-title {
+    margin: 0;
+    color: var(--expressa-text);
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  &__state-text,
+  &__state-meta {
+    margin: 0.5rem 0 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
+  }
 }
 
 @media (min-width: 768px) {
@@ -220,6 +379,11 @@ function goToTab(path: string) {
     &__hero {
       align-items: end;
       grid-template-columns: minmax(0, 1fr) auto;
+      padding: 2rem;
+    }
+
+    &__state-card {
+      grid-template-columns: auto minmax(0, 1fr) auto;
       padding: 2rem;
     }
   }

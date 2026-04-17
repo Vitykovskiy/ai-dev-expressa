@@ -1,3 +1,4 @@
+import type { BackofficeTab } from '@expressa/shared-types';
 import type { BackofficeNavigationItem } from '../types';
 
 export const backofficeNavigation: BackofficeNavigationItem[] = [
@@ -39,3 +40,13 @@ export const backofficeNavigation: BackofficeNavigationItem[] = [
 ];
 
 export const defaultBackofficeRoute = backofficeNavigation[0];
+
+const navigationByTab = new Map<BackofficeTab, BackofficeNavigationItem>(
+  backofficeNavigation.map((item) => [item.tab, item]),
+);
+
+export function resolveBackofficeNavigation(availableTabs: readonly BackofficeTab[]) {
+  return availableTabs
+    .map((tab) => navigationByTab.get(tab))
+    .filter((item): item is BackofficeNavigationItem => item !== undefined);
+}

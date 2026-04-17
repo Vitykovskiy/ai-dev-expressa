@@ -47,6 +47,8 @@ export interface BackofficeAccessBootstrapResponse {
   user: BackofficeAccessUser;
 }
 
+export type BackofficeAccessContextResponse = BackofficeAccessBootstrapResponse;
+
 export interface BackofficeAccessDeniedResponse {
   statusCode: number;
   reason: BackofficeAccessDenyReason;

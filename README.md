@@ -49,7 +49,7 @@
 ## Что где находится
 
 - `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в `docs/architecture/application-map.md`.
-- `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, маршруты-заглушки и пример env-конфигурации в `apps/backoffice-web/.env.example`.
+- `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, HTTP bootstrap доступа, восстановление сессии, серверно-управляемую навигацию вкладок и пример env-конфигурации в `apps/backoffice-web/.env.example`.
 - `apps/server/` — серверная часть на `NestJS`; текущая реализация содержит модуль доступа для `FEATURE-001` и пример переменных окружения в `apps/server/.env.example`.
 - `docs/` — проектная документация.
 - `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами.
