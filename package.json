@@ -15,6 +15,10 @@
     "start:dev": "npm run start:dev --workspace @expressa/server",
     "start:dev:backoffice": "npm run dev --workspace @expressa/backoffice-web",
     "test": "npm run test --workspace @expressa/server",
-    "test:backoffice": "npm run test --workspace @expressa/backoffice-web"
+    "test:backoffice": "npm run test --workspace @expressa/backoffice-web",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }

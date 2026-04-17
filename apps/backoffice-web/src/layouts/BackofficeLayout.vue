@@ -6,6 +6,7 @@
       :rail="false"
       :width="280"
       class="backoffice-app__drawer"
+      data-testid="backoffice-navigation"
     >
       <div class="backoffice-app__brand">
         <p class="backoffice-app__eyebrow">Внутренний административный контур</p>
@@ -18,6 +19,7 @@
           v-for="item in layoutState.navigationItems"
           :key="item.tab"
           :active="item.tab === layoutState.currentTab"
+          :data-testid="`nav-item-${item.tab}`"
           :title="item.label"
           :subtitle="item.summary"
           rounded="xl"
@@ -28,8 +30,12 @@
       <template #append>
         <div class="backoffice-app__drawer-footer">
           <span class="backoffice-app__footer-label">Сессия</span>
-          <strong class="backoffice-app__footer-status">{{ layoutState.sessionLabel }}</strong>
-          <span class="backoffice-app__footer-value">{{ layoutState.sessionSummary }}</span>
+          <strong class="backoffice-app__footer-status" data-testid="session-label">
+            {{ layoutState.sessionLabel }}
+          </strong>
+          <span class="backoffice-app__footer-value" data-testid="session-summary">
+            {{ layoutState.sessionSummary }}
+          </span>
           <code class="backoffice-app__footer-api">{{ environment.apiBaseUrl }}</code>
         </div>
       </template>
@@ -41,20 +47,23 @@
 
     <v-main>
       <v-container class="backoffice-app__container" fluid>
-        <div class="backoffice-app__hero">
+        <div class="backoffice-app__hero" data-testid="backoffice-hero">
           <div>
             <p class="backoffice-app__eyebrow">{{ layoutState.heroEyebrow }}</p>
-            <h2 class="backoffice-app__hero-title">{{ layoutState.heroTitle }}</h2>
+            <h2 class="backoffice-app__hero-title" data-testid="hero-title">
+              {{ layoutState.heroTitle }}
+            </h2>
             <p class="backoffice-app__hero-text">{{ layoutState.heroText }}</p>
           </div>
 
-          <v-chip color="primary" variant="flat" size="large">
+          <v-chip color="primary" variant="flat" size="large" data-testid="hero-chip">
             {{ layoutState.heroChip }}
           </v-chip>
         </div>
 
         <div
           v-if="layoutState.blockingState"
+          data-testid="blocking-state"
           class="backoffice-app__state-card"
           :class="{
             'backoffice-app__state-card--error': layoutState.blockingState.kind === 'error',
@@ -75,9 +84,15 @@
             403
           </v-chip>
           <div>
-            <h3 class="backoffice-app__state-title">{{ layoutState.blockingState.title }}</h3>
+            <h3 class="backoffice-app__state-title" data-testid="blocking-state-title">
+              {{ layoutState.blockingState.title }}
+            </h3>
             <p class="backoffice-app__state-text">{{ layoutState.blockingState.text }}</p>
-            <p v-if="layoutState.blockingState.reason" class="backoffice-app__state-meta">
+            <p
+              v-if="layoutState.blockingState.reason"
+              class="backoffice-app__state-meta"
+              data-testid="blocking-state-reason"
+            >
               Причина: <code>{{ layoutState.blockingState.reason }}</code>
             </p>
           </div>

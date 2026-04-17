@@ -35,6 +35,12 @@ jobs:
       - name: Build backoffice
         run: npm run build --workspace @expressa/backoffice-web
 
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+
   deployment-validation:
     runs-on: ubuntu-latest
     needs: quality

@@ -5,8 +5,8 @@
 | Окружение | Назначение | Обязательные проверки |
 | --- | --- | --- |
 | `local` | Разработка и ручная проверка дочерних задач | локальный запуск нужных контуров, модульные тесты, локальный smoke-сценарий |
-| `ci` | Проверка запроса на слияние и готовности к слиянию | установка зависимостей, модульные тесты, сборка, валидация compose-маршрута, локальный smoke-сценарий рабочего режима и test environment |
-| `staging` | Проверка интеграции перед выпуском на VPS | развёртывание через GitHub Actions, post-deploy дымовая проверка критического сценария, проверка окружения и конфигурации |
+| `ci` | Проверка запроса на слияние и готовности к слиянию | установка зависимостей, модульные тесты, e2e `FEATURE-001`, сборка, валидация compose-маршрута, локальный smoke-сценарий рабочего режима и test environment |
+| `staging` | Проверка интеграции перед выпуском на VPS | развёртывание через GitHub Actions, запуск существующих e2e по затронутым фичам, post-deploy дымовая проверка критического сценария, проверка окружения и конфигурации |
 | `production` | Боевой выпуск | контролируемое развёртывание, post-deploy smoke-check, путь отката |
 
 ## Политика окружений для `FEATURE-001`
@@ -22,12 +22,12 @@
 
 - `ci.yml`
   - триггеры: `pull_request`, `push` в `main`
-  - job `quality`: `npm ci`, модульные тесты `apps/server` и `apps/backoffice-web`, сборка обоих контуров
+  - job `quality`: `npm ci`, модульные тесты `apps/server` и `apps/backoffice-web`, установка браузера Playwright, `npm run test:e2e`, сборка обоих контуров
   - job `deployment-validation`: генерация `infra/docker/.env` и `infra/docker/.env.server` из шаблонов, `docker compose config`, локальный рабочий smoke-прогон и отдельный test environment smoke-прогон через `SMOKE_MODE=test`
 - `deploy-feature001.yml`
   - триггеры: автоматический `push` в `main` для `staging`, ручной `workflow_dispatch` для `staging` и `production`
   - вход `git_ref`: позволяет развернуть конкретный commit SHA или тег и используется как штатный путь восстановления
-  - этапы: `npm ci`, модульные тесты, сборка, синхронизация репозитория на VPS, рендер `infra/docker/.env` и `infra/docker/.env.server`, `bash infra/scripts/deploy-feature001.sh`, post-deploy дымовая проверка
+  - этапы: `npm ci`, модульные тесты, установка браузера Playwright, `npm run test:e2e`, сборка, синхронизация репозитория на VPS, рендер `infra/docker/.env` и `infra/docker/.env.server`, `bash infra/scripts/deploy-feature001.sh`, post-deploy дымовая проверка
 
 ## GitHub Environments и VPS-маршрут
 
