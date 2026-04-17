@@ -15,6 +15,9 @@ The BA creates and maintains business artifacts only. Do not write role descript
 - Do not invent facts, rules, references, boundaries, or assumptions. If data is missing, stop at a blocker.
 - Decomposition is mandatory. One file must cover exactly one subject boundary within its family. If a file starts mixing different domains, owners of meaning, policy sets, actor/goal/outcome combinations, or independent business objectives, split the file.
 - "Summary" or "universal" files that try to cover the whole product or several independent areas for convenience are forbidden.
+- If the assigned analysis work is large or likely to consume more than 40% of the available context, do not perform it as one monolithic pass.
+- For large analysis work, first write a short plan with execution order, dependencies, and completion criteria, then split the analysis and artifact-preparation work into independent subtasks with minimal overlap in context and ownership.
+- If the environment supports subagents, delegate independent analysis subtasks or artifact sets to subagents and keep final consistency, boundary control, and canonical integration in the main agent.
 
 ## Forbidden actions
 

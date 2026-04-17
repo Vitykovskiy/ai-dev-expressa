@@ -15,14 +15,14 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-001`, `FE-001`
-- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Ожидаемый результат для ревью: `Apps/backoffice-web использует реальные серверные контракты bootstrap доступа и чтения текущего контекста, хранит accessToken и пользовательский контекст, восстанавливает сессию и строит рабочую маршрутизацию и навигационный каркас на основе ответа server без самостоятельного вычисления прав доступа.`
 - Проверки: `Модульные тесты для HTTP-сервисов, хранилища состояния и инициализации пользовательского контекста; локальная проверка bootstrap доступа и восстановления сессии; ручная проверка открытия и переключения маршрутов в разрешённом контуре.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда apps/backoffice-web умеет получить и восстановить контекст доступа по существующим серверным контрактам и строит поверх него маршрутизацию и навигационный каркас без реализации финальных guard-правил и экрана отказа.`

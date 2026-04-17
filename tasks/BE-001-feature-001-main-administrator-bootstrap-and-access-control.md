@@ -15,14 +15,14 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-001`
-- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `Server создаёт главного administrator из ADMIN_TELEGRAM_ID идемпотентно, принимает только допустимый Telegram-контекст служебного бота для рабочего входа в backoffice, поддерживает оговорённый test environment и отклоняет доступ без Telegram или без административной роли.`
 - Проверки: `Модульные тесты bootstrap главного administrator, проверки Telegram-контекста, test environment и серверных guard-правил; локальная дымовая проверка серверного входа administrator и отказа в доступе без Telegram-контекста.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда server end-to-end поддерживает bootstrap и серверный контроль доступа для FEATURE-001, а ключевые правила доступа подтверждены модульными тестами и дымовой проверкой.`

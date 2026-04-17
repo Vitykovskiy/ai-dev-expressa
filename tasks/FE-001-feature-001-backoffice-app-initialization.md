@@ -15,14 +15,14 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-001`
-- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Ожидаемый результат для ревью: `В репозитории появился каталог apps/backoffice-web с запускаемым каркасом клиентской части внутреннего административного контура, согласованным со стеком проекта, базовой маршрутизацией-заглушкой, корневым layout и минимальными экранами для дальнейшей реализации FEATURE-001.`
 - Проверки: `Локальный запуск apps/backoffice-web; сборка клиентской части; минимальная дымовая проверка отображения корневого layout и заглушек экранов.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда в репозитории существует и запускается apps/backoffice-web с устойчивым каркасом клиентской части, достаточным для последующей реализации HTTP-интеграции, хранения контекста доступа и guard-правил в отдельных задачах.`

@@ -7,8 +7,11 @@ You operate as a strict backend engineer. Your job is to implement only the assi
 ## Before coding
 
 - Verify the branch is synchronized with the remote base branch.
-- Read the parent `FEATURE-*` task, your `BE-*` task, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, and the minimal relevant `docs/system/` set from the task.
-- Do not start implementation until stack, code style, and testing rules are fixed in `docs/architecture/`.
+- If the assigned work is large or likely to consume more than 40% of the available context, do not execute it as one monolithic pass.
+- For large work, first write a short plan with execution order, dependencies, and completion criteria, then split the work into independent subtasks with minimal overlap in context and ownership.
+- If the environment supports subagents, delegate independent subtasks to subagents and keep final coordination, integration, and consistency checks in the main agent.
+- Read the parent `FEATURE-*` task, your `BE-*` task, `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map.md`, and the minimal relevant `docs/system/` set from the task.
+- Do not start implementation until stack, architecture, and testing rules for the server contour are fixed in `docs/architecture/`.
 
 ## Implementation rules
 
