@@ -7,6 +7,7 @@ export const MENU_CATEGORIES_ROUTE_NAME = 'menu.menu_categories';
 export const MENU_PRODUCTS_ROUTE_NAME = 'menu.menu_products';
 export const MENU_PRODUCT_DETAIL_ROUTE_NAME = 'menu.menu_product_detail';
 export const MENU_ADDON_GROUP_DETAIL_ROUTE_NAME = 'menu.addon_group_detail';
+export const NEW_MENU_PRODUCT_ID = 'new';
 
 export type MenuCatalogRouteName =
   | typeof MENU_ROOT_ROUTE_NAME
@@ -91,6 +92,18 @@ export function createMenuProductDetailRoute(
   };
 }
 
+export function createMenuNewProductRoute(
+  categoryId: string,
+): {
+  name: typeof MENU_PRODUCT_DETAIL_ROUTE_NAME;
+  params: { categoryId: string; productId: typeof NEW_MENU_PRODUCT_ID };
+} {
+  return {
+    name: MENU_PRODUCT_DETAIL_ROUTE_NAME,
+    params: { categoryId, productId: NEW_MENU_PRODUCT_ID },
+  };
+}
+
 export function createMenuAddonGroupDetailRoute(
   categoryId: string,
   optionGroupId: string,
@@ -144,6 +157,11 @@ export function resolveMenuCatalogRouteGuard(
 
   if (to.name === MENU_PRODUCT_DETAIL_ROUTE_NAME) {
     const productId = readRouteParam(to.params.productId);
+
+    if (productId === NEW_MENU_PRODUCT_ID) {
+      return true;
+    }
+
     const product = productId ? findProduct(catalog, productId) : null;
 
     if (!product || product.menuCategoryId !== categoryId) {

@@ -4,11 +4,11 @@
       <div>
         <p class="product-detail__label">menu.menu_product_detail</p>
         <h3 class="product-detail__title" data-testid="page-title">
-          {{ product?.name ?? 'Карточка товара' }}
+          {{ pageTitle }}
         </h3>
         <p class="product-detail__text">
-          Карточка показывает текущий серверный снимок товара и подготавливает устойчивую точку
-          входа для редактора `FE-005`.
+          Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет
+          панель вкладки `menu`.
         </p>
       </div>
 
@@ -17,17 +17,37 @@
       </div>
     </section>
 
+    <v-alert
+      v-if="draftMessage"
+      class="product-detail__alert"
+      color="primary"
+      data-testid="product-draft-message"
+      variant="tonal"
+    >
+      {{ draftMessage }}
+    </v-alert>
+
     <v-row>
       <v-col cols="12" lg="7">
-        <v-card class="detail-card" rounded="xl">
-          <div class="detail-card__chips">
-            <v-chip color="primary" variant="tonal">
-              {{ product?.itemType === 'drink' ? 'Напиток' : 'Товар без обязательного размера' }}
-            </v-chip>
-            <v-chip v-if="category" color="secondary" variant="tonal">
-              Категория: {{ category.name }}
-            </v-chip>
-          </div>
+        <v-card class="detail-card" rounded="lg">
+          <MenuProductEditorForm
+            :category-name="category?.name ?? null"
+            :mode="isCreateMode ? 'create' : 'edit'"
+            :product="product"
+            @cancel="goBackToProducts"
+            @submit="submitProduct"
+          />
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" lg="5">
+        <v-card class="detail-card detail-card--summary" rounded="lg">
+          <p class="detail-card__section-label">Ценовая модель</p>
+          <h4 class="detail-card__summary-title">{{ priceModelTitle }}</h4>
+          <p class="detail-card__summary-text">
+            Для товара используется одна базовая цена. Для напитка форма подготавливает цены
+            размеров S, M и L без локального переопределения серверных правил.
+          </p>
 
           <div v-if="product?.itemType === 'drink'" class="detail-card__sizes">
             <div
@@ -40,26 +60,15 @@
             </div>
           </div>
 
-          <div v-else class="detail-card__single-price">
+          <div v-else-if="product" class="detail-card__single-price">
             <span class="detail-card__single-price-label">Базовая цена</span>
-            <strong>{{ product?.basePrice ?? '—' }} ₽</strong>
+            <strong>{{ product.basePrice ?? '—' }} ₽</strong>
           </div>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" lg="5">
-        <v-card class="detail-card detail-card--note" rounded="xl">
-          <p class="detail-card__note-label">Следующий шаг</p>
-          <h4 class="detail-card__note-title">Редактор формы будет опираться на этот маршрут</h4>
-          <p class="detail-card__note-text">
-            В `FE-004` маршрут уже связан с данными каталога и выбранной категорией. `FE-005`
-            сможет переиспользовать тот же снимок и сохранить изменения через единый store.
-          </p>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-card class="detail-card" rounded="xl" v-if="optionGroups.length > 0">
+    <v-card class="detail-card" rounded="lg" v-if="optionGroups.length > 0">
       <p class="detail-card__section-label">Наследуемые группы дополнительных опций</p>
       <div class="detail-card__group-list">
         <button
@@ -80,10 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import MenuProductEditorForm from '../components/MenuProductEditorForm.vue';
 import {
+  NEW_MENU_PRODUCT_ID,
   createMenuAddonGroupDetailRoute,
+  createMenuProductDetailRoute,
   createMenuProductsRoute,
 } from '../router/menu-catalog-navigation';
 import {
@@ -92,19 +104,43 @@ import {
   menuCatalogStore,
   resolveMenuCategoryOptionGroups,
 } from '../stores/menu-catalog-store';
+import type { MenuCatalogProductDraft } from '../types';
 
+const route = useRoute();
 const router = useRouter();
+const draftMessage = ref<string | null>(null);
 const categoryId = computed(() => menuCatalogStore.state.selection.categoryId);
-const productId = computed(() => menuCatalogStore.state.selection.productId);
+const routeProductId = computed(() =>
+  typeof route.params.productId === 'string' ? route.params.productId : null,
+);
+const isCreateMode = computed(() => routeProductId.value === NEW_MENU_PRODUCT_ID);
 const category = computed(() =>
   findMenuCatalogCategory(menuCatalogStore.state.catalog, categoryId.value),
 );
 const product = computed(() =>
-  findMenuCatalogProduct(menuCatalogStore.state.catalog, productId.value),
+  isCreateMode.value
+    ? null
+    : findMenuCatalogProduct(menuCatalogStore.state.catalog, routeProductId.value),
 );
 const optionGroups = computed(() =>
   resolveMenuCategoryOptionGroups(menuCatalogStore.state.catalog, categoryId.value),
 );
+const pageTitle = computed(() => {
+  if (isCreateMode.value) {
+    return 'Новый товар';
+  }
+
+  return product.value?.name ?? 'Карточка товара';
+});
+const priceModelTitle = computed(() => {
+  if (!product.value) {
+    return 'Новая позиция ещё не добавлена в черновик';
+  }
+
+  return product.value.itemType === 'drink'
+    ? 'Напиток с ценами S/M/L'
+    : 'Товар без обязательного размера';
+});
 
 function goBackToProducts() {
   if (!categoryId.value) {
@@ -112,6 +148,30 @@ function goBackToProducts() {
   }
 
   void router.push(createMenuProductsRoute(categoryId.value));
+}
+
+function submitProduct(productDraft: MenuCatalogProductDraft) {
+  if (!categoryId.value) {
+    return;
+  }
+
+  if (isCreateMode.value) {
+    const product = menuCatalogStore.addProduct(categoryId.value, productDraft);
+
+    if (!product) {
+      return;
+    }
+
+    draftMessage.value = 'Товар добавлен в черновик каталога.';
+    void router.replace(createMenuProductDetailRoute(categoryId.value, product.menuItemId));
+    return;
+  }
+
+  if (!routeProductId.value || !menuCatalogStore.updateProduct(routeProductId.value, productDraft)) {
+    return;
+  }
+
+  draftMessage.value = 'Товар обновлён в черновике каталога.';
 }
 
 function openAddonGroup(optionGroupId: string) {
@@ -137,7 +197,6 @@ function openAddonGroup(optionGroupId: string) {
   }
 
   &__label,
-  .detail-card__note-label,
   .detail-card__section-label {
     margin: 0;
     color: var(--expressa-muted);
@@ -148,7 +207,7 @@ function openAddonGroup(optionGroupId: string) {
   }
 
   &__title,
-  .detail-card__note-title {
+  .detail-card__summary-title {
     margin: 0.5rem 0 0;
     color: var(--expressa-text);
     font-size: clamp(1.2rem, 1.5vw, 1.7rem);
@@ -156,7 +215,7 @@ function openAddonGroup(optionGroupId: string) {
   }
 
   &__text,
-  .detail-card__note-text {
+  .detail-card__summary-text {
     margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
@@ -168,7 +227,6 @@ function openAddonGroup(optionGroupId: string) {
   background: rgba(255, 255, 255, 0.94);
   padding: 1.25rem;
 
-  &__chips,
   &__sizes,
   &__group-list {
     display: flex;
@@ -176,7 +234,8 @@ function openAddonGroup(optionGroupId: string) {
     gap: 0.75rem;
   }
 
-  &__sizes {
+  &__sizes,
+  &__single-price {
     margin-top: 1rem;
   }
 
@@ -185,7 +244,7 @@ function openAddonGroup(optionGroupId: string) {
     min-width: 8rem;
     padding: 0.85rem 1rem;
     border: 1px solid var(--expressa-border);
-    border-radius: 1rem;
+    border-radius: 8px;
     background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(255, 255, 255, 0.96));
   }
 
@@ -195,11 +254,6 @@ function openAddonGroup(optionGroupId: string) {
     margin-bottom: 0.35rem;
     color: var(--expressa-muted);
     font-size: 0.8rem;
-  }
-
-  &__note-title,
-  &__note-text {
-    max-width: 26rem;
   }
 
   &__group-list {
@@ -212,7 +266,7 @@ function openAddonGroup(optionGroupId: string) {
     min-width: 14rem;
     padding: 0.85rem 1rem;
     border: 1px solid var(--expressa-border);
-    border-radius: 1rem;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.96);
     color: var(--expressa-text);
     text-align: left;

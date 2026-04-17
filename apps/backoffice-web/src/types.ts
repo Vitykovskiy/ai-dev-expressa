@@ -2,7 +2,9 @@ import type {
   BackofficeAccessContextResponse,
   BackofficeAccessDenyReason,
   BackofficeTab,
+  MenuCatalogDrinkSizePrice,
   MenuCatalogErrorResponse,
+  MenuCatalogItemType,
   MenuCatalogSnapshot,
 } from '@expressa/shared-types';
 
@@ -67,4 +69,11 @@ export interface MenuCatalogState {
   error: MenuCatalogError | null;
   isDirty: boolean;
   selection: MenuCatalogSelectionState;
+}
+
+export interface MenuCatalogProductDraft {
+  name: string;
+  itemType: MenuCatalogItemType;
+  basePrice: number | null;
+  sizePrices: MenuCatalogDrinkSizePrice[];
 }

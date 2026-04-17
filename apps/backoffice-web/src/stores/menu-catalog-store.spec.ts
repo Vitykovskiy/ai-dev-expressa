@@ -137,6 +137,63 @@ describe('createMenuCatalogStore', () => {
     );
   });
 
+  it('adds and edits products in the selected category draft', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn().mockResolvedValue(snapshot),
+    };
+    const store = createMenuCatalogStore({
+      createId: (prefix) => `${prefix}-new`,
+      menuCatalogApi,
+    });
+
+    await store.initialize('access-token');
+
+    const product = store.addProduct('cat-coffee', {
+      name: '  Раф  ',
+      itemType: 'drink',
+      basePrice: null,
+      sizePrices: [
+        { size: 'S', price: 210 },
+        { size: 'M', price: 250 },
+        { size: 'L', price: 290 },
+      ],
+    });
+
+    expect(product).toEqual({
+      menuItemId: 'item-new',
+      menuCategoryId: 'cat-coffee',
+      name: 'Раф',
+      itemType: 'drink',
+      basePrice: null,
+      sizePrices: [
+        { size: 'S', price: 210 },
+        { size: 'M', price: 250 },
+        { size: 'L', price: 290 },
+      ],
+    });
+    expect(store.state.selection.productId).toBe('item-new');
+    expect(store.state.isDirty).toBe(true);
+
+    expect(
+      store.updateProduct('item-new', {
+        name: 'Круассан',
+        itemType: 'product',
+        basePrice: 180,
+        sizePrices: [],
+      }),
+    ).toBe(true);
+    expect(store.state.catalog?.items.find((item) => item.menuItemId === 'item-new')).toEqual({
+      menuItemId: 'item-new',
+      menuCategoryId: 'cat-coffee',
+      name: 'Круассан',
+      itemType: 'product',
+      basePrice: 180,
+      sizePrices: [],
+    });
+  });
+
   it('keeps the draft dirty and exposes the server save error when persistence fails', async () => {
     const snapshot = createCatalogSnapshot();
     const menuCatalogApi = {
