@@ -3,7 +3,7 @@
     <section class="menu-page__header">
       <div>
         <p class="menu-page__label">menu.menu_categories</p>
-        <h3 class="menu-page__title">Категории каталога</h3>
+        <h3 class="menu-page__title" data-testid="page-title">Категории каталога</h3>
         <p class="menu-page__text">
           Категории показываются из серверного снимка вместе с наследуемыми группами
           дополнительных опций и количеством товаров.

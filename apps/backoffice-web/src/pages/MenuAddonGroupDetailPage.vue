@@ -3,7 +3,9 @@
     <section class="addon-detail__header">
       <div>
         <p class="addon-detail__label">menu.addon_group_detail</p>
-        <h3 class="addon-detail__title">{{ optionGroup?.name ?? 'Группа дополнительных опций' }}</h3>
+        <h3 class="addon-detail__title" data-testid="page-title">
+          {{ optionGroup?.name ?? 'Группа дополнительных опций' }}
+        </h3>
         <p class="addon-detail__text">
           Группа привязана к категории и наследуется всеми товарами этой категории. Карточка
           показывает текущее правило выбора и состав опций.

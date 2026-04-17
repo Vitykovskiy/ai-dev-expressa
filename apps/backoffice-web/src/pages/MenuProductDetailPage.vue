@@ -3,7 +3,9 @@
     <section class="product-detail__header">
       <div>
         <p class="product-detail__label">menu.menu_product_detail</p>
-        <h3 class="product-detail__title">{{ product?.name ?? 'Карточка товара' }}</h3>
+        <h3 class="product-detail__title" data-testid="page-title">
+          {{ product?.name ?? 'Карточка товара' }}
+        </h3>
         <p class="product-detail__text">
           Карточка показывает текущий серверный снимок товара и подготавливает устойчивую точку
           входа для редактора `FE-005`.

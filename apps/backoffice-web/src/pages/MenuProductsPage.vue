@@ -3,7 +3,7 @@
     <section class="menu-products__header">
       <div>
         <p class="menu-products__label">menu.menu_products</p>
-        <h3 class="menu-products__title">{{ categoryTitle }}</h3>
+        <h3 class="menu-products__title" data-testid="page-title">{{ categoryTitle }}</h3>
         <p class="menu-products__text">
           Список строится по `menuCategoryId` выбранной категории. Для каждого товара отображается
           тип, ценовая модель и inherited-связь с группами дополнительных опций.
