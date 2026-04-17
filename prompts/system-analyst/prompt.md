@@ -134,6 +134,8 @@ Apply this section only when the assigned task explicitly requires creating or u
   - the concrete implementation outcome that the sprint is expected to deliver through its future features
   - the minimal relevant read set from `docs/system/`
   - dependencies on other task cards, if any
+- Keep business artifacts at the level of source analysis and parent sprint preparation; do not push `docs/business/*` into developer-facing cards when the required behavior is already fixed in `docs/system/`.
+- If the assigned task explicitly requires creating developer-facing cards, treat `docs/system/` and `docs/architecture/` as the default handoff set and use a business artifact only as a documented exception for a fact that is still missing from the system artifacts.
 - Do not derive features mechanically from menu, slots, notifications, access, or other internal system slices if those slices do not form standalone demonstrable increments.
 - Do not split one sprint into several implementation task cards unless the assigned task explicitly requires several independent sprints.
 - The system analyst must not create `FEATURE-*`, architect, backend, frontend, DevOps, or QA child tasks by default.

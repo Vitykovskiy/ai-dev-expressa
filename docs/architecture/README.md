@@ -20,7 +20,7 @@
 - `application-map.md`
   - Обязательная карта приложения: контуры, модули, точки входа, зависимости, запуск, тестирование и маршруты развёртывания.
   - Для `FEATURE-001` фиксирует границы `apps/server`, `apps/backoffice-web`, `packages/shared-types`, Telegram-контекст и guard-правила.
-  - В актуальном состоянии документа отражает реальный модуль `apps/server/src/modules/access`, общий пакет `packages/shared-types` и команды сборки и тестирования серверной части.
+  - В актуальном состоянии документа отражает реальный модуль `apps/server/src/modules/access`, каркас `apps/backoffice-web`, общий пакет `packages/shared-types` и команды сборки и тестирования обоих контуров.
 
 - `deployment-map.md`
   - Карта окружений, CI/CD-конвейеров, переменных окружения, smoke-check и отката.

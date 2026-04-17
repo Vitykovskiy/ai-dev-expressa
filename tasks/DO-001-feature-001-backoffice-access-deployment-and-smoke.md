@@ -14,10 +14,9 @@
 
 ## Ссылки на документы
 
-- Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
-- Сценарии: `docs/business/scenarios/administrator-manage-menu.md`
-- Требования / правила: `docs/business/business-rules/access-and-roles.md`
-- Дополнительные материалы: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/contracts/user-role-and-blocking-management.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Дополнительные материалы: `не требуются`
 
 ## Примечания
 

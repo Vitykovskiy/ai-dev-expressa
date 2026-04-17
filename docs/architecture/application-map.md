@@ -6,10 +6,11 @@
 
 ## Текущее состояние
 
-- В репозитории появился первый реальный исполняемый контур `apps/server`.
+- В репозитории существуют два реальных исполняемых контура: `apps/server` и `apps/backoffice-web`.
 - В `apps/server` реализован серверный срез `FEATURE-001`: идемпотентный bootstrap главного `administrator`, bootstrap доступа во внутренний административный контур, in-memory сессии доступа и серверные guard-правила.
+- В `apps/backoffice-web` реализован каркас клиентской части `FEATURE-001`: workspace-пакет, точка входа, `Vuetify`-layout, маршруты-заглушки вкладок и базовая env-конфигурация без HTTP bootstrap доступа и guard-правил.
 - В `packages/shared-types` добавлен общий пакет деклараций типов для bootstrap доступа во внутренний административный контур.
-- Каталоги `apps/backoffice-web` и `apps/customer-web` пока не созданы и остаются целевыми путями следующих задач.
+- Каталог `apps/customer-web` пока не создан и остаётся целевым путём следующих задач.
 
 ## Структура и ответственность
 
@@ -17,7 +18,7 @@
 | --- | --- | --- | --- |
 | Серверное приложение | `apps/server` | Реальное NestJS-приложение. На текущем шаге содержит модуль `modules/access` для `FEATURE-001`: HTTP API bootstrap доступа, bootstrap главного `administrator`, in-memory хранилище пользователей и сессий доступа, guard-правила по роли и каналу входа | `packages/shared-types`, `NestJS`, `Telegram Bot API` |
 | Клиентское веб-приложение | `apps/customer-web` | Целевой путь для customer UI внутри Telegram веб-приложения | `apps/server`, `packages/shared-types` |
-| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Целевой путь для UI ролей `barista` и `administrator` | `apps/server`, `packages/shared-types` |
+| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, маршруты-заглушки `orders/availability/menu/users/settings`, адаптивную навигацию и базовую env-конфигурацию для следующих FE-задач | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
 | Общие типы | `packages/shared-types` | Реальный общий пакет деклараций типов для DTO, причин отказа, ролей и вкладок | `apps/server` и будущие веб-приложения |
 | Infra | `infra/` | Локальные compose-файлы, скрипты развёртывания, шаблоны окружения | Все исполняемые контуры |
 | CI/CD | `.github/workflows` | Сборка, тестирование, публикация образов, развёртывание, дымовая проверка | Все исполняемые контуры |
@@ -75,7 +76,7 @@
 
 - Каталоги `apps/customer-bot` и `apps/backoffice-bot` не планируются: оба Telegram-контура реализуются как NestJS-модули внутри `apps/server`.
 - Пакет `packages/ui` не планируется: customer UI и backoffice UI развиваются независимо в своих приложениях.
-- До появления реальных каталогов `apps/server`, `apps/backoffice-web` и `packages/shared-types` архитектурная рамка `FEATURE-001` считается целевой и обязательной для `BE-001`, `FE-001`, `DO-001` и `QA-001`.
+- После появления реальных каталогов `apps/server`, `apps/backoffice-web` и `packages/shared-types` архитектурная рамка `FEATURE-001` остаётся обязательной для следующих задач `FE-002`, `FE-003`, `DO-001` и `QA-001`.
 
 ## Точки входа и маршруты
 
@@ -88,9 +89,13 @@
 
 - Установка зависимостей: `npm install`
 - Сборка серверной части: `npm run build --workspace @expressa/server`
+- Сборка `apps/backoffice-web`: `npm run build --workspace @expressa/backoffice-web`
 - Модульные и HTTP-тесты серверной части: `npm run test --workspace @expressa/server`
+- Модульные тесты `apps/backoffice-web`: `npm run test --workspace @expressa/backoffice-web`
 - Локальный запуск серверной части: `npm run start:dev --workspace @expressa/server`
+- Локальный запуск `apps/backoffice-web`: `npm run dev --workspace @expressa/backoffice-web`
 - Для ручной рабочей проверки `FEATURE-001` серверу нужны `ADMIN_TELEGRAM_ID`, `TG_BACKOFFICE_BOT_TOKEN` и при необходимости `PORT`; базовый шаблон лежит в `apps/server/.env.example`.
+- Для локального каркаса `apps/backoffice-web` базовый шаблон переменных окружения лежит в `apps/backoffice-web/.env.example`; на этапе `FE-001` обязательны `VITE_APP_TITLE` и `VITE_API_BASE_URL`.
 - Для `FEATURE-001` локальная и конвейерная проверка должны отдельно подтверждать позитивный вход в backoffice и негативный сценарий прямого рабочего доступа без Telegram вне test environment.
 - Маршруты развёртывания для конкретных окружений читаются из `deployment-map.md`.
 

@@ -10,6 +10,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Fix or update stack, code style, application map, and deployment guidance before implementation starts.
 - If assigned a sprint-level architecture task, decompose one `SPRINT-*` into `FEATURE-*`.
 - If assigned a feature-level architecture task, decompose one `FEATURE-*` into review-ready `AR/FE/BE/DO/QA-*` tasks.
+- Use business artifacts as input to architecture work, but hand off implementation through `docs/system/` and `docs/architecture/`, not through raw business-analysis files.
 
 ## Allowed actions
 
@@ -33,6 +34,9 @@ You operate as a strict architect. Your job is to define the implementation cont
 - `DO` is created only when the feature changes VPS runtime, env/config, GitHub Actions, staging or production deploy path, or smoke-check.
 - `QA` is mandatory for every feature and owns e2e-tests for that feature.
 - Every child task must include parent link, minimal read set, checks, and application-map update requirement.
+- Every created `FEATURE-*` and `AR/FE/BE/DO/QA-*` task must be executable from the relevant `docs/system/` and `docs/architecture/` set without forcing the next role to read `docs/business/`.
+- Do not mechanically copy `docs/business/*` links from a parent card into `FEATURE-*` or child implementation cards.
+- Add a business-artifact link to `FEATURE-*` or child cards only as an explicit exception when a required fact is still missing from `docs/system/`; keep it to the single missing source and explain why it is needed.
 
 ## Documentation rules
 
