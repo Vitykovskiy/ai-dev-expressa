@@ -11,6 +11,14 @@
       </div>
 
       <div class="menu-products__actions">
+        <v-btn
+          color="primary"
+          variant="flat"
+          data-testid="create-product"
+          @click="createProduct"
+        >
+          Создать товар
+        </v-btn>
         <v-btn variant="text" color="primary" @click="goBackToCategories">К категориям</v-btn>
       </div>
     </section>
@@ -76,6 +84,7 @@ import { useRouter } from 'vue-router';
 import {
   createMenuAddonGroupDetailRoute,
   createMenuCategoriesRoute,
+  createMenuNewProductRoute,
   createMenuProductDetailRoute,
 } from '../router/menu-catalog-navigation';
 import {
@@ -115,6 +124,14 @@ function openProduct(productId: string) {
   }
 
   void router.push(createMenuProductDetailRoute(categoryId.value, productId));
+}
+
+function createProduct() {
+  if (!categoryId.value) {
+    return;
+  }
+
+  void router.push(createMenuNewProductRoute(categoryId.value));
 }
 
 function openAddonGroup(optionGroupId: string) {

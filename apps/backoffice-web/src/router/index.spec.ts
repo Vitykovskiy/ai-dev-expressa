@@ -156,6 +156,45 @@ describe('backoffice router', () => {
     });
   });
 
+  it('allows the new product route inside an existing category', async () => {
+    backofficeAccessStore.state.status = 'ready';
+    backofficeAccessStore.state.accessToken = 'token-1';
+    backofficeAccessStore.state.context = {
+      accessToken: 'token-1',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability', 'menu', 'users', 'settings'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['administrator'],
+        blocked: false,
+        isPrimaryAdministrator: true,
+      },
+    };
+    menuCatalogStore.replaceCatalog({
+      categories: [
+        {
+          menuCategoryId: 'cat-coffee',
+          name: 'Кофе',
+          optionGroupRefs: [],
+        },
+      ],
+      items: [],
+      optionGroups: [],
+    });
+
+    await router.push('/menu/categories/cat-coffee/products/new');
+
+    expect(router.currentRoute.value.name).toBe('menu.menu_product_detail');
+    expect(router.currentRoute.value.params.productId).toBe('new');
+    expect(menuCatalogStore.state.selection).toEqual({
+      categoryId: 'cat-coffee',
+      productId: null,
+      optionGroupId: null,
+    });
+  });
+
   it('keeps allowed routes available when the tab exists in availableTabs', () => {
     const guardResult = resolveBackofficeRouteGuard(
       {

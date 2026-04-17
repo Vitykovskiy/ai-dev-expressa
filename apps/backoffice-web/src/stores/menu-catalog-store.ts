@@ -10,7 +10,7 @@ import {
   BackofficeMenuCatalogApi,
   normalizeBackofficeMenuCatalogError,
 } from '../services/backoffice-menu-catalog-api';
-import type { MenuCatalogSelectionState, MenuCatalogState } from '../types';
+import type { MenuCatalogProductDraft, MenuCatalogSelectionState, MenuCatalogState } from '../types';
 import type { MenuCatalogRouteName } from '../router/menu-catalog-navigation';
 
 interface MenuCatalogApiPort {
@@ -25,6 +25,7 @@ interface MenuCatalogStoreDependencies {
 
 export interface MenuCatalogStore {
   addCategory(name: string): MenuCatalogCategory | null;
+  addProduct(categoryId: string, productDraft: MenuCatalogProductDraft): MenuCatalogItem | null;
   clear(): void;
   initialize(accessToken: string): Promise<void>;
   reload(accessToken: string): Promise<void>;
@@ -34,6 +35,7 @@ export interface MenuCatalogStore {
   state: MenuCatalogState;
   updateCategoryName(categoryId: string, name: string): boolean;
   updateDraft(mutator: (catalog: MenuCatalogSnapshot) => void): boolean;
+  updateProduct(productId: string, productDraft: MenuCatalogProductDraft): boolean;
 }
 
 function createEmptySelection(): MenuCatalogSelectionState {
@@ -284,6 +286,67 @@ export function createMenuCatalogStore({
     });
   }
 
+  function toMenuCatalogItem(
+    menuItemId: string,
+    menuCategoryId: string,
+    productDraft: MenuCatalogProductDraft,
+  ): MenuCatalogItem {
+    return {
+      menuItemId,
+      menuCategoryId,
+      name: productDraft.name.trim(),
+      itemType: productDraft.itemType,
+      basePrice: productDraft.basePrice,
+      sizePrices: productDraft.sizePrices.map((sizePrice) => ({ ...sizePrice })),
+    };
+  }
+
+  function addProduct(
+    categoryId: string,
+    productDraft: MenuCatalogProductDraft,
+  ): MenuCatalogItem | null {
+    if (!state.catalog || !productDraft.name.trim() || !findCategory(state.catalog, categoryId)) {
+      return null;
+    }
+
+    const product = toMenuCatalogItem(createId('item'), categoryId, productDraft);
+    const updated = updateDraft((catalog) => {
+      catalog.items.push(product);
+    });
+
+    if (!updated) {
+      return null;
+    }
+
+    state.selection = normalizeSelection(state.catalog, {
+      categoryId,
+      productId: product.menuItemId,
+      optionGroupId: null,
+    });
+    return product;
+  }
+
+  function updateProduct(productId: string, productDraft: MenuCatalogProductDraft): boolean {
+    if (!state.catalog || !productDraft.name.trim()) {
+      return false;
+    }
+
+    const product = findMenuCatalogProduct(state.catalog, productId);
+
+    if (!product) {
+      return false;
+    }
+
+    return updateDraft((catalog) => {
+      const draftProduct = findMenuCatalogProduct(catalog, productId);
+
+      Object.assign(
+        draftProduct!,
+        toMenuCatalogItem(productId, draftProduct!.menuCategoryId, productDraft),
+      );
+    });
+  }
+
   async function save(accessToken: string): Promise<MenuCatalogSnapshot | null> {
     if (!state.catalog) {
       state.status = 'error';
@@ -322,6 +385,7 @@ export function createMenuCatalogStore({
 
   return {
     addCategory,
+    addProduct,
     clear,
     initialize,
     reload,
@@ -331,6 +395,7 @@ export function createMenuCatalogStore({
     state,
     updateCategoryName,
     updateDraft,
+    updateProduct,
   };
 }
 
