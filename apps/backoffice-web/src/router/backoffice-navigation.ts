@@ -1,5 +1,6 @@
 import type { BackofficeTab } from '@expressa/shared-types';
 import type { BackofficeNavigationItem } from '../types';
+import { resolveBackofficeRouteTabFromName } from './menu-catalog-navigation';
 
 export const backofficeNavigation: BackofficeNavigationItem[] = [
   {
@@ -66,5 +67,5 @@ export function resolveBackofficeNavigationItem(tab: unknown): BackofficeNavigat
 }
 
 export function resolveBackofficeRouteTab(routeName: unknown): BackofficeTab | null {
-  return isBackofficeTab(routeName) ? routeName : null;
+  return resolveBackofficeRouteTabFromName(routeName);
 }

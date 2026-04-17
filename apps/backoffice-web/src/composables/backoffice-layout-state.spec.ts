@@ -109,6 +109,32 @@ describe('backoffice-layout-state', () => {
     expect(viewModel.value.currentItem.label).toBe('Меню');
   });
 
+  it('maps nested menu routes back to the menu navigation item', () => {
+    const viewModel = buildBackofficeLayoutViewModel(
+      createAccessState({
+        status: 'ready',
+        accessToken: 'token-1',
+        context: {
+          accessToken: 'token-1',
+          channel: 'backoffice-telegram-entry',
+          isTestMode: false,
+          availableTabs: ['orders', 'availability', 'menu'],
+          user: {
+            userId: 'user-1',
+            telegramId: '900001',
+            roles: ['administrator'],
+            blocked: false,
+            isPrimaryAdministrator: true,
+          },
+        },
+      }),
+      'menu.menu_product_detail',
+    );
+
+    expect(viewModel.currentTab).toBe('menu');
+    expect(viewModel.currentItem.label).toBe('Меню');
+  });
+
   it('renders dedicated hero copy for the route access denied page', () => {
     const viewModel = buildBackofficeLayoutViewModel(
       createAccessState({
