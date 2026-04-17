@@ -14,10 +14,9 @@
 
 ## Ссылки на документы
 
-- Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
-- Сценарии: `docs/business/scenarios/administrator-manage-slot-settings.md`
-- Требования / правила: `docs/business/business-rules/pickup-slots-and-capacity.md`, `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `docs/system/domain-model/ordering-and-pickup.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/README.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Системные артефакты: `docs/system/domain-model/ordering-and-pickup.md`, `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
+- Архитектурные артефакты: `docs/architecture/README.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Дополнительные материалы: `не требуются`
 
 ## Примечания
 
