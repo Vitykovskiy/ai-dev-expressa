@@ -34,6 +34,9 @@ The result must be sufficient for:
 - Decompose business requirements into delivery-ready increments when one requirement cannot be implemented, reviewed, validated, demonstrated, or handed over safely as a single development task.
 - Decomposition is mandatory. System artifacts must be split so that a later role can receive only the files relevant to its task.
 - A system artifact is invalid if the next role must read large amounts of irrelevant material to perform one concrete change.
+- If the assigned analysis work is large or likely to consume more than 40% of the available context, do not perform it as one monolithic pass.
+- For large analysis work, first write a short plan with execution order, dependencies, and completion criteria, then split the analysis and artifact-preparation work into independent subtasks with minimal overlap in context and ownership.
+- If the environment supports subagents, delegate independent analysis subtasks or artifact sets to subagents and keep final consistency, traceability, and canonical integration in the main agent.
 
 ## Allowed actions
 
