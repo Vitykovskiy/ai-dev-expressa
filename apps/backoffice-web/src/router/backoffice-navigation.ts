@@ -50,3 +50,21 @@ export function resolveBackofficeNavigation(availableTabs: readonly BackofficeTa
     .map((tab) => navigationByTab.get(tab))
     .filter((item): item is BackofficeNavigationItem => item !== undefined);
 }
+
+export function isBackofficeTab(value: unknown): value is BackofficeTab {
+  return typeof value === 'string' && navigationByTab.has(value as BackofficeTab);
+}
+
+export function resolveAllowedBackofficeRoute(
+  availableTabs: readonly BackofficeTab[],
+): BackofficeNavigationItem {
+  return resolveBackofficeNavigation(availableTabs)[0] ?? defaultBackofficeRoute;
+}
+
+export function resolveBackofficeNavigationItem(tab: unknown): BackofficeNavigationItem {
+  return isBackofficeTab(tab) ? navigationByTab.get(tab) ?? defaultBackofficeRoute : defaultBackofficeRoute;
+}
+
+export function resolveBackofficeRouteTab(routeName: unknown): BackofficeTab | null {
+  return isBackofficeTab(routeName) ? routeName : null;
+}

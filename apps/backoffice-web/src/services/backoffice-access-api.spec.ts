@@ -5,6 +5,52 @@ import type {
 import { BackofficeAccessApi, normalizeBackofficeAccessError } from './backoffice-access-api';
 
 describe('BackofficeAccessApi', () => {
+  it('uses the bound global fetch implementation by default', async () => {
+    const response: BackofficeAccessBootstrapResponse = {
+      accessToken: 'token-default',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['barista'],
+        blocked: false,
+        isPrimaryAdministrator: false,
+      },
+    };
+    const originalFetch = globalThis.fetch;
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify(response), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+
+    globalThis.fetch = fetchMock;
+
+    try {
+      const api = new BackofficeAccessApi('http://localhost:3000');
+
+      const result = await api.bootstrapAccess({
+        mode: 'telegram',
+        telegramInitData: 'init-data',
+      });
+
+      expect(result).toEqual(response);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://localhost:3000/api/backoffice/access/bootstrap',
+        expect.objectContaining({
+          method: 'POST',
+        }),
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('sends bootstrap request to the backoffice access endpoint', async () => {
     const response: BackofficeAccessBootstrapResponse = {
       accessToken: 'token-1',
