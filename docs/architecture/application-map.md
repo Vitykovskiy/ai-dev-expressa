@@ -8,7 +8,7 @@
 
 - В репозитории существуют два реальных исполняемых контура: `apps/server` и `apps/backoffice-web`.
 - В `apps/server` реализован серверный срез `FEATURE-001`: идемпотентный bootstrap главного `administrator`, bootstrap доступа во внутренний административный контур, in-memory сессии доступа и серверные guard-правила.
-- В `apps/backoffice-web` реализован клиентский интеграционный слой `FEATURE-001`: HTTP bootstrap доступа, восстановление сессии по `accessToken`, хранение пользовательского контекста, серверно-управляемая навигация вкладок и маршруты-заглушки без финальных guard-правил.
+- В `apps/backoffice-web` реализован клиентский интеграционный слой `FEATURE-001`: HTTP bootstrap доступа, восстановление сессии по `accessToken`, хранение пользовательского контекста, композиционная функция подготовки shell-состояния, серверно-управляемая навигация вкладок и маршруты-заглушки без финальных guard-правил.
 - В `packages/shared-types` добавлен общий пакет деклараций типов для bootstrap доступа во внутренний административный контур.
 - Каталог `apps/customer-web` пока не создан и остаётся целевым путём следующих задач.
 
@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | Серверное приложение | `apps/server` | Реальное NestJS-приложение. На текущем шаге содержит модуль `modules/access` для `FEATURE-001`: HTTP API bootstrap доступа, bootstrap главного `administrator`, in-memory хранилище пользователей и сессий доступа, guard-правила по роли и каналу входа | `packages/shared-types`, `NestJS`, `Telegram Bot API` |
 | Клиентское веб-приложение | `apps/customer-web` | Целевой путь для customer UI внутри Telegram веб-приложения | `apps/server`, `packages/shared-types` |
-| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, HTTP-клиент bootstrap доступа, восстановление сессии через `GET /api/backoffice/access/me`, хранение `accessToken`, маршруты-заглушки `orders/availability/menu/users/settings` и серверно-управляемую навигацию вкладок | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
+| Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, композиционную функцию для shell-состояния, HTTP-клиент bootstrap доступа, восстановление сессии через `GET /api/backoffice/access/me`, хранение `accessToken`, маршруты-заглушки `orders/availability/menu/users/settings` и серверно-управляемую навигацию вкладок | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
 | Общие типы | `packages/shared-types` | Реальный общий пакет деклараций типов для DTO, причин отказа, ролей и вкладок | `apps/server` и будущие веб-приложения |
 | Infra | `infra/` | Локальные compose-файлы, скрипты развёртывания, шаблоны окружения | Все исполняемые контуры |
 | CI/CD | `.github/workflows` | Сборка, тестирование, публикация образов, развёртывание, дымовая проверка | Все исполняемые контуры |

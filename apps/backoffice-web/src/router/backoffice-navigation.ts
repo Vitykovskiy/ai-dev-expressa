@@ -50,3 +50,15 @@ export function resolveBackofficeNavigation(availableTabs: readonly BackofficeTa
     .map((tab) => navigationByTab.get(tab))
     .filter((item): item is BackofficeNavigationItem => item !== undefined);
 }
+
+export function resolveBackofficeNavigationItem(
+  tab: BackofficeTab,
+): BackofficeNavigationItem {
+  return navigationByTab.get(tab) ?? defaultBackofficeRoute;
+}
+
+export function resolveBackofficeRouteTab(routeName: unknown): BackofficeTab {
+  return typeof routeName === 'string' && navigationByTab.has(routeName as BackofficeTab)
+    ? (routeName as BackofficeTab)
+    : defaultBackofficeRoute.tab;
+}
