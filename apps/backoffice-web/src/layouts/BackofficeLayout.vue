@@ -53,26 +53,43 @@
           </v-chip>
         </div>
 
-        <div v-if="layoutState.isLoading" class="backoffice-app__state-card">
-          <v-progress-circular indeterminate color="primary" />
+        <div
+          v-if="layoutState.blockingState"
+          class="backoffice-app__state-card"
+          :class="{
+            'backoffice-app__state-card--error': layoutState.blockingState.kind === 'error',
+            'backoffice-app__state-card--denied': layoutState.blockingState.kind === 'access-denied',
+          }"
+        >
+          <v-progress-circular
+            v-if="layoutState.blockingState.kind === 'loading'"
+            indeterminate
+            color="primary"
+          />
+          <v-chip
+            v-else-if="layoutState.blockingState.kind === 'access-denied'"
+            color="error"
+            variant="flat"
+            size="small"
+          >
+            403
+          </v-chip>
           <div>
-            <h3 class="backoffice-app__state-title">Инициализация контекста доступа</h3>
-            <p class="backoffice-app__state-text">
-              Клиентская часть синхронизирует текущую сессию с `apps/server` и готовит навигацию вкладок.
+            <h3 class="backoffice-app__state-title">{{ layoutState.blockingState.title }}</h3>
+            <p class="backoffice-app__state-text">{{ layoutState.blockingState.text }}</p>
+            <p v-if="layoutState.blockingState.reason" class="backoffice-app__state-meta">
+              Причина: <code>{{ layoutState.blockingState.reason }}</code>
             </p>
           </div>
-        </div>
 
-        <div v-else-if="accessState.error" class="backoffice-app__state-card backoffice-app__state-card--error">
-          <div>
-            <h3 class="backoffice-app__state-title">Не удалось получить контекст доступа</h3>
-            <p class="backoffice-app__state-text">{{ accessState.error.message }}</p>
-            <p class="backoffice-app__state-meta">
-              Причина: <code>{{ accessState.error.reason }}</code>
-            </p>
-          </div>
-
-          <v-btn color="primary" variant="flat" @click="retryBootstrap">Повторить</v-btn>
+          <v-btn
+            v-if="layoutState.blockingState.kind !== 'loading'"
+            color="primary"
+            variant="flat"
+            @click="retryBootstrap"
+          >
+            Повторить
+          </v-btn>
         </div>
 
         <router-view v-else />
@@ -81,7 +98,7 @@
 
     <v-bottom-navigation
       v-if="!isDesktop"
-      :model-value="layoutState.currentItem.path"
+      :model-value="layoutState.currentPath"
       class="backoffice-app__bottom-nav"
       grow
     >
@@ -258,6 +275,12 @@ function retryBootstrap() {
   &__state-card--error {
     border-color: rgba(183, 28, 28, 0.16);
     background: linear-gradient(180deg, rgba(255, 245, 245, 0.96), rgba(255, 255, 255, 0.94));
+  }
+
+  &__state-card--denied {
+    border-color: rgba(183, 28, 28, 0.2);
+    background:
+      linear-gradient(180deg, rgba(255, 243, 243, 0.98), rgba(255, 252, 252, 0.94));
   }
 
   &__state-title {

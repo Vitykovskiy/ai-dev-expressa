@@ -51,14 +51,20 @@ export function resolveBackofficeNavigation(availableTabs: readonly BackofficeTa
     .filter((item): item is BackofficeNavigationItem => item !== undefined);
 }
 
-export function resolveBackofficeNavigationItem(
-  tab: BackofficeTab,
-): BackofficeNavigationItem {
-  return navigationByTab.get(tab) ?? defaultBackofficeRoute;
+export function isBackofficeTab(value: unknown): value is BackofficeTab {
+  return typeof value === 'string' && navigationByTab.has(value as BackofficeTab);
 }
 
-export function resolveBackofficeRouteTab(routeName: unknown): BackofficeTab {
-  return typeof routeName === 'string' && navigationByTab.has(routeName as BackofficeTab)
-    ? (routeName as BackofficeTab)
-    : defaultBackofficeRoute.tab;
+export function resolveAllowedBackofficeRoute(
+  availableTabs: readonly BackofficeTab[],
+): BackofficeNavigationItem {
+  return resolveBackofficeNavigation(availableTabs)[0] ?? defaultBackofficeRoute;
+}
+
+export function resolveBackofficeNavigationItem(tab: unknown): BackofficeNavigationItem {
+  return isBackofficeTab(tab) ? navigationByTab.get(tab) ?? defaultBackofficeRoute : defaultBackofficeRoute;
+}
+
+export function resolveBackofficeRouteTab(routeName: unknown): BackofficeTab | null {
+  return isBackofficeTab(routeName) ? routeName : null;
 }

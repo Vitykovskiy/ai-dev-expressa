@@ -7,6 +7,8 @@ import type {
 export interface BackofficeAppEnvironment {
   appTitle: string;
   apiBaseUrl: string;
+  disableTelegramAuth: boolean;
+  testTelegramId: string | null;
 }
 
 export interface BackofficeNavigationItem {
@@ -21,6 +23,7 @@ export type BackofficeAccessStatus = 'idle' | 'restoring' | 'bootstrapping' | 'r
 
 export type BackofficeAccessErrorReason =
   | BackofficeAccessDenyReason
+  | 'route-access-denied'
   | 'network-error'
   | 'unexpected-response';
 

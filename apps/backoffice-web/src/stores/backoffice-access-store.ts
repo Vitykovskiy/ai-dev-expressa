@@ -42,7 +42,7 @@ function isRecoverableSessionError(error: BackofficeAccessError): boolean {
 export function createBackofficeAccessStore({
   accessApi,
   accessTokenStorage,
-  bootstrapRequestFactory = readBackofficeBootstrapRequest,
+  bootstrapRequestFactory = () => readBackofficeBootstrapRequest(appEnvironment),
 }: BackofficeAccessStoreDependencies): BackofficeAccessStore {
   const state = reactive<BackofficeAccessState>({
     status: 'idle',

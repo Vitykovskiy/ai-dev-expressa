@@ -22,13 +22,13 @@ describe('backoffice-layout-state', () => {
   it('returns loading content before the access context is ready', () => {
     const viewModel = buildBackofficeLayoutViewModel(createAccessState(), 'orders');
 
-    expect(viewModel.isLoading).toBe(true);
+    expect(viewModel.blockingState?.kind).toBe('loading');
     expect(viewModel.heroTitle).toBe('Контекст доступа инициализируется');
     expect(viewModel.currentTab).toBe('orders');
     expect(viewModel.navigationItems).toHaveLength(5);
   });
 
-  it('returns error content when bootstrap failed', () => {
+  it('returns access denied content for pre-bootstrap Telegram failure', () => {
     const viewModel = buildBackofficeLayoutViewModel(
       createAccessState({
         status: 'error',
@@ -41,10 +41,10 @@ describe('backoffice-layout-state', () => {
       'unknown-route',
     );
 
-    expect(viewModel.isLoading).toBe(false);
-    expect(viewModel.currentTab).toBe('orders');
-    expect(viewModel.heroTitle).toBe('Bootstrap доступа требует повторной попытки');
-    expect(viewModel.sessionLabel).toBe('Ошибка bootstrap');
+    expect(viewModel.blockingState?.kind).toBe('access-denied');
+    expect(viewModel.currentTab).toBeNull();
+    expect(viewModel.heroTitle).toBe('Нужен Telegram-контекст');
+    expect(viewModel.sessionLabel).toBe('Отказ в доступе');
     expect(viewModel.sessionSummary).toBe('Нужен Telegram-контекст.');
   });
 
@@ -70,7 +70,7 @@ describe('backoffice-layout-state', () => {
       'availability',
     );
 
-    expect(viewModel.isLoading).toBe(false);
+    expect(viewModel.blockingState).toBeNull();
     expect(viewModel.currentItem.label).toBe('Доступность');
     expect(viewModel.navigationItems.map((item) => item.tab)).toEqual([
       'orders',
@@ -107,5 +107,33 @@ describe('backoffice-layout-state', () => {
     routeName.value = 'menu';
 
     expect(viewModel.value.currentItem.label).toBe('Меню');
+  });
+
+  it('renders dedicated hero copy for the route access denied page', () => {
+    const viewModel = buildBackofficeLayoutViewModel(
+      createAccessState({
+        status: 'ready',
+        accessToken: 'token-1',
+        context: {
+          accessToken: 'token-1',
+          channel: 'backoffice-telegram-entry',
+          isTestMode: false,
+          availableTabs: ['orders', 'availability'],
+          user: {
+            userId: 'user-1',
+            telegramId: '900001',
+            roles: ['barista'],
+            blocked: false,
+            isPrimaryAdministrator: false,
+          },
+        },
+      }),
+      'access-denied',
+    );
+
+    expect(viewModel.blockingState).toBeNull();
+    expect(viewModel.currentTab).toBeNull();
+    expect(viewModel.heroEyebrow).toContain('Route guard');
+    expect(viewModel.heroTitle).toBe('Прямой переход по URL остановлен');
   });
 });

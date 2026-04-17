@@ -23,7 +23,7 @@
             </section>
 
             <section class="placeholder-page__panel">
-              <p class="placeholder-page__panel-label">Что добавится дальше</p>
+              <p class="placeholder-page__panel-label">Что уже защищено</p>
               <ul class="placeholder-page__list">
                 <li>Pre-bootstrap проверка Telegram-контекста и test environment-поведение.</li>
                 <li>Route guards и экран отказа при прямом переходе по недоступному URL.</li>

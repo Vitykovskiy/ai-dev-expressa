@@ -102,6 +102,10 @@ describe('createBackofficeAccessStore', () => {
     const store = createBackofficeAccessStore({
       accessApi,
       accessTokenStorage,
+      bootstrapRequestFactory: vi.fn<() => BackofficeAccessBootstrapRequest>().mockReturnValue({
+        mode: 'telegram',
+        telegramInitData: 'signed-init-data',
+      }),
     });
 
     await store.initialize();
@@ -111,6 +115,40 @@ describe('createBackofficeAccessStore', () => {
       statusCode: 401,
       reason: 'telegram-context-required',
       message: 'Telegram context is required',
+    });
+  });
+
+  it('stores pre-bootstrap access denial when Telegram context is absent before the request', async () => {
+    const accessTokenStorage = {
+      clear: vi.fn(),
+      read: vi.fn().mockReturnValue(null),
+      write: vi.fn(),
+    };
+    const accessApi = {
+      bootstrapAccess: vi.fn<() => Promise<BackofficeAccessContextResponse>>(),
+      getCurrentAccess: vi.fn<() => Promise<BackofficeAccessContextResponse>>(),
+    };
+    const bootstrapRequestFactory = vi.fn<() => BackofficeAccessBootstrapRequest>().mockImplementation(() => {
+      throw {
+        statusCode: 401,
+        reason: 'telegram-context-required',
+        message: 'Telegram-контекст обязателен',
+      };
+    });
+    const store = createBackofficeAccessStore({
+      accessApi,
+      accessTokenStorage,
+      bootstrapRequestFactory,
+    });
+
+    await store.initialize();
+
+    expect(accessApi.bootstrapAccess).not.toHaveBeenCalled();
+    expect(store.state.status).toBe('error');
+    expect(store.state.error).toEqual({
+      statusCode: 401,
+      reason: 'telegram-context-required',
+      message: 'Telegram-контекст обязателен',
     });
   });
 });

@@ -83,7 +83,7 @@ export function normalizeBackofficeAccessError(error: unknown): BackofficeAccess
 export class BackofficeAccessApi {
   constructor(
     private readonly apiBaseUrl: string,
-    private readonly fetchImpl: FetchLike = fetch,
+    private readonly fetchImpl: FetchLike = fetch.bind(globalThis),
   ) {}
 
   bootstrapAccess(
