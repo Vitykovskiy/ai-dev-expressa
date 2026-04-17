@@ -7,4 +7,3 @@ export interface UserRecord {
   blocked: boolean;
   isPrimaryAdministrator: boolean;
 }
-

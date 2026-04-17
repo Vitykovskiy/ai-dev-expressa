@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AccessController } from './access.controller';
-import { AdministratorGuard } from './administrator.guard';
-import { BackofficeAccessService } from './backoffice-access.service';
-import { BackofficeSessionGuard } from './backoffice-session.guard';
-import { BackofficeSessionService } from './backoffice-session.service';
-import { BootstrapMainAdministratorService } from './bootstrap-main-administrator.service';
-import { EnvironmentService } from './environment.service';
-import { InMemoryUserRepository } from './in-memory-user.repository';
-import { TelegramWebAppValidatorService } from './telegram-webapp-validator.service';
-import { USER_REPOSITORY, UserRepositoryPort } from './user-repository';
+import { BackofficeAccessService } from './application/services/backoffice-access.service';
+import { BootstrapMainAdministratorService } from './application/services/bootstrap-main-administrator.service';
+import { BackofficeSessionStorePort } from './domain/ports/backoffice-session-store.port';
+import { UserRepositoryPort } from './domain/ports/user-repository.port';
+import { TelegramWebAppValidatorService } from './infrastructure/adapters/telegram-webapp-validator.service';
+import { AccessEnvironmentService } from './infrastructure/config/access-environment.service';
+import { InMemoryBackofficeSessionStore } from './infrastructure/persistence/in-memory-backoffice-session.store';
+import { InMemoryUserRepository } from './infrastructure/persistence/in-memory-user.repository';
+import { AccessController } from './transport/controllers/access.controller';
+import { AdministratorGuard } from './transport/guards/administrator.guard';
+import { BackofficeSessionGuard } from './transport/guards/backoffice-session.guard';
 
 @Module({
   controllers: [AccessController],
@@ -16,14 +17,14 @@ import { USER_REPOSITORY, UserRepositoryPort } from './user-repository';
     AdministratorGuard,
     BackofficeAccessService,
     BackofficeSessionGuard,
-    BackofficeSessionService,
     BootstrapMainAdministratorService,
-    EnvironmentService,
+    AccessEnvironmentService,
+    InMemoryBackofficeSessionStore,
     InMemoryUserRepository,
     TelegramWebAppValidatorService,
     {
-      provide: USER_REPOSITORY,
-      useExisting: InMemoryUserRepository,
+      provide: BackofficeSessionStorePort,
+      useExisting: InMemoryBackofficeSessionStore,
     },
     {
       provide: UserRepositoryPort,

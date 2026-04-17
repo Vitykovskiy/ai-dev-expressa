@@ -1,8 +1,8 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString, Matches, ValidateIf } from 'class-validator';
-import type { BackofficeBootstrapMode } from '@expressa/shared-types';
+import type { BackofficeBootstrapMode, BackofficeAccessBootstrapRequest } from '@expressa/shared-types';
 
-export class BackofficeAccessBootstrapRequestDto {
+export class BackofficeAccessBootstrapRequestDto implements BackofficeAccessBootstrapRequest {
   @IsIn(['telegram', 'test'])
   mode!: BackofficeBootstrapMode;
 

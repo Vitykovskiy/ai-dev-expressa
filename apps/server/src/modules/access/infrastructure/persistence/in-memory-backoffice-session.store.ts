@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { BackofficeAccessChannel } from '@expressa/shared-types';
-import type { BackofficeSession } from './model/backoffice-session';
+import type { BackofficeSession } from '../../domain/models/backoffice-session';
+import { BackofficeSessionStorePort } from '../../domain/ports/backoffice-session-store.port';
 
 @Injectable()
-export class BackofficeSessionService {
+export class InMemoryBackofficeSessionStore extends BackofficeSessionStorePort {
   private readonly sessions = new Map<string, BackofficeSession>();
 
-  createSession(input: {
+  async createSession(input: {
     userId: string;
     channel: BackofficeAccessChannel;
     isTestMode: boolean;
-  }): BackofficeSession {
+  }): Promise<BackofficeSession> {
     const session: BackofficeSession = {
       token: randomUUID(),
       userId: input.userId,
@@ -23,8 +24,7 @@ export class BackofficeSessionService {
     return session;
   }
 
-  getSession(token: string): BackofficeSession | null {
+  async getSession(token: string): Promise<BackofficeSession | null> {
     return this.sessions.get(token) ?? null;
   }
 }
-

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepositoryPort } from './user-repository';
-import type { UserRecord } from './model/user-record';
+import type { UserRecord } from '../../domain/models/user-record';
+import { UserRepositoryPort } from '../../domain/ports/user-repository.port';
 
 @Injectable()
 export class InMemoryUserRepository extends UserRepositoryPort {
@@ -44,4 +44,3 @@ export class InMemoryUserRepository extends UserRepositoryPort {
     return value === null ? value : structuredClone(value);
   }
 }
-

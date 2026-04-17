@@ -1,15 +1,13 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import type { Request } from 'express';
-import type { BackofficeAccessBootstrapResponse } from '@expressa/shared-types';
-import { AdministratorGuard } from './administrator.guard';
-import { BackofficeAccessService } from './backoffice-access.service';
-import { BackofficeSessionGuard } from './backoffice-session.guard';
-import { BackofficeAccessBootstrapRequestDto } from './dto/backoffice-access-bootstrap-request.dto';
-import type { ResolvedBackofficeContext } from './model/backoffice-session';
-
-type RequestWithBackofficeContext = Request & {
-  backofficeContext?: ResolvedBackofficeContext;
-};
+import type {
+  BackofficeAccessBootstrapResponse,
+  BackofficeAccessContextResponse,
+} from '@expressa/shared-types';
+import { BackofficeAccessService } from '../../application/services/backoffice-access.service';
+import { BackofficeAccessBootstrapRequestDto } from '../dto/backoffice-access-bootstrap-request.dto';
+import { AdministratorGuard } from '../guards/administrator.guard';
+import { BackofficeSessionGuard } from '../guards/backoffice-session.guard';
+import type { RequestWithBackofficeContext } from '../types/request-with-backoffice-context';
 
 @Controller('api/backoffice')
 export class AccessController {
@@ -24,8 +22,8 @@ export class AccessController {
 
   @Get('access/me')
   @UseGuards(BackofficeSessionGuard)
-  getCurrentAccess(@Req() request: RequestWithBackofficeContext): ResolvedBackofficeContext {
-    return request.backofficeContext as ResolvedBackofficeContext;
+  getCurrentAccess(@Req() request: RequestWithBackofficeContext): BackofficeAccessContextResponse {
+    return request.backofficeContext as BackofficeAccessContextResponse;
   }
 
   @Get('admin/ping')
@@ -38,4 +36,3 @@ export class AccessController {
     };
   }
 }
-

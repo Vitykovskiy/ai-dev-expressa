@@ -1,4 +1,4 @@
-import { TelegramWebAppValidatorService } from '../src/modules/access/telegram-webapp-validator.service';
+import { TelegramWebAppValidatorService } from '../src/modules/access/infrastructure/adapters/telegram-webapp-validator.service';
 import { createSignedTelegramInitData } from './helpers/telegram-init-data';
 
 describe('TelegramWebAppValidatorService', () => {
@@ -19,4 +19,3 @@ describe('TelegramWebAppValidatorService', () => {
     expect(() => validator.validate(initData, botToken)).toThrow('Telegram context signature is invalid');
   });
 });
-

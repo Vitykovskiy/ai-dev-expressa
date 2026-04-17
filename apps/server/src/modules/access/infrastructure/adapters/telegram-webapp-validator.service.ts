@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { BackofficeAccessException } from './errors/backoffice-access.exception';
+import { BackofficeAccessError } from '../../application/errors/backoffice-access.error';
 
 interface TelegramInitDataUser {
   id: number | string;
@@ -18,7 +18,7 @@ export class TelegramWebAppValidatorService {
     const encodedUser = params.get('user');
 
     if (!hash || !encodedUser) {
-      throw new BackofficeAccessException(
+      throw new BackofficeAccessError(
         'telegram-context-invalid',
         401,
         'Telegram context is incomplete',
@@ -35,7 +35,7 @@ export class TelegramWebAppValidatorService {
     const expectedHash = createHmac('sha256', secret).update(dataCheckString).digest('hex');
 
     if (!this.safeHashEquals(expectedHash, hash)) {
-      throw new BackofficeAccessException(
+      throw new BackofficeAccessError(
         'telegram-context-invalid',
         401,
         'Telegram context signature is invalid',
@@ -47,7 +47,7 @@ export class TelegramWebAppValidatorService {
     try {
       user = JSON.parse(encodedUser) as TelegramInitDataUser;
     } catch {
-      throw new BackofficeAccessException(
+      throw new BackofficeAccessError(
         'telegram-context-invalid',
         401,
         'Telegram user payload is invalid JSON',
@@ -55,7 +55,7 @@ export class TelegramWebAppValidatorService {
     }
 
     if ((typeof user.id !== 'number' && typeof user.id !== 'string') || `${user.id}`.trim() === '') {
-      throw new BackofficeAccessException(
+      throw new BackofficeAccessError(
         'telegram-context-invalid',
         401,
         'Telegram user identifier is missing',
@@ -74,4 +74,3 @@ export class TelegramWebAppValidatorService {
     return expected.length === actual.length && timingSafeEqual(expected, actual);
   }
 }
-

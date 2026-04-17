@@ -1,14 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { ADMINISTRATOR_ROLE } from './access.constants';
-import { EnvironmentService } from './environment.service';
-import type { UserRecord } from './model/user-record';
-import { UserRepositoryPort } from './user-repository';
+import { ADMINISTRATOR_ROLE } from '../../domain/policies/backoffice-access.policy';
+import type { UserRecord } from '../../domain/models/user-record';
+import { UserRepositoryPort } from '../../domain/ports/user-repository.port';
+import { AccessEnvironmentService } from '../../infrastructure/config/access-environment.service';
 
 @Injectable()
 export class BootstrapMainAdministratorService implements OnModuleInit {
   constructor(
-    private readonly environmentService: EnvironmentService,
+    private readonly environmentService: AccessEnvironmentService,
     private readonly userRepository: UserRepositoryPort,
   ) {}
 
@@ -39,4 +39,3 @@ export class BootstrapMainAdministratorService implements OnModuleInit {
     });
   }
 }
-

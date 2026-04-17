@@ -1,21 +1,19 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class EnvironmentService {
+export class AccessEnvironmentService {
   readonly adminTelegramId: string;
   readonly disableTelegramAuth: boolean;
   readonly backofficeBotToken: string | null;
 
   constructor(private readonly configService: ConfigService) {
-    this.adminTelegramId = this.readRequiredDigits("ADMIN_TELEGRAM_ID");
-    this.disableTelegramAuth = this.readBoolean("DISABLE_TG_AUTH");
-    this.backofficeBotToken = this.readOptionalString("TG_BACKOFFICE_BOT_TOKEN");
+    this.adminTelegramId = this.readRequiredDigits('ADMIN_TELEGRAM_ID');
+    this.disableTelegramAuth = this.readBoolean('DISABLE_TG_AUTH');
+    this.backofficeBotToken = this.readOptionalString('TG_BACKOFFICE_BOT_TOKEN');
 
     if (!this.disableTelegramAuth && !this.backofficeBotToken) {
-      throw new Error(
-        "TG_BACKOFFICE_BOT_TOKEN is required when DISABLE_TG_AUTH is false",
-      );
+      throw new Error('TG_BACKOFFICE_BOT_TOKEN is required when DISABLE_TG_AUTH is false');
     }
   }
 
@@ -35,6 +33,6 @@ export class EnvironmentService {
   }
 
   private readBoolean(name: string): boolean {
-    return this.configService.get<string>(name)?.trim().toLowerCase() === "true";
+    return this.configService.get<string>(name)?.trim().toLowerCase() === 'true';
   }
 }

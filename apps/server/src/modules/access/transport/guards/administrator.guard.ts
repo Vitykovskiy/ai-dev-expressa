@@ -1,12 +1,7 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
-import type { Request } from 'express';
-import { ADMINISTRATOR_ROLE } from './access.constants';
-import { BackofficeAccessException } from './errors/backoffice-access.exception';
-import type { ResolvedBackofficeContext } from './model/backoffice-session';
-
-type RequestWithBackofficeContext = Request & {
-  backofficeContext?: ResolvedBackofficeContext;
-};
+import { ADMINISTRATOR_ROLE } from '../../domain/policies/backoffice-access.policy';
+import { BackofficeAccessError } from '../../application/errors/backoffice-access.error';
+import type { RequestWithBackofficeContext } from '../types/request-with-backoffice-context';
 
 @Injectable()
 export class AdministratorGuard implements CanActivate {
@@ -15,7 +10,7 @@ export class AdministratorGuard implements CanActivate {
     const roles = request.backofficeContext?.user.roles ?? [];
 
     if (!roles.includes(ADMINISTRATOR_ROLE)) {
-      throw new BackofficeAccessException(
+      throw new BackofficeAccessError(
         'administrator-role-required',
         HttpStatus.FORBIDDEN,
         'Administrator role is required',
@@ -25,4 +20,3 @@ export class AdministratorGuard implements CanActivate {
     return true;
   }
 }
-
