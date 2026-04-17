@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12">
-      <v-card class="placeholder-page" rounded="xl">
+      <v-card class="placeholder-page" rounded="xl" data-testid="placeholder-page">
         <div class="placeholder-page__rail" :style="{ background: accent }"></div>
 
         <div class="placeholder-page__content">
@@ -9,8 +9,8 @@
             Следующий шаг
           </v-chip>
 
-          <h3 class="placeholder-page__title">{{ title }}</h3>
-          <p class="placeholder-page__summary">{{ summary }}</p>
+          <h3 class="placeholder-page__title" data-testid="page-title">{{ title }}</h3>
+          <p class="placeholder-page__summary" data-testid="page-summary">{{ summary }}</p>
 
           <div class="placeholder-page__grid">
             <section class="placeholder-page__panel">

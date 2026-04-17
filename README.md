@@ -12,6 +12,7 @@
 |   `-- server/
 |       |-- src/
 |       `-- test/
+|-- e2e/
 |-- docs/
 |   |-- architecture/
 |   |-- business/
@@ -52,8 +53,9 @@
 - `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, HTTP bootstrap доступа, восстановление сессии, серверно-управляемую навигацию вкладок и пример env-конфигурации в `apps/backoffice-web/.env.example`.
 - `apps/server/` — серверная часть на `NestJS`; текущая реализация содержит модуль доступа для `FEATURE-001` и пример переменных окружения в `apps/server/.env.example`.
 - `docs/` — проектная документация.
+- `e2e/` — сквозные проверки `FEATURE-*`; текущий набор `FEATURE-001` поднимает `apps/server` и `apps/backoffice-web` через Playwright.
 - `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами.
-- `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования для серверной части и `apps/backoffice-web`.
+- `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования для серверной части, `apps/backoffice-web` и Playwright e2e-набора.
 - `terms-map.md` — таблица англицизмов и рекомендуемых русских аналогов для архитектурной документации.
 - `docs/architecture/README.md` — навигационная карта по этим архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и базовым технологическим ограничениям.
