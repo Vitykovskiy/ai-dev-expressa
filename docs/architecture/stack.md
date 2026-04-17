@@ -22,6 +22,7 @@
 - DevOps:
   - `Docker`
   - `Docker Compose` для локальной сборки контуров
+  - `Nginx` для публикации собранного `apps/backoffice-web` и проксирования `/api` к `apps/server` в контейнерном маршруте `FEATURE-001`
   - `GitHub Actions` для CI/CD
 
 ## Базовая структура монорепозитория

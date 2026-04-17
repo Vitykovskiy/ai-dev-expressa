@@ -1,0 +1,27 @@
+name: expressa-feature001
+
+services:
+  server:
+    build:
+      context: ../..
+      dockerfile: apps/server/Dockerfile
+    env_file:
+      - ./.env.server
+    ports:
+      - "${SERVER_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  backoffice-web:
+    build:
+      context: ../..
+      dockerfile: apps/backoffice-web/Dockerfile
+      args:
+        VITE_APP_TITLE: ${VITE_APP_TITLE:-Expressa Backoffice}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DISABLE_TG_AUTH: ${VITE_DISABLE_TG_AUTH:-false}
+        VITE_TEST_TELEGRAM_ID: ${VITE_TEST_TELEGRAM_ID:-}
+    depends_on:
+      - server
+    ports:
+      - "${BACKOFFICE_PORT:-8080}:80"
+    restart: unless-stopped

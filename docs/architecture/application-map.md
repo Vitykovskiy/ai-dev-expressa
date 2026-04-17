@@ -10,6 +10,10 @@
 - В `apps/server` реализован серверный срез `FEATURE-001`: идемпотентный bootstrap главного `administrator`, bootstrap доступа во внутренний административный контур, in-memory сессии доступа и серверные guard-правила.
 - В `apps/backoffice-web` реализован клиентский интеграционный слой `FEATURE-001`: pre-bootstrap проверка Telegram-контекста, test environment-поведение при `VITE_DISABLE_TG_AUTH=true`, HTTP bootstrap доступа, восстановление сессии по `accessToken`, хранение пользовательского контекста, композиционная функция подготовки shell-состояния, серверно-управляемая навигация вкладок, route guards и экран отказа в доступе.
 - В `packages/shared-types` добавлен общий пакет деклараций типов для bootstrap доступа во внутренний административный контур.
+- В `e2e/feature-001` добавлен Playwright-набор `QA-001`, который поднимает `apps/server` и `apps/backoffice-web` для сквозной проверки Telegram-входа `administrator`.
+- В `infra/docker` добавлен контейнерный маршрут `FEATURE-001`: compose-файл, шаблоны окружения и упаковка `apps/server` и `apps/backoffice-web` для VPS.
+- В `infra/scripts` добавлены `deploy-feature001.sh` и `smoke-backoffice-access.mjs` для воспроизводимого развёртывания и дымовой проверки.
+- В `.github/workflows` добавлены workflow `ci.yml` и `deploy-feature001.yml`, которые валидируют маршрут поставки и выполняют развёртывание на VPS.
 - Каталог `apps/customer-web` пока не создан и остаётся целевым путём следующих задач.
 
 ## Структура и ответственность
@@ -20,8 +24,9 @@
 | Клиентское веб-приложение | `apps/customer-web` | Целевой путь для customer UI внутри Telegram веб-приложения | `apps/server`, `packages/shared-types` |
 | Веб-приложение внутреннего административного контура | `apps/backoffice-web` | Реальное Vue-приложение для UI ролей `barista` и `administrator`. На текущем шаге содержит root layout, композиционную функцию для shell-состояния, pre-bootstrap проверку Telegram-контекста, HTTP-клиент bootstrap доступа, восстановление сессии через `GET /api/backoffice/access/me`, хранение `accessToken`, маршруты `orders/availability/menu/users/settings`, route guards и серверно-управляемую навигацию вкладок | `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest`, `packages/shared-types` |
 | Общие типы | `packages/shared-types` | Реальный общий пакет деклараций типов для DTO, причин отказа, ролей и вкладок | `apps/server` и будущие веб-приложения |
-| Infra | `infra/` | Локальные compose-файлы, скрипты развёртывания, шаблоны окружения | Все исполняемые контуры |
-| CI/CD | `.github/workflows` | Сборка, тестирование, публикация образов, развёртывание, дымовая проверка | Все исполняемые контуры |
+| E2E-проверки | `e2e/` | Playwright-набор `FEATURE-001`, который поднимает `apps/server` и `apps/backoffice-web` через `webServer` и подтверждает рабочий Telegram-вход `administrator` и отказ при прямом рабочем доступе без Telegram | `@playwright/test`, `apps/server`, `apps/backoffice-web` |
+| Infra | `infra/` | Compose-маршрут `FEATURE-001`, шаблоны env-файлов для контейнерного развёртывания, VPS-скрипт `deploy-feature001.sh` и Node-скрипт `smoke-backoffice-access.mjs` | Все исполняемые контуры, `Docker`, `Docker Compose` |
+| CI/CD | `.github/workflows` | `ci.yml` для модульных проверок, сборки, compose-валидации и локальной дымовой проверки; `deploy-feature001.yml` для развёртывания `staging/production` и post-deploy smoke-check | Все исполняемые контуры, `GitHub Actions`, `infra/` |
 
 ## Архитектурная рамка `FEATURE-001`
 
@@ -93,16 +98,20 @@
 - Сборка `apps/backoffice-web`: `npm run build --workspace @expressa/backoffice-web`
 - Модульные и HTTP-тесты серверной части: `npm run test --workspace @expressa/server`
 - Модульные тесты `apps/backoffice-web`: `npm run test --workspace @expressa/backoffice-web`
+- Проверка контейнерного маршрута `FEATURE-001`: `npm run deploy:feature001:config`
+- Дымовая проверка `FEATURE-001`: `npm run smoke:backoffice-access`
 - E2E-проверка `FEATURE-001`: `npm run test:e2e`
 - Локальный запуск серверной части: `npm run start:dev --workspace @expressa/server`
 - Локальный запуск `apps/backoffice-web`: `npm run dev --workspace @expressa/backoffice-web`
 - Для ручной рабочей проверки `FEATURE-001` серверу нужны `ADMIN_TELEGRAM_ID`, `TG_BACKOFFICE_BOT_TOKEN` и при необходимости `PORT`; базовый шаблон лежит в `apps/server/.env.example`.
 - Для локального каркаса `apps/backoffice-web` базовый шаблон переменных окружения лежит в `apps/backoffice-web/.env.example`; на этапе `FE-001` обязательны `VITE_APP_TITLE` и `VITE_API_BASE_URL`.
+- Для контейнерного маршрута `FEATURE-001` шаблоны окружения лежат в `infra/docker/.env.example` и `infra/docker/.env.server.example`, а compose-файл — в `infra/docker/compose.feature001.yml`.
 - На этапе `FE-002` клиентская часть дополнительно хранит `accessToken` в `localStorage`, при старте сначала пытается восстановить сессию через `GET /api/backoffice/access/me`, а затем при необходимости выполняет `POST /api/backoffice/access/bootstrap`.
 - На этапе `FE-003` клиентская часть дополняет этот поток pre-bootstrap проверкой Telegram-контекста и, если `VITE_DISABLE_TG_AUTH=true`, переключением на test-mode payload c `VITE_TEST_TELEGRAM_ID`.
 - Для локального test environment в `apps/backoffice-web/.env.example` дополнительно фиксируются `VITE_DISABLE_TG_AUTH` и `VITE_TEST_TELEGRAM_ID`; эти переменные не заменяют серверные guard-правила и не дают доступ без серверного решения.
-- Для `FEATURE-001` локальная и конвейерная проверка должны отдельно подтверждать позитивный вход в backoffice и негативный сценарий прямого рабочего доступа без Telegram вне test environment.
+- Для `FEATURE-001` локальная и конвейерная проверка отдельно подтверждают рабочий вход `administrator`, отказ при прямом рабочем доступе без Telegram и выделенный test environment-прогон через `SMOKE_MODE=test`.
 - Сквозные проверки `FEATURE-001` расположены в `e2e/feature-001` и поднимают `apps/server` и `apps/backoffice-web` с тестовыми env-параметрами через Playwright `webServer`.
+- VPS-маршрут `FEATURE-001` выполняется через `.github/workflows/deploy-feature001.yml`, который синхронизирует репозиторий на сервер, рендерит `infra/docker/.env*`, запускает `infra/scripts/deploy-feature001.sh` и завершает выпуск post-deploy дымовой проверкой.
 - Маршруты развёртывания для конкретных окружений читаются из `deployment-map.md`.
 
 ## Когда обновлять карту
