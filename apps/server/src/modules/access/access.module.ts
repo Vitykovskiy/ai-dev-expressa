@@ -31,5 +31,6 @@ import { BackofficeSessionGuard } from './transport/guards/backoffice-session.gu
       useExisting: InMemoryUserRepository,
     },
   ],
+  exports: [AdministratorGuard, BackofficeAccessService, BackofficeSessionGuard],
 })
 export class AccessModule {}

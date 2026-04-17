@@ -4,6 +4,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { resolve } from 'node:path';
 import { ApplicationExceptionFilter } from './common/filters/application-exception.filter';
 import { AccessModule } from './modules/access/access.module';
+import { MenuModule } from './modules/menu/menu.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AccessModule } from './modules/access/access.module';
       envFilePath: resolve(__dirname, '..', '.env'),
     }),
     AccessModule,
+    MenuModule,
   ],
   providers: [
     {

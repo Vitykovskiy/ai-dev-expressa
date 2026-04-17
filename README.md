@@ -57,12 +57,12 @@
 
 - `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в `docs/architecture/application-map.md`.
 - `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, HTTP bootstrap доступа, восстановление сессии, серверно-управляемую навигацию вкладок и пример env-конфигурации в `apps/backoffice-web/.env.example`.
-- `apps/server/` — серверная часть на `NestJS`; текущая реализация использует канонический каркас `src/common` и `src/modules/<feature>/{application,domain,transport,infrastructure}`, содержит модуль доступа для `FEATURE-001` и пример переменных окружения в `apps/server/.env.example`.
+- `apps/server/` — серверная часть на `NestJS`; текущая реализация использует канонический каркас `src/common` и `src/modules/<feature>/{application,domain,transport,infrastructure}`, содержит модуль доступа для `FEATURE-001`, модуль управления каталогом меню для `FEATURE-002`, HTTP- и модульные тесты в `apps/server/test/` и пример переменных окружения в `apps/server/.env.example`.
 - `.github/workflows/` — GitHub Actions workflow для проверки ветки, локальной валидации маршрута развёртывания и развёртывания `FEATURE-001` на VPS.
 - `docs/` — проектная документация.
 - `infra/` — операционные артефакты: `docker compose`, шаблоны окружения, скрипт развёртывания и скрипт дымовой проверки `FEATURE-001`.
 - `e2e/` — сквозные проверки `FEATURE-*`; текущий набор `FEATURE-001` поднимает `apps/server` и `apps/backoffice-web` через Playwright.
-- `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами.
+- `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами; сейчас включает типы bootstrap доступа и DTO структурного снимка каталога меню для `FEATURE-002`.
 - `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования для серверной части, `apps/backoffice-web`, Playwright e2e-набора, а также команды проверки compose-маршрута и дымовой проверки.
 - `terms-map.md` — таблица англицизмов и рекомендуемых русских аналогов для архитектурной документации.
 - `docs/architecture/README.md` — навигационная карта по этим архитектурным артефактам.
