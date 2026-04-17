@@ -2,8 +2,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import type { UserRecord } from '../src/modules/access/model/user-record';
-import { UserRepositoryPort } from '../src/modules/access/user-repository';
+import type { UserRecord } from '../src/modules/access/domain/models/user-record';
+import { UserRepositoryPort } from '../src/modules/access/domain/ports/user-repository.port';
 import { createSignedTelegramInitData } from './helpers/telegram-init-data';
 
 describe('Backoffice access HTTP flow', () => {

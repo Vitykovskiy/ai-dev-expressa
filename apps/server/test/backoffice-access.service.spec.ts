@@ -1,13 +1,13 @@
 import { ConfigService } from '@nestjs/config';
-import { BackofficeAccessService } from '../src/modules/access/backoffice-access.service';
-import { BackofficeSessionService } from '../src/modules/access/backoffice-session.service';
-import { EnvironmentService } from '../src/modules/access/environment.service';
-import { InMemoryUserRepository } from '../src/modules/access/in-memory-user.repository';
-import { TelegramWebAppValidatorService } from '../src/modules/access/telegram-webapp-validator.service';
+import { BackofficeAccessService } from '../src/modules/access/application/services/backoffice-access.service';
+import { InMemoryBackofficeSessionStore } from '../src/modules/access/infrastructure/persistence/in-memory-backoffice-session.store';
+import { AccessEnvironmentService } from '../src/modules/access/infrastructure/config/access-environment.service';
+import { InMemoryUserRepository } from '../src/modules/access/infrastructure/persistence/in-memory-user.repository';
+import { TelegramWebAppValidatorService } from '../src/modules/access/infrastructure/adapters/telegram-webapp-validator.service';
 import { createSignedTelegramInitData } from './helpers/telegram-init-data';
 
 describe('BackofficeAccessService', () => {
-  const createEnvironmentService = () => new EnvironmentService(new ConfigService());
+  const createEnvironmentService = () => new AccessEnvironmentService(new ConfigService());
 
   const previousEnvironment = {
     ADMIN_TELEGRAM_ID: process.env.ADMIN_TELEGRAM_ID,
@@ -37,7 +37,7 @@ describe('BackofficeAccessService', () => {
 
     const service = new BackofficeAccessService(
       createEnvironmentService(),
-      new BackofficeSessionService(),
+      new InMemoryBackofficeSessionStore(),
       new TelegramWebAppValidatorService(),
       repository,
     );
@@ -69,7 +69,7 @@ describe('BackofficeAccessService', () => {
 
     const service = new BackofficeAccessService(
       createEnvironmentService(),
-      new BackofficeSessionService(),
+      new InMemoryBackofficeSessionStore(),
       new TelegramWebAppValidatorService(),
       repository,
     );
@@ -91,7 +91,7 @@ describe('BackofficeAccessService', () => {
 
     const service = new BackofficeAccessService(
       createEnvironmentService(),
-      new BackofficeSessionService(),
+      new InMemoryBackofficeSessionStore(),
       new TelegramWebAppValidatorService(),
       new InMemoryUserRepository(),
     );
@@ -127,7 +127,7 @@ describe('BackofficeAccessService', () => {
 
     const service = new BackofficeAccessService(
       createEnvironmentService(),
-      new BackofficeSessionService(),
+      new InMemoryBackofficeSessionStore(),
       new TelegramWebAppValidatorService(),
       repository,
     );

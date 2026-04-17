@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
-import { BootstrapMainAdministratorService } from '../src/modules/access/bootstrap-main-administrator.service';
-import { EnvironmentService } from '../src/modules/access/environment.service';
-import { InMemoryUserRepository } from '../src/modules/access/in-memory-user.repository';
+import { BootstrapMainAdministratorService } from '../src/modules/access/application/services/bootstrap-main-administrator.service';
+import { AccessEnvironmentService } from '../src/modules/access/infrastructure/config/access-environment.service';
+import { InMemoryUserRepository } from '../src/modules/access/infrastructure/persistence/in-memory-user.repository';
 
 describe('BootstrapMainAdministratorService', () => {
-  const createEnvironmentService = () => new EnvironmentService(new ConfigService());
+  const createEnvironmentService = () => new AccessEnvironmentService(new ConfigService());
 
   const previousEnvironment = {
     ADMIN_TELEGRAM_ID: process.env.ADMIN_TELEGRAM_ID,
