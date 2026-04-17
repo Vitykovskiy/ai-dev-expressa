@@ -46,13 +46,13 @@ test.describe('FEATURE-001 administrator Telegram entry', () => {
     await expect(page.getByTestId('hero-chip')).toHaveText('FEATURE-001 / Telegram guard session');
     await expect(page.locator('[data-testid^="nav-item-"]')).toHaveCount(5);
 
-    for (const [tab, title] of [
-      ['menu', 'Меню'],
-      ['users', 'Пользователи'],
-      ['settings', 'Настройки'],
+    for (const { tab, path, title } of [
+      { tab: 'menu', path: '/menu/categories', title: 'Категории каталога' },
+      { tab: 'users', path: '/users', title: 'Пользователи' },
+      { tab: 'settings', path: '/settings', title: 'Настройки' },
     ] as const) {
       await page.getByTestId(`nav-item-${tab}`).click();
-      await expect(page).toHaveURL(new RegExp(`/${tab}$`));
+      await expect(page).toHaveURL(new RegExp(`${path.replace(/\//g, '\\/')}$`));
       await expect(page.getByTestId('page-title')).toHaveText(title);
     }
   });

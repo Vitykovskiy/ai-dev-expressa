@@ -2,6 +2,8 @@ import type {
   BackofficeAccessContextResponse,
   BackofficeAccessDenyReason,
   BackofficeTab,
+  MenuCatalogErrorResponse,
+  MenuCatalogSnapshot,
 } from '@expressa/shared-types';
 
 export interface BackofficeAppEnvironment {
@@ -38,4 +40,30 @@ export interface BackofficeAccessState {
   accessToken: string | null;
   context: BackofficeAccessContextResponse | null;
   error: BackofficeAccessError | null;
+}
+
+export type MenuCatalogStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'error';
+
+export type MenuCatalogErrorReason =
+  | MenuCatalogErrorResponse['reason']
+  | 'network-error'
+  | 'unexpected-response';
+
+export interface MenuCatalogError {
+  statusCode: number;
+  reason: MenuCatalogErrorReason;
+  message: string;
+}
+
+export interface MenuCatalogSelectionState {
+  categoryId: string | null;
+  productId: string | null;
+  optionGroupId: string | null;
+}
+
+export interface MenuCatalogState {
+  status: MenuCatalogStatus;
+  catalog: MenuCatalogSnapshot | null;
+  error: MenuCatalogError | null;
+  selection: MenuCatalogSelectionState;
 }

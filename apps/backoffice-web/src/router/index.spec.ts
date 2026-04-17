@@ -3,10 +3,15 @@ import {
   backofficeAccessStore,
   resetBackofficeAccessStoreForTesting,
 } from '../stores/backoffice-access-store';
+import {
+  menuCatalogStore,
+  resetMenuCatalogStoreForTesting,
+} from '../stores/menu-catalog-store';
 
 describe('backoffice router', () => {
   beforeEach(() => {
     resetBackofficeAccessStoreForTesting();
+    resetMenuCatalogStoreForTesting();
   });
 
   it('redirects the root path to the orders screen', async () => {
@@ -29,6 +34,10 @@ describe('backoffice router', () => {
         'orders',
         'availability',
         'menu',
+        'menu.menu_categories',
+        'menu.menu_products',
+        'menu.menu_product_detail',
+        'menu.addon_group_detail',
         'users',
         'settings',
         'access-denied',
@@ -57,6 +66,94 @@ describe('backoffice router', () => {
     expect(router.currentRoute.value.name).toBe('access-denied');
     expect(router.currentRoute.value.query.deniedTab).toBe('users');
     expect(router.currentRoute.value.query.deniedPath).toBe('/users');
+  });
+
+  it('applies the administrator menu guard to nested menu routes', async () => {
+    backofficeAccessStore.state.status = 'ready';
+    backofficeAccessStore.state.accessToken = 'token-1';
+    backofficeAccessStore.state.context = {
+      accessToken: 'token-1',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['barista'],
+        blocked: false,
+        isPrimaryAdministrator: false,
+      },
+    };
+
+    await router.push('/menu/categories');
+
+    expect(router.currentRoute.value.name).toBe('access-denied');
+    expect(router.currentRoute.value.query.deniedTab).toBe('menu');
+    expect(router.currentRoute.value.query.deniedPath).toBe('/menu/categories');
+  });
+
+  it('keeps nested menu routes available and syncs selected entities for administrator', async () => {
+    backofficeAccessStore.state.status = 'ready';
+    backofficeAccessStore.state.accessToken = 'token-1';
+    backofficeAccessStore.state.context = {
+      accessToken: 'token-1',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability', 'menu', 'users', 'settings'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['administrator'],
+        blocked: false,
+        isPrimaryAdministrator: true,
+      },
+    };
+    menuCatalogStore.replaceCatalog({
+      categories: [
+        {
+          menuCategoryId: 'cat-coffee',
+          name: 'Кофе',
+          optionGroupRefs: ['group-milk'],
+        },
+      ],
+      items: [
+        {
+          menuItemId: 'item-latte',
+          menuCategoryId: 'cat-coffee',
+          name: 'Латте',
+          itemType: 'drink',
+          basePrice: null,
+          sizePrices: [
+            { size: 'S', price: 190 },
+            { size: 'M', price: 230 },
+            { size: 'L', price: 270 },
+          ],
+        },
+      ],
+      optionGroups: [
+        {
+          optionGroupId: 'group-milk',
+          name: 'Молоко',
+          selectionMode: 'single',
+          options: [
+            {
+              optionId: 'option-oat',
+              name: 'Овсяное',
+              priceDelta: 40,
+            },
+          ],
+        },
+      ],
+    });
+
+    await router.push('/menu/categories/cat-coffee/products/item-latte');
+
+    expect(router.currentRoute.value.name).toBe('menu.menu_product_detail');
+    expect(menuCatalogStore.state.selection).toEqual({
+      categoryId: 'cat-coffee',
+      productId: 'item-latte',
+      optionGroupId: null,
+    });
   });
 
   it('keeps allowed routes available when the tab exists in availableTabs', () => {
