@@ -18,6 +18,7 @@
 |-- e2e/
 |-- docs/
 |   |-- architecture/
+|   |   `-- application-map/
 |   |-- business/
 |   |   |-- business-rules/
 |   |   |-- glossary/
@@ -55,7 +56,7 @@
 
 ## Что где находится
 
-- `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в `docs/architecture/application-map.md`.
+- `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в индексе `docs/architecture/application-map.md` и контурных картах `docs/architecture/application-map/`.
 - `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, HTTP bootstrap доступа, восстановление сессии, серверно-управляемую навигацию вкладок, клиентский слой управления каталогом меню `FEATURE-002` с черновиком структурного снимка и редактором категорий, а также пример env-конфигурации в `apps/backoffice-web/.env.example`.
 - `apps/server/` — серверная часть на `NestJS`; текущая реализация использует канонический каркас `src/common` и `src/modules/<feature>/{application,domain,transport,infrastructure}`, содержит модуль доступа для `FEATURE-001`, модуль управления каталогом меню для `FEATURE-002`, HTTP- и модульные тесты в `apps/server/test/` и пример переменных окружения в `apps/server/.env.example`.
 - `.github/workflows/` — GitHub Actions workflow для проверки ветки, локальной валидации маршрута развёртывания и развёртывания `FEATURE-001` на VPS.
@@ -67,7 +68,8 @@
 - `terms-map.md` — таблица англицизмов и рекомендуемых русских аналогов для архитектурной документации.
 - `docs/architecture/README.md` — навигационная карта по этим архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и базовым технологическим ограничениям.
-- `docs/architecture/application-map.md` — обязательная карта приложения.
+- `docs/architecture/application-map.md` — обязательный индекс карты приложения.
+- `docs/architecture/application-map/` — контурные карты серверной части, клиентской части, общих типов, проверок и поставки.
 - `docs/architecture/deployment-map.md` — обязательная карта окружений и конвейера.
 - `docs/architecture/frontend-architecture.md` — обязательный стандарт клиентской части на `Vue 3` и `TypeScript`.
 - `docs/architecture/backend-architecture.md` — обязательный стандарт серверной части.
@@ -106,8 +108,8 @@
 
 ## Обязательные архитектурные артефакты
 
-- Перед стартом разработки должны быть определены и зафиксированы `docs/architecture/stack.md` и `docs/architecture/application-map.md`.
-- Глобальные карты архитектуры: `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`.
+- Перед стартом разработки должны быть определены и зафиксированы `docs/architecture/stack.md`, индекс `docs/architecture/application-map.md` и нужные контурные карты из `docs/architecture/application-map/`.
+- Глобальные карты архитектуры: `docs/architecture/stack.md`, индекс `docs/architecture/application-map.md`, контурные карты `docs/architecture/application-map/`, `docs/architecture/deployment-map.md`.
 - Профильные стандарты архитектуры: `docs/architecture/frontend-architecture.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/qa-standards.md`, `docs/architecture/devops-standards.md`.
 - Карта приложения обязательна для проекта и должна оставаться актуальной.
 - При изменении структуры кода, точек входа, интерфейсов между модулями, окружения и конфигурации, способов запуска, тестирования или деплоя нужно обновить соответствующую карту или профильный стандарт.

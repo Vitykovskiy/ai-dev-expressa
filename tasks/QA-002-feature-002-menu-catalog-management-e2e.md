@@ -15,13 +15,14 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/qa-standards.md`, `docs/architecture/application-map.md`
+- Архитектурные артефакты: `docs/architecture/qa-standards.md`, `docs/architecture/application-map/quality-and-delivery.md`
+- Контурная карта: `docs/architecture/application-map/quality-and-delivery.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-002`, `BE-002`, `FE-004`, `FE-005`, `FE-006`, `FE-007`
-- Минимальный read set: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `docs/architecture/qa-standards.md`, `docs/architecture/application-map/quality-and-delivery.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Ожидаемый результат для ревью: `Есть e2e-сценарий, который подтверждает управление administrator каталогом меню: создание или изменение категории, товара с ценой и группы дополнительных опций с сохранением результата в UI без нарушения ролевых ограничений.`
 - Проверки: `Запуск e2e-набора FEATURE-002 на собранной фиче; подтверждение позитивного сценария сохранения категории, товара и группы дополнительных опций; подтверждение отображения обновлённого каталога после сохранения.`
 - Обновление карты приложения: `Не требуется`

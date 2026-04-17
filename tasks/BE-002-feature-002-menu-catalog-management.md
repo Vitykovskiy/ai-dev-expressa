@@ -15,14 +15,15 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`
-- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map.md`
+- Архитектурные артефакты: `docs/architecture/backend-architecture.md`, `docs/architecture/application-map/server.md`, `docs/architecture/application-map/shared-types.md`
+- Контурная карта: `docs/architecture/application-map/server.md`, `docs/architecture/application-map/shared-types.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-002`
-- Минимальный read set: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `docs/architecture/backend-architecture.md`, `docs/architecture/application-map/server.md`, `docs/architecture/application-map/shared-types.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`
 - Ожидаемый результат для ревью: `Серверная часть предоставляет administrator согласованные операции чтения и сохранения каталога меню, валидирует размеры напитков и правила групп дополнительных опций, возвращает нормализованный каталог и предсказуемые бизнес-ошибки без смешения с UI-логикой.`
 - Проверки: `Модульные тесты серверных правил размеров напитков и групп дополнительных опций; интеграционные проверки HTTP-контрактов чтения и сохранения каталога; локальная дымовая проверка чтения и сохранения каталога меню через административный API.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map/server.md, docs/architecture/application-map/shared-types.md при изменении общих DTO, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда серверная часть сквозным образом поддерживает чтение и сохранение каталога меню для administrator, а ключевые ограничения модели подтверждены модульными и интеграционными проверками.`
