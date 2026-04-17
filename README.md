@@ -6,8 +6,11 @@
 
 ```text
 .
+|-- .github/
+|   `-- workflows/
 |-- apps/
 |   |-- backoffice-web/
+|   |   |-- nginx/
 |   |   `-- src/
 |   `-- server/
 |       |-- src/
@@ -35,6 +38,9 @@
 |   |-- frontend/
 |   |-- qa/
 |   `-- system-analyst/
+|-- infra/
+|   |-- docker/
+|   `-- scripts/
 |-- packages/
 |   `-- shared-types/
 |-- tasks/
@@ -51,9 +57,11 @@
 - `apps/` — каталог прикладных контуров; канонические пути реализации фиксируются в `docs/architecture/application-map.md`.
 - `apps/backoffice-web/` — клиентская часть внутреннего административного контура на `Vue 3`, `Vite`, `Vuetify`, `Vue Router` и `Vitest`; содержит root layout, HTTP bootstrap доступа, восстановление сессии, серверно-управляемую навигацию вкладок и пример env-конфигурации в `apps/backoffice-web/.env.example`.
 - `apps/server/` — серверная часть на `NestJS`; текущая реализация содержит модуль доступа для `FEATURE-001` и пример переменных окружения в `apps/server/.env.example`.
+- `.github/workflows/` — GitHub Actions workflow для проверки ветки, локальной валидации маршрута развёртывания и развёртывания `FEATURE-001` на VPS.
 - `docs/` — проектная документация.
+- `infra/` — операционные артефакты: `docker compose`, шаблоны окружения, скрипт развёртывания и скрипт дымовой проверки `FEATURE-001`.
 - `packages/shared-types/` — общий пакет деклараций типов для контрактов между контурами.
-- `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования для серверной части и `apps/backoffice-web`.
+- `package.json` — корневой `npm` workspace и команды запуска/сборки/тестирования для серверной части и `apps/backoffice-web`, а также команды проверки compose-маршрута и дымовой проверки.
 - `terms-map.md` — таблица англицизмов и рекомендуемых русских аналогов для архитектурной документации.
 - `docs/architecture/README.md` — навигационная карта по этим архитектурным артефактам.
 - `docs/architecture/stack.md` — канонический источник по стеку и базовым технологическим ограничениям.
