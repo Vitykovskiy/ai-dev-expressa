@@ -93,6 +93,7 @@
 - Сборка `apps/backoffice-web`: `npm run build --workspace @expressa/backoffice-web`
 - Модульные и HTTP-тесты серверной части: `npm run test --workspace @expressa/server`
 - Модульные тесты `apps/backoffice-web`: `npm run test --workspace @expressa/backoffice-web`
+- E2E-проверка `FEATURE-001`: `npm run test:e2e`
 - Локальный запуск серверной части: `npm run start:dev --workspace @expressa/server`
 - Локальный запуск `apps/backoffice-web`: `npm run dev --workspace @expressa/backoffice-web`
 - Для ручной рабочей проверки `FEATURE-001` серверу нужны `ADMIN_TELEGRAM_ID`, `TG_BACKOFFICE_BOT_TOKEN` и при необходимости `PORT`; базовый шаблон лежит в `apps/server/.env.example`.
@@ -101,6 +102,7 @@
 - На этапе `FE-003` клиентская часть дополняет этот поток pre-bootstrap проверкой Telegram-контекста и, если `VITE_DISABLE_TG_AUTH=true`, переключением на test-mode payload c `VITE_TEST_TELEGRAM_ID`.
 - Для локального test environment в `apps/backoffice-web/.env.example` дополнительно фиксируются `VITE_DISABLE_TG_AUTH` и `VITE_TEST_TELEGRAM_ID`; эти переменные не заменяют серверные guard-правила и не дают доступ без серверного решения.
 - Для `FEATURE-001` локальная и конвейерная проверка должны отдельно подтверждать позитивный вход в backoffice и негативный сценарий прямого рабочего доступа без Telegram вне test environment.
+- Сквозные проверки `FEATURE-001` расположены в `e2e/feature-001` и поднимают `apps/server` и `apps/backoffice-web` с тестовыми env-параметрами через Playwright `webServer`.
 - Маршруты развёртывания для конкретных окружений читаются из `deployment-map.md`.
 
 ## Когда обновлять карту

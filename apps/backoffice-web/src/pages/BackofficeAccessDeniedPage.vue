@@ -1,13 +1,15 @@
 <template>
   <v-row>
     <v-col cols="12">
-      <v-card class="access-denied-page" rounded="xl">
+      <v-card class="access-denied-page" rounded="xl" data-testid="route-access-denied-page">
         <div class="access-denied-page__header">
           <v-chip color="error" variant="flat" size="small">403</v-chip>
           <p class="access-denied-page__eyebrow">Route guard</p>
         </div>
 
-        <h3 class="access-denied-page__title">Доступ к вкладке запрещён</h3>
+        <h3 class="access-denied-page__title" data-testid="route-access-denied-title">
+          Доступ к вкладке запрещён
+        </h3>
         <p class="access-denied-page__summary">
           Текущая сессия не содержит вкладку
           <strong>{{ deniedTabLabel }}</strong>
@@ -17,7 +19,9 @@
         <div class="access-denied-page__grid">
           <section class="access-denied-page__panel">
             <p class="access-denied-page__panel-label">Запрошенный путь</p>
-            <code class="access-denied-page__code">{{ deniedPath }}</code>
+            <code class="access-denied-page__code" data-testid="route-access-denied-path">
+              {{ deniedPath }}
+            </code>
           </section>
 
           <section class="access-denied-page__panel">
@@ -26,6 +30,7 @@
               <v-chip
                 v-for="item in availableNavigationItems"
                 :key="item.tab"
+                :data-testid="`allowed-tab-${item.tab}`"
                 size="small"
                 variant="tonal"
               >
