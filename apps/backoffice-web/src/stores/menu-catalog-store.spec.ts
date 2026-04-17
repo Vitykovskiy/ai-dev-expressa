@@ -108,6 +108,65 @@ describe('createMenuCatalogStore', () => {
     expect(store.state.status).toBe('ready');
   });
 
+  it('adds and edits categories in the local draft before saving the structural snapshot', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn().mockResolvedValue(snapshot),
+    };
+    const store = createMenuCatalogStore({
+      createId: (prefix) => `${prefix}-new`,
+      menuCatalogApi,
+    });
+
+    await store.initialize('access-token');
+
+    const category = store.addCategory('  Завтраки  ');
+
+    expect(category).toEqual({
+      menuCategoryId: 'cat-new',
+      name: 'Завтраки',
+      optionGroupRefs: [],
+    });
+    expect(store.state.isDirty).toBe(true);
+    expect(store.state.selection.categoryId).toBe('cat-new');
+
+    expect(store.updateCategoryName('cat-new', '  Утреннее меню  ')).toBe(true);
+    expect(store.state.catalog?.categories.find((item) => item.menuCategoryId === 'cat-new')?.name).toBe(
+      'Утреннее меню',
+    );
+  });
+
+  it('keeps the draft dirty and exposes the server save error when persistence fails', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn().mockRejectedValue({
+        statusCode: 422,
+        reason: 'invalid-option-group-rule',
+        message: 'Option group rule is invalid',
+      }),
+    };
+    const store = createMenuCatalogStore({
+      createId: (prefix) => `${prefix}-new`,
+      menuCatalogApi,
+    });
+
+    await store.initialize('access-token');
+    store.addCategory('Завтраки');
+
+    const result = await store.save('access-token');
+
+    expect(result).toBeNull();
+    expect(store.state.isDirty).toBe(true);
+    expect(store.state.status).toBe('error');
+    expect(store.state.error).toEqual({
+      statusCode: 422,
+      reason: 'invalid-option-group-rule',
+      message: 'Option group rule is invalid',
+    });
+  });
+
   it('syncs route selection and clears invalid entities outside the selected category', async () => {
     const snapshot = createCatalogSnapshot();
     const menuCatalogApi = {

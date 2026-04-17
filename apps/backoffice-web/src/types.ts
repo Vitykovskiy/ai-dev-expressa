@@ -65,5 +65,6 @@ export interface MenuCatalogState {
   status: MenuCatalogStatus;
   catalog: MenuCatalogSnapshot | null;
   error: MenuCatalogError | null;
+  isDirty: boolean;
   selection: MenuCatalogSelectionState;
 }

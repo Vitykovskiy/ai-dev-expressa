@@ -20,9 +20,11 @@ interface MenuCatalogApiPort {
 
 interface MenuCatalogStoreDependencies {
   menuCatalogApi: MenuCatalogApiPort;
+  createId?: (prefix: string) => string;
 }
 
 export interface MenuCatalogStore {
+  addCategory(name: string): MenuCatalogCategory | null;
   clear(): void;
   initialize(accessToken: string): Promise<void>;
   reload(accessToken: string): Promise<void>;
@@ -30,6 +32,8 @@ export interface MenuCatalogStore {
   save(accessToken: string): Promise<MenuCatalogSnapshot | null>;
   syncNavigation(routeName: MenuCatalogRouteName, params: Record<string, unknown>): void;
   state: MenuCatalogState;
+  updateCategoryName(categoryId: string, name: string): boolean;
+  updateDraft(mutator: (catalog: MenuCatalogSnapshot) => void): boolean;
 }
 
 function createEmptySelection(): MenuCatalogSelectionState {
@@ -46,6 +50,14 @@ function readRouteParam(value: unknown): string | null {
 
 function findCategory(catalog: MenuCatalogSnapshot, categoryId: string): MenuCatalogCategory | null {
   return catalog.categories.find((category) => category.menuCategoryId === categoryId) ?? null;
+}
+
+function createDefaultId(prefix: string): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export function findMenuCatalogCategory(
@@ -138,11 +150,13 @@ function normalizeSelection(
 
 export function createMenuCatalogStore({
   menuCatalogApi,
+  createId = createDefaultId,
 }: MenuCatalogStoreDependencies): MenuCatalogStore {
   const state = reactive<MenuCatalogState>({
     status: 'idle',
     catalog: null,
     error: null,
+    isDirty: false,
     selection: createEmptySelection(),
   });
   let pendingInitialization: Promise<void> | null = null;
@@ -151,13 +165,23 @@ export function createMenuCatalogStore({
     state.catalog = catalog;
     state.status = 'ready';
     state.error = null;
+    state.isDirty = false;
     state.selection = normalizeSelection(catalog, state.selection);
+  }
+
+  function createMissingCatalogError() {
+    return {
+      statusCode: 0,
+      reason: 'unexpected-response' as const,
+      message: 'Структурный снимок каталога ещё не загружен.',
+    };
   }
 
   function clear() {
     state.status = 'idle';
     state.catalog = null;
     state.error = null;
+    state.isDirty = false;
     state.selection = createEmptySelection();
   }
 
@@ -198,14 +222,72 @@ export function createMenuCatalogStore({
     commitCatalog(catalog);
   }
 
+  function updateDraft(mutator: (catalog: MenuCatalogSnapshot) => void): boolean {
+    if (!state.catalog) {
+      state.status = 'error';
+      state.error = createMissingCatalogError();
+      return false;
+    }
+
+    mutator(state.catalog);
+    state.status = 'ready';
+    state.error = null;
+    state.isDirty = true;
+    state.selection = normalizeSelection(state.catalog, state.selection);
+    return true;
+  }
+
+  function addCategory(name: string): MenuCatalogCategory | null {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      return null;
+    }
+
+    const category: MenuCatalogCategory = {
+      menuCategoryId: createId('cat'),
+      name: trimmedName,
+      optionGroupRefs: [],
+    };
+
+    const updated = updateDraft((catalog) => {
+      catalog.categories.push(category);
+    });
+
+    if (!updated) {
+      return null;
+    }
+
+    state.selection = normalizeSelection(state.catalog, {
+      categoryId: category.menuCategoryId,
+      productId: null,
+      optionGroupId: null,
+    });
+    return category;
+  }
+
+  function updateCategoryName(categoryId: string, name: string): boolean {
+    const trimmedName = name.trim();
+
+    if (!state.catalog || !trimmedName) {
+      return false;
+    }
+
+    if (!findCategory(state.catalog, categoryId)) {
+      return false;
+    }
+
+    return updateDraft((catalog) => {
+      const category = findCategory(catalog, categoryId);
+
+      category!.name = trimmedName;
+    });
+  }
+
   async function save(accessToken: string): Promise<MenuCatalogSnapshot | null> {
     if (!state.catalog) {
       state.status = 'error';
-      state.error = {
-        statusCode: 0,
-        reason: 'unexpected-response',
-        message: 'Структурный снимок каталога ещё не загружен.',
-      };
+      state.error = createMissingCatalogError();
       return null;
     }
 
@@ -239,6 +321,7 @@ export function createMenuCatalogStore({
   }
 
   return {
+    addCategory,
     clear,
     initialize,
     reload,
@@ -246,6 +329,8 @@ export function createMenuCatalogStore({
     save,
     syncNavigation,
     state,
+    updateCategoryName,
+    updateDraft,
   };
 }
 
