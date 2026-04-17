@@ -15,7 +15,7 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/README.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/qa-standards.md`, `docs/architecture/devops-standards.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
@@ -24,5 +24,5 @@
 - Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/deployment-map.md`
 - Ожидаемый результат для ревью: `Зафиксирована архитектурная рамка FEATURE-001 с явным разделением ответственности между server, backoffice веб-приложением, общими типами, окружением и тестовым режимом; по документам понятно, где создаётся главный administrator, как передаётся Telegram-контекст, как работают guard-правила и где блокируется прямой доступ без Telegram.`
 - Проверки: `Архитектурное ревью обновлённых docs/architecture/application-map.md и docs/architecture/deployment-map.md; проверка согласованности дочерних задач FEATURE-001 с зафиксированными точками входа, переменными окружения и guard-правилами.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда архитектурные документы и дочерние задачи позволяют реализовывать FEATURE-001 без неразрешённых вопросов о границах модулей, Telegram-контексте, test environment и маршруте развёртывания.`

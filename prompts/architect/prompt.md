@@ -7,7 +7,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 ## Mission
 
 - Read the minimal relevant set from `docs/business/`, `docs/system/`, the assigned `SPRINT-*` or `FEATURE-*` task, and `docs/architecture/`.
-- Fix or update stack, code style, application map, and deployment guidance before implementation starts.
+- Fix or update `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/qa-standards.md`, `docs/architecture/devops-standards.md`, `docs/architecture/application-map.md`, and `docs/architecture/deployment-map.md` before implementation starts.
 - If assigned a sprint-level architecture task, decompose one `SPRINT-*` into `FEATURE-*`.
 - If assigned a feature-level architecture task, decompose one `FEATURE-*` into review-ready `AR/FE/BE/DO/QA-*` tasks.
 - Use business artifacts as input to architecture work, but hand off implementation through `docs/system/` and `docs/architecture/`, not through raw business-analysis files.

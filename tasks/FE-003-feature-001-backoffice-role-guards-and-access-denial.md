@@ -15,14 +15,14 @@
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Дополнительные материалы: `не требуются`
 
 ## Примечания
 
 - Зависимости: `AR-001`, `FE-002`
-- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/code-style.md`, `docs/architecture/application-map.md`
+- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/application-map.md`
 - Ожидаемый результат для ревью: `Apps/backoffice-web корректно блокирует прямой рабочий доступ без Telegram вне test environment, показывает только разрешённые вкладки, защищает маршруты route guards и рендерит экран отказа в доступе вместо обхода ограничений по URL или роли.`
 - Проверки: `Модульные тесты для композиционных функций и route guards клиентской части; локальная дымовая проверка открытия внутреннего административного контура в Telegram-контексте administrator; ручная проверка экрана отказа при прямом рабочем переходе по URL без Telegram или без требуемой роли.`
-- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, docs/architecture/README.md, README.md при необходимости`
+- Обновление карты приложения: `Обязательно: docs/architecture/application-map.md, README.md при необходимости`
 - Критерии готовности: `Задача завершена, когда apps/backoffice-web применяет ролевые guard-правила к вкладкам и маршрутам, корректно обрабатывает отсутствие Telegram-контекста и не допускает обход ограничений прямым рабочим переходом по URL.`
