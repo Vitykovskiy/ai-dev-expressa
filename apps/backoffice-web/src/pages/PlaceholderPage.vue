@@ -17,17 +17,17 @@
               <p class="placeholder-page__panel-label">Что уже готово</p>
               <ul class="placeholder-page__list">
                 <li>Маршрут зарегистрирован и доступен из root layout.</li>
-                <li>Заглушка экрана стабильно собирается в составе `apps/backoffice-web`.</li>
-                <li>Экран можно использовать как точку интеграции для следующих FE-задач.</li>
+                <li>Контекст доступа читается из `apps/server` через bootstrap и восстановление сессии.</li>
+                <li>Навигационный каркас строится по серверному `availableTabs` без локального вычисления ролей.</li>
               </ul>
             </section>
 
             <section class="placeholder-page__panel">
               <p class="placeholder-page__panel-label">Что добавится дальше</p>
               <ul class="placeholder-page__list">
-                <li>HTTP-bootstrap доступа и чтение серверного контекста.</li>
-                <li>Хранилище `accessToken` и восстановление сессии.</li>
-                <li>Ролевые guard-правила и экран отказа в доступе.</li>
+                <li>Pre-bootstrap проверка Telegram-контекста и test environment-поведение.</li>
+                <li>Route guards и экран отказа при прямом переходе по недоступному URL.</li>
+                <li>Предметные модули заказов, меню, пользователей и настроек.</li>
               </ul>
             </section>
           </div>

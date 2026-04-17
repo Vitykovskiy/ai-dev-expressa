@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import PlaceholderPage from '../pages/PlaceholderPage.vue';
+import { appEnvironment } from '../services/app-environment';
 import { backofficeNavigation, defaultBackofficeRoute } from './backoffice-navigation';
 
 export const router = createRouter({
@@ -38,5 +39,5 @@ router.afterEach((to) => {
   }
 
   const title = typeof to.meta.title === 'string' ? to.meta.title : defaultBackofficeRoute.label;
-  document.title = `${title} | Expressa Backoffice`;
+  document.title = `${title} | ${appEnvironment.appTitle}`;
 });
