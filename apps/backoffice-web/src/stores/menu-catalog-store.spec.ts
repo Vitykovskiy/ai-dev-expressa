@@ -1,5 +1,9 @@
 import type { MenuCatalogSnapshot } from '@expressa/shared-types';
-import { createMenuCatalogStore, resolveMenuCategoryProducts } from './menu-catalog-store';
+import {
+  createMenuCatalogStore,
+  resolveMenuCategoryOptionGroups,
+  resolveMenuCategoryProducts,
+} from './menu-catalog-store';
 
 function createCatalogSnapshot(): MenuCatalogSnapshot {
   return {
@@ -192,6 +196,132 @@ describe('createMenuCatalogStore', () => {
       basePrice: 180,
       sizePrices: [],
     });
+  });
+
+  it('adds option groups and applies category bindings to the local draft', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn().mockResolvedValue(snapshot),
+    };
+    const store = createMenuCatalogStore({
+      createId: (prefix) => `${prefix}-new`,
+      menuCatalogApi,
+    });
+
+    await store.initialize('access-token');
+
+    const optionGroup = store.addOptionGroup({
+      categoryIds: ['cat-desserts', 'cat-missing'],
+      name: '  Syrups  ',
+      selectionMode: 'multiple',
+      options: [
+        {
+          optionId: null,
+          name: '  Vanilla  ',
+          priceDelta: 35,
+        },
+      ],
+    });
+
+    expect(optionGroup).toEqual({
+      optionGroupId: 'group-new',
+      name: 'Syrups',
+      selectionMode: 'multiple',
+      options: [
+        {
+          optionId: 'option-new',
+          name: 'Vanilla',
+          priceDelta: 35,
+        },
+      ],
+    });
+    expect(store.state.catalog?.categories).toEqual([
+      expect.objectContaining({
+        menuCategoryId: 'cat-coffee',
+        optionGroupRefs: ['group-milk'],
+      }),
+      expect.objectContaining({
+        menuCategoryId: 'cat-desserts',
+        optionGroupRefs: ['group-new'],
+      }),
+    ]);
+    expect(resolveMenuCategoryOptionGroups(store.state.catalog, 'cat-desserts')).toEqual([
+      optionGroup,
+    ]);
+    expect(store.state.selection).toEqual({
+      categoryId: 'cat-desserts',
+      productId: null,
+      optionGroupId: 'group-new',
+    });
+    expect(store.state.isDirty).toBe(true);
+  });
+
+  it('updates option groups and rewrites category bindings without stale refs', async () => {
+    const snapshot = createCatalogSnapshot();
+    snapshot.categories[1].optionGroupRefs = ['group-milk'];
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn().mockResolvedValue(snapshot),
+    };
+    const store = createMenuCatalogStore({
+      createId: (prefix) => `${prefix}-new`,
+      menuCatalogApi,
+    });
+
+    await store.initialize('access-token');
+
+    const updated = store.updateOptionGroup('group-milk', {
+      categoryIds: ['cat-desserts'],
+      name: '  Milk options  ',
+      selectionMode: 'multiple',
+      options: [
+        {
+          optionId: 'option-oat',
+          name: '  Oat  ',
+          priceDelta: 45,
+        },
+        {
+          optionId: null,
+          name: 'Soy',
+          priceDelta: 30,
+        },
+      ],
+    });
+
+    expect(updated).toBe(true);
+    expect(store.state.catalog?.optionGroups[0]).toEqual({
+      optionGroupId: 'group-milk',
+      name: 'Milk options',
+      selectionMode: 'multiple',
+      options: [
+        {
+          optionId: 'option-oat',
+          name: 'Oat',
+          priceDelta: 45,
+        },
+        {
+          optionId: 'option-new',
+          name: 'Soy',
+          priceDelta: 30,
+        },
+      ],
+    });
+    expect(store.state.catalog?.categories).toEqual([
+      expect.objectContaining({
+        menuCategoryId: 'cat-coffee',
+        optionGroupRefs: [],
+      }),
+      expect.objectContaining({
+        menuCategoryId: 'cat-desserts',
+        optionGroupRefs: ['group-milk'],
+      }),
+    ]);
+    expect(resolveMenuCategoryOptionGroups(store.state.catalog, 'cat-coffee')).toEqual([]);
+    expect(resolveMenuCategoryOptionGroups(store.state.catalog, 'cat-desserts')).toEqual([
+      store.state.catalog?.optionGroups[0],
+    ]);
+    expect(store.state.isDirty).toBe(true);
   });
 
   it('keeps the draft dirty and exposes the server save error when persistence fails', async () => {
