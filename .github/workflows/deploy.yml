@@ -27,6 +27,7 @@ jobs:
       VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
       ADMIN_TELEGRAM_ID: ${{ secrets.ADMIN_TELEGRAM_ID }}
       DEPLOY_TG_BACKOFFICE_BOT_TOKEN: ${{ github.event_name == 'workflow_dispatch' && secrets.TG_BACKOFFICE_BOT_TOKEN || '' }}
+      DEPLOY_TEST_TELEGRAM_ID: ${{ github.event_name == 'push' && secrets.ADMIN_TELEGRAM_ID || '' }}
       BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
       SERVER_PORT: ${{ vars.SERVER_PORT || '3000' }}
       BACKOFFICE_PORT: ${{ vars.BACKOFFICE_PORT || '8080' }}
@@ -129,7 +130,7 @@ jobs:
           VITE_APP_TITLE=${VITE_APP_TITLE}
           VITE_API_BASE_URL=${VITE_API_BASE_URL}
           VITE_DISABLE_TG_AUTH=${DEPLOY_DISABLE_TG_AUTH}
-          VITE_TEST_TELEGRAM_ID=
+          VITE_TEST_TELEGRAM_ID=${DEPLOY_TEST_TELEGRAM_ID}
           EOF
           cat <<EOF | ssh "${VPS_USER}@${VPS_HOST}" "cat > '${VPS_APP_DIR}/infra/docker/.env.server'"
           ADMIN_TELEGRAM_ID=${ADMIN_TELEGRAM_ID}

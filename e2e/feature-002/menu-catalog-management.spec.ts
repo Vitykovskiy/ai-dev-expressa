@@ -1,15 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { injectTelegramWebApp } from '../support/backoffice-telegram-web-app';
-import {
-  createSignedTelegramInitData,
-  FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
-  FEATURE_001_E2E_BACKOFFICE_BOT_TOKEN,
-} from '../support/telegram-init-data';
-
-const administratorTelegramInitData = createSignedTelegramInitData(
-  FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
-  FEATURE_001_E2E_BACKOFFICE_BOT_TOKEN,
-);
+import { openBackoffice, resolveExpectedSessionLabel } from '../support/backoffice-access';
 
 function uniqueScenarioSuffix(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -38,12 +28,10 @@ test.describe('FEATURE-002 menu catalog management', () => {
     const freeOptionName = `Без сахара ${suffix}`;
     const paidOptionName = `Сироп ${suffix}`;
 
-    await injectTelegramWebApp(page, administratorTelegramInitData);
-
-    await page.goto('/menu/categories');
+    await openBackoffice(page, '/menu/categories');
 
     await expect(page).toHaveURL(/\/menu\/categories$/);
-    await expect(page.getByTestId('session-label')).toHaveText('Telegram-вход');
+    await expect(page.getByTestId('session-label')).toHaveText(resolveExpectedSessionLabel());
     await expect(page.getByTestId('nav-item-menu')).toBeVisible();
     await expect(page.getByTestId('page-title')).toHaveText('Категории каталога');
 

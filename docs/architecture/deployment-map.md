@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `local` | Разработка, локальная сборка и ручная проверка дочерних задач | локальный запуск нужных исполняемых контуров, модульные тесты, локальная дымовая проверка |
 | `ci` | Проверка запроса на слияние и готовности к слиянию | `npm ci`, модульные тесты `apps/server` и `apps/backoffice-web`, сборка обеих частей, валидация контейнерного маршрута, локальная дымовая проверка рабочего режима и test-режима |
-| `test` | Постоянное VPS-окружение для ручной проверки после merge в `main` и для запуска e2e со стороны `QA` | автоматическое развёртывание через `deploy.yml`, post-deploy дымовая проверка в `SMOKE_MODE=test`, проверка окружения и конфигурации, доступ по URL без Telegram при `DISABLE_TG_AUTH=true` |
+| `test` | Постоянное VPS-окружение для ручной проверки после merge в `main` и для запуска e2e со стороны `QA` | автоматическое развёртывание через `deploy.yml`, post-deploy дымовая проверка в `SMOKE_MODE=test`, проверка окружения и конфигурации, доступ по URL без Telegram при `DISABLE_TG_AUTH=true` и опубликованном `VITE_TEST_TELEGRAM_ID` |
 | `production` | Боевой выпуск | ручное развёртывание через `deploy.yml`, post-deploy дымовая проверка рабочего режима, проверка окружения и конфигурации, порядок восстановления |
 
 `staging` не входит в активный маршрут развёртывания и не используется как обязательное окружение текущего конвейера.
@@ -17,7 +17,7 @@
 | --- | --- | --- | --- | --- |
 | `local` | обязателен для проверки bootstrap главного `administrator` | допустим `true` только для ручной проверки test-режима без Telegram | обязателен, если локальная проверка идёт через реальный служебный бот | Рабочий режим и test-режим должны проверяться раздельно |
 | `ci` | обязателен для рабочего дымового прогона; допускается технический `telegramId` для test-режима | допустим `true` только в выделенном дымовом прогоне test-режима | обязателен для рабочего дымового прогона, не нужен для test-режима | Проверки запроса на слияние не запускают e2e и разделяют рабочий режим и test-режим |
-| `test` | обязателен; допустим технический тестовый `telegramId` | должен быть `true` | не требуется | Окружение разворачивается автоматически после merge в `main`, доступно через браузер без Telegram и используется `QA` для e2e после развёртывания |
+| `test` | обязателен; допустим технический тестовый `telegramId` | должен быть `true` | не требуется | Окружение разворачивается автоматически после merge в `main`, публикует `VITE_TEST_TELEGRAM_ID` для test-mode bootstrap, доступно через браузер без Telegram и используется `QA` для e2e после развёртывания |
 | `production` | обязателен | должен быть `false` или не задан | обязателен | Прямой рабочий доступ по URL без Telegram запрещён |
 
 ## Маршрут непрерывной интеграции и доставки
@@ -32,7 +32,7 @@
   - триггеры: автоматический `push` в `main` для `test`, ручной `workflow_dispatch` только для `production`
   - перед синхронизацией на VPS повторяет тот же набор non-e2e проверок, что и `ci.yml`
   - использует `infra/docker/compose.yml`, рендер `infra/docker/.env` и `infra/docker/.env.server`, затем `bash infra/scripts/deploy.sh`
-  - для `test` жёстко задаёт `DISABLE_TG_AUTH=true` и запускает post-deploy дымовую проверку в `SMOKE_MODE=test`
+  - для `test` жёстко задаёт `DISABLE_TG_AUTH=true`, публикует `VITE_TEST_TELEGRAM_ID` в клиентскую часть и запускает post-deploy дымовую проверку в `SMOKE_MODE=test`
   - для `production` выполняет post-deploy дымовую проверку рабочего режима
   - не устанавливает Playwright и не запускает e2e
 - E2e не входят в маршрут непрерывной интеграции и доставки: их адаптирует и запускает `QA` на уже развернутом `test`-окружении VPS после завершения `deploy.yml`.
@@ -61,6 +61,7 @@
 | `BACKOFFICE_PORT` | variable | Публикуемый порт контейнера `apps/backoffice-web` |
 | `VITE_APP_TITLE` | variable | Build-time заголовок `apps/backoffice-web` |
 | `VITE_API_BASE_URL` | variable | Build-time API base URL; для VPS-маршрута должен указывать на `/api` текущего origin |
+| `VITE_TEST_TELEGRAM_ID` | рендерится из `ADMIN_TELEGRAM_ID` только для `test` | Build-time технический `telegramId` для browser-only test-mode bootstrap на VPS; в `production` остаётся пустым |
 
 ## Переменные окружения и секреты
 
@@ -73,7 +74,7 @@
 | `BACKOFFICE_PORT` | `infra/docker/compose.yml` | variable в GitHub Environment | Публикуемый порт контейнера `apps/backoffice-web` на VPS |
 | `VITE_APP_TITLE` | `apps/backoffice-web` | variable в GitHub Environment | Build-time заголовок контейнеризованной клиентской части |
 | `VITE_API_BASE_URL` | `apps/backoffice-web` | variable в GitHub Environment | Build-time base URL API для контейнеризованной клиентской части; в VPS-маршруте остаётся относительным `/api` |
-| `VITE_TEST_TELEGRAM_ID` | `apps/backoffice-web` | локальная переменная окружения | Нужна только для локального test-режима и не должна попадать в `production` |
+| `VITE_TEST_TELEGRAM_ID` | `apps/backoffice-web` | локальная переменная окружения и build-time переменная `test`-окружения VPS | Нужна для browser-only test-mode bootstrap; в `test` рендерится из `ADMIN_TELEGRAM_ID`, а в `production` остаётся пустой |
 
 Каждая новая переменная окружения должна быть описана здесь вместе с контуром, где она используется.
 
