@@ -21,7 +21,7 @@
 - `apps/backoffice-web/src/stores` — хранилища состояния доступа и каталога меню.
 - `apps/backoffice-web/src/composables` — композиционные функции для состояния layout и редакторов.
 - `apps/backoffice-web/src/components` — переиспользуемые UI-компоненты текущих вкладок.
-- Целевая структура компонентов для `FEATURE-006`: `src/components/base` для базовых компонентов системы, `src/components/layout` для визуальных частей каркаса и `src/components/menu` для компонентов функционального среза вкладки `menu`.
+- Структура компонентов для `FEATURE-006`: `src/components/base` для базовых компонентов системы, `src/components/layout` для визуальных частей каркаса и `src/components/menu` для компонентов функционального среза вкладки `menu`.
 - `src/styles/design-tokens.ts` содержит канонический набор дизайн-токенов внутреннего административного контура; `src/vuetify.ts` применяет их к теме `Vuetify`, а `src/styles/main.scss` — к глобальным стилям.
 - `apps/backoffice-web/.env.example` — пример переменных окружения клиентской части.
 - Пакет `packages/ui` не планируется: клиентское веб-приложение и внутренний административный контур развиваются независимо в своих приложениях.
@@ -61,7 +61,7 @@
 - Запрещено переносить из референса React-компоненты, React Router, MUI, Radix, Tailwind, `sonner`, демонстрационный `store.ts`, локальные `console.log`-действия и неподтверждённые обработчики.
 - Разрешённый стек реализации остаётся `Vue 3`, `Vite`, `Vuetify`, `Vue Router`, `Vitest` и `packages/shared-types`; новые клиентские зависимости требуют отдельного архитектурного решения и обновления `docs/architecture/stack.md`.
 - Источник дизайн-токенов — `docs/system/ui-contracts/expressa-backoffice-ui-contract.json`; каноническая реализация токенов размещается в `src/styles/design-tokens.ts`, а `src/vuetify.ts` и `src/styles/main.scss` используют этот набор как единый источник визуальных значений.
-- `src/components/base` содержит тонкие компоненты над `Vuetify`: `Button`, `StatusBadge`, `EmptyState`, `Skeleton`, `FilterTabs`, `SectionList`, `FormField`, `ToggleRow`, `ConfirmDialog`. Они принимают данные и обработчики через props, emits или slots и не используют `router`, хранилища состояния, HTTP-клиенты и Telegram-адаптеры.
+- `src/components/base` содержит тонкие компоненты над `Vuetify`: `Button`, `StatusBadge`, `EmptyState`, `Skeleton`, `FilterTabs`, `SectionList`, `FormField`, `ToggleRow`, `ConfirmDialog`; файл `src/components/base/index.ts` служит общей точкой экспорта этого слоя. Компоненты принимают данные и обработчики через props, emits или slots и не используют `router`, хранилища состояния, HTTP-клиенты и Telegram-адаптеры.
 - `src/components/layout` содержит `TopBar`, `TabBar`, `SideNav` и при необходимости малые визуальные части shell. Эти компоненты получают готовые вкладки из серверно-управляемой модели `availableTabs`; локальный список вкладок из React-референса не переносится как источник доступа.
 - `src/layouts/BackofficeLayout.vue` остаётся владельцем сборки shell, отображения вложенного маршрута и связи с текущим состоянием доступа. Bootstrap доступа, восстановление сессии, route guards и экран отказа в доступе остаются в существующих слоях `stores`, `services`, `router` и `pages`.
 - `src/components/menu` содержит компоненты функционального среза вкладки `menu`: списки категорий и товаров, визуальные части редакторов, панель сохранения и элементы групп дополнительных опций. Они работают с подготовленными данными и событиями, но не меняют серверный DTO и не обращаются к API напрямую.
