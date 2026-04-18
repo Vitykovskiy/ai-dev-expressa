@@ -1,27 +1,20 @@
 import { expect, test } from '@playwright/test';
-import { injectTelegramWebApp } from '../support/backoffice-telegram-web-app';
 import {
-  createSignedTelegramInitData,
-  FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
-  FEATURE_001_E2E_BACKOFFICE_BOT_TOKEN,
-} from '../support/telegram-init-data';
-
-const administratorTelegramInitData = createSignedTelegramInitData(
-  FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
-  FEATURE_001_E2E_BACKOFFICE_BOT_TOKEN,
-);
+  openBackoffice,
+  resolveBackofficeApiBaseUrl,
+  resolveExpectedHeroChip,
+  resolveExpectedSessionLabel,
+} from '../support/backoffice-access';
 
 test.describe('FEATURE-001 administrator Telegram entry', () => {
   test('allows administrator to enter via Telegram and open administrative tabs', async ({
     page,
   }) => {
-    await injectTelegramWebApp(page, administratorTelegramInitData);
-
-    await page.goto('/');
+    await openBackoffice(page, '/');
 
     await expect(page).toHaveURL(/\/orders$/);
-    await expect(page.getByTestId('session-label')).toHaveText('Telegram-вход');
-    await expect(page.getByTestId('hero-chip')).toHaveText('FEATURE-001 / Telegram guard session');
+    await expect(page.getByTestId('session-label')).toHaveText(resolveExpectedSessionLabel());
+    await expect(page.getByTestId('hero-chip')).toHaveText(resolveExpectedHeroChip());
     await expect(page.locator('[data-testid^="nav-item-"]')).toHaveCount(5);
 
     for (const { tab, path, title } of [
@@ -35,16 +28,20 @@ test.describe('FEATURE-001 administrator Telegram entry', () => {
     }
   });
 
-  test('rejects direct working access without Telegram context', async ({ page }) => {
-    await page.goto('/users');
-
-    await expect(page).toHaveURL(/\/users$/);
-    await expect(page.getByTestId('blocking-state')).toBeVisible();
-    await expect(page.getByTestId('blocking-state-title')).toHaveText('Нужен Telegram-контекст');
-    await expect(page.getByTestId('blocking-state-reason')).toContainText(
-      'telegram-context-required',
+  test('rejects explicit working bootstrap without Telegram context', async ({ request }) => {
+    const bootstrapResponse = await request.post(
+      new URL('/api/backoffice/access/bootstrap', resolveBackofficeApiBaseUrl()).toString(),
+      {
+        data: {
+          mode: 'telegram',
+        },
+      },
     );
-    await expect(page.getByTestId('session-label')).toHaveText('Отказ в доступе');
-    await expect(page.getByTestId('session-summary')).toContainText('Telegram-контекст');
+
+    expect(bootstrapResponse.status()).toBe(401);
+    await expect(bootstrapResponse.json()).resolves.toMatchObject({
+      reason: 'telegram-context-required',
+      statusCode: 401,
+    });
   });
 });
