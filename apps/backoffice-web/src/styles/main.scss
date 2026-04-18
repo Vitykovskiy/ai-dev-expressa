@@ -1,17 +1,6 @@
 :root {
   color-scheme: light;
-  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-  --expressa-background: #f5f5f7;
-  --expressa-surface: #ffffff;
-  --expressa-text: #111111;
-  --expressa-secondary: #555555;
-  --expressa-muted: #757575;
-  --expressa-border: #e0e0e0;
-  --expressa-accent-orders: linear-gradient(90deg, #1a1aff, #6767ff);
-  --expressa-accent-availability: linear-gradient(90deg, #2e7d32, #6bbc70);
-  --expressa-accent-menu: linear-gradient(90deg, #e65100, #ff8f3a);
-  --expressa-accent-users: linear-gradient(90deg, #6a1b9a, #ab47bc);
-  --expressa-accent-settings: linear-gradient(90deg, #006064, #26c6da);
+  font-family: var(--expressa-font-family-base, 'Segoe UI Variable', 'Segoe UI', sans-serif);
 }
 
 html,
@@ -20,12 +9,68 @@ body,
   min-height: 100%;
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  background: var(--expressa-background);
-  color: var(--expressa-text);
+  background: var(--expressa-color-background-secondary, #f5f5f7);
+  color: var(--expressa-color-text-primary, #111111);
+  font-family: var(--expressa-font-family-base, 'Segoe UI Variable', 'Segoe UI', sans-serif);
+  font-size: var(--expressa-font-size-body, 14px);
+  font-weight: var(--expressa-font-weight-body, 400);
+  line-height: var(--expressa-line-height-body, 1.5);
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--expressa-font-family-mono, 'Consolas', 'SFMono-Regular', monospace);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: currentColor;
 }
 
 * {
   box-sizing: border-box;
+}
+
+*::selection {
+  background: var(--expressa-color-accent-light, #e8e8ff);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--expressa-focus-ring, 0 0 0 3px rgba(232, 232, 255, 1));
+  transition:
+    box-shadow var(--expressa-duration-fast, 120ms) var(--expressa-easing, ease-in-out),
+    border-color var(--expressa-duration-fast, 120ms) var(--expressa-easing, ease-in-out);
+}
+
+.expressa-dialog {
+  border-radius: var(--expressa-radius-lg, 16px);
+  box-shadow: var(--expressa-shadow-modal, 0 8px 32px rgba(0, 0, 0, 0.16));
 }
