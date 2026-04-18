@@ -5,6 +5,7 @@ import type {
   MenuCatalogDrinkSizePrice,
   MenuCatalogErrorResponse,
   MenuCatalogItemType,
+  OptionGroupSelectionMode,
   MenuCatalogSnapshot,
 } from '@expressa/shared-types';
 
@@ -76,4 +77,17 @@ export interface MenuCatalogProductDraft {
   itemType: MenuCatalogItemType;
   basePrice: number | null;
   sizePrices: MenuCatalogDrinkSizePrice[];
+}
+
+export interface MenuCatalogOptionDraft {
+  optionId: string | null;
+  name: string;
+  priceDelta: number;
+}
+
+export interface MenuCatalogOptionGroupDraft {
+  categoryIds: string[];
+  name: string;
+  options: MenuCatalogOptionDraft[];
+  selectionMode: OptionGroupSelectionMode;
 }

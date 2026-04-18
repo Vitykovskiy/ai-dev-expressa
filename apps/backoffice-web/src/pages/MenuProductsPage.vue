@@ -19,6 +19,14 @@
         >
           Создать товар
         </v-btn>
+        <v-btn
+          color="primary"
+          variant="tonal"
+          data-testid="create-addon-group"
+          @click="createAddonGroup"
+        >
+          Создать группу допов
+        </v-btn>
         <v-btn variant="text" color="primary" @click="goBackToCategories">К категориям</v-btn>
       </div>
     </section>
@@ -84,6 +92,7 @@ import { useRouter } from 'vue-router';
 import {
   createMenuAddonGroupDetailRoute,
   createMenuCategoriesRoute,
+  createMenuNewAddonGroupRoute,
   createMenuNewProductRoute,
   createMenuProductDetailRoute,
 } from '../router/menu-catalog-navigation';
@@ -132,6 +141,14 @@ function createProduct() {
   }
 
   void router.push(createMenuNewProductRoute(categoryId.value));
+}
+
+function createAddonGroup() {
+  if (!categoryId.value) {
+    return;
+  }
+
+  void router.push(createMenuNewAddonGroupRoute(categoryId.value));
 }
 
 function openAddonGroup(optionGroupId: string) {

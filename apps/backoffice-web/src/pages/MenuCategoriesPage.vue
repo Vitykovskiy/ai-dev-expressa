@@ -23,6 +23,7 @@
 
     <MenuCategoryList
       :categories="categoryCards"
+      @create-addon-group="createAddonGroup"
       @edit-category="openEditDialog"
       @open-addon-group="openAddonGroup"
       @open-products="openProducts"
@@ -45,6 +46,7 @@ import MenuCategoryFormDialog from '../components/MenuCategoryFormDialog.vue';
 import MenuCategoryList from '../components/MenuCategoryList.vue';
 import {
   createMenuAddonGroupDetailRoute,
+  createMenuNewAddonGroupRoute,
   createMenuProductsRoute,
 } from '../router/menu-catalog-navigation';
 import {
@@ -116,6 +118,10 @@ function submitCategory(name: string) {
 
 function openProducts(categoryId: string) {
   void router.push(createMenuProductsRoute(categoryId));
+}
+
+function createAddonGroup(categoryId: string) {
+  void router.push(createMenuNewAddonGroupRoute(categoryId));
 }
 
 function openAddonGroup(categoryId: string, optionGroupId: string) {

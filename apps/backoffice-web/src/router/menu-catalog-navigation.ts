@@ -8,6 +8,7 @@ export const MENU_PRODUCTS_ROUTE_NAME = 'menu.menu_products';
 export const MENU_PRODUCT_DETAIL_ROUTE_NAME = 'menu.menu_product_detail';
 export const MENU_ADDON_GROUP_DETAIL_ROUTE_NAME = 'menu.addon_group_detail';
 export const NEW_MENU_PRODUCT_ID = 'new';
+export const NEW_MENU_OPTION_GROUP_ID = 'new';
 
 export type MenuCatalogRouteName =
   | typeof MENU_ROOT_ROUTE_NAME
@@ -117,6 +118,18 @@ export function createMenuAddonGroupDetailRoute(
   };
 }
 
+export function createMenuNewAddonGroupRoute(
+  categoryId: string,
+): {
+  name: typeof MENU_ADDON_GROUP_DETAIL_ROUTE_NAME;
+  params: { categoryId: string; optionGroupId: typeof NEW_MENU_OPTION_GROUP_ID };
+} {
+  return {
+    name: MENU_ADDON_GROUP_DETAIL_ROUTE_NAME,
+    params: { categoryId, optionGroupId: NEW_MENU_OPTION_GROUP_ID },
+  };
+}
+
 export function resolveMenuCatalogRouteGuard(
   to: MenuCatalogRouteLocation,
   menuCatalogState: MenuCatalogState,
@@ -175,6 +188,11 @@ export function resolveMenuCatalogRouteGuard(
   }
 
   const optionGroupId = readRouteParam(to.params.optionGroupId);
+
+  if (optionGroupId === NEW_MENU_OPTION_GROUP_ID) {
+    return true;
+  }
+
   const category = findCategory(catalog, categoryId);
   const optionGroup = optionGroupId ? findOptionGroup(catalog, optionGroupId) : null;
 

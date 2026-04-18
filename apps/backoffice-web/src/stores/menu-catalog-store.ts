@@ -2,6 +2,7 @@ import type {
   MenuCatalogSnapshot,
   MenuCatalogCategory,
   MenuCatalogItem,
+  MenuCatalogOption,
   MenuCatalogOptionGroup,
 } from '@expressa/shared-types';
 import { reactive } from 'vue';
@@ -10,7 +11,13 @@ import {
   BackofficeMenuCatalogApi,
   normalizeBackofficeMenuCatalogError,
 } from '../services/backoffice-menu-catalog-api';
-import type { MenuCatalogProductDraft, MenuCatalogSelectionState, MenuCatalogState } from '../types';
+import type {
+  MenuCatalogOptionDraft,
+  MenuCatalogOptionGroupDraft,
+  MenuCatalogProductDraft,
+  MenuCatalogSelectionState,
+  MenuCatalogState,
+} from '../types';
 import type { MenuCatalogRouteName } from '../router/menu-catalog-navigation';
 
 interface MenuCatalogApiPort {
@@ -25,6 +32,7 @@ interface MenuCatalogStoreDependencies {
 
 export interface MenuCatalogStore {
   addCategory(name: string): MenuCatalogCategory | null;
+  addOptionGroup(optionGroupDraft: MenuCatalogOptionGroupDraft): MenuCatalogOptionGroup | null;
   addProduct(categoryId: string, productDraft: MenuCatalogProductDraft): MenuCatalogItem | null;
   clear(): void;
   initialize(accessToken: string): Promise<void>;
@@ -35,6 +43,7 @@ export interface MenuCatalogStore {
   state: MenuCatalogState;
   updateCategoryName(categoryId: string, name: string): boolean;
   updateDraft(mutator: (catalog: MenuCatalogSnapshot) => void): boolean;
+  updateOptionGroup(optionGroupId: string, optionGroupDraft: MenuCatalogOptionGroupDraft): boolean;
   updateProduct(productId: string, productDraft: MenuCatalogProductDraft): boolean;
 }
 
@@ -301,6 +310,50 @@ export function createMenuCatalogStore({
     };
   }
 
+  function toMenuCatalogOption(optionDraft: MenuCatalogOptionDraft): MenuCatalogOption {
+    return {
+      optionId: optionDraft.optionId ?? createId('option'),
+      name: optionDraft.name.trim(),
+      priceDelta: optionDraft.priceDelta,
+    };
+  }
+
+  function toMenuCatalogOptionGroup(
+    optionGroupId: string,
+    optionGroupDraft: MenuCatalogOptionGroupDraft,
+  ): MenuCatalogOptionGroup {
+    return {
+      optionGroupId,
+      name: optionGroupDraft.name.trim(),
+      selectionMode: optionGroupDraft.selectionMode,
+      options: optionGroupDraft.options.map(toMenuCatalogOption),
+    };
+  }
+
+  function applyOptionGroupCategoryRefs(
+    catalog: MenuCatalogSnapshot,
+    optionGroupId: string,
+    categoryIds: string[],
+  ) {
+    const targetCategoryIds = new Set(
+      categoryIds.filter((categoryId) =>
+        catalog.categories.some((category) => category.menuCategoryId === categoryId),
+      ),
+    );
+
+    for (const category of catalog.categories) {
+      const refs = new Set(category.optionGroupRefs);
+
+      if (targetCategoryIds.has(category.menuCategoryId)) {
+        refs.add(optionGroupId);
+      } else {
+        refs.delete(optionGroupId);
+      }
+
+      category.optionGroupRefs = [...refs];
+    }
+  }
+
   function addProduct(
     categoryId: string,
     productDraft: MenuCatalogProductDraft,
@@ -347,6 +400,54 @@ export function createMenuCatalogStore({
     });
   }
 
+  function addOptionGroup(
+    optionGroupDraft: MenuCatalogOptionGroupDraft,
+  ): MenuCatalogOptionGroup | null {
+    if (!state.catalog || !optionGroupDraft.name.trim() || optionGroupDraft.categoryIds.length === 0) {
+      return null;
+    }
+
+    const optionGroup = toMenuCatalogOptionGroup(createId('group'), optionGroupDraft);
+    const updated = updateDraft((catalog) => {
+      catalog.optionGroups.push(optionGroup);
+      applyOptionGroupCategoryRefs(catalog, optionGroup.optionGroupId, optionGroupDraft.categoryIds);
+    });
+
+    if (!updated) {
+      return null;
+    }
+
+    state.selection = normalizeSelection(state.catalog, {
+      categoryId: optionGroupDraft.categoryIds[0] ?? null,
+      productId: null,
+      optionGroupId: optionGroup.optionGroupId,
+    });
+    return optionGroup;
+  }
+
+  function updateOptionGroup(
+    optionGroupId: string,
+    optionGroupDraft: MenuCatalogOptionGroupDraft,
+  ): boolean {
+    if (!state.catalog || !optionGroupDraft.name.trim() || optionGroupDraft.categoryIds.length === 0) {
+      return false;
+    }
+
+    if (!findMenuCatalogOptionGroup(state.catalog, optionGroupId)) {
+      return false;
+    }
+
+    return updateDraft((catalog) => {
+      const draftOptionGroup = findMenuCatalogOptionGroup(catalog, optionGroupId);
+
+      Object.assign(
+        draftOptionGroup!,
+        toMenuCatalogOptionGroup(optionGroupId, optionGroupDraft),
+      );
+      applyOptionGroupCategoryRefs(catalog, optionGroupId, optionGroupDraft.categoryIds);
+    });
+  }
+
   async function save(accessToken: string): Promise<MenuCatalogSnapshot | null> {
     if (!state.catalog) {
       state.status = 'error';
@@ -385,6 +486,7 @@ export function createMenuCatalogStore({
 
   return {
     addCategory,
+    addOptionGroup,
     addProduct,
     clear,
     initialize,
@@ -395,6 +497,7 @@ export function createMenuCatalogStore({
     state,
     updateCategoryName,
     updateDraft,
+    updateOptionGroup,
     updateProduct,
   };
 }

@@ -50,6 +50,14 @@
           >
             Изменить
           </v-btn>
+          <v-btn
+            color="primary"
+            variant="text"
+            data-testid="create-category-addon-group"
+            @click="$emit('createAddonGroup', category.categoryId)"
+          >
+            Создать группу допов
+          </v-btn>
         </div>
       </v-card>
     </v-col>
@@ -78,6 +86,7 @@ defineProps<{
 }>();
 
 defineEmits<{
+  createAddonGroup: [categoryId: string];
   editCategory: [categoryId: string];
   openAddonGroup: [categoryId: string, optionGroupId: string];
   openProducts: [categoryId: string];

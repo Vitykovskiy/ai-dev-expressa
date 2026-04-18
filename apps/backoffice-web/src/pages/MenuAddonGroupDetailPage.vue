@@ -4,11 +4,11 @@
       <div>
         <p class="addon-detail__label">menu.addon_group_detail</p>
         <h3 class="addon-detail__title" data-testid="page-title">
-          {{ optionGroup?.name ?? 'Группа дополнительных опций' }}
+          {{ pageTitle }}
         </h3>
         <p class="addon-detail__text">
-          Группа привязана к категории и наследуется всеми товарами этой категории. Карточка
-          показывает текущее правило выбора и состав опций.
+          Редактор меняет группу дополнительных опций и её связи с категориями в общем черновике
+          структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`.
         </p>
       </div>
 
@@ -17,35 +17,63 @@
       </div>
     </section>
 
+    <v-alert
+      v-if="draftMessage"
+      class="addon-detail__alert"
+      color="primary"
+      data-testid="addon-group-draft-message"
+      variant="tonal"
+    >
+      {{ draftMessage }}
+    </v-alert>
+
     <v-row>
-      <v-col cols="12" lg="4">
-        <v-card class="addon-card" rounded="xl">
-          <p class="addon-card__label">Привязка к категории</p>
-          <h4 class="addon-card__title">{{ category?.name ?? 'Категория не выбрана' }}</h4>
-          <p class="addon-card__text">
-            Группу наследуют {{ inheritedProducts }} товаров из выбранной категории.
-          </p>
-          <v-chip color="primary" variant="tonal">
-            {{ optionGroup?.selectionMode === 'single' ? 'Взаимоисключающий выбор' : 'Множественный выбор' }}
-          </v-chip>
+      <v-col cols="12" lg="8">
+        <v-card class="detail-card" rounded="lg">
+          <MenuAddonGroupEditorForm
+            :categories="categoryOptions"
+            :initial-category-id="categoryId"
+            :mode="isCreateMode ? 'create' : 'edit'"
+            :option-group="optionGroup"
+            @cancel="goBackToProducts"
+            @submit="submitAddonGroup"
+          />
         </v-card>
       </v-col>
 
-      <v-col cols="12" lg="8">
-        <v-card class="addon-card" rounded="xl" data-testid="addon-group-detail">
-          <p class="addon-card__label">Состав группы</p>
-          <div class="addon-card__options">
-            <div
-              v-for="option in optionGroup?.options ?? []"
-              :key="option.optionId"
-              class="addon-card__option"
+      <v-col cols="12" lg="4">
+        <v-card class="detail-card detail-card--summary" rounded="lg">
+          <p class="detail-card__section-label">Текущее назначение</p>
+          <h4 class="detail-card__summary-title">{{ summaryTitle }}</h4>
+          <p class="detail-card__summary-text">
+            Категории получают группу через `optionGroupRefs`, поэтому товары наследуют её без
+            локальных переопределений.
+          </p>
+
+          <div class="detail-card__bindings">
+            <v-chip
+              v-for="category in assignedCategories"
+              :key="category.menuCategoryId"
+              color="primary"
+              variant="tonal"
             >
-              <div>
-                <strong>{{ option.name }}</strong>
-                <p class="addon-card__option-text">
-                  {{ option.priceDelta === 0 ? 'Бесплатная опция' : `Доплата ${option.priceDelta} ₽` }}
-                </p>
-              </div>
+              {{ category.name }}
+            </v-chip>
+            <span v-if="assignedCategories.length === 0" class="detail-card__muted">
+              Группа ещё не назначена.
+            </span>
+          </div>
+
+          <div v-if="optionGroup" class="detail-card__options">
+            <div
+              v-for="option in optionGroup.options"
+              :key="option.optionId"
+              class="detail-card__option"
+            >
+              <strong>{{ option.name }}</strong>
+              <span>
+                {{ option.priceDelta === 0 ? 'Бесплатно' : `+${option.priceDelta} ₽` }}
+              </span>
             </div>
           </div>
         </v-card>
@@ -55,28 +83,76 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { createMenuProductsRoute } from '../router/menu-catalog-navigation';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import MenuAddonGroupEditorForm from '../components/MenuAddonGroupEditorForm.vue';
+import {
+  NEW_MENU_OPTION_GROUP_ID,
+  createMenuAddonGroupDetailRoute,
+  createMenuProductsRoute,
+} from '../router/menu-catalog-navigation';
 import {
   findMenuCatalogCategory,
   findMenuCatalogOptionGroup,
   menuCatalogStore,
   resolveMenuCategoryProducts,
 } from '../stores/menu-catalog-store';
+import type { MenuCatalogOptionGroupDraft } from '../types';
 
+const route = useRoute();
 const router = useRouter();
+const draftMessage = ref<string | null>(null);
 const categoryId = computed(() => menuCatalogStore.state.selection.categoryId);
-const optionGroupId = computed(() => menuCatalogStore.state.selection.optionGroupId);
+const routeOptionGroupId = computed(() =>
+  typeof route.params.optionGroupId === 'string' ? route.params.optionGroupId : null,
+);
+const isCreateMode = computed(() => routeOptionGroupId.value === NEW_MENU_OPTION_GROUP_ID);
 const category = computed(() =>
   findMenuCatalogCategory(menuCatalogStore.state.catalog, categoryId.value),
 );
 const optionGroup = computed(() =>
-  findMenuCatalogOptionGroup(menuCatalogStore.state.catalog, optionGroupId.value),
+  isCreateMode.value
+    ? null
+    : findMenuCatalogOptionGroup(menuCatalogStore.state.catalog, routeOptionGroupId.value),
 );
-const inheritedProducts = computed(
-  () => resolveMenuCategoryProducts(menuCatalogStore.state.catalog, categoryId.value).length,
+const categoryOptions = computed(() =>
+  (menuCatalogStore.state.catalog?.categories ?? []).map((category) => ({
+    ...category,
+    productCount: resolveMenuCategoryProducts(
+      menuCatalogStore.state.catalog,
+      category.menuCategoryId,
+    ).length,
+  })),
 );
+const assignedCategories = computed(() => {
+  const optionGroupId = optionGroup.value?.optionGroupId;
+
+  if (!optionGroupId) {
+    return [];
+  }
+
+  return categoryOptions.value.filter((category) =>
+    category.optionGroupRefs.includes(optionGroupId),
+  );
+});
+const pageTitle = computed(() => {
+  if (isCreateMode.value) {
+    return 'Новая группа дополнительных опций';
+  }
+
+  return optionGroup.value?.name ?? 'Группа дополнительных опций';
+});
+const summaryTitle = computed(() => {
+  if (isCreateMode.value) {
+    return category.value
+      ? `Новая группа для «${category.value.name}»`
+      : 'Новая группа без выбранной категории';
+  }
+
+  return optionGroup.value?.selectionMode === 'multiple'
+    ? 'Множественный выбор'
+    : 'Один вариант';
+});
 
 function goBackToProducts() {
   if (!categoryId.value) {
@@ -84,6 +160,49 @@ function goBackToProducts() {
   }
 
   void router.push(createMenuProductsRoute(categoryId.value));
+}
+
+function resolveTargetCategoryId(categoryIds: string[]): string | null {
+  if (categoryId.value && categoryIds.includes(categoryId.value)) {
+    return categoryId.value;
+  }
+
+  return categoryIds[0] ?? null;
+}
+
+function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
+  const targetCategoryId = resolveTargetCategoryId(optionGroupDraft.categoryIds);
+
+  if (!targetCategoryId) {
+    return;
+  }
+
+  if (isCreateMode.value) {
+    const optionGroup = menuCatalogStore.addOptionGroup(optionGroupDraft);
+
+    if (!optionGroup) {
+      return;
+    }
+
+    draftMessage.value = 'Группа дополнительных опций добавлена в черновик каталога.';
+    void router.replace(
+      createMenuAddonGroupDetailRoute(targetCategoryId, optionGroup.optionGroupId),
+    );
+    return;
+  }
+
+  if (
+    !routeOptionGroupId.value ||
+    !menuCatalogStore.updateOptionGroup(routeOptionGroupId.value, optionGroupDraft)
+  ) {
+    return;
+  }
+
+  draftMessage.value = 'Группа дополнительных опций обновлена в черновике каталога.';
+
+  if (categoryId.value !== targetCategoryId) {
+    void router.replace(createMenuAddonGroupDetailRoute(targetCategoryId, routeOptionGroupId.value));
+  }
 }
 </script>
 
@@ -101,17 +220,17 @@ function goBackToProducts() {
   }
 
   &__label,
-  .addon-card__label {
+  .detail-card__section-label {
     margin: 0;
     color: var(--expressa-muted);
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
   &__title,
-  .addon-card__title {
+  .detail-card__summary-title {
     margin: 0.5rem 0 0;
     color: var(--expressa-text);
     font-size: clamp(1.2rem, 1.5vw, 1.7rem);
@@ -119,36 +238,44 @@ function goBackToProducts() {
   }
 
   &__text,
-  .addon-card__text,
-  .addon-card__option-text {
+  .detail-card__summary-text {
     margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
   }
 }
 
-.addon-card {
-  display: grid;
-  gap: 1rem;
+.detail-card {
   height: 100%;
   padding: 1.25rem;
   border: 1px solid var(--expressa-border);
   background: rgba(255, 255, 255, 0.94);
 
+  &__bindings,
+  &__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
   &__options {
     display: grid;
-    gap: 0.75rem;
   }
 
   &__option {
-    padding: 0.95rem 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
     border: 1px solid var(--expressa-border);
-    border-radius: 1rem;
-    background: linear-gradient(180deg, rgba(245, 245, 247, 0.88), rgba(255, 255, 255, 0.96));
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
   }
 
-  &__option-text {
-    margin-top: 0.35rem;
+  &__muted {
+    color: var(--expressa-muted);
   }
 }
 </style>
