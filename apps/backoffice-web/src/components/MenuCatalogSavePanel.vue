@@ -1,20 +1,38 @@
 <template>
-  <MenuSurfaceCard class="save-panel" data-testid="menu-catalog-save-panel">
+  <MenuSurfaceCard
+    class="save-panel"
+    data-testid="menu-catalog-save-panel"
+    :variant="panelState.cardVariant"
+  >
     <div class="save-panel__content">
-      <MenuSectionHeader label="Сохранение каталога" :text="text" :title="title" />
-      <p v-if="error" class="save-panel__error" data-testid="menu-catalog-save-error">
-        {{ error.message }}
+      <MenuBadge
+        class="save-panel__badge"
+        :emphasis="panelState.badge.emphasis"
+        size="compact"
+        :tone="panelState.badge.tone"
+      >
+        {{ panelState.badge.label }}
+      </MenuBadge>
+      <MenuSectionHeader label="Панель сохранения" :text="panelState.text" :title="panelState.title" />
+      <p
+        v-if="panelState.inlineError"
+        class="save-panel__error"
+        data-testid="menu-catalog-save-error"
+      >
+        {{ panelState.inlineError.message }}
       </p>
+      <p class="save-panel__hint">{{ panelState.actionHint }}</p>
     </div>
 
     <div class="save-panel__actions">
       <MenuActionButton
         :disabled="disabled || !isDirty || isSaving"
         :loading="isSaving"
+        :variant="panelState.actionVariant"
         data-testid="save-menu-catalog"
         @click="$emit('save')"
       >
-        Сохранить каталог
+        {{ panelState.actionLabel }}
       </MenuActionButton>
     </div>
   </MenuSurfaceCard>
@@ -23,8 +41,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuBadge from './menu/MenuBadge.vue';
 import MenuSectionHeader from './menu/MenuSectionHeader.vue';
 import MenuSurfaceCard from './menu/MenuSurfaceCard.vue';
+import { resolveMenuCatalogSavePanelState } from '../composables/menu-catalog-shell-state';
 import type { MenuCatalogError, MenuCatalogStatus } from '../types';
 
 const props = defineProps<{
@@ -39,30 +59,33 @@ defineEmits<{
 }>();
 
 const isSaving = computed(() => props.status === 'saving');
-const title = computed(() =>
-  props.isDirty ? 'Есть несохранённые изменения' : 'Каталог синхронизирован',
-);
-const text = computed(() =>
-  props.isDirty
-    ? 'Изменения категорий, товаров и групп дополнительных опций находятся в черновике и будут отправлены одним структурным снимком.'
-    : 'Последний сохранённый снимок совпадает с локальным состоянием.',
-);
+const panelState = computed(() => resolveMenuCatalogSavePanelState(props));
 </script>
 
 <style scoped lang="scss">
 .save-panel {
   display: grid;
-  gap: 1rem;
-  align-items: center;
+  gap: 1.25rem;
+  align-items: start;
 
   &__content {
     min-width: 0;
   }
 
+  &__badge {
+    margin-bottom: 0.85rem;
+  }
+
   &__error {
-    margin: 0.75rem 0 0;
+    margin: 0.85rem 0 0;
     color: #b71c1c;
     font-weight: 700;
+  }
+
+  &__hint {
+    margin: 0.85rem 0 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
   }
 
   &__actions {
@@ -73,8 +96,9 @@ const text = computed(() =>
 
 @media (min-width: 760px) {
   .save-panel {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, auto);
     gap: 1.25rem;
+    align-items: center;
 
     &__actions {
       justify-content: flex-end;
