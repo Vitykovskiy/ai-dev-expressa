@@ -21,7 +21,7 @@
 - `infra/scripts/deploy-feature001.sh` — воспроизводимое развёртывание `FEATURE-001` на VPS.
 - `infra/scripts/smoke-backoffice-access.mjs` — дымовая проверка доступа во внутренний административный контур.
 - `.github/workflows/ci.yml` — модульные проверки, сборка, compose-валидация и локальная дымовая проверка.
-- `.github/workflows/deploy-feature001.yml` — развёртывание `staging/production` и post-deploy дымовая проверка.
+- `.github/workflows/deploy-feature001.yml` — развёртывание `test/staging/production` и post-deploy дымовая проверка.
 - Для контейнерного маршрута `FEATURE-001` шаблоны окружения лежат в `infra/docker/.env.example` и `infra/docker/.env.server.example`.
 
 ## Feature-срезы
@@ -30,7 +30,7 @@
 
 - E2E-набор поднимает серверную и клиентскую часть через Playwright `webServer`.
 - Проверяются рабочий вход `administrator`, отказ при прямом рабочем доступе без Telegram и test environment-прогон через `SMOKE_MODE=test`.
-- VPS-маршрут синхронизирует репозиторий на сервер, рендерит env-файлы, запускает `infra/scripts/deploy-feature001.sh` и завершает выпуск post-deploy дымовой проверкой.
+- VPS-маршрут синхронизирует репозиторий на сервер, рендерит env-файлы, запускает `infra/scripts/deploy-feature001.sh` и завершает выпуск post-deploy дымовой проверкой; для `test` допускается `DISABLE_TG_AUTH=true` и `SMOKE_MODE=test`.
 - Локальная и конвейерная проверка отдельно подтверждают рабочий вход `administrator`, отказ при прямом рабочем доступе без Telegram и выделенный test environment-прогон через `SMOKE_MODE=test`.
 
 ### `FEATURE-002`: управление каталогом меню
