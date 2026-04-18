@@ -45,6 +45,45 @@ describe('backoffice router', () => {
     );
   });
 
+  it('redirects the menu root path to categories without an empty child route', async () => {
+    backofficeAccessStore.state.status = 'ready';
+    backofficeAccessStore.state.accessToken = 'token-1';
+    backofficeAccessStore.state.context = {
+      accessToken: 'token-1',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability', 'menu', 'users', 'settings'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['administrator'],
+        blocked: false,
+        isPrimaryAdministrator: true,
+      },
+    };
+    menuCatalogStore.replaceCatalog({
+      categories: [],
+      items: [],
+      optionGroups: [],
+    });
+    const menuRoute = router.options.routes.find((route) => route.name === 'menu');
+
+    expect(menuRoute?.redirect).toEqual({ name: 'menu.menu_categories' });
+    expect(menuRoute?.children).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '',
+          name: undefined,
+        }),
+      ]),
+    );
+
+    await router.push('/menu');
+
+    expect(router.currentRoute.value.fullPath).toBe('/menu/categories');
+    expect(router.currentRoute.value.name).toBe('menu.menu_categories');
+  });
+
   it('denies direct navigation to a tab missing in availableTabs', async () => {
     backofficeAccessStore.state.status = 'ready';
     backofficeAccessStore.state.context = {
