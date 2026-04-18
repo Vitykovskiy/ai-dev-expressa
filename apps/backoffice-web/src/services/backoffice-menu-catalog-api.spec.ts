@@ -55,7 +55,7 @@ describe('BackofficeMenuCatalogApi', () => {
         },
       }),
     );
-    const api = new BackofficeMenuCatalogApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeMenuCatalogApi('http://localhost:3000/api', fetchMock);
 
     const result = await api.getCatalog('access-token');
 
@@ -80,7 +80,7 @@ describe('BackofficeMenuCatalogApi', () => {
         },
       }),
     );
-    const api = new BackofficeMenuCatalogApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeMenuCatalogApi('http://localhost:3000/api', fetchMock);
 
     const result = await api.saveCatalog('access-token', snapshot);
 
@@ -113,7 +113,7 @@ describe('BackofficeMenuCatalogApi', () => {
         },
       ),
     );
-    const api = new BackofficeMenuCatalogApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeMenuCatalogApi('http://localhost:3000/api', fetchMock);
 
     await expect(api.saveCatalog('access-token', createCatalogSnapshot())).rejects.toEqual({
       statusCode: 422,
@@ -132,5 +132,29 @@ describe('BackofficeMenuCatalogApi', () => {
       reason: 'invalid-drink-size-model',
       message: 'Drink size model is invalid',
     });
+  });
+
+  it('supports a relative /api base URL for menu catalog requests', async () => {
+    const snapshot = createCatalogSnapshot();
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify(snapshot), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+    const api = new BackofficeMenuCatalogApi('/api', fetchMock);
+
+    await api.getCatalog('access-token');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/backoffice/menu/catalog',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer access-token',
+        }),
+      }),
+    );
   });
 });

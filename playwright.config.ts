@@ -64,7 +64,7 @@ export default defineConfig({
           env: {
             ...process.env,
             VITE_APP_TITLE: 'Expressa Backoffice',
-            VITE_API_BASE_URL: `http://127.0.0.1:${serverPort}`,
+            VITE_API_BASE_URL: `http://127.0.0.1:${serverPort}/api`,
             VITE_DISABLE_TG_AUTH: accessMode === 'test' ? 'true' : 'false',
             VITE_TEST_TELEGRAM_ID:
               accessMode === 'test' ? FEATURE_001_E2E_ADMIN_TELEGRAM_ID : '',

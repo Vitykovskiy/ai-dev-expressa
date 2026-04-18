@@ -1,7 +1,7 @@
 import type { BackofficeAppEnvironment } from '../types';
 
 const DEFAULT_APP_TITLE = 'Expressa Backoffice';
-const DEFAULT_API_BASE_URL = 'http://localhost:3000';
+const DEFAULT_API_BASE_URL = 'http://localhost:3000/api';
 
 function readNonEmptyString(value: string | undefined, fallback: string): string {
   const normalizedValue = value?.trim();
