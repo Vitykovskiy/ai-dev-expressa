@@ -164,6 +164,12 @@ describe('MenuProductDetailPage', () => {
         productId: expect.stringMatching(/^item-/),
       },
     });
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Товар «Раф» добавлен в общий черновик каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('edits an existing product through the shared catalog draft', async () => {
@@ -196,6 +202,12 @@ describe('MenuProductDetailPage', () => {
       sizePrices: [],
     });
     expect(menuCatalogStore.state.isDirty).toBe(true);
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Товар «Круассан» обновлён в общем черновике каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('deletes an existing product from the shared catalog draft and returns to the list', async () => {
@@ -216,5 +228,11 @@ describe('MenuProductDetailPage', () => {
     expect(menuCatalogStore.state.catalog?.items).toEqual([]);
     expect(menuCatalogStore.state.isDirty).toBe(true);
     expect(routerMocks.push).toHaveBeenCalledWith(createMenuProductsRoute('cat-coffee'));
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Товар «Латте» удалён из общего черновика каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 });

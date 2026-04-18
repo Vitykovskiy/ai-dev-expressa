@@ -219,6 +219,12 @@ describe('MenuAddonGroupDetailPage', () => {
         optionGroupId: createdOptionGroup?.optionGroupId,
       },
     });
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Группа «Syrups» добавлена в общий черновик каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('updates an addon group and reroutes when the current category binding is removed', async () => {
@@ -280,6 +286,12 @@ describe('MenuAddonGroupDetailPage', () => {
         optionGroupId: 'group-milk',
       },
     });
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Группа «Milk options» обновлена в общем черновике каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('deletes an existing addon group from the shared catalog draft and returns to products', async () => {
@@ -310,6 +322,12 @@ describe('MenuAddonGroupDetailPage', () => {
     ]);
     expect(menuCatalogStore.state.isDirty).toBe(true);
     expect(routerMocks.push).toHaveBeenCalledWith(createMenuProductsRoute('cat-coffee'));
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Группа «Milk» удалена из общего черновика каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('shows a context error when the route points to a missing addon group', () => {

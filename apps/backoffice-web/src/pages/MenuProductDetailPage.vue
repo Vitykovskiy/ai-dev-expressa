@@ -42,27 +42,6 @@
         </MenuBadge>
       </div>
     </MenuSurfaceCard>
-
-    <MenuSurfaceCard
-      v-if="draftMessage"
-      class="product-detail__draft"
-      data-testid="product-draft-message"
-      variant="subtle"
-    >
-      <MenuBadge size="compact" tone="success">Черновик обновлён</MenuBadge>
-      <p class="product-detail__draft-text">{{ draftMessage }}</p>
-    </MenuSurfaceCard>
-
-    <MenuSurfaceCard
-      v-if="deleteError"
-      class="product-detail__feedback"
-      data-testid="product-detail-delete-error"
-      variant="danger"
-    >
-      <MenuBadge size="compact" tone="danger">Удаление не выполнено</MenuBadge>
-      <p class="product-detail__feedback-text">{{ deleteError }}</p>
-    </MenuSurfaceCard>
-
     <MenuSurfaceCard
       v-if="contextIssue"
       class="product-detail__feedback"
@@ -259,9 +238,7 @@ import type { MenuCatalogProductDraft } from '../types';
 const PRODUCT_EDITOR_FORM_ID = 'menu-product-editor-form';
 const route = useRoute();
 const router = useRouter();
-const draftMessage = ref<string | null>(null);
 const submitError = ref<string | null>(null);
-const deleteError = ref<string | null>(null);
 const isSubmitting = ref(false);
 const isDeleting = ref(false);
 const isDeleteDialogOpen = ref(false);
@@ -366,9 +343,7 @@ const contextIssue = computed(() => {
 watch(
   () => [route.fullPath, menuCatalogStore.state.selection.categoryId] as const,
   () => {
-    draftMessage.value = null;
     submitError.value = null;
-    deleteError.value = null;
     isDeleteDialogOpen.value = false;
   },
 );
@@ -389,8 +364,6 @@ async function submitProduct(productDraft: MenuCatalogProductDraft) {
 
   isSubmitting.value = true;
   submitError.value = null;
-  deleteError.value = null;
-  draftMessage.value = null;
   await nextTick();
 
   try {
@@ -401,7 +374,11 @@ async function submitProduct(productDraft: MenuCatalogProductDraft) {
         throw new Error('Не удалось добавить товар в общий черновик выбранной категории.');
       }
 
-      draftMessage.value = 'Товар добавлен в черновик каталога.';
+      menuCatalogStore.pushToast({
+        text: `Товар «${createdProduct.name}» добавлен в общий черновик каталога.`,
+        title: 'Черновик обновлён',
+        tone: 'success',
+      });
       await router.replace(createMenuProductDetailRoute(categoryId.value, createdProduct.menuItemId));
       return;
     }
@@ -413,7 +390,11 @@ async function submitProduct(productDraft: MenuCatalogProductDraft) {
       throw new Error('Не удалось обновить товар в общем черновике каталога.');
     }
 
-    draftMessage.value = 'Товар обновлён в черновике каталога.';
+    menuCatalogStore.pushToast({
+      text: `Товар «${productDraft.name}» обновлён в общем черновике каталога.`,
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   } catch (error) {
     submitError.value =
       error instanceof Error ? error.message : 'Не удалось обновить черновик товара.';
@@ -440,8 +421,12 @@ function createAddonGroup() {
 
 async function deleteProduct() {
   if (!categoryId.value || !routeProductId.value || !product.value) {
-    deleteError.value = 'Удаление недоступно: товар или категория не найдены в текущем черновике.';
     isDeleteDialogOpen.value = false;
+    menuCatalogStore.pushToast({
+      text: 'Удаление недоступно: товар или категория не найдены в текущем черновике.',
+      title: 'Удаление не выполнено',
+      tone: 'danger',
+    });
     return;
   }
 
@@ -450,8 +435,6 @@ async function deleteProduct() {
 
   isDeleting.value = true;
   submitError.value = null;
-  deleteError.value = null;
-  draftMessage.value = null;
   await nextTick();
 
   try {
@@ -470,12 +453,20 @@ async function deleteProduct() {
       throw new Error('Не удалось удалить товар из локального черновика каталога.');
     }
 
-    draftMessage.value = `Товар «${productName}» удалён из локального черновика.`;
+    menuCatalogStore.pushToast({
+      text: `Товар «${productName}» удалён из общего черновика каталога.`,
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
     isDeleteDialogOpen.value = false;
     await router.push(createMenuProductsRoute(categoryId.value));
   } catch (error) {
-    deleteError.value =
-      error instanceof Error ? error.message : 'Не удалось удалить товар из локального черновика.';
+    menuCatalogStore.pushToast({
+      text:
+        error instanceof Error ? error.message : 'Не удалось удалить товар из локального черновика.',
+      title: 'Удаление не выполнено',
+      tone: 'danger',
+    });
   } finally {
     isDeleting.value = false;
   }
@@ -503,7 +494,6 @@ function pluralize(count: number, one: string, few: string, many: string) {
   gap: 1rem;
 
   &__hero,
-  &__draft,
   &__feedback {
     display: grid;
     gap: 0.9rem;
@@ -519,8 +509,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
   }
 
   &__feedback-text,
-  &__dialog-text,
-  &__draft-text {
+  &__dialog-text {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.6;
@@ -529,10 +518,6 @@ function pluralize(count: number, one: string, few: string, many: string) {
   &__sidebar {
     display: grid;
     gap: 1rem;
-  }
-
-  &__draft {
-    border-style: dashed;
   }
 }
 

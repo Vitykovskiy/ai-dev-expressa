@@ -184,19 +184,32 @@
       </MenuSurfaceCard>
     </div>
 
-    <div class="addon-editor__actions">
-      <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
-        К товарам категории
-      </MenuActionButton>
-      <MenuActionButton
-        :disabled="submitPending"
-        :loading="submitPending"
-        data-testid="submit-addon-group-form"
-        type="submit"
-      >
-        {{ submitLabel }}
-      </MenuActionButton>
-    </div>
+    <MenuStickyActionDock class="addon-editor__actions" placement="bottom">
+      <template #content>
+        <div class="addon-editor__dock-copy">
+          <MenuBadge size="compact" :tone="completionState.tone">
+            {{ completionState.badge }}
+          </MenuBadge>
+          <p class="addon-editor__dock-text">
+            {{ dockText }}
+          </p>
+        </div>
+      </template>
+
+      <template #actions>
+        <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
+          К товарам категории
+        </MenuActionButton>
+        <MenuActionButton
+          :disabled="submitPending"
+          :loading="submitPending"
+          data-testid="submit-addon-group-form"
+          type="submit"
+        >
+          {{ submitLabel }}
+        </MenuActionButton>
+      </template>
+    </MenuStickyActionDock>
   </form>
 </template>
 
@@ -207,6 +220,7 @@ import type {
   OptionGroupSelectionMode,
 } from '@expressa/shared-types';
 import { computed, watch } from 'vue';
+import MenuStickyActionDock from './MenuStickyActionDock.vue';
 import MenuActionButton from './menu/MenuActionButton.vue';
 import MenuBadge from './menu/MenuBadge.vue';
 import MenuListRow from './menu/MenuListRow.vue';
@@ -299,6 +313,11 @@ const selectionModeSummary = computed(() =>
 );
 const submitLabel = computed(() =>
   props.mode === 'create' ? 'Добавить в черновик' : 'Обновить черновик',
+);
+const dockText = computed(() =>
+  props.mode === 'create'
+    ? 'Новая группа сначала попадёт в общий черновик вкладки menu, а сервер получит её только после общего сохранения каталога.'
+    : 'Редактирование меняет только общий черновик вкладки menu. Публикация на сервер выполняется через верхнюю панель сохранения.',
 );
 
 watch(
@@ -491,11 +510,15 @@ function pluralize(count: number, one: string, few: string, many: string) {
     line-height: 1.6;
   }
 
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
+  &__dock-copy {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  &__dock-text {
+    margin: 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
   }
 }
 

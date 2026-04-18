@@ -42,27 +42,6 @@
         </MenuBadge>
       </div>
     </MenuSurfaceCard>
-
-    <MenuSurfaceCard
-      v-if="draftMessage"
-      class="addon-detail__draft"
-      data-testid="addon-group-draft-message"
-      variant="subtle"
-    >
-      <MenuBadge size="compact" tone="success">Черновик обновлён</MenuBadge>
-      <p class="addon-detail__draft-text">{{ draftMessage }}</p>
-    </MenuSurfaceCard>
-
-    <MenuSurfaceCard
-      v-if="deleteError"
-      class="addon-detail__feedback"
-      data-testid="addon-group-detail-delete-error"
-      variant="danger"
-    >
-      <MenuBadge size="compact" tone="danger">Удаление не выполнено</MenuBadge>
-      <p class="addon-detail__feedback-text">{{ deleteError }}</p>
-    </MenuSurfaceCard>
-
     <MenuSurfaceCard
       v-if="contextIssue"
       class="addon-detail__feedback"
@@ -264,9 +243,7 @@ import type { MenuCatalogOptionGroupDraft } from '../types';
 const ADDON_GROUP_EDITOR_FORM_ID = 'menu-addon-group-editor-form';
 const route = useRoute();
 const router = useRouter();
-const draftMessage = ref<string | null>(null);
 const submitError = ref<string | null>(null);
-const deleteError = ref<string | null>(null);
 const isSubmitting = ref(false);
 const isDeleting = ref(false);
 const isDeleteDialogOpen = ref(false);
@@ -397,9 +374,7 @@ const contextIssue = computed(() => {
 watch(
   () => [routeOptionGroupId.value, categoryId.value] as const,
   () => {
-    draftMessage.value = null;
     submitError.value = null;
-    deleteError.value = null;
     isDeleteDialogOpen.value = false;
   },
 );
@@ -430,8 +405,6 @@ async function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
 
   isSubmitting.value = true;
   submitError.value = null;
-  deleteError.value = null;
-  draftMessage.value = null;
   await nextTick();
 
   try {
@@ -442,7 +415,11 @@ async function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
         throw new Error('Не удалось добавить группу дополнительных опций в общий черновик каталога.');
       }
 
-      draftMessage.value = 'Группа дополнительных опций добавлена в черновик каталога.';
+      menuCatalogStore.pushToast({
+        text: `Группа «${createdOptionGroup.name}» добавлена в общий черновик каталога.`,
+        title: 'Черновик обновлён',
+        tone: 'success',
+      });
       await router.replace(
         createMenuAddonGroupDetailRoute(targetCategoryId, createdOptionGroup.optionGroupId),
       );
@@ -454,9 +431,13 @@ async function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
       !menuCatalogStore.updateOptionGroup(routeOptionGroupId.value, optionGroupDraft)
     ) {
       throw new Error('Не удалось обновить группу дополнительных опций в общем черновике каталога.');
-    }
+      }
 
-    draftMessage.value = 'Группа дополнительных опций обновлена в черновике каталога.';
+    menuCatalogStore.pushToast({
+      text: `Группа «${optionGroupDraft.name}» обновлена в общем черновике каталога.`,
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
 
     if (categoryId.value !== targetCategoryId) {
       await router.replace(
@@ -475,8 +456,12 @@ async function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
 
 async function deleteAddonGroup() {
   if (!categoryId.value || !routeOptionGroupId.value || !optionGroup.value) {
-    deleteError.value = 'Удаление недоступно: группа или категория не найдены в текущем черновике.';
     isDeleteDialogOpen.value = false;
+    menuCatalogStore.pushToast({
+      text: 'Удаление недоступно: группа или категория не найдены в текущем черновике.',
+      title: 'Удаление не выполнено',
+      tone: 'danger',
+    });
     return;
   }
 
@@ -485,8 +470,6 @@ async function deleteAddonGroup() {
 
   isDeleting.value = true;
   submitError.value = null;
-  deleteError.value = null;
-  draftMessage.value = null;
   await nextTick();
 
   try {
@@ -514,14 +497,22 @@ async function deleteAddonGroup() {
       throw new Error('Не удалось удалить группу дополнительных опций из локального черновика каталога.');
     }
 
-    draftMessage.value = `Группа «${optionGroupName}» удалена из локального черновика.`;
+    menuCatalogStore.pushToast({
+      text: `Группа «${optionGroupName}» удалена из общего черновика каталога.`,
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
     isDeleteDialogOpen.value = false;
     await router.push(createMenuProductsRoute(categoryId.value));
   } catch (error) {
-    deleteError.value =
-      error instanceof Error
-        ? error.message
-        : 'Не удалось удалить группу дополнительных опций из локального черновика.';
+    menuCatalogStore.pushToast({
+      text:
+        error instanceof Error
+          ? error.message
+          : 'Не удалось удалить группу дополнительных опций из локального черновика.',
+      title: 'Удаление не выполнено',
+      tone: 'danger',
+    });
   } finally {
     isDeleting.value = false;
   }
@@ -549,7 +540,6 @@ function pluralize(count: number, one: string, few: string, many: string) {
   gap: 1rem;
 
   &__hero,
-  &__draft,
   &__feedback {
     display: grid;
     gap: 0.9rem;
@@ -565,8 +555,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
   }
 
   &__feedback-text,
-  &__dialog-text,
-  &__draft-text {
+  &__dialog-text {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.6;
@@ -575,10 +564,6 @@ function pluralize(count: number, one: string, few: string, many: string) {
   &__sidebar {
     display: grid;
     gap: 1rem;
-  }
-
-  &__draft {
-    border-style: dashed;
   }
 }
 

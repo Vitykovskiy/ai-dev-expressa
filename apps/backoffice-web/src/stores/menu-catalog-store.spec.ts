@@ -110,6 +110,12 @@ describe('createMenuCatalogStore', () => {
     expect(result).toEqual(persistedSnapshot);
     expect(store.state.catalog?.items).toHaveLength(3);
     expect(store.state.status).toBe('ready');
+    expect(store.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Сервер принял общий структурный снимок. Все локальные изменения опубликованы.',
+      title: 'Каталог сохранён',
+      tone: 'success',
+    });
   });
 
   it('adds and edits categories in the local draft before saving the structural snapshot', async () => {
@@ -351,6 +357,71 @@ describe('createMenuCatalogStore', () => {
       statusCode: 422,
       reason: 'invalid-option-group-rule',
       message: 'Option group rule is invalid',
+    });
+    expect(store.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Option group rule is invalid',
+      title: 'Черновик не сохранён',
+      tone: 'danger',
+    });
+  });
+
+  it('publishes toast feedback for reload outcomes over an existing snapshot', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi
+        .fn()
+        .mockResolvedValueOnce(snapshot)
+        .mockResolvedValueOnce(snapshot)
+        .mockRejectedValueOnce({
+          statusCode: 503,
+          reason: 'network-error',
+          message: 'Network request failed',
+        }),
+      saveCatalog: vi.fn(),
+    };
+    const store = createMenuCatalogStore({ menuCatalogApi });
+
+    await store.initialize('access-token');
+    await store.reload('access-token');
+
+    expect(store.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Структурный снимок перечитан с сервера и снова синхронизирован с вкладкой menu.',
+      title: 'Снимок каталога обновлён',
+      tone: 'success',
+    });
+
+    await store.reload('access-token');
+
+    expect(store.state.ui.toast).toEqual({
+      id: 2,
+      text: 'Network request failed',
+      title: 'Не удалось обновить снимок',
+      tone: 'warning',
+    });
+  });
+
+  it('tracks pending leave confirmation separately from the shared draft', async () => {
+    const snapshot = createCatalogSnapshot();
+    const menuCatalogApi = {
+      getCatalog: vi.fn().mockResolvedValue(snapshot),
+      saveCatalog: vi.fn(),
+    };
+    const store = createMenuCatalogStore({ menuCatalogApi });
+
+    await store.initialize('access-token');
+    store.addCategory('Завтраки');
+
+    expect(store.requestPendingLeave('/orders')).toBe(true);
+    expect(store.state.ui.pendingLeave).toEqual({
+      isOpen: true,
+      targetPath: '/orders',
+    });
+    expect(store.consumePendingLeaveTarget()).toBe('/orders');
+    expect(store.state.ui.pendingLeave).toEqual({
+      isOpen: false,
+      targetPath: null,
     });
   });
 

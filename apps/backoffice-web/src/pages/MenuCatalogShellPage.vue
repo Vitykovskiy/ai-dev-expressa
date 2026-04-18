@@ -1,5 +1,8 @@
 <template>
-  <v-row class="menu-shell">
+  <div class="menu-shell-layout">
+    <MenuCatalogToastHost :toast="menuState.ui.toast" @close="dismissToast" />
+
+    <v-row class="menu-shell">
     <v-col cols="12">
       <MenuSurfaceCard
         class="menu-shell__hero"
@@ -150,23 +153,54 @@
 
       <router-view />
     </v-col>
-  </v-row>
+    </v-row>
+
+    <MenuDialogShell
+      :model-value="menuState.ui.pendingLeave.isOpen"
+      label="Несохранённый черновик"
+      max-width="560"
+      text="Если уйти со вкладки `menu` сейчас, локальный черновик останется только в клиентской части и будет потерян после полной перезагрузки приложения."
+      title="Покинуть menu без сохранения?"
+      @update:model-value="closePendingLeave"
+    >
+      <p class="menu-shell__dialog-text">
+        Сначала можно сохранить каталог через общую панель, а затем повторить переход. Если изменения больше не нужны, подтвердите уход без сохранения.
+      </p>
+
+      <template #actions>
+        <MenuActionButton type="button" variant="ghost" @click="closePendingLeave">
+          Остаться во вкладке
+        </MenuActionButton>
+        <MenuActionButton type="button" variant="danger" @click="confirmPendingLeave">
+          Выйти без сохранения
+        </MenuActionButton>
+      </template>
+    </MenuDialogShell>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import MenuCatalogSavePanel from '../components/MenuCatalogSavePanel.vue';
+import MenuCatalogToastHost from '../components/MenuCatalogToastHost.vue';
 import MenuActionButton from '../components/menu/MenuActionButton.vue';
 import MenuBadge from '../components/menu/MenuBadge.vue';
+import MenuDialogShell from '../components/menu/MenuDialogShell.vue';
 import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
 import MenuSurfaceCard from '../components/menu/MenuSurfaceCard.vue';
+import { useMenuCatalogLeaveProtection } from '../composables/menu-catalog-leave-protection';
 import { useMenuCatalogShellState } from '../composables/menu-catalog-shell-state';
+import { withDirtyMenuLeaveBypass } from '../router/menu-catalog-leave-confirmation';
 import { backofficeAccessStore } from '../stores/backoffice-access-store';
 import { menuCatalogStore } from '../stores/menu-catalog-store';
 
+const router = useRouter();
 const menuState = menuCatalogStore.state;
 const accessToken = computed(() => backofficeAccessStore.state.accessToken);
 const shellState = useMenuCatalogShellState(menuState, computed(() => !!accessToken.value));
+
+useMenuCatalogLeaveProtection(computed(() => menuState.isDirty));
 
 function reloadCatalog() {
   if (!accessToken.value) {
@@ -184,6 +218,24 @@ function saveCatalog() {
   void menuCatalogStore.save(accessToken.value);
 }
 
+function dismissToast() {
+  menuCatalogStore.dismissToast();
+}
+
+function closePendingLeave() {
+  menuCatalogStore.cancelPendingLeave();
+}
+
+function confirmPendingLeave() {
+  const targetPath = menuCatalogStore.consumePendingLeaveTarget();
+
+  if (!targetPath) {
+    return;
+  }
+
+  void withDirtyMenuLeaveBypass(() => router.push(targetPath));
+}
+
 onMounted(() => {
   if (menuState.status === 'idle' && accessToken.value) {
     void menuCatalogStore.initialize(accessToken.value);
@@ -192,6 +244,10 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+.menu-shell-layout {
+  position: relative;
+}
+
 .menu-shell {
   &__hero {
     display: grid;
@@ -319,6 +375,12 @@ onMounted(() => {
 
   &__feedback--warning {
     margin-bottom: 1rem;
+  }
+
+  &__dialog-text {
+    margin: 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
   }
 }
 

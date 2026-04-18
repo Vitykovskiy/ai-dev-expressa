@@ -146,25 +146,39 @@
       </MenuSurfaceCard>
     </div>
 
-    <div class="product-editor__actions">
-      <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
-        К списку товаров
-      </MenuActionButton>
-      <MenuActionButton
-        :disabled="submitPending"
-        :loading="submitPending"
-        data-testid="submit-product-form"
-        type="submit"
-      >
-        {{ submitLabel }}
-      </MenuActionButton>
-    </div>
+    <MenuStickyActionDock class="product-editor__actions" placement="bottom">
+      <template #content>
+        <div class="product-editor__dock-copy">
+          <MenuBadge size="compact" :tone="completionState.tone">
+            {{ completionState.badge }}
+          </MenuBadge>
+          <p class="product-editor__dock-text">
+            {{ dockText }}
+          </p>
+        </div>
+      </template>
+
+      <template #actions>
+        <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
+          К списку товаров
+        </MenuActionButton>
+        <MenuActionButton
+          :disabled="submitPending"
+          :loading="submitPending"
+          data-testid="submit-product-form"
+          type="submit"
+        >
+          {{ submitLabel }}
+        </MenuActionButton>
+      </template>
+    </MenuStickyActionDock>
   </form>
 </template>
 
 <script setup lang="ts">
 import type { DrinkSize, MenuCatalogItem, MenuCatalogItemType } from '@expressa/shared-types';
 import { computed, watch } from 'vue';
+import MenuStickyActionDock from './MenuStickyActionDock.vue';
 import MenuActionButton from './menu/MenuActionButton.vue';
 import MenuBadge from './menu/MenuBadge.vue';
 import MenuSectionHeader from './menu/MenuSectionHeader.vue';
@@ -303,6 +317,11 @@ const priceSummaryHint = computed(() =>
 );
 const submitLabel = computed(() =>
   props.mode === 'create' ? 'Добавить в черновик' : 'Обновить черновик',
+);
+const dockText = computed(() =>
+  props.mode === 'create'
+    ? 'Новая позиция сначала попадёт в общий черновик вкладки menu, а публикация на сервер произойдёт позже через общую панель сохранения.'
+    : 'Изменение обновит только общий черновик вкладки menu. Публикация на сервер остаётся в верхней панели сохранения.',
 );
 
 function submit() {
@@ -472,11 +491,15 @@ function readSizePriceErrors(size: DrinkSize): string[] {
     line-height: 1.6;
   }
 
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
+  &__dock-copy {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  &__dock-text {
+    margin: 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
   }
 }
 

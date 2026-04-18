@@ -1,30 +1,33 @@
 <template>
-  <MenuSurfaceCard
+  <MenuStickyActionDock
     class="save-panel"
     data-testid="menu-catalog-save-panel"
+    placement="top"
     :variant="panelState.cardVariant"
   >
-    <div class="save-panel__content">
-      <MenuBadge
-        class="save-panel__badge"
-        :emphasis="panelState.badge.emphasis"
-        size="compact"
-        :tone="panelState.badge.tone"
-      >
-        {{ panelState.badge.label }}
-      </MenuBadge>
-      <MenuSectionHeader label="Панель сохранения" :text="panelState.text" :title="panelState.title" />
-      <p
-        v-if="panelState.inlineError"
-        class="save-panel__error"
-        data-testid="menu-catalog-save-error"
-      >
-        {{ panelState.inlineError.message }}
-      </p>
-      <p class="save-panel__hint">{{ panelState.actionHint }}</p>
-    </div>
+    <template #content>
+      <div class="save-panel__content">
+        <MenuBadge
+          class="save-panel__badge"
+          :emphasis="panelState.badge.emphasis"
+          size="compact"
+          :tone="panelState.badge.tone"
+        >
+          {{ panelState.badge.label }}
+        </MenuBadge>
+        <MenuSectionHeader label="Панель сохранения" :text="panelState.text" :title="panelState.title" />
+        <p
+          v-if="panelState.inlineError"
+          class="save-panel__error"
+          data-testid="menu-catalog-save-error"
+        >
+          {{ panelState.inlineError.message }}
+        </p>
+        <p class="save-panel__hint">{{ panelState.actionHint }}</p>
+      </div>
+    </template>
 
-    <div class="save-panel__actions">
+    <template #actions>
       <MenuActionButton
         :disabled="disabled || !isDirty || isSaving"
         :loading="isSaving"
@@ -34,16 +37,16 @@
       >
         {{ panelState.actionLabel }}
       </MenuActionButton>
-    </div>
-  </MenuSurfaceCard>
+    </template>
+  </MenuStickyActionDock>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import MenuStickyActionDock from './MenuStickyActionDock.vue';
 import MenuActionButton from './menu/MenuActionButton.vue';
 import MenuBadge from './menu/MenuBadge.vue';
 import MenuSectionHeader from './menu/MenuSectionHeader.vue';
-import MenuSurfaceCard from './menu/MenuSurfaceCard.vue';
 import { resolveMenuCatalogSavePanelState } from '../composables/menu-catalog-shell-state';
 import type { MenuCatalogError, MenuCatalogStatus } from '../types';
 
@@ -64,10 +67,6 @@ const panelState = computed(() => resolveMenuCatalogSavePanelState(props));
 
 <style scoped lang="scss">
 .save-panel {
-  display: grid;
-  gap: 1.25rem;
-  align-items: start;
-
   &__content {
     min-width: 0;
   }
@@ -88,21 +87,8 @@ const panelState = computed(() => resolveMenuCatalogSavePanelState(props));
     line-height: 1.6;
   }
 
-  &__actions {
-    display: flex;
+  :deep(.menu-sticky-dock__actions) {
     justify-content: flex-start;
-  }
-}
-
-@media (min-width: 760px) {
-  .save-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(14rem, auto);
-    gap: 1.25rem;
-    align-items: center;
-
-    &__actions {
-      justify-content: flex-end;
-    }
   }
 }
 </style>

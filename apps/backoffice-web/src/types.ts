@@ -64,12 +64,32 @@ export interface MenuCatalogSelectionState {
   optionGroupId: string | null;
 }
 
+export type MenuCatalogToastTone = 'menu' | 'neutral' | 'success' | 'warning' | 'danger';
+
+export interface MenuCatalogToastState {
+  id: number;
+  text: string;
+  title: string;
+  tone: MenuCatalogToastTone;
+}
+
+export interface MenuCatalogPendingLeaveState {
+  isOpen: boolean;
+  targetPath: string | null;
+}
+
+export interface MenuCatalogUiState {
+  pendingLeave: MenuCatalogPendingLeaveState;
+  toast: MenuCatalogToastState | null;
+}
+
 export interface MenuCatalogState {
   status: MenuCatalogStatus;
   catalog: MenuCatalogSnapshot | null;
   error: MenuCatalogError | null;
   isDirty: boolean;
   selection: MenuCatalogSelectionState;
+  ui: MenuCatalogUiState;
 }
 
 export interface MenuCatalogProductDraft {

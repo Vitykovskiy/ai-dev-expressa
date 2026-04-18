@@ -92,6 +92,12 @@ describe('MenuCategoriesPage', () => {
     expect(menuCatalogStore.state.catalog?.categories).toHaveLength(1);
     expect(menuCatalogStore.state.catalog?.categories[0].name).toBe('Завтраки');
     expect(menuCatalogStore.state.isDirty).toBe(true);
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Категория «Завтраки» добавлена в общий черновик каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 
   it('edits an existing category through the shared catalog draft', async () => {
@@ -112,5 +118,11 @@ describe('MenuCategoriesPage', () => {
 
     expect(menuCatalogStore.state.catalog?.categories[0].name).toBe('Кофе и чай');
     expect(menuCatalogStore.state.isDirty).toBe(true);
+    expect(menuCatalogStore.state.ui.toast).toEqual({
+      id: 1,
+      text: 'Категория «Кофе и чай» обновлена в общем черновике каталога.',
+      title: 'Черновик обновлён',
+      tone: 'success',
+    });
   });
 });

@@ -25,6 +25,10 @@ import {
   resolveBackofficeRouteTabFromName,
   resolveMenuCatalogRouteGuard,
 } from './menu-catalog-navigation';
+import {
+  isDirtyMenuLeaveBypassEnabled,
+  shouldConfirmMenuCatalogLeave,
+} from './menu-catalog-leave-confirmation';
 
 export const BACKOFFICE_ACCESS_DENIED_ROUTE_NAME = 'access-denied';
 
@@ -144,13 +148,25 @@ export const router = createRouter({
   },
 });
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   if (
     backofficeAccessStore.state.status === 'idle' ||
     backofficeAccessStore.state.status === 'restoring' ||
     backofficeAccessStore.state.status === 'bootstrapping'
   ) {
     await backofficeAccessStore.initialize();
+  }
+
+  if (
+    !isDirtyMenuLeaveBypassEnabled() &&
+    shouldConfirmMenuCatalogLeave({
+      fromName: from.name,
+      isDirty: menuCatalogStore.state.isDirty,
+      toName: to.name,
+    })
+  ) {
+    menuCatalogStore.requestPendingLeave(to.fullPath);
+    return false;
   }
 
   const accessGuardResult = resolveBackofficeRouteGuard(to, backofficeAccessStore.state);

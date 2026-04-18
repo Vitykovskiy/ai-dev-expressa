@@ -17,6 +17,8 @@ import type {
   MenuCatalogProductDraft,
   MenuCatalogSelectionState,
   MenuCatalogState,
+  MenuCatalogToastTone,
+  MenuCatalogUiState,
 } from '../types';
 import type { MenuCatalogRouteName } from '../router/menu-catalog-navigation';
 
@@ -34,9 +36,14 @@ export interface MenuCatalogStore {
   addCategory(name: string): MenuCatalogCategory | null;
   addOptionGroup(optionGroupDraft: MenuCatalogOptionGroupDraft): MenuCatalogOptionGroup | null;
   addProduct(categoryId: string, productDraft: MenuCatalogProductDraft): MenuCatalogItem | null;
+  cancelPendingLeave(): void;
   clear(): void;
+  consumePendingLeaveTarget(): string | null;
+  dismissToast(): void;
   initialize(accessToken: string): Promise<void>;
+  pushToast(payload: { text: string; title: string; tone: MenuCatalogToastTone }): void;
   reload(accessToken: string): Promise<void>;
+  requestPendingLeave(targetPath: string): boolean;
   replaceCatalog(catalog: MenuCatalogSnapshot): void;
   save(accessToken: string): Promise<MenuCatalogSnapshot | null>;
   syncNavigation(routeName: MenuCatalogRouteName, params: Record<string, unknown>): void;
@@ -52,6 +59,16 @@ function createEmptySelection(): MenuCatalogSelectionState {
     categoryId: null,
     productId: null,
     optionGroupId: null,
+  };
+}
+
+function createEmptyUiState(): MenuCatalogUiState {
+  return {
+    pendingLeave: {
+      isOpen: false,
+      targetPath: null,
+    },
+    toast: null,
   };
 }
 
@@ -169,8 +186,52 @@ export function createMenuCatalogStore({
     error: null,
     isDirty: false,
     selection: createEmptySelection(),
+    ui: createEmptyUiState(),
   });
   let pendingInitialization: Promise<void> | null = null;
+  let nextToastId = 0;
+
+  function dismissToast() {
+    state.ui.toast = null;
+  }
+
+  function pushToast(payload: {
+    text: string;
+    title: string;
+    tone: MenuCatalogToastTone;
+  }) {
+    nextToastId += 1;
+    state.ui.toast = {
+      id: nextToastId,
+      ...payload,
+    };
+  }
+
+  function cancelPendingLeave() {
+    state.ui.pendingLeave = {
+      isOpen: false,
+      targetPath: null,
+    };
+  }
+
+  function requestPendingLeave(targetPath: string): boolean {
+    if (!state.isDirty) {
+      return false;
+    }
+
+    state.ui.pendingLeave = {
+      isOpen: true,
+      targetPath,
+    };
+    return true;
+  }
+
+  function consumePendingLeaveTarget(): string | null {
+    const targetPath = state.ui.pendingLeave.targetPath;
+
+    cancelPendingLeave();
+    return targetPath;
+  }
 
   function commitCatalog(catalog: MenuCatalogSnapshot) {
     state.catalog = catalog;
@@ -178,6 +239,7 @@ export function createMenuCatalogStore({
     state.error = null;
     state.isDirty = false;
     state.selection = normalizeSelection(catalog, state.selection);
+    cancelPendingLeave();
   }
 
   function createMissingCatalogError() {
@@ -189,22 +251,41 @@ export function createMenuCatalogStore({
   }
 
   function clear() {
+    nextToastId = 0;
     state.status = 'idle';
     state.catalog = null;
     state.error = null;
     state.isDirty = false;
     state.selection = createEmptySelection();
+    state.ui = createEmptyUiState();
   }
 
-  async function load(accessToken: string) {
+  async function load(accessToken: string, reason: 'initial' | 'reload') {
+    const hadCatalog = state.catalog !== null;
     state.status = 'loading';
     state.error = null;
 
     try {
       commitCatalog(await menuCatalogApi.getCatalog(accessToken));
+
+      if (reason === 'reload' && hadCatalog) {
+        pushToast({
+          text: 'Структурный снимок перечитан с сервера и снова синхронизирован с вкладкой menu.',
+          title: 'Снимок каталога обновлён',
+          tone: 'success',
+        });
+      }
     } catch (error) {
       state.status = 'error';
       state.error = normalizeBackofficeMenuCatalogError(error);
+
+      if (reason === 'reload' && hadCatalog) {
+        pushToast({
+          text: state.error.message,
+          title: 'Не удалось обновить снимок',
+          tone: 'warning',
+        });
+      }
     }
   }
 
@@ -219,14 +300,14 @@ export function createMenuCatalogStore({
       return;
     }
 
-    pendingInitialization = load(accessToken).finally(() => {
+    pendingInitialization = load(accessToken, 'initial').finally(() => {
       pendingInitialization = null;
     });
     await pendingInitialization;
   }
 
   async function reload(accessToken: string) {
-    await load(accessToken);
+    await load(accessToken, 'reload');
   }
 
   function replaceCatalog(catalog: MenuCatalogSnapshot) {
@@ -461,10 +542,20 @@ export function createMenuCatalogStore({
     try {
       const catalog = await menuCatalogApi.saveCatalog(accessToken, state.catalog);
       commitCatalog(catalog);
+      pushToast({
+        text: 'Сервер принял общий структурный снимок. Все локальные изменения опубликованы.',
+        title: 'Каталог сохранён',
+        tone: 'success',
+      });
       return catalog;
     } catch (error) {
       state.status = 'error';
       state.error = normalizeBackofficeMenuCatalogError(error);
+      pushToast({
+        text: state.error.message,
+        title: 'Черновик не сохранён',
+        tone: 'danger',
+      });
       return null;
     }
   }
@@ -488,9 +579,14 @@ export function createMenuCatalogStore({
     addCategory,
     addOptionGroup,
     addProduct,
+    cancelPendingLeave,
     clear,
+    consumePendingLeaveTarget,
+    dismissToast,
     initialize,
+    pushToast,
     reload,
+    requestPendingLeave,
     replaceCatalog,
     save,
     syncNavigation,

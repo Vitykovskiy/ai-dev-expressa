@@ -56,6 +56,13 @@ function createMenuState(overrides: Partial<MenuCatalogState> = {}): MenuCatalog
       productId: null,
       optionGroupId: null,
     },
+    ui: {
+      pendingLeave: {
+        isOpen: false,
+        targetPath: null,
+      },
+      toast: null,
+    },
     ...overrides,
   };
 }

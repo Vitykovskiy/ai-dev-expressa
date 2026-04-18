@@ -125,9 +125,37 @@ function openEditDialog(categoryId: string) {
 
 function submitCategory(name: string) {
   if (dialogMode.value === 'edit' && editingCategoryId.value) {
-    menuCatalogStore.updateCategoryName(editingCategoryId.value, name);
+    const updated = menuCatalogStore.updateCategoryName(editingCategoryId.value, name);
+
+    if (updated) {
+      menuCatalogStore.pushToast({
+        text: `Категория «${name.trim()}» обновлена в общем черновике каталога.`,
+        title: 'Черновик обновлён',
+        tone: 'success',
+      });
+    } else {
+      menuCatalogStore.pushToast({
+        text: 'Не удалось обновить категорию в общем черновике каталога.',
+        title: 'Категория не обновлена',
+        tone: 'danger',
+      });
+    }
   } else {
-    menuCatalogStore.addCategory(name);
+    const category = menuCatalogStore.addCategory(name);
+
+    if (category) {
+      menuCatalogStore.pushToast({
+        text: `Категория «${category.name}» добавлена в общий черновик каталога.`,
+        title: 'Черновик обновлён',
+        tone: 'success',
+      });
+    } else {
+      menuCatalogStore.pushToast({
+        text: 'Не удалось добавить категорию в общий черновик каталога.',
+        title: 'Категория не добавлена',
+        tone: 'danger',
+      });
+    }
   }
 
   isDialogOpen.value = false;

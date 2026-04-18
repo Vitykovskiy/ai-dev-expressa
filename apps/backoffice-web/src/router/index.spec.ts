@@ -1,4 +1,5 @@
 import { router, resolveBackofficeRouteGuard } from './index';
+import { shouldConfirmMenuCatalogLeave } from './menu-catalog-leave-confirmation';
 import {
   backofficeAccessStore,
   resetBackofficeAccessStoreForTesting,
@@ -195,6 +196,39 @@ describe('backoffice router', () => {
     });
   });
 
+  it('blocks leaving menu when the shared draft is dirty and opens the leave confirmation', async () => {
+    backofficeAccessStore.state.status = 'ready';
+    backofficeAccessStore.state.accessToken = 'token-1';
+    backofficeAccessStore.state.context = {
+      accessToken: 'token-1',
+      channel: 'backoffice-telegram-entry',
+      isTestMode: false,
+      availableTabs: ['orders', 'availability', 'menu', 'users', 'settings'],
+      user: {
+        userId: 'user-1',
+        telegramId: '500001',
+        roles: ['administrator'],
+        blocked: false,
+        isPrimaryAdministrator: true,
+      },
+    };
+    menuCatalogStore.replaceCatalog({
+      categories: [],
+      items: [],
+      optionGroups: [],
+    });
+
+    await router.push('/menu/categories');
+    menuCatalogStore.addCategory('Завтраки');
+    await router.push('/orders');
+
+    expect(router.currentRoute.value.name).toBe('menu.menu_categories');
+    expect(menuCatalogStore.state.ui.pendingLeave).toEqual({
+      isOpen: true,
+      targetPath: '/orders',
+    });
+  });
+
   it('allows the new product route inside an existing category', async () => {
     backofficeAccessStore.state.status = 'ready';
     backofficeAccessStore.state.accessToken = 'token-1';
@@ -261,5 +295,29 @@ describe('backoffice router', () => {
     );
 
     expect(guardResult).toBe(true);
+  });
+
+  it('confirms leave only when navigation exits the menu route tree with a dirty draft', () => {
+    expect(
+      shouldConfirmMenuCatalogLeave({
+        fromName: 'menu.menu_products',
+        isDirty: true,
+        toName: 'orders',
+      }),
+    ).toBe(true);
+    expect(
+      shouldConfirmMenuCatalogLeave({
+        fromName: 'menu.menu_products',
+        isDirty: true,
+        toName: 'menu.menu_product_detail',
+      }),
+    ).toBe(false);
+    expect(
+      shouldConfirmMenuCatalogLeave({
+        fromName: 'menu.menu_products',
+        isDirty: false,
+        toName: 'orders',
+      }),
+    ).toBe(false);
   });
 });
