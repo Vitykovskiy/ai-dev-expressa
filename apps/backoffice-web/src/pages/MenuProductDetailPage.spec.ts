@@ -2,6 +2,7 @@ import type { MenuCatalogSnapshot } from '@expressa/shared-types';
 import { shallowMount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import MenuProductDetailPage from './MenuProductDetailPage.vue';
+import { createMenuProductsRoute } from '../router/menu-catalog-navigation';
 import { menuCatalogStore, resetMenuCatalogStoreForTesting } from '../stores/menu-catalog-store';
 
 const routeMock = vi.hoisted(() => ({
@@ -24,9 +25,49 @@ vi.mock('vue-router', () => ({
 
 const MenuProductEditorFormStub = {
   name: 'MenuProductEditorForm',
-  props: ['categoryName', 'mode', 'product'],
+  props: ['categoryName', 'formId', 'mode', 'product', 'submitError', 'submitPending'],
   emits: ['cancel', 'submit'],
   template: '<div data-testid="product-editor" />',
+};
+
+const MenuActionButtonStub = {
+  name: 'MenuActionButton',
+  emits: ['click'],
+  template: '<button v-bind="$attrs" @click="$emit(\'click\')"><slot /></button>',
+};
+
+const MenuBadgeStub = {
+  name: 'MenuBadge',
+  template: '<span><slot /></span>',
+};
+
+const MenuDialogShellStub = {
+  name: 'MenuDialogShell',
+  props: ['label', 'maxWidth', 'modelValue', 'text', 'title'],
+  emits: ['update:modelValue'],
+  template: `
+    <div v-if="modelValue" data-testid="delete-dialog">
+      <slot />
+      <slot name="actions" />
+    </div>
+  `,
+};
+
+const MenuListRowStub = {
+  name: 'MenuListRow',
+  emits: ['click'],
+  template:
+    '<button v-bind="$attrs" @click="$emit(\'click\')"><slot /><slot name="meta" /></button>',
+};
+
+const MenuSectionHeaderStub = {
+  name: 'MenuSectionHeader',
+  template: '<div data-testid="menu-section-header"><slot name="actions" /></div>',
+};
+
+const MenuSurfaceCardStub = {
+  name: 'MenuSurfaceCard',
+  template: '<div v-bind="$attrs"><slot /></div>',
 };
 
 function createCatalogSnapshot(): MenuCatalogSnapshot {
@@ -61,7 +102,13 @@ function mountPage() {
     global: {
       renderStubDefaultSlot: true,
       stubs: {
+        MenuActionButton: MenuActionButtonStub,
+        MenuBadge: MenuBadgeStub,
+        MenuDialogShell: MenuDialogShellStub,
         MenuProductEditorForm: MenuProductEditorFormStub,
+        MenuListRow: MenuListRowStub,
+        MenuSectionHeader: MenuSectionHeaderStub,
+        MenuSurfaceCard: MenuSurfaceCardStub,
       },
     },
   });
@@ -149,5 +196,25 @@ describe('MenuProductDetailPage', () => {
       sizePrices: [],
     });
     expect(menuCatalogStore.state.isDirty).toBe(true);
+  });
+
+  it('deletes an existing product from the shared catalog draft and returns to the list', async () => {
+    routeMock.params.productId = 'item-latte';
+    menuCatalogStore.replaceCatalog(createCatalogSnapshot());
+    menuCatalogStore.syncNavigation('menu.menu_product_detail', {
+      categoryId: 'cat-coffee',
+      productId: 'item-latte',
+    });
+
+    const wrapper = mountPage();
+
+    await wrapper.find('[data-testid="delete-product"]').trigger('click');
+    await nextTick();
+    await wrapper.find('[data-testid="confirm-delete-product"]').trigger('click');
+    await nextTick();
+
+    expect(menuCatalogStore.state.catalog?.items).toEqual([]);
+    expect(menuCatalogStore.state.isDirty).toBe(true);
+    expect(routerMocks.push).toHaveBeenCalledWith(createMenuProductsRoute('cat-coffee'));
   });
 });

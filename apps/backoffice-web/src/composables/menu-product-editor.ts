@@ -144,6 +144,14 @@ export function useMenuProductEditor(initialProduct: MenuCatalogItem | null = nu
     sizePrices: createEmptySizePriceErrors(),
   });
 
+  function clearErrors() {
+    errors.name = null;
+    errors.basePrice = null;
+    errors.sizePrices.S = null;
+    errors.sizePrices.M = null;
+    errors.sizePrices.L = null;
+  }
+
   function reset(product: MenuCatalogItem | null = null) {
     const nextForm = createMenuProductEditorForm(product);
 
@@ -153,11 +161,12 @@ export function useMenuProductEditor(initialProduct: MenuCatalogItem | null = nu
     form.sizePrices.S = nextForm.sizePrices.S;
     form.sizePrices.M = nextForm.sizePrices.M;
     form.sizePrices.L = nextForm.sizePrices.L;
-    errors.name = null;
-    errors.basePrice = null;
-    errors.sizePrices.S = null;
-    errors.sizePrices.M = null;
-    errors.sizePrices.L = null;
+    clearErrors();
+  }
+
+  function setItemType(itemType: MenuCatalogItemType) {
+    form.itemType = itemType;
+    clearErrors();
   }
 
   function validate(): boolean {
@@ -176,6 +185,7 @@ export function useMenuProductEditor(initialProduct: MenuCatalogItem | null = nu
     errors,
     form,
     reset,
+    setItemType,
     validate,
   };
 }

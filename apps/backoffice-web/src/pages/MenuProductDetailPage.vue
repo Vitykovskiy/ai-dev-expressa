@@ -1,17 +1,47 @@
 <template>
   <div class="product-detail">
-    <MenuSectionHeader
-      label="menu.menu_product_detail"
-      text="Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`."
-      :title="pageTitle"
-      title-test-id="page-title"
-    >
-      <template #actions>
-        <MenuActionButton variant="ghost" @click="goBackToProducts">
-          К списку товаров
-        </MenuActionButton>
-      </template>
-    </MenuSectionHeader>
+    <MenuSurfaceCard class="product-detail__hero" padding="lg" variant="hero">
+      <MenuSectionHeader
+        label="menu.menu_product_detail"
+        text="Карточка меняет товар только в общем черновике структурного снимка. Итоговое сохранение на сервер остаётся в панели вкладки `menu`."
+        :title="pageTitle"
+        title-test-id="page-title"
+      >
+        <template #actions>
+          <div class="product-detail__hero-actions">
+            <MenuActionButton variant="ghost" @click="goBackToProducts">
+              К списку товаров
+            </MenuActionButton>
+            <MenuActionButton
+              :disabled="!canRenderEditor || isSubmitting"
+              :form="PRODUCT_EDITOR_FORM_ID"
+              :loading="isSubmitting"
+              type="submit"
+            >
+              {{ headerSubmitLabel }}
+            </MenuActionButton>
+          </div>
+        </template>
+      </MenuSectionHeader>
+
+      <div class="product-detail__hero-badges">
+        <MenuBadge size="compact">
+          {{ isCreateMode ? 'Новая позиция' : 'Редактирование' }}
+        </MenuBadge>
+        <MenuBadge
+          size="compact"
+          :tone="isSubmitting || isDeleting ? 'warning' : menuCatalogStore.state.isDirty ? 'warning' : 'neutral'"
+        >
+          {{
+            isSubmitting || isDeleting
+              ? 'Локальное обновление черновика'
+              : menuCatalogStore.state.isDirty
+                ? 'Есть несохранённый черновик'
+                : 'Черновик синхронизирован'
+          }}
+        </MenuBadge>
+      </div>
+    </MenuSurfaceCard>
 
     <MenuSurfaceCard
       v-if="draftMessage"
@@ -19,17 +49,43 @@
       data-testid="product-draft-message"
       variant="subtle"
     >
-      <MenuBadge size="compact">Черновик обновлён</MenuBadge>
+      <MenuBadge size="compact" tone="success">Черновик обновлён</MenuBadge>
       <p class="product-detail__draft-text">{{ draftMessage }}</p>
     </MenuSurfaceCard>
 
-    <v-row>
+    <MenuSurfaceCard
+      v-if="deleteError"
+      class="product-detail__feedback"
+      data-testid="product-detail-delete-error"
+      variant="danger"
+    >
+      <MenuBadge size="compact" tone="danger">Удаление не выполнено</MenuBadge>
+      <p class="product-detail__feedback-text">{{ deleteError }}</p>
+    </MenuSurfaceCard>
+
+    <MenuSurfaceCard
+      v-if="contextIssue"
+      class="product-detail__feedback"
+      data-testid="product-detail-context-error"
+      variant="danger"
+    >
+      <MenuBadge size="compact" tone="danger">Карточка недоступна</MenuBadge>
+      <MenuSectionHeader :text="contextIssue.text" :title="contextIssue.title" />
+      <div class="product-detail__feedback-actions">
+        <MenuActionButton @click="goBackToProducts">Вернуться к списку товаров</MenuActionButton>
+      </div>
+    </MenuSurfaceCard>
+
+    <v-row v-else>
       <v-col cols="12" lg="7">
         <MenuSurfaceCard class="detail-card" full-height>
           <MenuProductEditorForm
             :category-name="category?.name ?? null"
+            :form-id="PRODUCT_EDITOR_FORM_ID"
             :mode="isCreateMode ? 'create' : 'edit'"
             :product="product"
+            :submit-error="submitError"
+            :submit-pending="isSubmitting"
             @cancel="goBackToProducts"
             @submit="submitProduct"
           />
@@ -37,67 +93,157 @@
       </v-col>
 
       <v-col cols="12" lg="5">
-        <MenuSurfaceCard class="detail-card detail-card--summary" full-height>
-          <MenuSectionHeader
-            label="Ценовая модель"
-            text="Для товара используется одна базовая цена. Для напитка форма подготавливает цены размеров S, M и L без локального переопределения серверных правил."
-            :title="priceModelTitle"
-          />
+        <div class="product-detail__sidebar">
+          <MenuSurfaceCard class="detail-card detail-card--summary" variant="subtle">
+            <MenuSectionHeader
+              label="Сводка по позиции"
+              text="Карточка фиксирует только локальные изменения. Для публикации их нужно сохранить через общую панель вкладки `menu`."
+              :title="summaryTitle"
+            />
 
-          <div v-if="product?.itemType === 'drink'" class="detail-card__sizes">
-            <div
-              v-for="sizePrice in product.sizePrices"
-              :key="sizePrice.size"
-              class="detail-card__size-item"
-            >
-              <span class="detail-card__size-label">{{ sizePrice.size }}</span>
-              <strong>{{ sizePrice.price }} ₽</strong>
+            <div class="detail-card__facts">
+              <article class="detail-card__fact">
+                <p class="detail-card__fact-label">Категория</p>
+                <strong>{{ category?.name ?? 'Не найдена' }}</strong>
+              </article>
+              <article class="detail-card__fact">
+                <p class="detail-card__fact-label">Тип</p>
+                <strong>{{ productTypeLabel }}</strong>
+              </article>
+              <article class="detail-card__fact">
+                <p class="detail-card__fact-label">Цены</p>
+                <strong>{{ priceSummary }}</strong>
+              </article>
+              <article class="detail-card__fact">
+                <p class="detail-card__fact-label">Группы допов</p>
+                <strong>{{ optionGroupsCountLabel }}</strong>
+              </article>
             </div>
-          </div>
+          </MenuSurfaceCard>
 
-          <div v-else-if="product" class="detail-card__single-price">
-            <span class="detail-card__single-price-label">Базовая цена</span>
-            <strong>{{ product.basePrice ?? '—' }} ₽</strong>
-          </div>
-        </MenuSurfaceCard>
+          <MenuSurfaceCard class="detail-card" variant="subtle">
+            <MenuSectionHeader
+              label="Наследуемые группы дополнительных опций"
+              :text="optionGroupsText"
+              title="Группы доступны товару через категорию"
+            />
+
+            <div v-if="optionGroups.length > 0" class="detail-card__group-list">
+              <MenuListRow
+                v-for="optionGroup in optionGroups"
+                :key="optionGroup.optionGroupId"
+                interactive
+                tag="button"
+                @click="openAddonGroup(optionGroup.optionGroupId)"
+              >
+                <span>{{ optionGroup.name }}</span>
+                <template #meta>
+                  {{ optionGroup.selectionMode === 'single' ? 'Один выбор' : 'Множественный выбор' }}
+                </template>
+              </MenuListRow>
+            </div>
+
+            <div v-else class="detail-card__empty">
+              <p class="detail-card__empty-text">
+                Категория ещё не наследует группы дополнительных опций. Можно создать первую
+                группу заранее, чтобы следующий товар сразу получил нужные настройки.
+              </p>
+              <MenuActionButton
+                data-testid="create-addon-group-from-product"
+                variant="secondary"
+                @click="createAddonGroup"
+              >
+                Создать группу допов
+              </MenuActionButton>
+            </div>
+          </MenuSurfaceCard>
+
+          <MenuSurfaceCard
+            class="detail-card"
+            :variant="isCreateMode ? 'subtle' : 'danger'"
+          >
+            <MenuSectionHeader
+              label="Destructive-действие"
+              :text="deleteSectionText"
+              :title="deleteSectionTitle"
+            />
+
+            <div v-if="isCreateMode" class="detail-card__empty">
+              <p class="detail-card__empty-text">
+                Сначала добавьте товар в общий черновик. После этого станет доступно удаление из
+                карточки.
+              </p>
+            </div>
+
+            <div v-else class="detail-card__danger">
+              <p class="detail-card__danger-text">
+                Удаление уберёт товар только из локального черновика текущей вкладки. Для фиксации
+                результата на сервере потребуется общее сохранение каталога.
+              </p>
+              <MenuActionButton
+                data-testid="delete-product"
+                :disabled="isDeleting"
+                :loading="isDeleting"
+                variant="danger"
+                @click="isDeleteDialogOpen = true"
+              >
+                Удалить товар
+              </MenuActionButton>
+            </div>
+          </MenuSurfaceCard>
+        </div>
       </v-col>
     </v-row>
 
-    <MenuSurfaceCard v-if="optionGroups.length > 0" class="detail-card">
-      <MenuSectionHeader
-        label="Наследуемые группы дополнительных опций"
-        title="Группы доступны товару через категорию"
-      />
-      <div class="detail-card__group-list">
-        <MenuListRow
-          v-for="optionGroup in optionGroups"
-          :key="optionGroup.optionGroupId"
-          interactive
-          tag="button"
-          @click="openAddonGroup(optionGroup.optionGroupId)"
+    <MenuDialogShell
+      v-model="isDeleteDialogOpen"
+      label="Подтверждение удаления"
+      max-width="520"
+      text="Действие уберёт товар из локального черновика выбранной категории. Отменить удаление после подтверждения можно только повторным созданием позиции."
+      title="Удалить товар из черновика?"
+    >
+      <p class="product-detail__dialog-text">
+        {{ deleteDialogText }}
+      </p>
+
+      <template #actions>
+        <MenuActionButton
+          :disabled="isDeleting"
+          type="button"
+          variant="ghost"
+          @click="isDeleteDialogOpen = false"
         >
-          <span>{{ optionGroup.name }}</span>
-          <template #meta>
-            {{ optionGroup.selectionMode === 'single' ? 'Один выбор' : 'Множественный выбор' }}
-          </template>
-        </MenuListRow>
-      </div>
-    </MenuSurfaceCard>
+          Отмена
+        </MenuActionButton>
+        <MenuActionButton
+          data-testid="confirm-delete-product"
+          :disabled="isDeleting"
+          :loading="isDeleting"
+          type="button"
+          variant="danger"
+          @click="deleteProduct"
+        >
+          Удалить из черновика
+        </MenuActionButton>
+      </template>
+    </MenuDialogShell>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MenuProductEditorForm from '../components/MenuProductEditorForm.vue';
 import MenuActionButton from '../components/menu/MenuActionButton.vue';
 import MenuBadge from '../components/menu/MenuBadge.vue';
+import MenuDialogShell from '../components/menu/MenuDialogShell.vue';
 import MenuListRow from '../components/menu/MenuListRow.vue';
 import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
 import MenuSurfaceCard from '../components/menu/MenuSurfaceCard.vue';
 import {
   NEW_MENU_PRODUCT_ID,
   createMenuAddonGroupDetailRoute,
+  createMenuNewAddonGroupRoute,
   createMenuProductDetailRoute,
   createMenuProductsRoute,
 } from '../router/menu-catalog-navigation';
@@ -106,12 +252,19 @@ import {
   findMenuCatalogProduct,
   menuCatalogStore,
   resolveMenuCategoryOptionGroups,
+  resolveMenuProductPriceSummary,
 } from '../stores/menu-catalog-store';
 import type { MenuCatalogProductDraft } from '../types';
 
+const PRODUCT_EDITOR_FORM_ID = 'menu-product-editor-form';
 const route = useRoute();
 const router = useRouter();
 const draftMessage = ref<string | null>(null);
+const submitError = ref<string | null>(null);
+const deleteError = ref<string | null>(null);
+const isSubmitting = ref(false);
+const isDeleting = ref(false);
+const isDeleteDialogOpen = ref(false);
 const categoryId = computed(() => menuCatalogStore.state.selection.categoryId);
 const routeProductId = computed(() =>
   typeof route.params.productId === 'string' ? route.params.productId : null,
@@ -128,6 +281,7 @@ const product = computed(() =>
 const optionGroups = computed(() =>
   resolveMenuCategoryOptionGroups(menuCatalogStore.state.catalog, categoryId.value),
 );
+const canRenderEditor = computed(() => contextIssue.value === null);
 const pageTitle = computed(() => {
   if (isCreateMode.value) {
     return 'Новый товар';
@@ -135,15 +289,89 @@ const pageTitle = computed(() => {
 
   return product.value?.name ?? 'Карточка товара';
 });
-const priceModelTitle = computed(() => {
-  if (!product.value) {
-    return 'Новая позиция ещё не добавлена в черновик';
+const headerSubmitLabel = computed(() =>
+  isCreateMode.value ? 'Добавить в черновик' : 'Обновить черновик',
+);
+const summaryTitle = computed(() => {
+  if (isCreateMode.value) {
+    return 'Новая позиция ещё не добавлена в общий черновик';
   }
 
-  return product.value.itemType === 'drink'
-    ? 'Напиток с ценами S/M/L'
-    : 'Товар без обязательного размера';
+  return product.value?.name ?? 'Товар недоступен';
 });
+const productTypeLabel = computed(() => {
+  if (isCreateMode.value) {
+    return 'Тип будет определён после заполнения формы';
+  }
+
+  return product.value?.itemType === 'drink' ? 'Напиток с размерами S/M/L' : 'Обычный товар';
+});
+const priceSummary = computed(() => {
+  if (isCreateMode.value || !product.value) {
+    return 'Цены появятся после локального сохранения формы';
+  }
+
+  return resolveMenuProductPriceSummary(product.value);
+});
+const optionGroupsCountLabel = computed(() => {
+  const count = optionGroups.value.length;
+
+  return count === 0
+    ? 'Не назначены'
+    : `${count} ${pluralize(count, 'группа', 'группы', 'групп')}`;
+});
+const optionGroupsText = computed(() => {
+  if (optionGroups.value.length === 0) {
+    return 'Товар пока не наследует группы дополнительных опций через выбранную категорию.';
+  }
+
+  return `Категория уже передаёт товару ${optionGroups.value.length} ${pluralize(
+    optionGroups.value.length,
+    'группу',
+    'группы',
+    'групп',
+  )} дополнительных опций без локального переопределения.`;
+});
+const deleteSectionTitle = computed(() =>
+  isCreateMode.value ? 'Удаление станет доступно после первого сохранения' : 'Удалить позицию из черновика',
+);
+const deleteSectionText = computed(() =>
+  isCreateMode.value
+    ? 'Новая карточка ещё не создала товар в общем черновике, поэтому destructive-действие пока заблокировано.'
+    : 'Используйте удаление только если уверены, что товар больше не нужен в текущем черновике каталога.'
+);
+const deleteDialogText = computed(() =>
+  product.value
+    ? `Товар «${product.value.name}» будет удалён из локального черновика категории «${category.value?.name ?? 'без названия'}».`
+    : 'Товар будет удалён из локального черновика.',
+);
+const contextIssue = computed(() => {
+  if (!categoryId.value || !category.value) {
+    return {
+      title: 'Категория недоступна в текущем черновике',
+      text: 'Откройте карточку из списка товаров выбранной категории или синхронизируйте навигацию вкладки `menu`.',
+    };
+  }
+
+  if (!isCreateMode.value && !product.value) {
+    return {
+      title: 'Товар не найден в общем черновике',
+      text: 'Похоже, позиция была удалена или маршрут указывает на несуществующий товар. Вернитесь к списку и выберите актуальную строку.',
+    };
+  }
+
+  return null;
+});
+
+watch(
+  () => [route.fullPath, menuCatalogStore.state.selection.categoryId] as const,
+  () => {
+    draftMessage.value = null;
+    submitError.value = null;
+    deleteError.value = null;
+    isDeleteDialogOpen.value = false;
+  },
+);
 
 function goBackToProducts() {
   if (!categoryId.value) {
@@ -153,28 +381,45 @@ function goBackToProducts() {
   void router.push(createMenuProductsRoute(categoryId.value));
 }
 
-function submitProduct(productDraft: MenuCatalogProductDraft) {
+async function submitProduct(productDraft: MenuCatalogProductDraft) {
   if (!categoryId.value) {
+    submitError.value = 'Невозможно обновить товар без выбранной категории.';
     return;
   }
 
-  if (isCreateMode.value) {
-    const product = menuCatalogStore.addProduct(categoryId.value, productDraft);
+  isSubmitting.value = true;
+  submitError.value = null;
+  deleteError.value = null;
+  draftMessage.value = null;
+  await nextTick();
 
-    if (!product) {
+  try {
+    if (isCreateMode.value) {
+      const createdProduct = menuCatalogStore.addProduct(categoryId.value, productDraft);
+
+      if (!createdProduct) {
+        throw new Error('Не удалось добавить товар в общий черновик выбранной категории.');
+      }
+
+      draftMessage.value = 'Товар добавлен в черновик каталога.';
+      await router.replace(createMenuProductDetailRoute(categoryId.value, createdProduct.menuItemId));
       return;
     }
 
-    draftMessage.value = 'Товар добавлен в черновик каталога.';
-    void router.replace(createMenuProductDetailRoute(categoryId.value, product.menuItemId));
-    return;
-  }
+    if (
+      !routeProductId.value ||
+      !menuCatalogStore.updateProduct(routeProductId.value, productDraft)
+    ) {
+      throw new Error('Не удалось обновить товар в общем черновике каталога.');
+    }
 
-  if (!routeProductId.value || !menuCatalogStore.updateProduct(routeProductId.value, productDraft)) {
-    return;
+    draftMessage.value = 'Товар обновлён в черновике каталога.';
+  } catch (error) {
+    submitError.value =
+      error instanceof Error ? error.message : 'Не удалось обновить черновик товара.';
+  } finally {
+    isSubmitting.value = false;
   }
-
-  draftMessage.value = 'Товар обновлён в черновике каталога.';
 }
 
 function openAddonGroup(optionGroupId: string) {
@@ -184,6 +429,72 @@ function openAddonGroup(optionGroupId: string) {
 
   void router.push(createMenuAddonGroupDetailRoute(categoryId.value, optionGroupId));
 }
+
+function createAddonGroup() {
+  if (!categoryId.value) {
+    return;
+  }
+
+  void router.push(createMenuNewAddonGroupRoute(categoryId.value));
+}
+
+async function deleteProduct() {
+  if (!categoryId.value || !routeProductId.value || !product.value) {
+    deleteError.value = 'Удаление недоступно: товар или категория не найдены в текущем черновике.';
+    isDeleteDialogOpen.value = false;
+    return;
+  }
+
+  const productName = product.value.name;
+  let isRemoved = false;
+
+  isDeleting.value = true;
+  submitError.value = null;
+  deleteError.value = null;
+  draftMessage.value = null;
+  await nextTick();
+
+  try {
+    const updated = menuCatalogStore.updateDraft((catalog) => {
+      const productIndex = catalog.items.findIndex((item) => item.menuItemId === routeProductId.value);
+
+      if (productIndex === -1) {
+        return;
+      }
+
+      catalog.items.splice(productIndex, 1);
+      isRemoved = true;
+    });
+
+    if (!updated || !isRemoved) {
+      throw new Error('Не удалось удалить товар из локального черновика каталога.');
+    }
+
+    draftMessage.value = `Товар «${productName}» удалён из локального черновика.`;
+    isDeleteDialogOpen.value = false;
+    await router.push(createMenuProductsRoute(categoryId.value));
+  } catch (error) {
+    deleteError.value =
+      error instanceof Error ? error.message : 'Не удалось удалить товар из локального черновика.';
+  } finally {
+    isDeleting.value = false;
+  }
+}
+
+function pluralize(count: number, one: string, few: string, many: string) {
+  const remainder10 = count % 10;
+  const remainder100 = count % 100;
+
+  if (remainder10 === 1 && remainder100 !== 11) {
+    return one;
+  }
+
+  if (remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 12 || remainder100 > 14)) {
+    return few;
+  }
+
+  return many;
+}
 </script>
 
 <style scoped lang="scss">
@@ -191,15 +502,37 @@ function openAddonGroup(optionGroupId: string) {
   display: grid;
   gap: 1rem;
 
-  &__draft {
+  &__hero,
+  &__draft,
+  &__feedback {
     display: grid;
-    gap: 0.75rem;
+    gap: 0.9rem;
   }
 
+  &__hero-actions,
+  &__hero-badges,
+  &__feedback-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  &__feedback-text,
+  &__dialog-text,
   &__draft-text {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.6;
+  }
+
+  &__sidebar {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__draft {
+    border-style: dashed;
   }
 }
 
@@ -207,32 +540,51 @@ function openAddonGroup(optionGroupId: string) {
   display: grid;
   gap: 1rem;
 
-  &__sizes,
-  &__group-list {
+  &__facts,
+  &__group-list,
+  &__empty,
+  &__danger {
     display: grid;
     gap: 0.75rem;
   }
 
-  &__sizes,
-  &__single-price {
-    margin-top: 0.25rem;
+  &__facts {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  &__size-item,
-  &__single-price {
-    min-width: 8rem;
-    padding: 0.85rem 1rem;
+  &__fact,
+  &__empty,
+  &__danger {
+    padding: 1rem;
     border: 1px solid var(--expressa-border);
-    border-radius: var(--expressa-menu-radius-md);
+    border-radius: var(--expressa-menu-radius-lg);
     background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(255, 255, 255, 0.96));
   }
 
-  &__size-label,
-  &__single-price-label {
-    display: block;
-    margin-bottom: 0.35rem;
+  &__fact-label {
+    margin: 0 0 0.35rem;
     color: var(--expressa-muted);
-    font-size: 0.8rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__empty-text,
+  &__danger-text {
+    margin: 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
+  }
+}
+
+@media (min-width: 900px) {
+  .product-detail__hero-badges {
+    justify-content: flex-end;
+  }
+
+  .detail-card__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>
