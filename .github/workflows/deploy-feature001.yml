@@ -13,6 +13,7 @@ on:
         type: choice
         options:
           - staging
+          - test
           - production
       git_ref:
         description: Git ref or commit SHA to deploy. Use a previous successful SHA for recovery.
@@ -112,7 +113,9 @@ jobs:
 
       - name: Run post-deploy smoke-check
         env:
+          SMOKE_MODE: ${{ env.DISABLE_TG_AUTH == 'true' && 'test' || 'working' }}
           SMOKE_BASE_URL: ${{ env.BACKOFFICE_PUBLIC_URL }}
           SMOKE_ADMIN_TELEGRAM_ID: ${{ env.ADMIN_TELEGRAM_ID }}
+          SMOKE_TEST_TELEGRAM_ID: ${{ env.ADMIN_TELEGRAM_ID }}
           SMOKE_TG_BACKOFFICE_BOT_TOKEN: ${{ env.TG_BACKOFFICE_BOT_TOKEN }}
         run: npm run smoke:backoffice-access

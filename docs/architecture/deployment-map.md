@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | `local` | Разработка и ручная проверка дочерних задач | локальный запуск нужных контуров, модульные тесты, локальный smoke-сценарий |
 | `ci` | Проверка запроса на слияние и готовности к слиянию | установка зависимостей, модульные тесты, e2e `FEATURE-001`, сборка, валидация compose-маршрута, локальный smoke-сценарий рабочего режима и test environment |
+| `test` | VPS-окружение без реальной Telegram-авторизации для технической проверки маршрута развёртывания | развёртывание через GitHub Actions, post-deploy дымовая проверка в `SMOKE_MODE=test`, проверка окружения и конфигурации |
 | `staging` | Проверка интеграции перед выпуском на VPS | развёртывание через GitHub Actions, запуск существующих e2e по затронутым фичам, post-deploy дымовая проверка критического сценария, проверка окружения и конфигурации |
 | `production` | Боевой выпуск | контролируемое развёртывание, post-deploy smoke-check, путь отката |
 
@@ -15,6 +16,7 @@
 | --- | --- | --- | --- | --- |
 | `local` | обязателен для проверки bootstrap главного `administrator` | допустим `true` только для ручной проверки и локальных e2e без Telegram | обязателен, если локальная проверка идёт через реальный служебный бот | Можно проверять как рабочий режим, так и test environment, но эти сценарии должны быть разделены явно |
 | `ci` | обязателен для рабочего smoke-прогона; допускается тестовый `telegramId` для фикстур и test environment-валидации | допустим `true` только в выделенном smoke-job test environment и в `QA-001` | обязателен для рабочего smoke-job, не нужен для test environment-ветки | Проверки качества ветки не должны зависеть от ручного Telegram-входа и должны разделять рабочий и test environment сценарии |
+| `test` | обязателен; допустим технический тестовый `telegramId` | должен быть `true` | не требуется | Используется только для проверки VPS-маршрута без реальной Telegram-авторизации |
 | `staging` | обязателен | должен быть `false` или не задан | обязателен | Окружение должно воспроизводить рабочий канал входа через служебного бота |
 | `production` | обязателен | должен быть `false` или не задан | обязателен | Прямой рабочий доступ по URL без Telegram запрещён |
 
@@ -25,7 +27,8 @@
   - job `quality`: `npm ci`, модульные тесты `apps/server` и `apps/backoffice-web`, установка браузера Playwright, `npm run test:e2e`, сборка обоих контуров
   - job `deployment-validation`: генерация `infra/docker/.env` и `infra/docker/.env.server` из шаблонов, `docker compose config`, локальный рабочий smoke-прогон и отдельный test environment smoke-прогон через `SMOKE_MODE=test`
 - `deploy-feature001.yml`
-  - триггеры: автоматический `push` в `main` для `staging`, ручной `workflow_dispatch` для `staging` и `production`
+  - триггеры: автоматический `push` в `main` для `staging`, ручной `workflow_dispatch` для `test`, `staging` и `production`
+  - в `test` post-deploy дымовая проверка запускается в `SMOKE_MODE=test` при `DISABLE_TG_AUTH=true`
   - вход `git_ref`: позволяет развернуть конкретный commit SHA или тег и используется как штатный путь восстановления
   - этапы: `npm ci`, модульные тесты, установка браузера Playwright, `npm run test:e2e`, сборка, синхронизация репозитория на VPS, рендер `infra/docker/.env` и `infra/docker/.env.server`, `bash infra/scripts/deploy-feature001.sh`, post-deploy дымовая проверка
 
@@ -33,6 +36,7 @@
 
 | GitHub Environment | Хранение | Использование |
 | --- | --- | --- |
+| `test` | environment variables и secrets | Ручное развёртывание на VPS без реальной Telegram-авторизации |
 | `staging` | environment variables и secrets | Автоматическое развёртывание при `push` в `main` и ручный повторный выпуск |
 | `production` | environment variables и secrets | Только ручной выпуск через `workflow_dispatch` |
 
