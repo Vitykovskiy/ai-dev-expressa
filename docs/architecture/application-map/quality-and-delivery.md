@@ -22,6 +22,7 @@
 - `infra/scripts/smoke-backoffice-access.mjs` — feature-специфичная дымовая проверка доступа во внутренний административный контур, запускаемая из generic-маршрута.
 - `.github/workflows/ci.yml` — модульные проверки, сборка, валидация контейнерного маршрута и локальная дымовая проверка.
 - `.github/workflows/deploy.yml` — автоматическое развёртывание `test` по `push` в `main`, ручной выпуск в `production` и post-deploy дымовая проверка.
+- GitHub branch protection для `main` — обязательные статусы `quality` и `deployment-validation`, которые формирует только `ci.yml`.
 
 ## Фактический путь проверок и поставки
 
