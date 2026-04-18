@@ -39,7 +39,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Then decompose only one selected `FEATURE-*` at a time into contour tasks.
 - One child task equals one reviewable outcome in one contour.
 - `FE` and `BE` must be split by default.
-- `DO` is created only when the feature changes VPS runtime, env/config, GitHub Actions, staging or production deploy path, or smoke-check.
+- `DO` is created only when the feature changes VPS runtime, env/config, GitHub Actions, test or production deploy path, or smoke-check.
 - `QA` is mandatory for every feature and owns e2e-tests for that feature.
 - Every child task must include parent link, minimal read set, checks, and application-map update requirement.
 - Every created `FEATURE-*` and `AR/FE/BE/DO/QA-*` task must be executable from the relevant `docs/system/` and `docs/architecture/` set without forcing the next role to read `docs/business/`.

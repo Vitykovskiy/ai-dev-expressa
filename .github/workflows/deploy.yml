@@ -1,4 +1,4 @@
-name: deploy-feature001
+name: deploy
 
 on:
   push:
@@ -6,15 +6,6 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      target_environment:
-        description: GitHub Environment for deployment
-        required: true
-        default: staging
-        type: choice
-        options:
-          - staging
-          - test
-          - production
       git_ref:
         description: Git ref or commit SHA to deploy. Use a previous successful SHA for recovery.
         required: false
@@ -25,23 +16,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'staging' }}
+      name: ${{ github.event_name == 'push' && 'test' || 'production' }}
 
     env:
-      TARGET_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'staging' }}
+      TARGET_ENVIRONMENT: ${{ github.event_name == 'push' && 'test' || 'production' }}
       TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.git_ref || github.sha }}
       VPS_APP_DIR: ${{ vars.VPS_APP_DIR }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
       ADMIN_TELEGRAM_ID: ${{ secrets.ADMIN_TELEGRAM_ID }}
-      TG_BACKOFFICE_BOT_TOKEN: ${{ secrets.TG_BACKOFFICE_BOT_TOKEN }}
+      DEPLOY_TG_BACKOFFICE_BOT_TOKEN: ${{ github.event_name == 'workflow_dispatch' && secrets.TG_BACKOFFICE_BOT_TOKEN || '' }}
       BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
       SERVER_PORT: ${{ vars.SERVER_PORT || '3000' }}
       BACKOFFICE_PORT: ${{ vars.BACKOFFICE_PORT || '8080' }}
       VITE_APP_TITLE: ${{ vars.VITE_APP_TITLE || 'Expressa Backoffice' }}
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || '/api' }}
-      DISABLE_TG_AUTH: ${{ vars.DISABLE_TG_AUTH || 'false' }}
+      DEPLOY_DISABLE_TG_AUTH: ${{ github.event_name == 'push' && 'true' || 'false' }}
 
     steps:
       - name: Checkout
@@ -70,11 +61,50 @@ jobs:
       - name: Build backoffice
         run: npm run build --workspace @expressa/backoffice-web
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+      - name: Prepare Docker Compose env files
+        run: |
+          cp infra/docker/.env.example infra/docker/.env
+          cp infra/docker/.env.server.example infra/docker/.env.server
 
-      - name: Run e2e tests
-        run: npm run test:e2e
+      - name: Validate deployment compose
+        run: npm run deploy:config
+
+      - name: Start server for working smoke-check
+        env:
+          ADMIN_TELEGRAM_ID: 750001
+          DISABLE_TG_AUTH: "false"
+          TG_BACKOFFICE_BOT_TOKEN: bot-token
+        run: npm run start:dev --workspace @expressa/server &
+
+      - name: Run working smoke-check
+        env:
+          SMOKE_BASE_URL: http://127.0.0.1:3000
+          SMOKE_ADMIN_TELEGRAM_ID: 750001
+          SMOKE_TG_BACKOFFICE_BOT_TOKEN: bot-token
+        run: npm run smoke:backoffice-access
+
+      - name: Stop server after working smoke-check
+        if: always()
+        run: pkill -f "ts-node src/main.ts" || true
+
+      - name: Start server for test-mode smoke-check
+        env:
+          ADMIN_TELEGRAM_ID: 750001
+          DISABLE_TG_AUTH: "true"
+          PORT: 3000
+        run: npm run start:dev --workspace @expressa/server &
+
+      - name: Run test-mode smoke-check
+        env:
+          SMOKE_BASE_URL: http://127.0.0.1:3000
+          SMOKE_MODE: test
+          SMOKE_ADMIN_TELEGRAM_ID: 750001
+          SMOKE_TEST_TELEGRAM_ID: 750001
+        run: npm run smoke:backoffice-access
+
+      - name: Stop server after test-mode smoke-check
+        if: always()
+        run: pkill -f "ts-node src/main.ts" || true
 
       - name: Prepare SSH
         run: |
@@ -98,24 +128,24 @@ jobs:
           BACKOFFICE_PORT=${BACKOFFICE_PORT}
           VITE_APP_TITLE=${VITE_APP_TITLE}
           VITE_API_BASE_URL=${VITE_API_BASE_URL}
-          VITE_DISABLE_TG_AUTH=${DISABLE_TG_AUTH}
+          VITE_DISABLE_TG_AUTH=${DEPLOY_DISABLE_TG_AUTH}
           VITE_TEST_TELEGRAM_ID=
           EOF
           cat <<EOF | ssh "${VPS_USER}@${VPS_HOST}" "cat > '${VPS_APP_DIR}/infra/docker/.env.server'"
           ADMIN_TELEGRAM_ID=${ADMIN_TELEGRAM_ID}
-          DISABLE_TG_AUTH=${DISABLE_TG_AUTH}
-          TG_BACKOFFICE_BOT_TOKEN=${TG_BACKOFFICE_BOT_TOKEN}
+          DISABLE_TG_AUTH=${DEPLOY_DISABLE_TG_AUTH}
+          TG_BACKOFFICE_BOT_TOKEN=${DEPLOY_TG_BACKOFFICE_BOT_TOKEN}
           PORT=3000
           EOF
 
       - name: Deploy on VPS
-        run: ssh "${VPS_USER}@${VPS_HOST}" "cd '${VPS_APP_DIR}' && bash infra/scripts/deploy-feature001.sh"
+        run: ssh "${VPS_USER}@${VPS_HOST}" "cd '${VPS_APP_DIR}' && bash infra/scripts/deploy.sh"
 
       - name: Run post-deploy smoke-check
         env:
-          SMOKE_MODE: ${{ env.DISABLE_TG_AUTH == 'true' && 'test' || 'working' }}
+          SMOKE_MODE: ${{ env.DEPLOY_DISABLE_TG_AUTH == 'true' && 'test' || 'working' }}
           SMOKE_BASE_URL: ${{ env.BACKOFFICE_PUBLIC_URL }}
           SMOKE_ADMIN_TELEGRAM_ID: ${{ env.ADMIN_TELEGRAM_ID }}
           SMOKE_TEST_TELEGRAM_ID: ${{ env.ADMIN_TELEGRAM_ID }}
-          SMOKE_TG_BACKOFFICE_BOT_TOKEN: ${{ env.TG_BACKOFFICE_BOT_TOKEN }}
+          SMOKE_TG_BACKOFFICE_BOT_TOKEN: ${{ env.DEPLOY_TG_BACKOFFICE_BOT_TOKEN }}
         run: npm run smoke:backoffice-access
