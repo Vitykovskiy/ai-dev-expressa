@@ -12,26 +12,30 @@
             {{ mode === 'create' ? 'Создать категорию' : 'Изменить категорию' }}
           </h4>
 
-          <v-text-field
-            v-model="form.name"
-            autofocus
-            class="category-dialog__field"
-            data-testid="category-name-input"
+          <FormField
+            :error="errors.name ?? ''"
             label="Название категории"
-            :error-messages="errors.name ? [errors.name] : []"
-          />
+            required
+          >
+            <v-text-field
+              v-model="form.name"
+              autofocus
+              class="category-dialog__field"
+              data-testid="category-name-input"
+              hide-details
+              variant="outlined"
+            />
+          </FormField>
         </div>
 
         <div class="category-dialog__actions">
-          <v-btn variant="text" color="primary" @click="close">Отмена</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            type="submit"
+          <Button variant="ghost" @click="close">Отмена</Button>
+          <Button
             data-testid="submit-category-form"
+            type="submit"
           >
             {{ mode === 'create' ? 'Создать' : 'Сохранить' }}
-          </v-btn>
+          </Button>
         </div>
       </form>
     </v-card>
@@ -40,7 +44,8 @@
 
 <script setup lang="ts">
 import { watch } from 'vue';
-import { useMenuCategoryEditor } from '../composables/menu-category-editor';
+import { FormField, Button } from '../base';
+import { useMenuCategoryEditor } from '../../composables/menu-category-editor';
 
 const props = defineProps<{
   initialName: string;
@@ -84,40 +89,36 @@ function submit() {
 
 <style scoped lang="scss">
 .category-dialog {
-  border-radius: 8px;
+  border-radius: 1rem;
+}
 
-  &__body {
-    display: grid;
-    gap: 1rem;
-    padding: 1.25rem 1.25rem 0;
-  }
+.category-dialog__body {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0;
+}
 
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
+.category-dialog__label {
+  margin: 0;
+  color: var(--expressa-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-  &__title {
-    margin: 0;
-    color: var(--expressa-text);
-    font-size: 1.15rem;
-    font-weight: 800;
-  }
+.category-dialog__title {
+  margin: 0;
+  color: var(--expressa-text);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
 
-  &__field {
-    margin-top: 0.25rem;
-  }
-
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    padding: 0 1.25rem 1.25rem;
-  }
+.category-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 0 1.25rem 1.25rem;
 }
 </style>

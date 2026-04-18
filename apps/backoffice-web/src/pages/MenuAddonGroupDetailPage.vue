@@ -1,21 +1,14 @@
 <template>
   <div class="addon-detail">
-    <section class="addon-detail__header">
-      <div>
-        <p class="addon-detail__label">menu.addon_group_detail</p>
-        <h3 class="addon-detail__title" data-testid="page-title">
-          {{ pageTitle }}
-        </h3>
-        <p class="addon-detail__text">
-          Редактор меняет группу дополнительных опций и её связи с категориями в общем черновике
-          структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`.
-        </p>
-      </div>
-
-      <div class="addon-detail__actions">
-        <v-btn variant="text" color="primary" @click="goBackToProducts">К товарам категории</v-btn>
-      </div>
-    </section>
+    <MenuPageHeader
+      label="menu.addon_group_detail"
+      text="Редактор меняет группу дополнительных опций и её связи с категориями в общем черновике структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`."
+      :title="pageTitle"
+    >
+      <template #actions>
+        <Button variant="ghost" @click="goBackToProducts">К товарам категории</Button>
+      </template>
+    </MenuPageHeader>
 
     <v-alert
       v-if="draftMessage"
@@ -85,7 +78,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import MenuAddonGroupEditorForm from '../components/MenuAddonGroupEditorForm.vue';
+import { Button } from '../components/base';
+import { MenuAddonGroupEditorForm, MenuPageHeader } from '../components/menu';
 import {
   NEW_MENU_OPTION_GROUP_ID,
   createMenuAddonGroupDetailRoute,
@@ -210,17 +204,15 @@ function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
 .addon-detail {
   display: grid;
   gap: 1rem;
+}
 
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: end;
-    justify-content: space-between;
-  }
+.detail-card {
+  height: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--expressa-border);
+  background: rgba(255, 255, 255, 0.94);
 
-  &__label,
-  .detail-card__section-label {
+  &__section-label {
     margin: 0;
     color: var(--expressa-muted);
     font-size: 0.75rem;
@@ -229,27 +221,18 @@ function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
     text-transform: uppercase;
   }
 
-  &__title,
-  .detail-card__summary-title {
+  &__summary-title {
     margin: 0.5rem 0 0;
     color: var(--expressa-text);
     font-size: clamp(1.2rem, 1.5vw, 1.7rem);
     font-weight: 800;
   }
 
-  &__text,
-  .detail-card__summary-text {
+  &__summary-text {
     margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
   }
-}
-
-.detail-card {
-  height: 100%;
-  padding: 1.25rem;
-  border: 1px solid var(--expressa-border);
-  background: rgba(255, 255, 255, 0.94);
 
   &__bindings,
   &__options {

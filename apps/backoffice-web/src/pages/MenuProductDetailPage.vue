@@ -1,21 +1,14 @@
 <template>
   <div class="product-detail">
-    <section class="product-detail__header">
-      <div>
-        <p class="product-detail__label">menu.menu_product_detail</p>
-        <h3 class="product-detail__title" data-testid="page-title">
-          {{ pageTitle }}
-        </h3>
-        <p class="product-detail__text">
-          Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет
-          панель вкладки `menu`.
-        </p>
-      </div>
-
-      <div class="product-detail__actions">
-        <v-btn variant="text" color="primary" @click="goBackToProducts">К списку товаров</v-btn>
-      </div>
-    </section>
+    <MenuPageHeader
+      label="menu.menu_product_detail"
+      text="Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`."
+      :title="pageTitle"
+    >
+      <template #actions>
+        <Button variant="ghost" @click="goBackToProducts">К списку товаров</Button>
+      </template>
+    </MenuPageHeader>
 
     <v-alert
       v-if="draftMessage"
@@ -68,7 +61,7 @@
       </v-col>
     </v-row>
 
-    <v-card class="detail-card" rounded="lg" v-if="optionGroups.length > 0">
+    <v-card v-if="optionGroups.length > 0" class="detail-card" rounded="lg">
       <p class="detail-card__section-label">Наследуемые группы дополнительных опций</p>
       <div class="detail-card__group-list">
         <button
@@ -91,7 +84,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import MenuProductEditorForm from '../components/MenuProductEditorForm.vue';
+import { Button } from '../components/base';
+import { MenuPageHeader, MenuProductEditorForm } from '../components/menu';
 import {
   NEW_MENU_PRODUCT_ID,
   createMenuAddonGroupDetailRoute,
@@ -187,17 +181,14 @@ function openAddonGroup(optionGroupId: string) {
 .product-detail {
   display: grid;
   gap: 1rem;
+}
 
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: end;
-    justify-content: space-between;
-  }
+.detail-card {
+  border: 1px solid var(--expressa-border);
+  background: rgba(255, 255, 255, 0.94);
+  padding: 1.25rem;
 
-  &__label,
-  .detail-card__section-label {
+  &__section-label {
     margin: 0;
     color: var(--expressa-muted);
     font-size: 0.75rem;
@@ -206,26 +197,18 @@ function openAddonGroup(optionGroupId: string) {
     text-transform: uppercase;
   }
 
-  &__title,
-  .detail-card__summary-title {
+  &__summary-title {
     margin: 0.5rem 0 0;
     color: var(--expressa-text);
     font-size: clamp(1.2rem, 1.5vw, 1.7rem);
     font-weight: 800;
   }
 
-  &__text,
-  .detail-card__summary-text {
+  &__summary-text {
     margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
   }
-}
-
-.detail-card {
-  border: 1px solid var(--expressa-border);
-  background: rgba(255, 255, 255, 0.94);
-  padding: 1.25rem;
 
   &__sizes,
   &__group-list {

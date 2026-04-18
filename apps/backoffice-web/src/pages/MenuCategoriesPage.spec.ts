@@ -14,10 +14,29 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
+const ButtonStub = {
+  name: 'Button',
+  emits: ['click'],
+  template: '<button v-bind="$attrs" @click="$emit(\'click\', $event)"><slot /></button>',
+};
+
+const SectionListStub = {
+  name: 'SectionList',
+  props: ['title', 'subtitle'],
+  template: '<section data-testid="section-list"><slot /></section>',
+};
+
+const MenuPageHeaderStub = {
+  name: 'MenuPageHeader',
+  props: ['label', 'text', 'title'],
+  template:
+    '<section data-testid="page-header"><h3 data-testid="page-title">{{ title }}</h3><slot name="actions" /></section>',
+};
+
 const MenuCategoryListStub = {
   name: 'MenuCategoryList',
   props: ['categories'],
-  emits: ['editCategory', 'openAddonGroup', 'openProducts'],
+  emits: ['createAddonGroup', 'createCategory', 'editCategory', 'openAddonGroup', 'openProducts'],
   template:
     '<div data-testid="category-list"><button data-testid="edit-category" @click="$emit(\'editCategory\', categories[0]?.categoryId)">Изменить</button></div>',
 };
@@ -47,8 +66,11 @@ function mountPage() {
   return shallowMount(MenuCategoriesPage, {
     global: {
       stubs: {
+        Button: ButtonStub,
         MenuCategoryFormDialog: MenuCategoryFormDialogStub,
         MenuCategoryList: MenuCategoryListStub,
+        MenuPageHeader: MenuPageHeaderStub,
+        SectionList: SectionListStub,
       },
     },
   });
@@ -68,7 +90,8 @@ describe('MenuCategoriesPage', () => {
     });
     const wrapper = mountPage();
 
-    await wrapper.find('[data-testid="create-category"]').trigger('click');
+    wrapper.findComponent({ name: 'Button' }).vm.$emit('click');
+    await nextTick();
     const dialog = wrapper.findComponent({ name: 'MenuCategoryFormDialog' });
 
     expect(dialog.props('mode')).toBe('create');
