@@ -56,7 +56,7 @@ const hasActions = computed(() => !!slots.actions);
     color: var(--expressa-muted);
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -66,12 +66,14 @@ const hasActions = computed(() => !!slots.actions);
     font-size: var(--expressa-menu-title-size);
     font-weight: 800;
     line-height: 1.15;
+    overflow-wrap: anywhere;
   }
 
   &__text {
     margin: 0.7rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
+    overflow-wrap: anywhere;
   }
 
   &--hero &__title {

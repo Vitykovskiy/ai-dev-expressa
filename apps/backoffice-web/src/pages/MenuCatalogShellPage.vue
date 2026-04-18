@@ -246,12 +246,14 @@ onMounted(() => {
 <style scoped lang="scss">
 .menu-shell-layout {
   position: relative;
+  min-width: 0;
 }
 
 .menu-shell {
   &__hero {
     display: grid;
     gap: 1.25rem;
+    min-width: 0;
   }
 
   &__hero-grid {
@@ -275,6 +277,7 @@ onMounted(() => {
   &__metric {
     display: grid;
     gap: 0.35rem;
+    min-width: 0;
     padding: 1rem;
     border: 1px solid rgba(17, 17, 17, 0.08);
     border-radius: var(--expressa-menu-radius-lg);
@@ -287,7 +290,7 @@ onMounted(() => {
     color: var(--expressa-muted);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -296,17 +299,20 @@ onMounted(() => {
     font-size: 1.35rem;
     font-weight: 800;
     line-height: 1.1;
+    overflow-wrap: anywhere;
   }
 
   &__metric-hint {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.5;
+    overflow-wrap: anywhere;
   }
 
   &__action-bar {
     display: grid;
     gap: 1rem;
+    min-width: 0;
     padding: 1rem;
     border: 1px solid rgba(17, 17, 17, 0.08);
     border-radius: var(--expressa-menu-radius-lg);
@@ -322,7 +328,7 @@ onMounted(() => {
     color: var(--expressa-muted);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -330,6 +336,7 @@ onMounted(() => {
     margin: 0.35rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
+    overflow-wrap: anywhere;
   }
 
   &__actions {
@@ -337,6 +344,7 @@ onMounted(() => {
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: center;
+    min-width: 0;
   }
 
   &__feedback {
@@ -381,6 +389,7 @@ onMounted(() => {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
   }
 }
 

@@ -70,6 +70,7 @@ const hasContent = computed(() => slots.content !== undefined);
     gap: 0.75rem;
     justify-content: flex-end;
     align-items: center;
+    min-width: 0;
   }
 
   &--contentless &__actions {
@@ -79,8 +80,21 @@ const hasContent = computed(() => slots.content !== undefined);
 
 @media (max-width: 759px) {
   .menu-sticky-dock {
+    &--bottom {
+      bottom: 0.75rem;
+    }
+
+    &__surface {
+      padding: 0.85rem;
+    }
+
+    &__actions {
+      justify-content: stretch;
+    }
+
     &__actions:deep(.v-btn) {
-      flex: 1 1 100%;
+      flex: 1 1 10rem;
+      min-width: min(10rem, 100%);
     }
 
     &--contentless &__actions {

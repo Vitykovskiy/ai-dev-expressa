@@ -247,7 +247,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
     color: var(--expressa-muted);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -264,6 +264,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
     margin: 0.55rem 0 0;
     color: var(--expressa-secondary);
     line-height: 1.7;
+    overflow-wrap: anywhere;
   }
 
   &__summary-badges,
@@ -304,7 +305,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
     color: var(--accent);
     font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
 
   &__product-link {
@@ -321,6 +322,13 @@ function pluralize(count: number, one: string, few: string, many: string) {
     background: rgba(255, 255, 255, 0.72);
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 759px) {
+  .menu-category-products__addons-header > .menu-action-button {
+    width: 100%;
   }
 }
 

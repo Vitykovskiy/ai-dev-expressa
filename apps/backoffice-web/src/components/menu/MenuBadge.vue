@@ -36,12 +36,16 @@ withDefaults(
 
 <style scoped lang="scss">
 .menu-badge {
+  max-width: 100%;
   border: 1px solid transparent;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+  line-height: 1.2;
 
   &:deep(.v-chip__content) {
-    white-space: nowrap;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   &--default {

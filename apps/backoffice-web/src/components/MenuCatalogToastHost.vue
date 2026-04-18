@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
 .menu-toast-host {
   position: fixed;
   right: 1rem;
-  bottom: 1rem;
+  bottom: 5.75rem;
   z-index: 30;
   width: min(26rem, calc(100vw - 2rem));
 
@@ -131,12 +131,14 @@ onBeforeUnmount(() => {
     color: var(--expressa-text);
     font-weight: 800;
     line-height: 1.4;
+    overflow-wrap: anywhere;
   }
 
   &__text {
     margin-top: 0.4rem;
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
   }
 
   &__actions {

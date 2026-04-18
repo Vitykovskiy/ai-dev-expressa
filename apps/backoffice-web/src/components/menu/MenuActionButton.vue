@@ -36,10 +36,13 @@ withDefaults(
 
 <style scoped lang="scss">
 .menu-action-button {
+  max-width: 100%;
   border: 1px solid transparent;
+  border-radius: var(--expressa-menu-radius-md);
   box-shadow: none;
   font-weight: 700;
-  letter-spacing: normal;
+  letter-spacing: 0;
+  line-height: 1.2;
   text-transform: none;
   transition:
     background-color var(--expressa-menu-transition-fast),
@@ -49,6 +52,10 @@ withDefaults(
 
   &:deep(.v-btn__content) {
     gap: 0.45rem;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 
   &:deep(.v-btn__overlay) {
@@ -66,11 +73,13 @@ withDefaults(
 
   &--default {
     min-height: 2.75rem;
+    min-width: 7rem;
     padding-inline: 1rem;
   }
 
   &--compact {
     min-height: 2.2rem;
+    min-width: 5.25rem;
     padding-inline: 0.85rem;
     font-size: 0.88rem;
   }

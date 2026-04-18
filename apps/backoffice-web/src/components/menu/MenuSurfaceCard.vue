@@ -7,7 +7,7 @@
       `menu-surface-card--${padding}`,
       { 'menu-surface-card--full-height': fullHeight },
     ]"
-    rounded="xl"
+    rounded="lg"
   >
     <slot />
   </v-card>
@@ -35,6 +35,7 @@ withDefaults(
 <style scoped lang="scss">
 .menu-surface-card {
   border: 1px solid var(--expressa-border);
+  border-radius: var(--expressa-menu-radius-lg);
   background: var(--expressa-menu-surface);
   box-shadow: var(--expressa-menu-shadow-soft);
 

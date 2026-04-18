@@ -340,7 +340,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
     color: var(--expressa-muted);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -375,6 +375,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
     background: rgba(255, 255, 255, 0.72);
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
   }
 
   &__panel-actions {
@@ -397,6 +398,10 @@ function pluralize(count: number, one: string, few: string, many: string) {
 @media (max-width: 759px) {
   .menu-category-tree__panel {
     padding-left: 1rem;
+  }
+
+  .menu-category-tree__panel-actions > .menu-action-button {
+    flex: 1 1 10rem;
   }
 }
 </style>

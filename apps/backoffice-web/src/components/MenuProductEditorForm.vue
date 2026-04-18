@@ -391,7 +391,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
     color: var(--expressa-muted);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -400,6 +400,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
     color: var(--expressa-text);
     font-size: 1rem;
     line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   &__summary-text,
@@ -408,6 +409,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
   &__size-text {
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
   }
 
   &__type-grid,
@@ -419,6 +421,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
   &__type-card {
     display: grid;
     gap: 0.4rem;
+    min-width: 0;
     padding: 1rem;
     border: 1px solid var(--expressa-border);
     border-radius: var(--expressa-menu-radius-lg);
@@ -448,6 +451,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
   &__size-card {
     display: grid;
     gap: 0.85rem;
+    min-width: 0;
     padding: 1rem;
     border: 1px solid var(--expressa-border);
     border-radius: var(--expressa-menu-radius-lg);
@@ -500,6 +504,7 @@ function readSizePriceErrors(size: DrinkSize): string[] {
     margin: 0;
     color: var(--expressa-secondary);
     line-height: 1.6;
+    overflow-wrap: anywhere;
   }
 }
 

@@ -63,6 +63,7 @@ withDefaults(
   background: var(--expressa-menu-surface);
   color: var(--expressa-text);
   text-align: left;
+  overflow-wrap: anywhere;
   transition:
     background-color var(--expressa-menu-transition-fast),
     border-color var(--expressa-menu-transition-fast),
@@ -92,6 +93,7 @@ withDefaults(
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    max-width: 100%;
   }
 
   &__body {
@@ -107,9 +109,26 @@ withDefaults(
   }
 
   &__meta {
+    overflow-wrap: anywhere;
     color: var(--expressa-muted);
     font-size: 0.88rem;
     line-height: 1.5;
+  }
+}
+
+@media (max-width: 599px) {
+  .menu-list-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+
+    &__body {
+      flex-basis: calc(100% - 3rem);
+    }
+
+    &__trailing {
+      width: 100%;
+      padding-left: 2.85rem;
+    }
   }
 }
 </style>
