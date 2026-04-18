@@ -9,80 +9,33 @@
       <template #actions>
         <div class="menu-products__actions">
           <MenuActionButton data-testid="create-product" @click="createProduct">
-            Создать товар
+            Добавить товар
           </MenuActionButton>
-          <MenuActionButton
-            data-testid="create-addon-group"
-            variant="secondary"
-            @click="createAddonGroup"
-          >
-            Создать группу допов
-          </MenuActionButton>
-          <MenuActionButton variant="ghost" @click="goBackToCategories">
+          <MenuActionButton data-testid="back-to-categories" variant="ghost" @click="goBackToCategories">
             К категориям
           </MenuActionButton>
         </div>
       </template>
     </MenuSectionHeader>
 
-    <v-row v-if="products.length > 0">
-      <v-col v-for="product in products" :key="product.menuItemId" cols="12" lg="6">
-        <MenuSurfaceCard class="product-card" data-testid="menu-product-card" full-height>
-          <div class="product-card__chips">
-            <MenuBadge>
-              {{ product.itemType === 'drink' ? 'Напиток' : 'Товар' }}
-            </MenuBadge>
-            <MenuBadge tone="neutral">{{ priceSummary(product) }}</MenuBadge>
-          </div>
-
-          <h4 class="product-card__title">{{ product.name }}</h4>
-          <p class="product-card__text">
-            Категория наследует {{ optionGroups.length }} групп дополнительных опций, поэтому
-            карточка товара опирается на них без локальных переопределений.
-          </p>
-
-          <div class="product-card__actions">
-            <MenuActionButton @click="openProduct(product.menuItemId)">
-              Открыть карточку
-            </MenuActionButton>
-          </div>
-        </MenuSurfaceCard>
-      </v-col>
-    </v-row>
-
-    <MenuEmptyState
-      v-else
-      class="product-empty"
-      label="Категория пока без товаров"
-      text="Навигация к категории уже работает, а детальное наполнение и редакторы будут дополняться в следующем шаге."
-      title="Снимок каталога не содержит позиций для этой категории"
+    <MenuCategoryProductsList
+      :category-name="category?.name ?? null"
+      :option-groups="optionGroupCards"
+      :products="productCards"
+      @create-addon-group="createAddonGroup"
+      @create-product="createProduct"
+      @open-addon-group="openAddonGroup"
+      @open-product="openProduct"
     />
-
-    <MenuSurfaceCard v-if="optionGroups.length > 0" class="product-groups">
-      <p class="product-groups__label">Наследуемые группы дополнительных опций</p>
-      <div class="product-groups__buttons">
-        <MenuActionButton
-          v-for="optionGroup in optionGroups"
-          :key="optionGroup.optionGroupId"
-          size="compact"
-          variant="ghost"
-          @click="openAddonGroup(optionGroup.optionGroupId)"
-        >
-          {{ optionGroup.name }}
-        </MenuActionButton>
-      </div>
-    </MenuSurfaceCard>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import MenuCategoryProductsList from '../components/MenuCategoryProductsList.vue';
 import MenuActionButton from '../components/menu/MenuActionButton.vue';
-import MenuBadge from '../components/menu/MenuBadge.vue';
-import MenuEmptyState from '../components/menu/MenuEmptyState.vue';
 import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
-import MenuSurfaceCard from '../components/menu/MenuSurfaceCard.vue';
 import {
   createMenuAddonGroupDetailRoute,
   createMenuCategoriesRoute,
@@ -109,15 +62,33 @@ const products = computed(() =>
 const optionGroups = computed(() =>
   resolveMenuCategoryOptionGroups(menuCatalogStore.state.catalog, categoryId.value),
 );
-const categoryTitle = computed(() =>
-  category.value ? `Товары категории «${category.value.name}»` : 'Товары категории',
+const categoryTitle = computed(() => category.value?.name ?? 'Товары категории');
+const productCards = computed(() =>
+  products.value.map((product) => ({
+    productId: product.menuItemId,
+    name: product.name,
+    itemTypeLabel: product.itemType === 'drink' ? 'Напиток' : 'Товар',
+    itemTypeShortLabel: product.itemType === 'drink' ? 'S/M/L' : '₽',
+    priceSummary: resolveMenuProductPriceSummary(product),
+  })),
 );
-const headerText =
-  'Список строится по `menuCategoryId` выбранной категории. Для каждого товара отображается тип, ценовая модель и inherited-связь с группами дополнительных опций.';
+const optionGroupCards = computed(() =>
+  optionGroups.value.map((optionGroup) => ({
+    optionGroupId: optionGroup.optionGroupId,
+    name: optionGroup.name,
+  })),
+);
+const headerText = computed(() => {
+  if (!category.value) {
+    return 'Откройте категорию из дерева menu, чтобы просмотреть её товары и продолжить работу с общим черновиком.';
+  }
 
-function priceSummary(product: Parameters<typeof resolveMenuProductPriceSummary>[0]) {
-  return resolveMenuProductPriceSummary(product);
-}
+  if (products.value.length === 0) {
+    return 'Категория уже выбрана. Добавьте первую позицию или вернитесь к дереву категорий без смены общего черновика вкладки `menu`.';
+  }
+
+  return 'Откройте строку товара, чтобы перейти в карточку, или добавьте новую позицию в общий черновик выбранной категории.';
+});
 
 function goBackToCategories() {
   void router.push(createMenuCategoriesRoute());
@@ -167,50 +138,5 @@ function openAddonGroup(optionGroupId: string) {
     gap: 0.75rem;
     justify-content: flex-start;
   }
-}
-
-.product-card {
-  display: grid;
-  gap: 1rem;
-
-  &__chips,
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  &__title {
-    margin: 0.5rem 0 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.2rem, 1.4vw, 1.65rem);
-    font-weight: 800;
-  }
-
-  &__text {
-    margin: 0.75rem 0 0;
-    color: var(--expressa-secondary);
-    line-height: 1.7;
-  }
-}
-
-.product-groups {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.product-groups__label {
-  margin: 0;
-  color: var(--expressa-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.product-groups__buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
 </style>

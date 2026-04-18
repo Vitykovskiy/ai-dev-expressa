@@ -47,13 +47,15 @@
 - `src/router/menu-catalog-navigation.ts` содержит вложенные маршруты `menu.menu_categories`, `menu.menu_products`, `menu.menu_product_detail`, `menu.addon_group_detail`.
 - Страницы `src/pages/Menu*.vue` покрывают подпотоки категорий, товаров, карточки товара и карточки группы дополнительных опций.
 - `src/components/menu/*.vue` и `src/styles/menu-tokens.scss` формируют общий визуальный слой подпотока `menu`, на который опираются shell, списки, карточки и редакторы без дублирования page-specific CSS.
-- `src/components/MenuCategory*.vue`, `MenuProductEditorForm.vue`, `MenuAddonGroupEditorForm.vue` и `MenuCatalogSavePanel.vue` реализуют текущие компоненты редакторов категорий, товаров, групп дополнительных опций и сохранения.
+- `src/components/MenuCategoryList.vue`, `MenuCategoryProductsList.vue`, `MenuCategoryFormDialog.vue`, `MenuProductEditorForm.vue`, `MenuAddonGroupEditorForm.vue` и `MenuCatalogSavePanel.vue` реализуют экранные компоненты дерева категорий, списка товаров выбранной категории, редакторов и сохранения общего черновика.
 - `src/composables/menu-category-editor.ts`, `menu-product-editor.ts` и `menu-addon-group-editor.ts` содержат UX-валидации редакторов категорий, товаров, цен и групп дополнительных опций.
 - Клиентская часть может выполнять только UX-валидации обязательности полей и целостности формы; серверная часть остаётся источником истины по модели каталога.
 - `FE-004` отвечает за чтение снимка, навигацию подпотоков и базовую оркестрацию состояния.
 - `FE-005` добавляет общий черновик снимка, dirty-флаг, сохранение через общий shell вкладки `menu`, отображение ошибок серверного сохранения, редактор категорий и UX-валидацию обязательного наименования.
 - `FE-006` добавляет редактор товаров и цен: создание через маршрут `menu.menu_product_detail` с `productId=new`, изменение существующей позиции, переключение `product`/`drink`, базовую цену товара и цены S/M/L для напитка.
 - `FE-007` добавляет редактор групп дополнительных опций: создание через маршрут `menu.addon_group_detail` с `optionGroupId=new`, изменение названия, режима `single`/`multiple`, вариантов с `priceDelta` и назначений на категории через `optionGroupRefs` без дублирования серверных правил.
+- `FE-012` переносит экран категорий на общий визуальный слой `src/components/menu/*`: дерево категорий, пустое состояние, действия редактирования и раскрывающиеся ветки теперь используют согласованные menu-примитивы.
+- `FE-013` выравнивает экран `menu.menu_products` с экраном категорий: список товаров выбранной категории, пустое состояние, возврат в дерево и переход в карточку товара собираются на тех же menu-примитивах без изменения маршрутов и `menuCatalogStore`.
 
 ## Маршруты вкладки `menu`
 
