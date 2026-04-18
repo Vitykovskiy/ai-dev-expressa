@@ -1,45 +1,38 @@
 <template>
-  <v-dialog
+  <MenuDialogShell
+    :label="mode === 'create' ? 'Новая категория' : 'Категория'"
     :model-value="modelValue"
-    max-width="520"
+    :title="mode === 'create' ? 'Создать категорию' : 'Изменить категорию'"
     @update:model-value="emitModelValue"
   >
-    <v-card class="category-dialog">
-      <form @submit.prevent="submit">
-        <div class="category-dialog__body">
-          <p class="category-dialog__label">{{ mode === 'create' ? 'Новая категория' : 'Категория' }}</p>
-          <h4 class="category-dialog__title">
-            {{ mode === 'create' ? 'Создать категорию' : 'Изменить категорию' }}
-          </h4>
+    <form id="menu-category-form" @submit.prevent="submit">
+      <v-text-field
+        v-model="form.name"
+        autofocus
+        class="category-dialog__field"
+        data-testid="category-name-input"
+        label="Название категории"
+        :error-messages="errors.name ? [errors.name] : []"
+      />
+    </form>
 
-          <v-text-field
-            v-model="form.name"
-            autofocus
-            class="category-dialog__field"
-            data-testid="category-name-input"
-            label="Название категории"
-            :error-messages="errors.name ? [errors.name] : []"
-          />
-        </div>
-
-        <div class="category-dialog__actions">
-          <v-btn variant="text" color="primary" @click="close">Отмена</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            type="submit"
-            data-testid="submit-category-form"
-          >
-            {{ mode === 'create' ? 'Создать' : 'Сохранить' }}
-          </v-btn>
-        </div>
-      </form>
-    </v-card>
-  </v-dialog>
+    <template #actions>
+      <MenuActionButton type="button" variant="ghost" @click="close">Отмена</MenuActionButton>
+      <MenuActionButton
+        data-testid="submit-category-form"
+        form="menu-category-form"
+        type="submit"
+      >
+        {{ mode === 'create' ? 'Создать' : 'Сохранить' }}
+      </MenuActionButton>
+    </template>
+  </MenuDialogShell>
 </template>
 
 <script setup lang="ts">
 import { watch } from 'vue';
+import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuDialogShell from './menu/MenuDialogShell.vue';
 import { useMenuCategoryEditor } from '../composables/menu-category-editor';
 
 const props = defineProps<{
@@ -83,41 +76,7 @@ function submit() {
 </script>
 
 <style scoped lang="scss">
-.category-dialog {
-  border-radius: 8px;
-
-  &__body {
-    display: grid;
-    gap: 1rem;
-    padding: 1.25rem 1.25rem 0;
-  }
-
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title {
-    margin: 0;
-    color: var(--expressa-text);
-    font-size: 1.15rem;
-    font-weight: 800;
-  }
-
-  &__field {
-    margin-top: 0.25rem;
-  }
-
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    padding: 0 1.25rem 1.25rem;
-  }
+.category-dialog__field {
+  margin-top: 0.15rem;
 }
 </style>

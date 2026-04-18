@@ -1,35 +1,31 @@
 <template>
   <div class="addon-detail">
-    <section class="addon-detail__header">
-      <div>
-        <p class="addon-detail__label">menu.addon_group_detail</p>
-        <h3 class="addon-detail__title" data-testid="page-title">
-          {{ pageTitle }}
-        </h3>
-        <p class="addon-detail__text">
-          Редактор меняет группу дополнительных опций и её связи с категориями в общем черновике
-          структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`.
-        </p>
-      </div>
-
-      <div class="addon-detail__actions">
-        <v-btn variant="text" color="primary" @click="goBackToProducts">К товарам категории</v-btn>
-      </div>
-    </section>
-
-    <v-alert
-      v-if="draftMessage"
-      class="addon-detail__alert"
-      color="primary"
-      data-testid="addon-group-draft-message"
-      variant="tonal"
+    <MenuSectionHeader
+      label="menu.addon_group_detail"
+      text="Редактор меняет группу дополнительных опций и её связи с категориями в общем черновике структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`."
+      :title="pageTitle"
+      title-test-id="page-title"
     >
-      {{ draftMessage }}
-    </v-alert>
+      <template #actions>
+        <MenuActionButton variant="ghost" @click="goBackToProducts">
+          К товарам категории
+        </MenuActionButton>
+      </template>
+    </MenuSectionHeader>
+
+    <MenuSurfaceCard
+      v-if="draftMessage"
+      class="addon-detail__draft"
+      data-testid="addon-group-draft-message"
+      variant="subtle"
+    >
+      <MenuBadge size="compact">Черновик обновлён</MenuBadge>
+      <p class="addon-detail__draft-text">{{ draftMessage }}</p>
+    </MenuSurfaceCard>
 
     <v-row>
       <v-col cols="12" lg="8">
-        <v-card class="detail-card" rounded="lg">
+        <MenuSurfaceCard class="detail-card" full-height>
           <MenuAddonGroupEditorForm
             :categories="categoryOptions"
             :initial-category-id="categoryId"
@@ -38,45 +34,44 @@
             @cancel="goBackToProducts"
             @submit="submitAddonGroup"
           />
-        </v-card>
+        </MenuSurfaceCard>
       </v-col>
 
       <v-col cols="12" lg="4">
-        <v-card class="detail-card detail-card--summary" rounded="lg">
-          <p class="detail-card__section-label">Текущее назначение</p>
-          <h4 class="detail-card__summary-title">{{ summaryTitle }}</h4>
-          <p class="detail-card__summary-text">
-            Категории получают группу через `optionGroupRefs`, поэтому товары наследуют её без
-            локальных переопределений.
-          </p>
+        <MenuSurfaceCard class="detail-card detail-card--summary" full-height>
+          <MenuSectionHeader
+            label="Текущее назначение"
+            text="Категории получают группу через `optionGroupRefs`, поэтому товары наследуют её без локальных переопределений."
+            :title="summaryTitle"
+          />
 
           <div class="detail-card__bindings">
-            <v-chip
+            <MenuBadge
               v-for="category in assignedCategories"
               :key="category.menuCategoryId"
-              color="primary"
-              variant="tonal"
             >
               {{ category.name }}
-            </v-chip>
+            </MenuBadge>
             <span v-if="assignedCategories.length === 0" class="detail-card__muted">
               Группа ещё не назначена.
             </span>
           </div>
 
           <div v-if="optionGroup" class="detail-card__options">
-            <div
+            <MenuListRow
               v-for="option in optionGroup.options"
               :key="option.optionId"
-              class="detail-card__option"
+              tone="accent"
             >
               <strong>{{ option.name }}</strong>
-              <span>
-                {{ option.priceDelta === 0 ? 'Бесплатно' : `+${option.priceDelta} ₽` }}
-              </span>
-            </div>
+              <template #trailing>
+                <span>
+                  {{ option.priceDelta === 0 ? 'Бесплатно' : `+${option.priceDelta} ₽` }}
+                </span>
+              </template>
+            </MenuListRow>
           </div>
-        </v-card>
+        </MenuSurfaceCard>
       </v-col>
     </v-row>
   </div>
@@ -86,6 +81,11 @@
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MenuAddonGroupEditorForm from '../components/MenuAddonGroupEditorForm.vue';
+import MenuActionButton from '../components/menu/MenuActionButton.vue';
+import MenuBadge from '../components/menu/MenuBadge.vue';
+import MenuListRow from '../components/menu/MenuListRow.vue';
+import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
+import MenuSurfaceCard from '../components/menu/MenuSurfaceCard.vue';
 import {
   NEW_MENU_OPTION_GROUP_ID,
   createMenuAddonGroupDetailRoute,
@@ -211,67 +211,31 @@ function submitAddonGroup(optionGroupDraft: MenuCatalogOptionGroupDraft) {
   display: grid;
   gap: 1rem;
 
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: end;
-    justify-content: space-between;
+  &__draft {
+    display: grid;
+    gap: 0.75rem;
   }
 
-  &__label,
-  .detail-card__section-label {
+  &__draft-text {
     margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    text-transform: uppercase;
-  }
-
-  &__title,
-  .detail-card__summary-title {
-    margin: 0.5rem 0 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.2rem, 1.5vw, 1.7rem);
-    font-weight: 800;
-  }
-
-  &__text,
-  .detail-card__summary-text {
-    margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
-    line-height: 1.7;
+    line-height: 1.6;
   }
 }
 
 .detail-card {
-  height: 100%;
-  padding: 1.25rem;
-  border: 1px solid var(--expressa-border);
-  background: rgba(255, 255, 255, 0.94);
+  display: grid;
+  gap: 1rem;
 
   &__bindings,
   &__options {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 1rem;
   }
 
   &__options {
     display: grid;
-  }
-
-  &__option {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--expressa-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
   }
 
   &__muted {

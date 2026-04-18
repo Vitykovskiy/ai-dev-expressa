@@ -1,31 +1,30 @@
 <template>
-  <section class="save-panel" data-testid="menu-catalog-save-panel">
-    <div>
-      <p class="save-panel__label">Сохранение каталога</p>
-      <h4 class="save-panel__title">{{ title }}</h4>
-      <p class="save-panel__text">{{ text }}</p>
+  <MenuSurfaceCard class="save-panel" data-testid="menu-catalog-save-panel">
+    <div class="save-panel__content">
+      <MenuSectionHeader label="Сохранение каталога" :text="text" :title="title" />
       <p v-if="error" class="save-panel__error" data-testid="menu-catalog-save-error">
         {{ error.message }}
       </p>
     </div>
 
     <div class="save-panel__actions">
-      <v-btn
-        color="primary"
-        variant="flat"
-        :loading="isSaving"
+      <MenuActionButton
         :disabled="disabled || !isDirty || isSaving"
+        :loading="isSaving"
         data-testid="save-menu-catalog"
         @click="$emit('save')"
       >
         Сохранить каталог
-      </v-btn>
+      </MenuActionButton>
     </div>
-  </section>
+  </MenuSurfaceCard>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuSectionHeader from './menu/MenuSectionHeader.vue';
+import MenuSurfaceCard from './menu/MenuSurfaceCard.vue';
 import type { MenuCatalogError, MenuCatalogStatus } from '../types';
 
 const props = defineProps<{
@@ -55,35 +54,13 @@ const text = computed(() =>
   display: grid;
   gap: 1rem;
   align-items: center;
-  padding: 1rem;
-  border: 1px solid var(--expressa-border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
 
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title {
-    margin: 0.4rem 0 0;
-    color: var(--expressa-text);
-    font-size: 1rem;
-    font-weight: 800;
-  }
-
-  &__text,
-  &__error {
-    margin: 0.45rem 0 0;
-    color: var(--expressa-secondary);
-    line-height: 1.6;
+  &__content {
+    min-width: 0;
   }
 
   &__error {
+    margin: 0.75rem 0 0;
     color: #b71c1c;
     font-weight: 700;
   }
@@ -97,6 +74,7 @@ const text = computed(() =>
 @media (min-width: 760px) {
   .save-panel {
     grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem;
 
     &__actions {
       justify-content: flex-end;

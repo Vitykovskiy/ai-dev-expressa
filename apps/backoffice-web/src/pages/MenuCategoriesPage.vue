@@ -1,25 +1,17 @@
 <template>
   <div class="menu-page">
-    <section class="menu-page__header">
-      <div>
-        <p class="menu-page__label">menu.menu_categories</p>
-        <h3 class="menu-page__title" data-testid="page-title">Категории каталога</h3>
-        <p class="menu-page__text">
-          Категории редактируются в общем черновике и сохраняются одним структурным снимком.
-        </p>
-      </div>
-
-      <div class="menu-page__actions">
-        <v-btn
-          color="primary"
-          variant="flat"
-          data-testid="create-category"
-          @click="openCreateDialog"
-        >
+    <MenuSectionHeader
+      label="menu.menu_categories"
+      text="Категории редактируются в общем черновике и сохраняются одним структурным снимком."
+      title="Категории каталога"
+      title-test-id="page-title"
+    >
+      <template #actions>
+        <MenuActionButton data-testid="create-category" @click="openCreateDialog">
           Создать категорию
-        </v-btn>
-      </div>
-    </section>
+        </MenuActionButton>
+      </template>
+    </MenuSectionHeader>
 
     <MenuCategoryList
       :categories="categoryCards"
@@ -44,6 +36,8 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import MenuCategoryFormDialog from '../components/MenuCategoryFormDialog.vue';
 import MenuCategoryList from '../components/MenuCategoryList.vue';
+import MenuActionButton from '../components/menu/MenuActionButton.vue';
+import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
 import {
   createMenuAddonGroupDetailRoute,
   createMenuNewAddonGroupRoute,
@@ -133,41 +127,5 @@ function openAddonGroup(categoryId: string, optionGroupId: string) {
 .menu-page {
   display: grid;
   gap: 1rem;
-
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: end;
-    justify-content: space-between;
-  }
-
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title {
-    margin: 0.5rem 0 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.2rem, 1.4vw, 1.65rem);
-    font-weight: 800;
-  }
-
-  &__text {
-    margin: 0.75rem 0 0;
-    color: var(--expressa-secondary);
-    line-height: 1.7;
-  }
-
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
 }
 </style>

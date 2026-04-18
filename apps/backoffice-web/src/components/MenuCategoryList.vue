@@ -6,12 +6,10 @@
       cols="12"
       lg="6"
     >
-      <v-card class="menu-card" rounded="lg" data-testid="menu-category-card">
+      <MenuSurfaceCard class="menu-card" data-testid="menu-category-card" full-height>
         <div class="menu-card__topline">
-          <v-chip color="primary" variant="tonal">{{ category.productCount }} товаров</v-chip>
-          <v-chip color="secondary" variant="tonal">
-            {{ category.optionGroupCount }} групп допов
-          </v-chip>
+          <MenuBadge>{{ category.productCount }} товаров</MenuBadge>
+          <MenuBadge tone="neutral">{{ category.optionGroupCount }} групп допов</MenuBadge>
         </div>
 
         <h4 class="menu-card__title">{{ category.name }}</h4>
@@ -20,58 +18,58 @@
         </p>
 
         <div class="menu-card__groups">
-          <v-btn
+          <MenuActionButton
             v-for="optionGroup in category.optionGroups"
             :key="optionGroup.optionGroupId"
-            variant="text"
-            color="primary"
+            size="compact"
+            variant="ghost"
             @click="$emit('openAddonGroup', category.categoryId, optionGroup.optionGroupId)"
           >
             {{ optionGroup.name }}
-          </v-btn>
+          </MenuActionButton>
           <span v-if="category.optionGroupCount === 0" class="menu-card__muted">
             Группы дополнительных опций ещё не назначены.
           </span>
         </div>
 
         <div class="menu-card__actions">
-          <v-btn
-            color="primary"
-            variant="flat"
-            @click="$emit('openProducts', category.categoryId)"
-          >
+          <MenuActionButton @click="$emit('openProducts', category.categoryId)">
             Открыть товары
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="text"
+          </MenuActionButton>
+          <MenuActionButton
             data-testid="edit-category"
+            variant="ghost"
             @click="$emit('editCategory', category.categoryId)"
           >
             Изменить
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="text"
+          </MenuActionButton>
+          <MenuActionButton
             data-testid="create-category-addon-group"
+            variant="secondary"
             @click="$emit('createAddonGroup', category.categoryId)"
           >
             Создать группу допов
-          </v-btn>
+          </MenuActionButton>
         </div>
-      </v-card>
+      </MenuSurfaceCard>
     </v-col>
   </v-row>
 
-  <v-card v-else class="menu-empty" rounded="lg" data-testid="menu-category-empty">
-    <p class="menu-empty__label">Каталог пуст</p>
-    <h4 class="menu-empty__title">Категории ещё не созданы</h4>
-    <p class="menu-empty__text">Создайте первую категорию и сохраните структурный снимок.</p>
-  </v-card>
+  <MenuEmptyState
+    v-else
+    data-testid="menu-category-empty"
+    label="Каталог пуст"
+    text="Создайте первую категорию и сохраните структурный снимок."
+    title="Категории ещё не созданы"
+  />
 </template>
 
 <script setup lang="ts">
 import type { MenuCatalogOptionGroup } from '@expressa/shared-types';
+import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuBadge from './menu/MenuBadge.vue';
+import MenuEmptyState from './menu/MenuEmptyState.vue';
+import MenuSurfaceCard from './menu/MenuSurfaceCard.vue';
 
 interface MenuCategoryListItem {
   categoryId: string;
@@ -94,17 +92,9 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.menu-card,
-.menu-empty {
-  border: 1px solid var(--expressa-border);
-  background: rgba(255, 255, 255, 0.94);
-}
-
 .menu-card {
   display: grid;
   gap: 1rem;
-  height: 100%;
-  padding: 1.25rem;
 
   &__topline,
   &__actions,
@@ -130,32 +120,6 @@ defineEmits<{
 
   &__muted {
     color: var(--expressa-muted);
-  }
-}
-
-.menu-empty {
-  padding: 1.5rem;
-
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title {
-    margin: 0.5rem 0 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.2rem, 1.4vw, 1.65rem);
-    font-weight: 800;
-  }
-
-  &__text {
-    margin: 0.75rem 0 0;
-    color: var(--expressa-secondary);
-    line-height: 1.7;
   }
 }
 </style>

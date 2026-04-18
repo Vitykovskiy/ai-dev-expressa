@@ -1,13 +1,11 @@
 <template>
   <form class="product-editor" data-testid="menu-product-editor" @submit.prevent="submit">
     <div class="product-editor__body">
-      <p class="product-editor__label">{{ mode === 'create' ? 'Новый товар' : 'Карточка товара' }}</p>
-      <h4 class="product-editor__title">
-        {{ mode === 'create' ? 'Создать товар' : 'Изменить товар' }}
-      </h4>
-      <p class="product-editor__text">
-        {{ categoryName ? `Категория: ${categoryName}` : 'Выбранная категория не найдена.' }}
-      </p>
+      <MenuSectionHeader
+        :label="mode === 'create' ? 'Новый товар' : 'Карточка товара'"
+        :text="categoryName ? `Категория: ${categoryName}` : 'Выбранная категория не найдена.'"
+        :title="mode === 'create' ? 'Создать товар' : 'Изменить товар'"
+      />
 
       <v-text-field
         v-model="form.name"
@@ -50,10 +48,12 @@
     </div>
 
     <div class="product-editor__actions">
-      <v-btn variant="text" color="primary" @click="$emit('cancel')">К списку товаров</v-btn>
-      <v-btn color="primary" variant="flat" type="submit" data-testid="submit-product-form">
+      <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
+        К списку товаров
+      </MenuActionButton>
+      <MenuActionButton type="submit" data-testid="submit-product-form">
         {{ mode === 'create' ? 'Добавить в черновик' : 'Обновить черновик' }}
-      </v-btn>
+      </MenuActionButton>
     </div>
   </form>
 </template>
@@ -61,6 +61,8 @@
 <script setup lang="ts">
 import type { DrinkSize, MenuCatalogItem, MenuCatalogItemType } from '@expressa/shared-types';
 import { watch } from 'vue';
+import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuSectionHeader from './menu/MenuSectionHeader.vue';
 import {
   MENU_PRODUCT_EDITOR_DRINK_SIZES,
   createMenuProductDraft,
@@ -123,28 +125,6 @@ function readSizePriceErrors(size: DrinkSize): string[] {
   &__body {
     display: grid;
     gap: 1rem;
-  }
-
-  &__label {
-    margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title {
-    margin: 0;
-    color: var(--expressa-text);
-    font-size: 1.2rem;
-    font-weight: 800;
-  }
-
-  &__text {
-    margin: 0;
-    color: var(--expressa-secondary);
-    line-height: 1.7;
   }
 
   &__sizes {

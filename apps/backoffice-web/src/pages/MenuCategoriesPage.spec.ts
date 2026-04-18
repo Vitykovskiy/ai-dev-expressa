@@ -29,6 +29,17 @@ const MenuCategoryFormDialogStub = {
   template: '<div data-testid="category-dialog" />',
 };
 
+const MenuSectionHeaderStub = {
+  name: 'MenuSectionHeader',
+  template: '<div data-testid="menu-section-header"><slot name="actions" /></div>',
+};
+
+const MenuActionButtonStub = {
+  name: 'MenuActionButton',
+  emits: ['click'],
+  template: '<button v-bind="$attrs" @click="$emit(\'click\')"><slot /></button>',
+};
+
 function createCatalogSnapshot(): MenuCatalogSnapshot {
   return {
     categories: [
@@ -47,8 +58,10 @@ function mountPage() {
   return shallowMount(MenuCategoriesPage, {
     global: {
       stubs: {
+        MenuActionButton: MenuActionButtonStub,
         MenuCategoryFormDialog: MenuCategoryFormDialogStub,
         MenuCategoryList: MenuCategoryListStub,
+        MenuSectionHeader: MenuSectionHeaderStub,
       },
     },
   });

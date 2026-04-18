@@ -1,35 +1,31 @@
 <template>
   <div class="product-detail">
-    <section class="product-detail__header">
-      <div>
-        <p class="product-detail__label">menu.menu_product_detail</p>
-        <h3 class="product-detail__title" data-testid="page-title">
-          {{ pageTitle }}
-        </h3>
-        <p class="product-detail__text">
-          Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет
-          панель вкладки `menu`.
-        </p>
-      </div>
-
-      <div class="product-detail__actions">
-        <v-btn variant="text" color="primary" @click="goBackToProducts">К списку товаров</v-btn>
-      </div>
-    </section>
-
-    <v-alert
-      v-if="draftMessage"
-      class="product-detail__alert"
-      color="primary"
-      data-testid="product-draft-message"
-      variant="tonal"
+    <MenuSectionHeader
+      label="menu.menu_product_detail"
+      text="Форма меняет товар в общем черновике структурного снимка. Сохранение на сервер выполняет панель вкладки `menu`."
+      :title="pageTitle"
+      title-test-id="page-title"
     >
-      {{ draftMessage }}
-    </v-alert>
+      <template #actions>
+        <MenuActionButton variant="ghost" @click="goBackToProducts">
+          К списку товаров
+        </MenuActionButton>
+      </template>
+    </MenuSectionHeader>
+
+    <MenuSurfaceCard
+      v-if="draftMessage"
+      class="product-detail__draft"
+      data-testid="product-draft-message"
+      variant="subtle"
+    >
+      <MenuBadge size="compact">Черновик обновлён</MenuBadge>
+      <p class="product-detail__draft-text">{{ draftMessage }}</p>
+    </MenuSurfaceCard>
 
     <v-row>
       <v-col cols="12" lg="7">
-        <v-card class="detail-card" rounded="lg">
+        <MenuSurfaceCard class="detail-card" full-height>
           <MenuProductEditorForm
             :category-name="category?.name ?? null"
             :mode="isCreateMode ? 'create' : 'edit'"
@@ -37,17 +33,16 @@
             @cancel="goBackToProducts"
             @submit="submitProduct"
           />
-        </v-card>
+        </MenuSurfaceCard>
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card class="detail-card detail-card--summary" rounded="lg">
-          <p class="detail-card__section-label">Ценовая модель</p>
-          <h4 class="detail-card__summary-title">{{ priceModelTitle }}</h4>
-          <p class="detail-card__summary-text">
-            Для товара используется одна базовая цена. Для напитка форма подготавливает цены
-            размеров S, M и L без локального переопределения серверных правил.
-          </p>
+        <MenuSurfaceCard class="detail-card detail-card--summary" full-height>
+          <MenuSectionHeader
+            label="Ценовая модель"
+            text="Для товара используется одна базовая цена. Для напитка форма подготавливает цены размеров S, M и L без локального переопределения серверных правил."
+            :title="priceModelTitle"
+          />
 
           <div v-if="product?.itemType === 'drink'" class="detail-card__sizes">
             <div
@@ -64,27 +59,30 @@
             <span class="detail-card__single-price-label">Базовая цена</span>
             <strong>{{ product.basePrice ?? '—' }} ₽</strong>
           </div>
-        </v-card>
+        </MenuSurfaceCard>
       </v-col>
     </v-row>
 
-    <v-card class="detail-card" rounded="lg" v-if="optionGroups.length > 0">
-      <p class="detail-card__section-label">Наследуемые группы дополнительных опций</p>
+    <MenuSurfaceCard v-if="optionGroups.length > 0" class="detail-card">
+      <MenuSectionHeader
+        label="Наследуемые группы дополнительных опций"
+        title="Группы доступны товару через категорию"
+      />
       <div class="detail-card__group-list">
-        <button
+        <MenuListRow
           v-for="optionGroup in optionGroups"
           :key="optionGroup.optionGroupId"
-          type="button"
-          class="detail-card__group-button"
+          interactive
+          tag="button"
           @click="openAddonGroup(optionGroup.optionGroupId)"
         >
           <span>{{ optionGroup.name }}</span>
-          <small>
+          <template #meta>
             {{ optionGroup.selectionMode === 'single' ? 'Один выбор' : 'Множественный выбор' }}
-          </small>
-        </button>
+          </template>
+        </MenuListRow>
       </div>
-    </v-card>
+    </MenuSurfaceCard>
   </div>
 </template>
 
@@ -92,6 +90,11 @@
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MenuProductEditorForm from '../components/MenuProductEditorForm.vue';
+import MenuActionButton from '../components/menu/MenuActionButton.vue';
+import MenuBadge from '../components/menu/MenuBadge.vue';
+import MenuListRow from '../components/menu/MenuListRow.vue';
+import MenuSectionHeader from '../components/menu/MenuSectionHeader.vue';
+import MenuSurfaceCard from '../components/menu/MenuSurfaceCard.vue';
 import {
   NEW_MENU_PRODUCT_ID,
   createMenuAddonGroupDetailRoute,
@@ -188,55 +191,31 @@ function openAddonGroup(optionGroupId: string) {
   display: grid;
   gap: 1rem;
 
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: end;
-    justify-content: space-between;
+  &__draft {
+    display: grid;
+    gap: 0.75rem;
   }
 
-  &__label,
-  .detail-card__section-label {
+  &__draft-text {
     margin: 0;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__title,
-  .detail-card__summary-title {
-    margin: 0.5rem 0 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.2rem, 1.5vw, 1.7rem);
-    font-weight: 800;
-  }
-
-  &__text,
-  .detail-card__summary-text {
-    margin: 0.75rem 0 0;
     color: var(--expressa-secondary);
-    line-height: 1.7;
+    line-height: 1.6;
   }
 }
 
 .detail-card {
-  border: 1px solid var(--expressa-border);
-  background: rgba(255, 255, 255, 0.94);
-  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
 
   &__sizes,
   &__group-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 0.75rem;
   }
 
   &__sizes,
   &__single-price {
-    margin-top: 1rem;
+    margin-top: 0.25rem;
   }
 
   &__size-item,
@@ -244,7 +223,7 @@ function openAddonGroup(optionGroupId: string) {
     min-width: 8rem;
     padding: 0.85rem 1rem;
     border: 1px solid var(--expressa-border);
-    border-radius: 8px;
+    border-radius: var(--expressa-menu-radius-md);
     background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(255, 255, 255, 0.96));
   }
 
@@ -254,27 +233,6 @@ function openAddonGroup(optionGroupId: string) {
     margin-bottom: 0.35rem;
     color: var(--expressa-muted);
     font-size: 0.8rem;
-  }
-
-  &__group-list {
-    margin-top: 0.85rem;
-  }
-
-  &__group-button {
-    display: grid;
-    gap: 0.2rem;
-    min-width: 14rem;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--expressa-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
-    color: var(--expressa-text);
-    text-align: left;
-    cursor: pointer;
-  }
-
-  &__group-button small {
-    color: var(--expressa-muted);
   }
 }
 </style>

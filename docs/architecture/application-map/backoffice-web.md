@@ -21,6 +21,7 @@
 - `apps/backoffice-web/src/stores` — хранилища состояния доступа и каталога меню.
 - `apps/backoffice-web/src/composables` — композиционные функции для состояния layout и редакторов.
 - `apps/backoffice-web/src/components` — переиспользуемые UI-компоненты текущих вкладок.
+- `apps/backoffice-web/src/components/menu` — общие menu-примитивы: токены, карточки, кнопки действий, бейджи, пустые состояния, строки списка и диалоговые оболочки для подпотоков `FEATURE-002`.
 - `apps/backoffice-web/.env.example` — пример переменных окружения клиентской части.
 - Пакет `packages/ui` не планируется: клиентское веб-приложение и внутренний административный контур развиваются независимо в своих приложениях.
 
@@ -45,6 +46,7 @@
 - `src/stores/menu-catalog-store.ts` хранит единый черновик вкладки `menu`, dirty-флаг и операции над структурным снимком.
 - `src/router/menu-catalog-navigation.ts` содержит вложенные маршруты `menu.menu_categories`, `menu.menu_products`, `menu.menu_product_detail`, `menu.addon_group_detail`.
 - Страницы `src/pages/Menu*.vue` покрывают подпотоки категорий, товаров, карточки товара и карточки группы дополнительных опций.
+- `src/components/menu/*.vue` и `src/styles/menu-tokens.scss` формируют общий визуальный слой подпотока `menu`, на который опираются shell, списки, карточки и редакторы без дублирования page-specific CSS.
 - `src/components/MenuCategory*.vue`, `MenuProductEditorForm.vue`, `MenuAddonGroupEditorForm.vue` и `MenuCatalogSavePanel.vue` реализуют текущие компоненты редакторов категорий, товаров, групп дополнительных опций и сохранения.
 - `src/composables/menu-category-editor.ts`, `menu-product-editor.ts` и `menu-addon-group-editor.ts` содержат UX-валидации редакторов категорий, товаров, цен и групп дополнительных опций.
 - Клиентская часть может выполнять только UX-валидации обязательности полей и целостности формы; серверная часть остаётся источником истины по модели каталога.

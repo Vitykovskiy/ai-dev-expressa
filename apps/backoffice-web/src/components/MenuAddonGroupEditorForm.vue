@@ -1,16 +1,11 @@
 <template>
   <form class="addon-editor" data-testid="menu-addon-group-editor" @submit.prevent="submit">
     <div class="addon-editor__body">
-      <p class="addon-editor__label">
-        {{ mode === 'create' ? 'Новая группа дополнительных опций' : 'Группа дополнительных опций' }}
-      </p>
-      <h4 class="addon-editor__title">
-        {{ mode === 'create' ? 'Создать группу' : 'Изменить группу' }}
-      </h4>
-      <p class="addon-editor__text">
-        Группа сохраняется в общем черновике каталога, а сервер проверяет итоговые правила
-        `invalid-option-group-rule`.
-      </p>
+      <MenuSectionHeader
+        :label="mode === 'create' ? 'Новая группа дополнительных опций' : 'Группа дополнительных опций'"
+        text="Группа сохраняется в общем черновике каталога, а сервер проверяет итоговые правила `invalid-option-group-rule`."
+        :title="mode === 'create' ? 'Создать группу' : 'Изменить группу'"
+      />
 
       <v-text-field
         v-model="form.name"
@@ -37,22 +32,25 @@
         </div>
 
         <div class="addon-editor__category-list">
-          <label
+          <MenuListRow
             v-for="category in categories"
             :key="category.menuCategoryId"
             class="addon-editor__category"
+            interactive
+            :selected="form.categoryIds.includes(category.menuCategoryId)"
+            tag="label"
           >
-            <input
-              v-model="form.categoryIds"
-              class="addon-editor__category-input"
-              type="checkbox"
-              :value="category.menuCategoryId"
-            />
-            <span>
-              <strong>{{ category.name }}</strong>
-              <small>{{ category.productCount }} товаров</small>
-            </span>
-          </label>
+            <template #leading>
+              <input
+                v-model="form.categoryIds"
+                class="addon-editor__category-input"
+                type="checkbox"
+                :value="category.menuCategoryId"
+              />
+            </template>
+            <strong>{{ category.name }}</strong>
+            <template #meta>{{ category.productCount }} товаров</template>
+          </MenuListRow>
         </div>
 
         <p v-if="errors.categoryIds" class="addon-editor__error">
@@ -68,16 +66,24 @@
               `priceDelta` равный 0 означает бесплатную опцию.
             </p>
           </div>
-          <v-btn color="primary" variant="text" data-testid="add-addon-option" @click="addOption">
+          <MenuActionButton
+            data-testid="add-addon-option"
+            size="compact"
+            type="button"
+            variant="secondary"
+            @click="addOption"
+          >
             Добавить вариант
-          </v-btn>
+          </MenuActionButton>
         </div>
 
         <div class="addon-editor__options">
-          <div
+          <MenuSurfaceCard
             v-for="(option, index) in form.options"
             :key="option.formId"
             class="addon-editor__option-row"
+            padding="md"
+            variant="subtle"
           >
             <v-text-field
               v-model="option.name"
@@ -93,25 +99,27 @@
               suffix="₽"
               :error-messages="readOptionPriceDeltaErrors(index)"
             />
-            <v-btn
+            <MenuActionButton
               class="addon-editor__remove"
-              color="error"
-              variant="text"
               :disabled="form.options.length <= 1"
+              type="button"
+              variant="danger"
               @click="removeOption(option.formId)"
             >
               Удалить
-            </v-btn>
-          </div>
+            </MenuActionButton>
+          </MenuSurfaceCard>
         </div>
       </section>
     </div>
 
     <div class="addon-editor__actions">
-      <v-btn variant="text" color="primary" @click="$emit('cancel')">К товарам категории</v-btn>
-      <v-btn color="primary" variant="flat" type="submit" data-testid="submit-addon-group-form">
+      <MenuActionButton type="button" variant="ghost" @click="$emit('cancel')">
+        К товарам категории
+      </MenuActionButton>
+      <MenuActionButton type="submit" data-testid="submit-addon-group-form">
         {{ mode === 'create' ? 'Добавить в черновик' : 'Обновить черновик' }}
-      </v-btn>
+      </MenuActionButton>
     </div>
   </form>
 </template>
@@ -123,6 +131,10 @@ import type {
   OptionGroupSelectionMode,
 } from '@expressa/shared-types';
 import { watch } from 'vue';
+import MenuActionButton from './menu/MenuActionButton.vue';
+import MenuListRow from './menu/MenuListRow.vue';
+import MenuSectionHeader from './menu/MenuSectionHeader.vue';
+import MenuSurfaceCard from './menu/MenuSurfaceCard.vue';
 import {
   createMenuAddonGroupDraft,
   useMenuAddonGroupEditor,
@@ -208,24 +220,15 @@ function readOptionPriceDeltaErrors(index: number): string[] {
     gap: 1rem;
   }
 
-  &__label,
   &__section-label {
     margin: 0;
     color: var(--expressa-muted);
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  &__title {
-    margin: 0;
-    color: var(--expressa-text);
-    font-size: 1.2rem;
-    font-weight: 800;
-  }
-
-  &__text,
   &__section-text {
     margin: 0;
     color: var(--expressa-secondary);
@@ -249,37 +252,16 @@ function readOptionPriceDeltaErrors(index: number): string[] {
     gap: 0.6rem;
   }
 
-  &__category {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--expressa-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
-    cursor: pointer;
-  }
-
   &__category-input {
     width: 1rem;
     height: 1rem;
     accent-color: #e65100;
   }
 
-  &__category small {
-    display: block;
-    margin-top: 0.2rem;
-    color: var(--expressa-muted);
-  }
-
   &__option-row {
     display: grid;
     gap: 0.75rem;
     align-items: start;
-    padding: 0.85rem;
-    border: 1px solid var(--expressa-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
   }
 
   &__remove {

@@ -1,0 +1,23 @@
+:root {
+  --expressa-menu-surface: rgba(255, 255, 255, 0.96);
+  --expressa-menu-surface-subtle: #f7f7f9;
+  --expressa-menu-surface-hero:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.99), rgba(232, 232, 255, 0.92));
+  --expressa-menu-surface-warning:
+    linear-gradient(180deg, rgba(255, 243, 224, 0.96), rgba(255, 255, 255, 0.98));
+  --expressa-menu-surface-danger:
+    linear-gradient(180deg, rgba(255, 235, 238, 0.96), rgba(255, 255, 255, 0.98));
+  --expressa-menu-border-accent: #ccd2ff;
+  --expressa-menu-border-warning: #ffd6a8;
+  --expressa-menu-border-danger: #f4b6bf;
+  --expressa-menu-shadow-card: 0 18px 40px rgba(17, 17, 17, 0.06);
+  --expressa-menu-shadow-soft: 0 10px 24px rgba(17, 17, 17, 0.04);
+  --expressa-menu-shadow-focus: 0 0 0 3px rgba(26, 26, 255, 0.12);
+  --expressa-menu-radius-md: 10px;
+  --expressa-menu-radius-lg: 16px;
+  --expressa-menu-radius-pill: 999px;
+  --expressa-menu-transition-fast: 120ms ease;
+  --expressa-menu-transition-default: 200ms ease;
+  --expressa-menu-title-size: clamp(1.2rem, 1.4vw, 1.65rem);
+  --expressa-menu-hero-title-size: clamp(1.35rem, 1.8vw, 1.95rem);
+}
