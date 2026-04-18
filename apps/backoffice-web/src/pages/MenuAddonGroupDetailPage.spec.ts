@@ -2,6 +2,7 @@ import type { MenuCatalogSnapshot } from '@expressa/shared-types';
 import { shallowMount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import MenuAddonGroupDetailPage from './MenuAddonGroupDetailPage.vue';
+import { createMenuProductsRoute } from '../router/menu-catalog-navigation';
 import { menuCatalogStore, resetMenuCatalogStoreForTesting } from '../stores/menu-catalog-store';
 
 const routeMock = vi.hoisted(() => ({
@@ -24,9 +25,55 @@ vi.mock('vue-router', () => ({
 
 const MenuAddonGroupEditorFormStub = {
   name: 'MenuAddonGroupEditorForm',
-  props: ['categories', 'initialCategoryId', 'mode', 'optionGroup'],
+  props: [
+    'categories',
+    'formId',
+    'initialCategoryId',
+    'mode',
+    'optionGroup',
+    'submitError',
+    'submitPending',
+  ],
   emits: ['cancel', 'submit'],
   template: '<div data-testid="addon-group-editor" />',
+};
+
+const MenuActionButtonStub = {
+  name: 'MenuActionButton',
+  emits: ['click'],
+  template: '<button v-bind="$attrs" @click="$emit(\'click\')"><slot /></button>',
+};
+
+const MenuBadgeStub = {
+  name: 'MenuBadge',
+  template: '<span><slot /></span>',
+};
+
+const MenuDialogShellStub = {
+  name: 'MenuDialogShell',
+  props: ['label', 'maxWidth', 'modelValue', 'text', 'title'],
+  emits: ['update:modelValue'],
+  template: `
+    <div v-if="modelValue" data-testid="delete-dialog">
+      <slot />
+      <slot name="actions" />
+    </div>
+  `,
+};
+
+const MenuListRowStub = {
+  name: 'MenuListRow',
+  template: '<div><slot /><slot name="meta" /></div>',
+};
+
+const MenuSectionHeaderStub = {
+  name: 'MenuSectionHeader',
+  template: '<div data-testid="menu-section-header"><slot name="actions" /></div>',
+};
+
+const MenuSurfaceCardStub = {
+  name: 'MenuSurfaceCard',
+  template: '<div v-bind="$attrs"><slot /></div>',
 };
 
 function createCatalogSnapshot(): MenuCatalogSnapshot {
@@ -87,7 +134,13 @@ function mountPage() {
     global: {
       renderStubDefaultSlot: true,
       stubs: {
+        MenuActionButton: MenuActionButtonStub,
         MenuAddonGroupEditorForm: MenuAddonGroupEditorFormStub,
+        MenuBadge: MenuBadgeStub,
+        MenuDialogShell: MenuDialogShellStub,
+        MenuListRow: MenuListRowStub,
+        MenuSectionHeader: MenuSectionHeaderStub,
+        MenuSurfaceCard: MenuSurfaceCardStub,
       },
     },
   });
@@ -111,7 +164,10 @@ describe('MenuAddonGroupDetailPage', () => {
     const editor = wrapper.findComponent({ name: 'MenuAddonGroupEditorForm' });
 
     expect(editor.props('mode')).toBe('create');
+    expect(editor.props('formId')).toBe('menu-addon-group-editor-form');
     expect(editor.props('initialCategoryId')).toBe('cat-coffee');
+    expect(editor.props('submitPending')).toBe(false);
+    expect(editor.props('submitError')).toBeNull();
     expect(editor.props('categories')).toEqual([
       expect.objectContaining({
         menuCategoryId: 'cat-coffee',
@@ -224,5 +280,49 @@ describe('MenuAddonGroupDetailPage', () => {
         optionGroupId: 'group-milk',
       },
     });
+  });
+
+  it('deletes an existing addon group from the shared catalog draft and returns to products', async () => {
+    routeMock.params.optionGroupId = 'group-milk';
+    menuCatalogStore.replaceCatalog(createCatalogSnapshot());
+    menuCatalogStore.syncNavigation('menu.addon_group_detail', {
+      categoryId: 'cat-coffee',
+      optionGroupId: 'group-milk',
+    });
+
+    const wrapper = mountPage();
+
+    await wrapper.find('[data-testid="delete-addon-group"]').trigger('click');
+    await nextTick();
+    await wrapper.find('[data-testid="confirm-delete-addon-group"]').trigger('click');
+    await nextTick();
+
+    expect(menuCatalogStore.state.catalog?.optionGroups).toEqual([]);
+    expect(menuCatalogStore.state.catalog?.categories).toEqual([
+      expect.objectContaining({
+        menuCategoryId: 'cat-coffee',
+        optionGroupRefs: [],
+      }),
+      expect.objectContaining({
+        menuCategoryId: 'cat-desserts',
+        optionGroupRefs: [],
+      }),
+    ]);
+    expect(menuCatalogStore.state.isDirty).toBe(true);
+    expect(routerMocks.push).toHaveBeenCalledWith(createMenuProductsRoute('cat-coffee'));
+  });
+
+  it('shows a context error when the route points to a missing addon group', () => {
+    routeMock.params.optionGroupId = 'group-missing';
+    menuCatalogStore.replaceCatalog(createCatalogSnapshot());
+    menuCatalogStore.syncNavigation('menu.addon_group_detail', {
+      categoryId: 'cat-coffee',
+      optionGroupId: 'group-missing',
+    });
+
+    const wrapper = mountPage();
+
+    expect(wrapper.find('[data-testid="addon-group-detail-context-error"]').exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'MenuAddonGroupEditorForm' }).exists()).toBe(false);
   });
 });

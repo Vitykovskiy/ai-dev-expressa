@@ -31,6 +31,11 @@ export interface MenuAddonGroupEditorErrors {
   options: MenuAddonGroupEditorOptionErrors[];
 }
 
+export interface MenuAddonGroupEditorCompletionState {
+  badge: string;
+  tone: 'success' | 'warning';
+}
+
 let nextOptionFormId = 0;
 
 function createOptionFormId(): string {
@@ -136,6 +141,51 @@ export function hasMenuAddonGroupEditorErrors(
     errors.name !== null ||
     errors.options.some((option) => option.name !== null || option.priceDelta !== null)
   );
+}
+
+export function collectMenuAddonGroupEditorValidationSummary(
+  errors: MenuAddonGroupEditorErrors,
+): string[] {
+  const issues: string[] = [];
+
+  if (errors.categoryIds) {
+    issues.push(errors.categoryIds);
+  }
+
+  if (errors.name) {
+    issues.push(errors.name);
+  }
+
+  for (const option of errors.options) {
+    if (option.name) {
+      issues.push(option.name);
+    }
+
+    if (option.priceDelta) {
+      issues.push(option.priceDelta);
+    }
+  }
+
+  return issues;
+}
+
+export function resolveMenuAddonGroupEditorCompletionState(
+  form: MenuAddonGroupEditorForm,
+): MenuAddonGroupEditorCompletionState {
+  const previewErrors = validateMenuAddonGroupEditorForm(form);
+  const missingFields = collectMenuAddonGroupEditorValidationSummary(previewErrors);
+
+  if (missingFields.length === 0) {
+    return {
+      badge: 'Можно сохранять',
+      tone: 'success',
+    };
+  }
+
+  return {
+    badge: `Нужно заполнить: ${missingFields.length}`,
+    tone: 'warning',
+  };
 }
 
 export function createMenuAddonGroupDraft(

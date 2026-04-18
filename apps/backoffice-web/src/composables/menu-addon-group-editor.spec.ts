@@ -3,9 +3,11 @@ import type {
   MenuCatalogOptionGroup,
 } from '@expressa/shared-types';
 import {
+  collectMenuAddonGroupEditorValidationSummary,
   createMenuAddonGroupDraft,
   createMenuAddonGroupEditorForm,
   hasMenuAddonGroupEditorErrors,
+  resolveMenuAddonGroupEditorCompletionState,
   useMenuAddonGroupEditor,
   validateMenuAddonGroupEditorForm,
 } from './menu-addon-group-editor';
@@ -111,6 +113,34 @@ describe('menu addon group editor', () => {
     expect(errors.options[1].name).toBeNull();
     expect(errors.options[1].priceDelta).not.toBeNull();
     expect(hasMenuAddonGroupEditorErrors(errors)).toBe(true);
+  });
+
+  it('builds validation summary and completion state for missing fields', () => {
+    const form = {
+      categoryIds: [],
+      name: '',
+      selectionMode: 'single' as const,
+      options: [
+        {
+          formId: 'option-form-1',
+          optionId: null,
+          name: '',
+          priceDelta: '',
+        },
+      ],
+    };
+    const errors = validateMenuAddonGroupEditorForm(form);
+
+    expect(collectMenuAddonGroupEditorValidationSummary(errors)).toEqual([
+      'Выберите хотя бы одну категорию.',
+      'Укажите название группы.',
+      'Укажите название варианта 1.',
+      'Доплата варианта 1 должна быть числом от 0.',
+    ]);
+    expect(resolveMenuAddonGroupEditorCompletionState(form)).toEqual({
+      badge: 'Нужно заполнить: 4',
+      tone: 'warning',
+    });
   });
 
   it('builds a trimmed draft with parsed price deltas and preserved option ids', () => {
