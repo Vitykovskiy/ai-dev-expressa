@@ -153,7 +153,7 @@ export class BackofficeMenuCatalogApi {
   ) {}
 
   getCatalog(accessToken: string): Promise<BackofficeMenuCatalogResponse> {
-    return this.request<BackofficeMenuCatalogResponse>('/api/backoffice/menu/catalog', {
+    return this.request<BackofficeMenuCatalogResponse>('/backoffice/menu/catalog', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -164,7 +164,7 @@ export class BackofficeMenuCatalogApi {
     accessToken: string,
     request: BackofficeUpdateMenuCatalogRequest,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>('/api/backoffice/menu/catalog', {
+    return this.request<MenuCatalogSnapshot>('/backoffice/menu/catalog', {
       method: 'PUT',
       body: JSON.stringify(request),
       headers: {

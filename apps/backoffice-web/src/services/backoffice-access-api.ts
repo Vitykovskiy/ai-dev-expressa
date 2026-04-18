@@ -89,14 +89,14 @@ export class BackofficeAccessApi {
   bootstrapAccess(
     request: BackofficeAccessBootstrapRequest,
   ): Promise<BackofficeAccessBootstrapResponse> {
-    return this.request<BackofficeAccessBootstrapResponse>('/api/backoffice/access/bootstrap', {
+    return this.request<BackofficeAccessBootstrapResponse>('/backoffice/access/bootstrap', {
       method: 'POST',
       body: JSON.stringify(request),
     });
   }
 
   getCurrentAccess(accessToken: string): Promise<BackofficeAccessContextResponse> {
-    return this.request<BackofficeAccessContextResponse>('/api/backoffice/access/me', {
+    return this.request<BackofficeAccessContextResponse>('/backoffice/access/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -32,7 +32,7 @@ describe('BackofficeAccessApi', () => {
     globalThis.fetch = fetchMock;
 
     try {
-      const api = new BackofficeAccessApi('http://localhost:3000');
+      const api = new BackofficeAccessApi('http://localhost:3000/api');
 
       const result = await api.bootstrapAccess({
         mode: 'telegram',
@@ -73,7 +73,7 @@ describe('BackofficeAccessApi', () => {
         },
       }),
     );
-    const api = new BackofficeAccessApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeAccessApi('http://localhost:3000/api', fetchMock);
 
     const result = await api.bootstrapAccess({
       mode: 'telegram',
@@ -115,7 +115,7 @@ describe('BackofficeAccessApi', () => {
         },
       }),
     );
-    const api = new BackofficeAccessApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeAccessApi('http://localhost:3000/api', fetchMock);
 
     const result = await api.getCurrentAccess('token-1');
 
@@ -146,7 +146,7 @@ describe('BackofficeAccessApi', () => {
         },
       ),
     );
-    const api = new BackofficeAccessApi('http://localhost:3000', fetchMock);
+    const api = new BackofficeAccessApi('http://localhost:3000/api', fetchMock);
 
     await expect(api.bootstrapAccess({ mode: 'telegram' })).rejects.toEqual({
       statusCode: 403,
@@ -165,5 +165,42 @@ describe('BackofficeAccessApi', () => {
       reason: 'backoffice-role-required',
       message: 'Backoffice role is required',
     });
+  });
+
+  it('supports a relative /api base URL without duplicating the prefix', async () => {
+    const response: BackofficeAccessBootstrapResponse = {
+      accessToken: 'token-relative',
+      channel: 'test-mode-without-telegram',
+      isTestMode: true,
+      availableTabs: ['orders', 'menu'],
+      user: {
+        userId: 'user-2',
+        telegramId: '500002',
+        roles: ['administrator'],
+        blocked: false,
+        isPrimaryAdministrator: false,
+      },
+    };
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify(response), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+    const api = new BackofficeAccessApi('/api', fetchMock);
+
+    await api.bootstrapAccess({
+      mode: 'test',
+      testTelegramId: '500002',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/backoffice/access/bootstrap',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    );
   });
 });
