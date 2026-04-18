@@ -19,6 +19,7 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 
 - Change only VPS environment setup, GitHub Actions, runtime packaging, secrets handling, deployment, дымовая проверка, or restore paths required by the task.
 - Keep `ci.yml` and `deploy.yml` limited to the documented non-e2e checks.
+- If workflow or job names change, update the required GitHub status checks for merge admission and document the exact check-run names in `docs/architecture/deployment-map.md`.
 - Do not rewrite frontend or backend business logic inside DevOps work.
 - Do not create, adapt, own, or run e2e-test scenarios inside DevOps work; `QA` owns e2e on the already deployed `test` environment on VPS.
 - Any new env var, deploy target, pipeline stage, or дымовая проверка must be documented.
