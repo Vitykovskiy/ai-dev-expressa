@@ -85,16 +85,13 @@ export const router = createRouter({
       path: '/menu',
       name: MENU_ROOT_ROUTE_NAME,
       component: MenuCatalogShellPage,
+      redirect: {
+        name: MENU_CATEGORIES_ROUTE_NAME,
+      },
       meta: {
         title: 'Меню',
       },
       children: [
-        {
-          path: '',
-          redirect: {
-            name: MENU_CATEGORIES_ROUTE_NAME,
-          },
-        },
         {
           path: 'categories',
           name: MENU_CATEGORIES_ROUTE_NAME,
