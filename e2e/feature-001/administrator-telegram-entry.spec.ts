@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { injectTelegramWebApp } from '../support/backoffice-telegram-web-app';
 import {
   createSignedTelegramInitData,
   FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
@@ -9,29 +10,6 @@ const administratorTelegramInitData = createSignedTelegramInitData(
   FEATURE_001_E2E_ADMIN_TELEGRAM_ID,
   FEATURE_001_E2E_BACKOFFICE_BOT_TOKEN,
 );
-
-async function injectTelegramWebApp(page: Page, initData: string): Promise<void> {
-  await page.addInitScript(
-    (payload) => {
-      (window as Window & {
-        Telegram?: {
-          WebApp?: {
-            expand?: () => void;
-            initData?: string;
-            ready?: () => void;
-          };
-        };
-      }).Telegram = {
-        WebApp: {
-          initData: payload.initData,
-          ready: () => undefined,
-          expand: () => undefined,
-        },
-      };
-    },
-    { initData },
-  );
-}
 
 test.describe('FEATURE-001 administrator Telegram entry', () => {
   test('allows administrator to enter via Telegram and open administrative tabs', async ({
