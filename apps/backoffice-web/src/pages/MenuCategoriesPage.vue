@@ -2,19 +2,20 @@
   <div class="menu-page">
     <MenuSectionHeader
       label="menu.menu_categories"
-      text="Категории редактируются в общем черновике и сохраняются одним структурным снимком."
-      title="Категории каталога"
+      text="Разверните категорию, чтобы просмотреть товары, связанные группы дополнительных опций и перейти в выбранный подпоток без смены общего черновика."
+      title="Дерево категорий меню"
       title-test-id="page-title"
     >
       <template #actions>
         <MenuActionButton data-testid="create-category" @click="openCreateDialog">
-          Создать категорию
+          Новая категория
         </MenuActionButton>
       </template>
     </MenuSectionHeader>
 
     <MenuCategoryList
       :categories="categoryCards"
+      @create-category="openCreateDialog"
       @create-addon-group="createAddonGroup"
       @edit-category="openEditDialog"
       @open-addon-group="openAddonGroup"
@@ -25,6 +26,7 @@
       v-model="isDialogOpen"
       :initial-name="dialogInitialName"
       :mode="dialogMode"
+      :product-count="dialogProductCount"
       @submit="submitCategory"
     />
   </div>
@@ -48,13 +50,21 @@ import {
   menuCatalogStore,
   resolveMenuCategoryOptionGroups,
   resolveMenuCategoryProducts,
+  resolveMenuProductPriceSummary,
 } from '../stores/menu-catalog-store';
+
+interface MenuCategoryProductListItem {
+  name: string;
+  priceSummary: string;
+  productId: string;
+}
 
 interface MenuCategoryListItem {
   categoryId: string;
   name: string;
   optionGroupCount: number;
   optionGroups: Pick<MenuCatalogOptionGroup, 'name' | 'optionGroupId'>[];
+  products: MenuCategoryProductListItem[];
   productCount: number;
 }
 
@@ -71,9 +81,17 @@ const dialogInitialName = computed(() => {
 
   return findMenuCatalogCategory(menuState.catalog, editingCategoryId.value)?.name ?? '';
 });
+const dialogProductCount = computed(() => {
+  if (!editingCategoryId.value) {
+    return 0;
+  }
+
+  return resolveMenuCategoryProducts(menuState.catalog, editingCategoryId.value).length;
+});
 const categoryCards = computed<MenuCategoryListItem[]>(() =>
   (menuState.catalog?.categories ?? []).map((category) => {
     const optionGroups = resolveMenuCategoryOptionGroups(menuState.catalog, category.menuCategoryId);
+    const products = resolveMenuCategoryProducts(menuState.catalog, category.menuCategoryId);
 
     return {
       categoryId: category.menuCategoryId,
@@ -83,7 +101,12 @@ const categoryCards = computed<MenuCategoryListItem[]>(() =>
         optionGroupId: optionGroup.optionGroupId,
         name: optionGroup.name,
       })),
-      productCount: resolveMenuCategoryProducts(menuState.catalog, category.menuCategoryId).length,
+      products: products.map((product) => ({
+        productId: product.menuItemId,
+        name: product.name,
+        priceSummary: resolveMenuProductPriceSummary(product),
+      })),
+      productCount: products.length,
     };
   }),
 );

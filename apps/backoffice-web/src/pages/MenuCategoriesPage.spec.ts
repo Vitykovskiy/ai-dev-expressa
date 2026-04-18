@@ -17,14 +17,14 @@ vi.mock('vue-router', () => ({
 const MenuCategoryListStub = {
   name: 'MenuCategoryList',
   props: ['categories'],
-  emits: ['editCategory', 'openAddonGroup', 'openProducts'],
+  emits: ['createCategory', 'editCategory', 'openAddonGroup', 'openProducts'],
   template:
     '<div data-testid="category-list"><button data-testid="edit-category" @click="$emit(\'editCategory\', categories[0]?.categoryId)">Изменить</button></div>',
 };
 
 const MenuCategoryFormDialogStub = {
   name: 'MenuCategoryFormDialog',
-  props: ['initialName', 'mode', 'modelValue'],
+  props: ['initialName', 'mode', 'modelValue', 'productCount'],
   emits: ['submit', 'update:modelValue'],
   template: '<div data-testid="category-dialog" />',
 };
@@ -105,6 +105,7 @@ describe('MenuCategoriesPage', () => {
 
     expect(dialog.props('mode')).toBe('edit');
     expect(dialog.props('initialName')).toBe('Кофе');
+    expect(dialog.props('productCount')).toBe(0);
 
     dialog.vm.$emit('submit', 'Кофе и чай');
     await nextTick();
