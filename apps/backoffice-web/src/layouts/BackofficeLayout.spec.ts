@@ -41,7 +41,8 @@ describe('BackofficeLayout', () => {
     await nextTick();
 
     expect(wrapper.text()).toContain('Пользователи');
-    expect(wrapper.text()).toContain('Контекст 900001 синхронизирован');
+    expect(wrapper.text()).toContain('FEATURE-001 / Telegram guard session');
+    expect(wrapper.text()).toContain('Администратор');
     expect(wrapper.text()).toContain('Навигационный каркас строится по серверному');
   });
 

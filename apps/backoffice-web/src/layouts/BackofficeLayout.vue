@@ -1,138 +1,135 @@
 <template>
-  <v-app class="backoffice-app">
-    <v-navigation-drawer
+  <v-app class="backoffice-layout">
+    <SideNav
       v-if="isDesktop"
-      :model-value="true"
-      :rail="false"
-      :width="280"
-      class="backoffice-app__drawer"
-      data-testid="backoffice-navigation"
-    >
-      <div class="backoffice-app__brand">
-        <p class="backoffice-app__eyebrow">Внутренний административный контур</p>
-        <h1 class="backoffice-app__brand-title">{{ environment.appTitle }}</h1>
-        <p class="backoffice-app__brand-subtitle">{{ layoutState.brandSummary }}</p>
-      </div>
+      :api-base-url="environment.apiBaseUrl"
+      :brand-summary="layoutState.brandSummary"
+      :brand-title="environment.appTitle"
+      :current-tab="layoutState.currentTab"
+      :items="layoutState.navigationItems"
+      :role-label="layoutState.roleLabel"
+      :session-label="layoutState.sessionLabel"
+      :session-summary="layoutState.sessionSummary"
+      @navigate="goToTab"
+    />
 
-      <v-list nav class="backoffice-app__nav-list">
-        <v-list-item
-          v-for="item in layoutState.navigationItems"
-          :key="item.tab"
-          :active="item.tab === layoutState.currentTab"
-          :data-testid="`nav-item-${item.tab}`"
-          :title="item.label"
-          :subtitle="item.summary"
-          rounded="xl"
-          @click="goToTab(item.path)"
-        />
-      </v-list>
-
-      <template #append>
-        <div class="backoffice-app__drawer-footer">
-          <span class="backoffice-app__footer-label">Сессия</span>
-          <strong class="backoffice-app__footer-status" data-testid="session-label">
-            {{ layoutState.sessionLabel }}
-          </strong>
-          <span class="backoffice-app__footer-value" data-testid="session-summary">
-            {{ layoutState.sessionSummary }}
-          </span>
-          <code class="backoffice-app__footer-api">{{ environment.apiBaseUrl }}</code>
-        </div>
-      </template>
-    </v-navigation-drawer>
-
-    <v-app-bar v-else flat class="backoffice-app__topbar">
-      <v-app-bar-title>{{ layoutState.currentItem.label }}</v-app-bar-title>
-    </v-app-bar>
-
-    <v-main>
-      <v-container class="backoffice-app__container" fluid>
-        <div class="backoffice-app__hero" data-testid="backoffice-hero">
-          <div>
-            <p class="backoffice-app__eyebrow">{{ layoutState.heroEyebrow }}</p>
-            <h2 class="backoffice-app__hero-title" data-testid="hero-title">
-              {{ layoutState.heroTitle }}
-            </h2>
-            <p class="backoffice-app__hero-text">{{ layoutState.heroText }}</p>
-          </div>
-
-          <v-chip color="primary" variant="flat" size="large" data-testid="hero-chip">
-            {{ layoutState.heroChip }}
-          </v-chip>
-        </div>
-
-        <div
-          v-if="layoutState.blockingState"
-          data-testid="blocking-state"
-          class="backoffice-app__state-card"
-          :class="{
-            'backoffice-app__state-card--error': layoutState.blockingState.kind === 'error',
-            'backoffice-app__state-card--denied': layoutState.blockingState.kind === 'access-denied',
-          }"
-        >
-          <v-progress-circular
-            v-if="layoutState.blockingState.kind === 'loading'"
-            indeterminate
-            color="primary"
-          />
-          <v-chip
-            v-else-if="layoutState.blockingState.kind === 'access-denied'"
-            color="error"
-            variant="flat"
-            size="small"
-          >
-            403
-          </v-chip>
-          <div>
-            <h3 class="backoffice-app__state-title" data-testid="blocking-state-title">
-              {{ layoutState.blockingState.title }}
-            </h3>
-            <p class="backoffice-app__state-text">{{ layoutState.blockingState.text }}</p>
-            <p
-              v-if="layoutState.blockingState.reason"
-              class="backoffice-app__state-meta"
-              data-testid="blocking-state-reason"
-            >
-              Причина: <code>{{ layoutState.blockingState.reason }}</code>
-            </p>
-          </div>
-
-          <v-btn
-            v-if="layoutState.blockingState.kind !== 'loading'"
-            color="primary"
-            variant="flat"
-            @click="retryBootstrap"
-          >
-            Повторить
-          </v-btn>
-        </div>
-
-        <router-view v-else />
-      </v-container>
-    </v-main>
-
-    <v-bottom-navigation
-      v-if="!isDesktop"
-      :model-value="layoutState.currentPath"
-      class="backoffice-app__bottom-nav"
-      grow
-    >
-      <v-btn
-        v-for="item in layoutState.navigationItems"
-        :key="item.tab"
-        :value="item.path"
-        @click="goToTab(item.path)"
+    <div class="backoffice-layout__shell">
+      <TopBar
+        v-if="!isDesktop"
+        :title="layoutState.heroTitle"
+        class="backoffice-layout__topbar"
       >
-        <span>{{ item.label }}</span>
-      </v-btn>
-    </v-bottom-navigation>
+        <template #left>
+          <v-chip
+            size="x-small"
+            variant="tonal"
+            color="primary"
+            class="backoffice-layout__topbar-chip"
+          >
+            {{ layoutState.sessionLabel }}
+          </v-chip>
+        </template>
+      </TopBar>
+
+      <v-main class="backoffice-layout__main">
+        <v-container class="backoffice-layout__container" fluid>
+          <section class="backoffice-layout__hero" data-testid="backoffice-hero">
+            <div class="backoffice-layout__hero-copy">
+              <p class="backoffice-layout__eyebrow">{{ layoutState.heroEyebrow }}</p>
+              <h1 class="backoffice-layout__hero-title" data-testid="hero-title">
+                {{ layoutState.heroTitle }}
+              </h1>
+              <p class="backoffice-layout__hero-text">{{ layoutState.heroText }}</p>
+            </div>
+
+            <div class="backoffice-layout__hero-meta">
+              <v-chip color="primary" variant="flat" size="small" data-testid="hero-chip">
+                {{ layoutState.heroChip }}
+              </v-chip>
+              <div class="backoffice-layout__hero-session">
+                <span class="backoffice-layout__hero-session-label">{{ layoutState.sessionLabel }}</span>
+                <strong class="backoffice-layout__hero-session-value" data-testid="session-label">
+                  {{ layoutState.roleLabel }}
+                </strong>
+                <span class="backoffice-layout__hero-session-summary" data-testid="session-summary">
+                  {{ layoutState.sessionSummary }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section
+            v-if="layoutState.blockingState"
+            data-testid="blocking-state"
+            class="backoffice-layout__state-card"
+            :class="{
+              'backoffice-layout__state-card--error': layoutState.blockingState.kind === 'error',
+              'backoffice-layout__state-card--denied':
+                layoutState.blockingState.kind === 'access-denied',
+            }"
+          >
+            <div class="backoffice-layout__state-icon">
+              <v-progress-circular
+                v-if="layoutState.blockingState.kind === 'loading'"
+                indeterminate
+                color="primary"
+              />
+              <v-chip
+                v-else-if="layoutState.blockingState.kind === 'access-denied'"
+                color="error"
+                variant="flat"
+                size="small"
+              >
+                403
+              </v-chip>
+              <v-chip v-else color="warning" variant="flat" size="small">Ошибка</v-chip>
+            </div>
+
+            <div class="backoffice-layout__state-copy">
+              <h2 class="backoffice-layout__state-title" data-testid="blocking-state-title">
+                {{ layoutState.blockingState.title }}
+              </h2>
+              <p class="backoffice-layout__state-text">{{ layoutState.blockingState.text }}</p>
+              <p
+                v-if="layoutState.blockingState.reason"
+                class="backoffice-layout__state-meta"
+                data-testid="blocking-state-reason"
+              >
+                Причина: <code>{{ layoutState.blockingState.reason }}</code>
+              </p>
+            </div>
+
+            <div class="backoffice-layout__state-actions">
+              <v-btn
+                v-if="layoutState.blockingState.kind !== 'loading'"
+                color="primary"
+                variant="flat"
+                @click="retryBootstrap"
+              >
+                Повторить
+              </v-btn>
+            </div>
+          </section>
+
+          <router-view v-else />
+        </v-container>
+      </v-main>
+
+      <TabBar
+        v-if="!isDesktop"
+        :current-tab="layoutState.currentTab"
+        :items="layoutState.navigationItems"
+        @navigate="goToTab"
+      />
+    </div>
   </v-app>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
+import { SideNav, TabBar, TopBar } from '../components/layout';
 import { useBackofficeLayoutState } from '../composables/backoffice-layout-state';
 import { appEnvironment } from '../services/app-environment';
 import { backofficeAccessStore } from '../stores/backoffice-access-store';
@@ -160,131 +157,118 @@ function retryBootstrap() {
 </script>
 
 <style scoped lang="scss">
-.backoffice-app {
+.backoffice-layout {
+  min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(26, 26, 255, 0.14), transparent 24rem),
+    radial-gradient(circle at top left, rgba(26, 26, 255, 0.12), transparent 22rem),
     radial-gradient(circle at top right, rgba(46, 125, 50, 0.12), transparent 18rem),
     var(--expressa-background);
 
-  &__drawer {
-    border-right: 1px solid var(--expressa-border);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 245, 247, 0.98));
+  :deep(.v-application__wrap) {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
   }
 
-  &__brand {
-    padding: 1.5rem;
-  }
-
-  &__eyebrow {
-    margin: 0 0 0.5rem;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__brand-title,
-  &__hero-title {
-    margin: 0;
-    color: var(--expressa-text);
-    font-size: clamp(1.8rem, 2vw, 2.4rem);
-    font-weight: 800;
-    line-height: 1.05;
-  }
-
-  &__brand-subtitle,
-  &__hero-text {
-    margin: 0.75rem 0 0;
-    max-width: 36rem;
-    color: var(--expressa-secondary);
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-
-  &__nav-list {
-    padding: 0 1rem;
-  }
-
-  &__drawer-footer {
-    margin: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--expressa-border);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  &__footer-label {
-    display: block;
-    margin-bottom: 0.4rem;
-    color: var(--expressa-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__footer-status {
-    display: block;
-    color: var(--expressa-text);
-    font-size: 0.95rem;
-    font-weight: 700;
-  }
-
-  &__footer-value {
-    display: block;
-    margin-top: 0.35rem;
-    color: var(--expressa-text);
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-
-  &__footer-api {
-    display: block;
-    margin-top: 0.75rem;
-    color: var(--expressa-secondary);
-    font-family: 'Consolas', 'SFMono-Regular', monospace;
-    font-size: 0.8rem;
+  &__shell {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   &__topbar {
-    border-bottom: 1px solid var(--expressa-border);
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(14px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  &__topbar-chip {
+    max-width: 7.5rem;
+  }
+
+  &__main {
+    flex: 1;
   }
 
   &__container {
     margin: 0 auto;
+    width: 100%;
     max-width: 1120px;
-    padding: 1.25rem 1rem 6rem;
+    padding: 1rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px));
   }
 
   &__hero {
     display: grid;
     gap: 1rem;
-    margin-bottom: 1.25rem;
-    padding: 1.5rem;
+    margin-bottom: 1rem;
+    padding: 1.25rem;
     border: 1px solid rgba(26, 26, 255, 0.1);
     border-radius: 1.5rem;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 232, 255, 0.86));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 232, 255, 0.84));
+    box-shadow: var(--expressa-shadow-card);
   }
 
-  &__bottom-nav {
-    border-top: 1px solid var(--expressa-border);
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(16px);
+  &__hero-copy {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__hero-meta {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+
+  &__eyebrow,
+  &__hero-session-label {
+    margin: 0;
+    color: var(--expressa-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__hero-title {
+    margin: 0;
+    color: var(--expressa-text);
+    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    font-weight: 800;
+    line-height: 1.08;
+  }
+
+  &__hero-text,
+  &__hero-session-summary {
+    margin: 0;
+    color: var(--expressa-secondary);
+    line-height: 1.6;
+  }
+
+  &__hero-session {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.64);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  &__hero-session-value {
+    color: var(--expressa-text);
+    font-size: 0.95rem;
+    font-weight: 700;
   }
 
   &__state-card {
     display: grid;
     gap: 1rem;
-    align-items: center;
-    padding: 1.5rem;
+    align-items: start;
+    padding: 1.25rem;
     border: 1px solid var(--expressa-border);
     border-radius: 1.5rem;
     background: rgba(255, 255, 255, 0.94);
+    box-shadow: var(--expressa-shadow-card);
   }
 
   &__state-card--error {
@@ -293,9 +277,14 @@ function retryBootstrap() {
   }
 
   &__state-card--denied {
-    border-color: rgba(183, 28, 28, 0.2);
-    background:
-      linear-gradient(180deg, rgba(255, 243, 243, 0.98), rgba(255, 252, 252, 0.94));
+    border-color: rgba(183, 28, 28, 0.18);
+    background: linear-gradient(180deg, rgba(255, 243, 243, 0.98), rgba(255, 252, 252, 0.94));
+  }
+
+  &__state-icon,
+  &__state-actions {
+    display: flex;
+    align-items: center;
   }
 
   &__state-title {
@@ -314,20 +303,22 @@ function retryBootstrap() {
 }
 
 @media (min-width: 768px) {
-  .backoffice-app {
+  .backoffice-layout {
     &__container {
-      padding: 2rem;
+      padding: 2rem 2rem 2.5rem;
     }
 
     &__hero {
-      align-items: end;
-      grid-template-columns: minmax(0, 1fr) auto;
-      padding: 2rem;
+      grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1.75rem;
     }
 
     &__state-card {
       grid-template-columns: auto minmax(0, 1fr) auto;
-      padding: 2rem;
+      align-items: center;
+      padding: 1.75rem;
     }
   }
 }

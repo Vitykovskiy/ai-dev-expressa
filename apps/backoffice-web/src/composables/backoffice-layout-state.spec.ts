@@ -77,6 +77,7 @@ describe('backoffice-layout-state', () => {
       'availability',
     ]);
     expect(viewModel.heroText).toContain('barista');
+    expect(viewModel.roleLabel).toBe('Бариста');
   });
 
   it('keeps the view model reactive for route changes', () => {
@@ -103,6 +104,7 @@ describe('backoffice-layout-state', () => {
 
     expect(viewModel.value.currentItem.label).toBe('Заказы');
     expect(viewModel.value.heroChip).toBe('FEATURE-001 / test-mode session');
+    expect(viewModel.value.roleLabel).toBe('Администратор');
 
     routeName.value = 'menu';
 

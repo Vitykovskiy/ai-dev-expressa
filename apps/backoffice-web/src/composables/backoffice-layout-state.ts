@@ -31,6 +31,7 @@ export interface BackofficeLayoutViewModel {
   heroText: string;
   heroTitle: string;
   navigationItems: BackofficeNavigationItem[];
+  roleLabel: string;
   sessionLabel: string;
   sessionSummary: string;
 }
@@ -59,6 +60,7 @@ export function buildBackofficeLayoutViewModel(
     heroText: resolveHeroText(accessState, blockingState),
     heroTitle: resolveHeroTitle(accessState, routeName, currentItem.label),
     navigationItems,
+    roleLabel: resolveRoleLabel(accessState),
     sessionLabel: resolveSessionLabel(accessState),
     sessionSummary: resolveSessionSummary(accessState),
   };
@@ -203,6 +205,26 @@ function resolveHeroChip(accessState: BackofficeAccessState): string {
   }
 
   return 'FEATURE-001 / FE-003';
+}
+
+function resolveRoleLabel(accessState: BackofficeAccessState): string {
+  if (accessState.context?.user.roles.includes('administrator')) {
+    return 'Администратор';
+  }
+
+  if (accessState.context?.user.roles.includes('barista')) {
+    return 'Бариста';
+  }
+
+  if (isAccessDeniedError(accessState.error)) {
+    return 'Доступ не открыт';
+  }
+
+  if (accessState.error) {
+    return 'Нужна повторная попытка';
+  }
+
+  return 'Синхронизация роли';
 }
 
 function resolveSessionLabel(accessState: BackofficeAccessState): string {
