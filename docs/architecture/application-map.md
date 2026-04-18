@@ -38,6 +38,7 @@
 | --- | --- |
 | `FEATURE-001` — доступ во внутренний административный контур через Telegram | `server.md`, `backoffice-web.md`, `shared-types.md`, `quality-and-delivery.md` |
 | `FEATURE-002` — управление каталогом меню | `server.md`, `backoffice-web.md`, `shared-types.md` |
+| `FEATURE-006` — компонентная система и визуальный перенос внутреннего административного контура | `backoffice-web.md`, `quality-and-delivery.md` |
 
 ## Правила актуализации
 

@@ -6,3 +6,4 @@ coverage/
 infra/docker/.env.server
 playwright-report/
 test-results/
+.references
