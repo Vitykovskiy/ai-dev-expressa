@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build --workspace @expressa/server",
     "build:backoffice": "npm run build --workspace @expressa/backoffice-web",
-    "deploy:feature001:config": "docker compose -f infra/docker/compose.feature001.yml config",
+    "deploy:config": "docker compose -f infra/docker/compose.yml config",
     "smoke:backoffice-access": "node ./infra/scripts/smoke-backoffice-access.mjs",
     "start": "npm run start --workspace @expressa/server",
     "start:dev": "npm run start:dev --workspace @expressa/server",
