@@ -57,12 +57,12 @@
 | Путь | Назначение |
 |---|---|
 | `frontend/src/views/MenuCatalogView.vue` | Экран `/menu`: категории, товары, цены, группы опций, опции и назначение групп опций на категории. |
-| `frontend/src/components/` или feature-local components | Переиспользуемые формы, таблицы, диалоги и строки каталога, выделяемые из route-level view при рефакторинге. |
-| `frontend/src/modules/menu-catalog/composables` или локальные композиционные функции | Form state, derived state и orchestration логика экрана меню без transport details. |
+| `frontend/src/components/menu-catalog/*.vue` | Feature-specific панели и диалоги каталога меню: список категорий, панель групп опций, формы категорий, товаров и групп опций. |
+| `frontend/src/modules/menu-catalog/view-model.ts` | Form state, derived state и orchestration логика экрана меню без transport details. |
 | `frontend/src/modules/menu-catalog/types.ts` | Клиентские типы consumer-facing contract `Manage menu catalog`. |
 | `frontend/src/modules/menu-catalog/api.ts` | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract. |
 | `frontend/src/modules/menu-catalog/store.ts` | Локальное состояние snapshot каталога и операции сохранения через backend contract. |
-| `frontend/src/modules/menu-catalog/validation.ts` | UI-валидация формы и mapping ошибок `invalid-drink-size-model`, `invalid-option-group-rule` без подмены backend validation. |
+| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation. |
 
 ## Code architecture standard for FEATURE-006
 

@@ -72,6 +72,33 @@ export interface OptionGroupPayload {
   readonly options: readonly OptionPayload[];
 }
 
+export interface EditableOption {
+  readonly optionId?: string;
+  name: string;
+  priceDelta: string;
+  availability: boolean;
+}
+
+export interface MenuCategoryFormState {
+  name: string;
+  optionGroupRefs: string[];
+}
+
+export interface MenuItemFormState {
+  menuCategoryId: string;
+  name: string;
+  itemType: MenuItemType;
+  basePrice: string;
+  sizePrices: Record<DrinkSize, string>;
+}
+
+export interface OptionGroupFormState {
+  name: string;
+  selectionMode: SelectionMode;
+  assignedCategoryIds: string[];
+  options: EditableOption[];
+}
+
 export type MenuCatalogErrorCode =
   | "administrator-role-required"
   | "invalid-drink-size-model"
