@@ -49,12 +49,21 @@
 - `.references/Expressa_admin/src/app/routes.tsx` задаёт состав backoffice routes.
 - `.references/Expressa_admin/src/app/RootLayout.tsx` задаёт общую layout-структуру.
 - `.references/Expressa_admin/src/app/components/SideNav.tsx` и `TabBar.tsx` задают роль-зависимую навигацию.
+- `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`, `AddCategoryDialog.tsx`, `EditCategoryDialog.tsx`, `AddProductDialog.tsx`, `EditProductDialog.tsx` и `MenuGuide.tsx` задают визуальный и поведенческий ориентир для вкладки `Меню`.
 - Цвета, отступы и композиция берутся из UI-контракта и референса, но реализация должна быть на `Vue 3`/`Vuetify`.
 
 ## Handoff route for FEATURE-001
 
 - Для входа в backoffice и route guard исполнитель читает `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
 - Если в FEATURE-001 меняются route, auth state, client-side guard или frontend env/config, обновляется эта карта вместе с consumer-facing contract при изменении request/response boundary.
+
+## Handoff route for FEATURE-002
+
+- Для управления меню исполнитель читает `docs/system/contracts/menu-and-availability-management.md`, затем `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
+- Frontend использует `/menu` как существующий administrator-only route и не добавляет новые top-level routes без обновления этой карты.
+- Экран `Меню` должен поддержать категории, товары, базовые цены, размерные цены `S/M/L`, группы дополнительных опций, варианты опций и назначение групп на категории.
+- Клиентская валидация не заменяет backend validation: неполная размерная модель напитка и неверное правило группы опций должны обрабатываться через contract `Manage menu catalog`.
+- Оперативная доступность barista не входит в экран структурного управления каталогом этой feature.
 
 ## Запрещено в FEATURE-001
 

@@ -10,7 +10,7 @@
 - Роль: `Разработка`
 - Изменяемый контур: `delivery-unit`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `В работе`
 
 ## Ссылки на документы
 
@@ -23,6 +23,7 @@
 ## Примечания
 
 - Зависимости: `FEATURE-001`
+- Декомпозиция: `AR-003`, `BE-002`, `FE-002`, `QA-002`; `DO-*` не требуется, потому что feature не меняет VPS runtime, env/config, GitHub Actions, deployment path или smoke-check.
 - Минимальный read set: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`
 - Ожидаемый результат для ревью: `Administrator через вкладку Меню может создать и изменить категории, товары, ценовые схемы, группы дополнительных опций и сами опции без потери системных правил для напитков, взаимоисключающих групп и наследования групп от категории.`
 - Проверки: `Модульные тесты доменных правил каталога и валидаций; интеграционные проверки контракта Manage menu catalog; e2e-сценарий создания категории, товара с размерами и группы дополнительных опций; дымовая проверка сборки и запуска затронутых контуров.`
