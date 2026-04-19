@@ -1,45 +1,64 @@
 <template>
-  <div v-if="open" class="dialog-shell" role="dialog" aria-modal="true">
-    <button type="button" class="dialog-shell__overlay" aria-label="Закрыть" @click="$emit('close')" />
-    <form class="dialog-panel" @submit.prevent="submit">
-      <div class="dialog-panel__title-row">
-        <h2>{{ editingCategory ? "Редактировать группу" : "Новая группа" }}</h2>
-        <button
-          v-if="editingCategory"
-          type="button"
-          class="danger-icon-button"
-          title="Удалить группу"
-          @click="$emit('delete')"
-        >
-          <Trash2 :size="20" />
-        </button>
-      </div>
-      <p class="dialog-panel__description">
-        {{ editingCategory ? "Измените название и назначенные группы опций" : "Создайте новую группу для товаров" }}
-      </p>
+  <v-dialog :model-value="open" max-width="480" @update:model-value="handleDialogModelUpdate">
+    <v-card class="dialog-card" rounded="lg">
+      <form @submit.prevent="submit">
+        <div class="dialog-card__header">
+          <div>
+            <h2>{{ editingCategory ? "Редактировать группу" : "Новая группа" }}</h2>
+            <p class="dialog-card__description">
+              {{ editingCategory ? "Измените название и назначенные группы опций" : "Создайте новую группу для товаров" }}
+            </p>
+          </div>
+          <v-btn
+            v-if="editingCategory"
+            color="error"
+            variant="text"
+            icon
+            title="Удалить группу"
+            @click="$emit('delete')"
+          >
+            <Trash2 :size="20" />
+          </v-btn>
+        </div>
 
-      <label class="field">
-        <span>Название группы</span>
-        <input v-model="form.name" type="text" placeholder="Например: Кофе, Чай, Десерты" autofocus />
-      </label>
+        <div class="dialog-card__body">
+          <v-text-field
+            v-model="form.name"
+            label="Название группы"
+            placeholder="Например: Кофе, Чай, Десерты"
+            variant="outlined"
+            density="comfortable"
+            autofocus
+            hide-details
+          />
 
-      <div class="choice-block">
-        <span>Группы опций</span>
-        <p v-if="optionGroups.length === 0">Нет доступных групп опций</p>
-        <label v-for="group in optionGroups" :key="group.optionGroupId" class="check-row">
-          <input v-model="form.optionGroupRefs" type="checkbox" :value="group.optionGroupId" />
-          {{ group.name }}
-        </label>
-      </div>
+          <v-sheet class="choice-block" rounded="lg" border>
+            <span class="choice-block__title">Группы опций</span>
+            <p v-if="optionGroups.length === 0">Нет доступных групп опций</p>
+            <div v-else class="choice-block__list">
+              <v-checkbox
+                v-for="group in optionGroups"
+                :key="group.optionGroupId"
+                v-model="form.optionGroupRefs"
+                :label="group.name"
+                :value="group.optionGroupId"
+                density="comfortable"
+                hide-details
+                color="primary"
+              />
+            </div>
+          </v-sheet>
+        </div>
 
-      <div class="dialog-panel__actions">
-        <button type="submit" class="primary-button" :disabled="isBusy">
-          {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
-        </button>
-        <button type="button" class="ghost-button" @click="$emit('close')">Отмена</button>
-      </div>
-    </form>
-  </div>
+        <v-card-actions class="dialog-card__actions">
+          <v-btn class="dialog-action" color="primary" type="submit" :loading="isBusy" :disabled="isBusy">
+            {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
+          </v-btn>
+          <v-btn class="dialog-action" color="secondary" variant="text" @click="$emit('close')">Отмена</v-btn>
+        </v-card-actions>
+      </form>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -80,6 +99,12 @@ watch(
   { immediate: true }
 );
 
+function handleDialogModelUpdate(value: boolean): void {
+  if (!value) {
+    emit("close");
+  }
+}
+
 function submit(): void {
   emit("submit", {
     name: form.name.trim(),
@@ -94,102 +119,47 @@ function resetForm(): void {
 </script>
 
 <style scoped lang="scss">
-.dialog-shell {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.dialog-shell__overlay {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.dialog-panel {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+.dialog-card {
   padding: 24px;
-  border-radius: 8px 8px 0 0;
   background: #ffffff;
 }
 
-@media (min-width: 640px) {
-  .dialog-shell {
-    align-items: center;
-  }
-
-  .dialog-panel {
-    max-width: 480px;
-    border-radius: 8px;
-  }
-}
-
-.dialog-panel__title-row,
-.dialog-panel__actions {
+.dialog-card__header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.dialog-panel__title-row {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dialog-panel__actions {
-  flex-direction: column;
-  margin-top: 24px;
-}
-
-.dialog-panel h2 {
+.dialog-card h2 {
   margin: 0;
   color: #111111;
 }
 
-.dialog-panel__description {
+.dialog-card__description {
   margin: 4px 0 0;
   color: #777777;
   font-size: 13px;
   line-height: 20px;
 }
 
-.field,
-.choice-block {
+.dialog-card__body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 18px;
+  margin-top: 20px;
 }
 
-.field span,
-.choice-block > span {
+.choice-block {
+  padding: 14px 16px;
+}
+
+.choice-block__title {
+  display: block;
+  margin-bottom: 8px;
   color: #555555;
   font-size: 13px;
   font-weight: 600;
-}
-
-.field input {
-  width: 100%;
-  min-height: 42px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 0 12px;
-  color: #111111;
-  background: #ffffff;
-  font-size: 14px;
-}
-
-.choice-block {
-  padding: 14px 0;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .choice-block p {
@@ -198,51 +168,24 @@ function resetForm(): void {
   font-size: 12px;
 }
 
-.check-row {
+.choice-block__list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
+
+.dialog-card__actions {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  min-height: 30px;
-  color: #111111;
-  font-size: 14px;
+  padding: 24px 0 0;
 }
 
-.check-row input {
-  width: 18px;
-  height: 18px;
-  accent-color: #1a1aff;
-}
-
-.primary-button,
-.ghost-button {
+.dialog-action {
   min-height: 42px;
-  border: 0;
   border-radius: 8px;
-  padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-}
-
-.primary-button {
-  background: #1a1aff;
-  color: #ffffff;
-}
-
-.ghost-button {
-  width: 100%;
-  background: transparent;
-  color: #555555;
-}
-
-.danger-icon-button {
-  width: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #d32f2f;
-  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
 }
 </style>

@@ -1,70 +1,106 @@
 <template>
-  <div v-if="open" class="dialog-shell" role="dialog" aria-modal="true">
-    <button type="button" class="dialog-shell__overlay" aria-label="Закрыть" @click="$emit('close')" />
-    <form class="dialog-panel" @submit.prevent="submit">
-      <div class="dialog-panel__title-row">
-        <h2>{{ editingItem ? "Редактировать товар" : "Новый товар" }}</h2>
-        <button
-          v-if="editingItem"
-          type="button"
-          class="danger-icon-button"
-          title="Удалить товар"
-          @click="$emit('delete')"
-        >
-          <Trash2 :size="20" />
-        </button>
-      </div>
-      <p class="dialog-panel__description">Настройте группу, название и ценовую модель</p>
+  <v-dialog :model-value="open" max-width="480" @update:model-value="handleDialogModelUpdate">
+    <v-card class="dialog-card" rounded="lg">
+      <form @submit.prevent="submit">
+        <div class="dialog-card__header">
+          <div>
+            <h2>{{ editingItem ? "Редактировать товар" : "Новый товар" }}</h2>
+            <p class="dialog-card__description">Настройте группу, название и ценовую модель</p>
+          </div>
+          <v-btn
+            v-if="editingItem"
+            color="error"
+            variant="text"
+            icon
+            title="Удалить товар"
+            @click="$emit('delete')"
+          >
+            <Trash2 :size="20" />
+          </v-btn>
+        </div>
 
-      <label class="field">
-        <span>Категория</span>
-        <select v-model="form.menuCategoryId">
-          <option value="">Выберите категорию</option>
-          <option v-for="category in categories" :key="category.menuCategoryId" :value="category.menuCategoryId">
-            {{ category.name }}
-          </option>
-        </select>
-      </label>
+        <div class="dialog-card__body">
+          <v-select
+            v-model="form.menuCategoryId"
+            :items="categoryItems"
+            item-title="title"
+            item-value="value"
+            label="Категория"
+            placeholder="Выберите категорию"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+          />
 
-      <label class="field">
-        <span>Название товара</span>
-        <input v-model="form.name" type="text" placeholder="Например: Капучино, Латте" />
-      </label>
+          <v-text-field
+            v-model="form.name"
+            label="Название товара"
+            placeholder="Например: Капучино, Латте"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+          />
 
-      <div class="switch-row">
-        <span>
-          <strong>Размеры S / M / L</strong>
-          <small>Включить разные размеры с отдельными ценами</small>
-        </span>
-        <input v-model="form.itemType" type="checkbox" true-value="drink" false-value="regular" />
-      </div>
+          <v-sheet class="switch-row" rounded="lg" border>
+            <span>
+              <strong>Размеры S / M / L</strong>
+              <small>Включить разные размеры с отдельными ценами</small>
+            </span>
+            <v-switch
+              :model-value="form.itemType === 'drink'"
+              color="primary"
+              density="comfortable"
+              hide-details
+              inset
+              @update:model-value="updateItemType"
+            />
+          </v-sheet>
 
-      <div v-if="form.itemType === 'drink'" class="size-price-list">
-        <span class="field-title">Цены по размерам, ₽</span>
-        <label v-for="size in DRINK_SIZES" :key="size" class="size-field">
-          <strong>{{ size }}</strong>
-          <input v-model="form.sizePrices[size]" type="number" min="0" step="0.01" placeholder="0" />
-        </label>
-      </div>
+          <div v-if="form.itemType === 'drink'" class="size-price-list">
+            <span class="field-title">Цены по размерам, ₽</span>
+            <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
+              <strong>{{ size }}</strong>
+              <v-text-field
+                v-model="form.sizePrices[size]"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+              />
+            </div>
+          </div>
 
-      <label v-else class="field">
-        <span>Цена, ₽</span>
-        <input v-model="form.basePrice" type="number" min="0" step="0.01" placeholder="0" />
-      </label>
+          <v-text-field
+            v-else
+            v-model="form.basePrice"
+            label="Цена, ₽"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+          />
+        </div>
 
-      <div class="dialog-panel__actions">
-        <button type="submit" class="primary-button" :disabled="isBusy">
-          {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
-        </button>
-        <button type="button" class="ghost-button" @click="$emit('close')">Отмена</button>
-      </div>
-    </form>
-  </div>
+        <v-card-actions class="dialog-card__actions">
+          <v-btn class="dialog-action" color="primary" type="submit" :loading="isBusy" :disabled="isBusy">
+            {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
+          </v-btn>
+          <v-btn class="dialog-action" color="secondary" variant="text" @click="$emit('close')">Отмена</v-btn>
+        </v-card-actions>
+      </form>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
-import { reactive, watch } from "vue";
+import { computed, reactive, watch } from "vue";
 import {
   DRINK_SIZES,
   type DrinkSize,
@@ -90,6 +126,12 @@ const emit = defineEmits<{
 }>();
 
 const form = reactive<MenuItemFormState>(createEmptyItemForm());
+const categoryItems = computed(() =>
+  props.categories.map((category) => ({
+    title: category.name,
+    value: category.menuCategoryId
+  }))
+);
 
 watch(
   () => [props.open, props.editingItem, props.defaultCategoryId] as const,
@@ -116,6 +158,16 @@ watch(
   },
   { immediate: true }
 );
+
+function handleDialogModelUpdate(value: boolean): void {
+  if (!value) {
+    emit("close");
+  }
+}
+
+function updateItemType(value: boolean | null): void {
+  form.itemType = value ? "drink" : "regular";
+}
 
 function submit(): void {
   emit("submit", {
@@ -155,108 +207,47 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
 </script>
 
 <style scoped lang="scss">
-.dialog-shell {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.dialog-shell__overlay {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.dialog-panel {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+.dialog-card {
   padding: 24px;
-  border-radius: 8px 8px 0 0;
   background: #ffffff;
 }
 
-@media (min-width: 640px) {
-  .dialog-shell {
-    align-items: center;
-  }
-
-  .dialog-panel {
-    max-width: 480px;
-    border-radius: 8px;
-  }
-}
-
-.dialog-panel__title-row,
-.dialog-panel__actions,
-.switch-row,
-.size-field {
+.dialog-card__header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.dialog-panel__title-row {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dialog-panel__actions {
-  flex-direction: column;
-  margin-top: 24px;
-}
-
-.dialog-panel h2 {
+.dialog-card h2 {
   margin: 0;
   color: #111111;
 }
 
-.dialog-panel__description {
+.dialog-card__description {
   margin: 4px 0 0;
   color: #777777;
   font-size: 13px;
   line-height: 20px;
 }
 
-.field,
+.dialog-card__body,
 .size-price-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 18px;
 }
 
-.field span,
-.field-title {
-  color: #555555;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.field input,
-.field select,
-.size-field input {
-  width: 100%;
-  min-height: 42px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 0 12px;
-  color: #111111;
-  background: #ffffff;
-  font-size: 14px;
+.dialog-card__body {
+  margin-top: 20px;
 }
 
 .switch-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 18px;
-  padding: 14px 0;
-  border-bottom: 1px solid #e0e0e0;
+  gap: 12px;
+  padding: 14px 16px;
 }
 
 .switch-row span {
@@ -265,19 +256,25 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   gap: 3px;
 }
 
+.switch-row strong {
+  color: #111111;
+}
+
 .switch-row small {
   color: #999999;
   font-size: 12px;
 }
 
-.switch-row input {
-  width: 18px;
-  height: 18px;
-  accent-color: #1a1aff;
+.field-title {
+  color: #555555;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .size-field {
+  display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .size-field strong {
@@ -291,36 +288,19 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   color: #555555;
 }
 
-.primary-button,
-.ghost-button {
+.dialog-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 0 0;
+}
+
+.dialog-action {
   min-height: 42px;
-  border: 0;
   border-radius: 8px;
-  padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-}
-
-.primary-button {
-  background: #1a1aff;
-  color: #ffffff;
-}
-
-.ghost-button {
-  width: 100%;
-  background: transparent;
-  color: #555555;
-}
-
-.danger-icon-button {
-  width: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #d32f2f;
-  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
 }
 </style>

@@ -9,35 +9,36 @@
           {{ categoryCountLabel(categories.length) }}, {{ itemCountLabel(snapshot.items.length) }}
         </p>
       </div>
-      <button type="button" class="guide-button" @click="openCreateOptionGroupDialog">
+      <v-btn class="guide-button" color="surface" variant="outlined" @click="openCreateOptionGroupDialog">
         <Plus :size="18" />
-        Группа опций
-      </button>
+        <span>Группа опций</span>
+      </v-btn>
     </div>
 
     <div class="menu-view__actions">
-      <button type="button" class="primary-button" :disabled="isBusy" @click="openCreateCategoryDialog">
+      <v-btn class="action-button" color="primary" :disabled="isBusy" @click="openCreateCategoryDialog">
         Добавить группу
-      </button>
-      <button
-        type="button"
-        class="secondary-button"
+      </v-btn>
+      <v-btn
+        class="action-button"
+        color="surface"
+        variant="outlined"
         :disabled="categories.length === 0 || isBusy"
         title="Сначала создайте группу"
         @click="openCreateItemDialog()"
       >
         Добавить товар
-      </button>
+      </v-btn>
     </div>
 
-    <div v-if="hasError" class="error-banner" role="alert">
+    <v-alert v-if="hasError" class="error-banner" type="error" variant="tonal" density="comfortable">
       {{ errorMessage }}
-    </div>
+    </v-alert>
 
-    <div v-if="isLoading" class="loading-panel" aria-live="polite">
+    <v-sheet v-if="isLoading" class="loading-panel" rounded="lg" color="surface">
       <v-progress-circular indeterminate color="primary" :size="36" :width="4" />
       <span>Загружаем каталог</span>
-    </div>
+    </v-sheet>
 
     <div v-else class="menu-view__body">
       <MenuCatalogCategoryList
@@ -418,53 +419,26 @@ function clearError(): void {
   }
 }
 
-.primary-button,
-.secondary-button,
+.action-button,
 .guide-button {
   min-height: 42px;
-  border: 0;
   border-radius: 8px;
-  padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
-.primary-button {
+.action-button {
   flex: 1;
-  background: #1a1aff;
-  color: #ffffff;
-}
-
-.secondary-button,
-.guide-button {
-  flex: 1;
-  background: #ffffff;
-  color: #111111;
-  border: 1px solid #e0e0e0;
 }
 
 .guide-button {
-  flex: initial;
-  display: inline-flex;
-  align-items: center;
   gap: 8px;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .error-banner {
   margin: 0 16px 12px;
-  padding: 12px 14px;
-  border: 1px solid #ffcdd2;
-  border-radius: 8px;
-  background: #ffebee;
-  color: #b71c1c;
-  font-size: 13px;
-  line-height: 20px;
 }
 
 @media (min-width: 960px) {

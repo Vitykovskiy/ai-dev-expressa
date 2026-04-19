@@ -1,5 +1,5 @@
 <template>
-  <div class="catalog-panel">
+  <v-card class="catalog-panel" rounded="lg">
     <div v-if="categories.length === 0" class="empty-state">
       <BookOpen :size="38" />
       <h2>Меню пусто</h2>
@@ -9,54 +9,79 @@
     <div v-else class="category-list">
       <div v-for="category in categories" :key="category.menuCategoryId" class="category-block">
         <div class="category-row">
-          <button type="button" class="category-row__main" @click="toggleCategory(category.menuCategoryId)">
-            <ChevronDown v-if="expandedCategoryIds.has(category.menuCategoryId)" :size="20" />
-            <ChevronRight v-else :size="20" />
-            <span>
-              <strong>{{ category.name }}</strong>
-              <small>{{ itemCountLabel(categoryItemsMap[category.menuCategoryId]?.length ?? 0) }}</small>
+          <v-btn
+            class="category-row__main"
+            variant="text"
+            rounded="0"
+            @click="toggleCategory(category.menuCategoryId)"
+          >
+            <span class="category-row__content">
+              <span class="category-row__label">
+                <component
+                  :is="expandedCategoryIds.has(category.menuCategoryId) ? ChevronDown : ChevronRight"
+                  :size="20"
+                />
+                <span>
+                  <strong>{{ category.name }}</strong>
+                  <small>{{ itemCountLabel(categoryItemsMap[category.menuCategoryId]?.length ?? 0) }}</small>
+                </span>
+              </span>
             </span>
-          </button>
-          <button
-            type="button"
+          </v-btn>
+          <v-btn
             class="icon-button"
+            color="primary"
+            variant="text"
+            icon
             title="Редактировать группу"
             @click="$emit('edit-category', category)"
           >
             <Edit3 :size="18" />
-          </button>
+          </v-btn>
         </div>
 
         <div v-if="expandedCategoryIds.has(category.menuCategoryId)" class="category-detail">
           <div v-if="(categoryOptionGroupsMap[category.menuCategoryId]?.length ?? 0) > 0" class="assigned-groups">
-            <span v-for="group in categoryOptionGroupsMap[category.menuCategoryId]" :key="group.optionGroupId">
+            <v-chip
+              v-for="group in categoryOptionGroupsMap[category.menuCategoryId]"
+              :key="group.optionGroupId"
+              color="primary"
+              variant="tonal"
+              size="small"
+              rounded="lg"
+            >
               {{ group.name }}
-            </span>
+            </v-chip>
           </div>
 
           <div v-if="(categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0" class="category-empty">
             <Coffee :size="32" />
             <p>Товаров в этой группе пока нет</p>
-            <button type="button" class="inline-button" @click="$emit('create-item', category)">Добавить товар</button>
+            <v-btn class="inline-button" color="primary" variant="tonal" @click="$emit('create-item', category)">
+              Добавить товар
+            </v-btn>
           </div>
 
-          <button
+          <v-btn
             v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
             :key="item.menuItemId"
-            type="button"
             class="product-row"
+            variant="text"
+            rounded="0"
             @click="$emit('edit-item', item)"
           >
-            <span>
-              <strong>{{ item.name }}</strong>
-              <small>{{ itemPriceLabel(item) }}</small>
+            <span class="product-row__content">
+              <span>
+                <strong>{{ item.name }}</strong>
+                <small>{{ itemPriceLabel(item) }}</small>
+              </span>
+              <ChevronRight :size="18" />
             </span>
-            <ChevronRight :size="18" />
-          </button>
+          </v-btn>
         </div>
       </div>
     </div>
-  </div>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -95,7 +120,6 @@ function toggleCategory(menuCategoryId: string): void {
 .catalog-panel {
   overflow: hidden;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
   background: #ffffff;
 }
 
@@ -114,7 +138,7 @@ function toggleCategory(menuCategoryId: string): void {
 }
 
 .empty-state h2,
-.category-row__main strong {
+.category-row__label strong {
   margin: 0;
   color: #111111;
 }
@@ -137,30 +161,42 @@ function toggleCategory(menuCategoryId: string): void {
 .category-row__main,
 .product-row {
   width: 100%;
+  justify-content: flex-start;
+  color: #111111;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.category-row__main {
+  min-height: 56px;
+  padding: 0 16px;
+}
+
+.category-row__content,
+.product-row__content {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 0;
-  background: transparent;
-  color: #111111;
   text-align: left;
-  cursor: pointer;
 }
 
-.category-row__main {
-  padding: 14px 16px;
+.category-row__label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.category-row__main span,
-.product-row span {
+.category-row__label > span,
+.product-row__content > span {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.category-row__main small,
-.product-row small {
+.category-row__label small,
+.product-row__content small {
   color: #999999;
   font-size: 12px;
 }
@@ -176,39 +212,24 @@ function toggleCategory(menuCategoryId: string): void {
   padding: 10px 16px 0 48px;
 }
 
-.assigned-groups span {
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: #e8e8ff;
-  color: #1a1aff;
-  font-size: 12px;
-}
-
 .product-row {
-  padding: 13px 16px 13px 48px;
+  min-height: 56px;
+  padding: 0 16px 0 48px;
   border-top: 1px solid #e0e0e0;
 }
 
 .icon-button {
-  width: 44px;
   min-width: 44px;
   min-height: 44px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #1a1aff;
-  cursor: pointer;
+  align-self: center;
 }
 
 .inline-button {
   min-height: 34px;
-  border: 0;
   border-radius: 8px;
-  padding: 0 16px;
-  background: #e8e8ff;
-  color: #1a1aff;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
 }
 </style>

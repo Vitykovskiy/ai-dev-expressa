@@ -1,31 +1,34 @@
 <template>
-  <aside class="option-panel">
+  <v-card class="option-panel" rounded="lg">
     <div class="option-panel__header">
       <div>
         <h2>Группы опций</h2>
         <p>Допы назначаются на группы меню</p>
       </div>
-      <button type="button" class="icon-button" title="Добавить группу опций" @click="$emit('create')">
+      <v-btn class="icon-button" color="primary" variant="text" icon title="Добавить группу опций" @click="$emit('create')">
         <Plus :size="18" />
-      </button>
+      </v-btn>
     </div>
 
     <div v-if="optionGroups.length === 0" class="option-panel__empty">Нет групп опций</div>
 
-    <button
+    <v-btn
       v-for="group in optionGroups"
       :key="group.optionGroupId"
-      type="button"
       class="option-group-row"
+      variant="text"
+      rounded="0"
       @click="$emit('edit', group)"
     >
-      <span>
-        <strong>{{ group.name }}</strong>
-        <small>{{ selectionModeLabel(group.selectionMode) }} · {{ group.options.length }} опций</small>
+      <span class="option-group-row__content">
+        <span>
+          <strong>{{ group.name }}</strong>
+          <small>{{ selectionModeLabel(group.selectionMode) }} · {{ group.options.length }} опций</small>
+        </span>
+        <ChevronRight :size="18" />
       </span>
-      <ChevronRight :size="18" />
-    </button>
-  </aside>
+    </v-btn>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -48,7 +51,6 @@ defineEmits<{
   align-self: stretch;
   overflow: hidden;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
   background: #ffffff;
 }
 
@@ -81,20 +83,25 @@ defineEmits<{
 
 .option-group-row {
   width: 100%;
+  min-height: 56px;
+  justify-content: flex-start;
+  padding: 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #111111;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.option-group-row__content {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
-  border: 0;
-  border-bottom: 1px solid #e0e0e0;
-  background: transparent;
-  color: #111111;
   text-align: left;
-  cursor: pointer;
 }
 
-.option-group-row span {
+.option-group-row__content > span {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -106,13 +113,7 @@ defineEmits<{
 }
 
 .icon-button {
-  width: 44px;
   min-width: 44px;
   min-height: 44px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #1a1aff;
-  cursor: pointer;
 }
 </style>
