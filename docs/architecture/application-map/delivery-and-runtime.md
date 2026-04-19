@@ -15,11 +15,19 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Branch policy and pipeline
 
 - Pull request в `main` запускает только обязательные проверки `quality` и `build`; PR workflow не выполняет deploy.
-- Job `quality` обязан проверять `backend` и `frontend` unit tests, typecheck и связанные статические проверки, достаточные для `FEATURE-001`.
+- Job `quality` обязан проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки; для `frontend` дополнительно обязателен stylelint.
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
+- Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
 - Secrets для SSH-доступа к VPS и удалённой restart-команды хранятся в GitHub Secrets.
 - Runtime переменные приложения хранятся в корневом `.env` на VPS и не коммитятся в репозиторий.
+
+## Local quality hooks
+
+- Pre-commit hook запускает `lint-staged` на изменённых файлах.
+- `lint-staged` должен применять formatting/lint к backend и frontend TypeScript/Vue файлам и stylelint к изменённым frontend style blocks или style files, где применимо.
+- Hooks являются быстрым локальным gate и не заменяют полные `test`, `typecheck` и `build` перед ревью.
+- Изменение hooks, lint-staged или npm scripts должно обновлять эту карту и `docs/architecture/devops-standards.md`.
 
 ## Test VPS deployment contract
 
@@ -43,6 +51,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Backend commands
 
 - Установка: `cd backend && npm install`.
+- Lint: `cd backend && npm run lint`.
+- Format check: `cd backend && npm run format:check`.
 - Сборка: `cd backend && npm run build`.
 - Typecheck: `cd backend && npm run typecheck`.
 - Тесты: `cd backend && npm test`.
@@ -52,6 +62,9 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Frontend commands
 
 - Установка: `cd frontend && npm install`.
+- Lint: `cd frontend && npm run lint`.
+- Stylelint: `cd frontend && npm run stylelint`.
+- Format check: `cd frontend && npm run format:check`.
 - Сборка: `cd frontend && npm run build`.
 - Typecheck: `cd frontend && npm run typecheck`.
 - Тесты: `cd frontend && npm test`.
@@ -62,7 +75,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Production-like запуск с `DISABLE_TG_AUTH=true` завершается ошибкой конфигурации или блокирует bypass.
 - Backoffice без Telegram-входа в production-like режиме не открывает рабочие вкладки.
 - Test environment с `DISABLE_TG_AUTH=true` позволяет выполнить проверку role guard без Telegram.
-- PR workflow `quality` успешно завершает `backend/frontend` typecheck и unit tests.
+- PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
 - Deploy workflow для `main` после выкладки проверяет `GET /health`, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
 

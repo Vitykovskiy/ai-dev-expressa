@@ -23,3 +23,4 @@
 - Если меняются env vars, режимы окружений, smoke-check или pipeline/deployment path, использовать `delivery-and-runtime.md`.
 - Если добавляются или меняются проверки feature-доступа, использовать `qa-access.md`.
 - Если добавляются или меняются проверки управления каталогом меню, использовать `qa-menu-catalog.md`.
+- Если меняются code style, code architecture style, локальные hooks, CI quality gates или acceptance рефакторинга без изменения поведения, сначала читать профильный стандарт `frontend-architecture.md`, `backend-architecture.md`, `devops-standards.md` или `qa-standards.md`, затем соответствующую контурную карту из таблицы выше.

@@ -57,10 +57,20 @@
 | Путь | Назначение |
 |---|---|
 | `frontend/src/views/MenuCatalogView.vue` | Экран `/menu`: категории, товары, цены, группы опций, опции и назначение групп опций на категории. |
+| `frontend/src/components/` или feature-local components | Переиспользуемые формы, таблицы, диалоги и строки каталога, выделяемые из route-level view при рефакторинге. |
+| `frontend/src/modules/menu-catalog/composables` или локальные композиционные функции | Form state, derived state и orchestration логика экрана меню без transport details. |
 | `frontend/src/modules/menu-catalog/types.ts` | Клиентские типы consumer-facing contract `Manage menu catalog`. |
 | `frontend/src/modules/menu-catalog/api.ts` | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract. |
 | `frontend/src/modules/menu-catalog/store.ts` | Локальное состояние snapshot каталога и операции сохранения через backend contract. |
 | `frontend/src/modules/menu-catalog/validation.ts` | UI-валидация формы и mapping ошибок `invalid-drink-size-model`, `invalid-option-group-rule` без подмены backend validation. |
+
+## Code architecture standard for FEATURE-006
+
+- `MenuCatalogView.vue` является первым обязательным кандидатом на декомпозицию: view должен остаться route-level orchestration, а формы категорий, товаров, размеров, групп опций и повторяемые rows должны быть вынесены в компоненты или композиционные функции.
+- Все новые и рефакторимые SFC в этом контуре используют порядок `template` -> `script` -> `style` и `<style scoped lang="scss">`.
+- API calls к `/backoffice/menu/*`, Telegram/test-mode headers и transport error mapping остаются в `modules/menu-catalog/api.ts`; components не обращаются к backend напрямую.
+- Изменение структуры компонентов не должно менять route `/menu`, administrator-only guard, forbidden screen behavior, request/response DTO или mapping ошибок `invalid-drink-size-model` и `invalid-option-group-rule`.
+- Если декомпозиция добавляет новые постоянные components, composables или module files, эта карта обновляется в той же задаче.
 
 ## Handoff route for FEATURE-001
 

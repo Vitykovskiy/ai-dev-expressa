@@ -13,6 +13,13 @@
 | E2E | Открытие backoffice administrator через служебный Telegram entrypoint и доступность разрешённых вкладок. |
 | Smoke | Сборка и запуск затронутых backend/frontend/runtime контуров. |
 
+## Regression acceptance для FEATURE-006
+
+- После code style/code architecture рефакторинга повторяются acceptance scenarios этой карты без изменения expected behavior.
+- Обязательное evidence: server-driven `AuthenticatedActor`, role-based navigation, forbidden screen, production отказ без Telegram, test-mode bypass только при `NODE_ENV=test DISABLE_TG_AUTH=true`.
+- Рефакторинг не принимается, если изменились auth headers/body, capability matrix, `401`/`403` mapping или production запрет test-mode.
+- QA использует `docs/system/contracts/backoffice-auth-and-capability-access.md` как источник истины и не восстанавливает expected behavior из `frontend/src/*` или `backend/src/*`.
+
 ## Текущее расположение проверок
 
 - `backend/test/bootstrap-administrator.spec.ts` — unit evidence для идемпотентного bootstrap administrator.

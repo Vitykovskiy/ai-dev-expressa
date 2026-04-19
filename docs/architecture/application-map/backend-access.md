@@ -28,6 +28,14 @@
 | `backend/src/identity-access/auth/backoffice-auth.guard.ts` | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
 | `backend/src/identity-access/users/in-memory-user.repository.ts` | Текущий in-memory адаптер `UserRepository`; замена на постоянное хранилище должна выполняться отдельной архитектурной задачей. |
 
+## Code architecture standard for FEATURE-006
+
+- Контур `identity-access` должен сохранять разделение `config`, `bootstrap`, `auth`, `users` и module boundary.
+- Auth service и guard не должны смешиваться с управлением меню, слотами, заказами или пользовательским UI behavior.
+- Config validation остаётся в `config/access-config.ts`; production запрет `DISABLE_TG_AUTH=true` нельзя переносить в controller или frontend.
+- Repository adapter отвечает только за хранение пользователей и ролей; bootstrap, guard matrix и Telegram verification остаются отдельными responsibilities.
+- Рефакторинг этого контура не должен менять `POST /backoffice/auth/session`, `GET /backoffice/:capability`, auth headers/body, `AuthenticatedActor`, capability semantics или error mapping из `docs/system/contracts/backoffice-auth-and-capability-access.md`.
+
 ## Endpoints
 
 | Method | Path | Назначение |

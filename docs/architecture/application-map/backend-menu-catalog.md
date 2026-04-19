@@ -29,6 +29,15 @@
 | `backend/test/menu-catalog-domain.spec.ts` | Модульные тесты доменных правил каталога. |
 | `backend/test/menu-catalog.e2e.spec.ts` | Integration/e2e проверки backoffice menu endpoints и доступа. |
 
+## Code architecture standard for FEATURE-006
+
+- Controller остаётся HTTP boundary для `/backoffice/menu/*`, DTO input/output и capability `menu`.
+- `MenuCatalogService` выполняет application orchestration и не содержит HTTP headers, Telegram/test-mode parsing или UI-specific state.
+- `domain/menu-catalog.validator.ts` является местом доменных инвариантов каталога: размерная модель напитка, правила групп опций и ссылочная целостность.
+- `domain/menu-catalog.errors.ts` содержит канонические ошибки каталога; controller/service не создают новые error codes локально.
+- Repository adapter отвечает за storage snapshot и не должен принимать решения о capability, role или HTTP status.
+- Рефакторинг этого контура не должен менять endpoint boundary, DTO shape, `administrator` capability requirement, `invalid-drink-size-model`, `invalid-option-group-rule` или status code mapping.
+
 ## Endpoint boundary
 
 Все endpoints относятся к backoffice boundary и требуют capability `menu` для роли `administrator`.
