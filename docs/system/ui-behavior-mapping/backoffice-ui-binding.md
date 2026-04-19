@@ -35,6 +35,7 @@
 - `docs/system/use-cases/administrator-manage-users-and-roles.md`
 - `docs/system/use-cases/administrator-block-user.md`
 - `docs/system/contracts/backoffice-order-processing.md`
+- `docs/system/contracts/backoffice-auth-and-capability-access.md`
 - `docs/system/contracts/menu-and-availability-management.md`
 - `docs/system/contracts/slot-settings-management.md`
 - `docs/system/contracts/user-role-and-blocking-management.md`
@@ -68,6 +69,14 @@
 | `users` | Назначение ролей и блокировка | `administrator-manage-users-and-roles`, `administrator-block-user` | `Assign user role`, `Block user` | `AR-004`, `AR-006`–`AR-008`, `BO-006` |
 | `settings` | Рабочие часы и вместимость слотов | `administrator-manage-slot-settings` | `Manage working hours and slot capacity` | `SL-003`–`SL-006`, `BO-005` |
 
+## Entry bootstrap и защитные экраны
+
+| UI boundary | Системная цель | Связанные contracts | Системные правила |
+|---|---|---|---|
+| `app bootstrap` | Восстановить `AuthenticatedActor` перед показом рабочих экранов backoffice | `Create backoffice session` | `frontend-backoffice.md`, `identity-and-access.md`, `backoffice-auth-and-capability-access.md` |
+| `entry-denied` | Не показывать рабочий UI без допустимого Telegram entry или server-side auth | `Create backoffice session` | Ошибки `telegram-init-data-required`, `telegram-bot-token-required`, `telegram-hash-invalid`, `backoffice-user-not-found`, `user-blocked`, `backoffice-role-required` |
+| `forbidden` | Блокировать прямой переход на route, capability которого нет в `AuthenticatedActor.capabilities` или запрещена backend guard | `Check backoffice capability access` | Ошибка `backoffice-capability-forbidden`; route guard не заменяется скрытием вкладки |
+
 ## Ролевые guards и доступность вкладок
 
 | UI правило | Источник системного правила | Смысл |
@@ -99,6 +108,17 @@
 | `users` | `unblock_user` | Не зафиксировано текущими системными artifacts | UI-контракт предполагает действие, отсутствующее в текущих бизнес- и системных документах. |
 | `settings` | `save_settings` | `Manage working hours and slot capacity` | Сохраняет рабочие часы и вместимость слотов. |
 
+## Bootstrap, navigation и direct-route guard
+
+| UI action / состояние | Системная операция | Условие / результат |
+|---|---|---|
+| `app_start -> create session` | `Create backoffice session` | Рабочие экраны backoffice не рендерятся до получения `AuthenticatedActor`. |
+| `session_success -> derive visible tabs from capabilities` | `Create backoffice session` | Видимость `orders`, `availability`, `menu`, `users`, `settings` берётся только из `AuthenticatedActor.capabilities`. |
+| `route_enter.orders|availability|menu|users|settings` | `Check backoffice capability access` | Прямой route должен быть согласован с backend capability guard, а не только с клиентской навигацией. |
+| `session_error.401` | `Create backoffice session` | UI переводит пользователя на `entry-denied`, потому что валидный Telegram entry не подтверждён. |
+| `session_error.403` | `Create backoffice session` | UI не показывает рабочий backoffice и переводит пользователя на `entry-denied`, потому что доступ запрещён по системному состоянию пользователя. |
+| `route_guard_error.403` | `Check backoffice capability access` | UI переводит пользователя на `forbidden`, если capability запрещена для его текущих roles/capabilities. |
+
 ## UI states, validations и system conditions
 
 | UI правило / состояние | Системный источник | Смысл |
@@ -112,6 +132,9 @@
 | `settings.slot_capacity.min=1 max=50` | Не зафиксировано в бизнес- или системных artifacts | UI-контракт вводит числовой диапазон, отсутствующий в канонических правилах. |
 | `users.action_success.toast` | `Assign user role`, `Block user` | Успешные административные операции должны быть подтверждаемы для оператора. |
 | `orders.states.realtime.new_order_indicator` | Не зафиксировано в бизнес- или системных artifacts | UI-контракт предполагает near-realtime обновление очереди заказов. |
+| `bootstrap.working_ui_hidden_before_actor_loaded` | `Create backoffice session` | До восстановления `AuthenticatedActor` backoffice не должен показывать рабочие вкладки и действия. |
+| `entry-denied.state` | `Create backoffice session` | Экран отказа соответствует невозможности подтвердить допустимый вход или доступ к backoffice boundary. |
+| `forbidden.state` | `Check backoffice capability access` | Экран отказа по роли соответствует запрету на конкретную capability, а не отсутствию Telegram entry. |
 
 ## Навигация и минимальный read set
 
@@ -122,6 +145,7 @@
 | `menu` | `domain-model/menu-catalog.md`, `use-cases/administrator-manage-menu.md`, `contracts/menu-and-availability-management.md` |
 | `users` | `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md` |
 | `settings` | `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md` |
+| `entry bootstrap and guards` | `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md` |
 
 ## Зафиксированные расхождения и пробелы
 
@@ -131,5 +155,4 @@
 - UI-контракт backoffice предполагает real-time индикатор новых заказов и анимацию появления, но это не отражено в бизнес- или системных требованиях как обязательное поведение.
 - UI-контракт `menu_product_detail` включает поле `image`, хотя в текущей бизнес- и системной модели меню наличие изображений товаров не зафиксировано как обязательный или подтверждённый атрибут.
 - React-референс `.references/Expressa_admin` не содержит отдельного экрана `addon_group_detail`; в документации он зафиксирован как обязательный производный экран на основе паттерна групп опций из диалогов категорий. При реализации нужно отдельно проверить, что состав полей и действий не был сокращён относительно этого эталона.
-
 
