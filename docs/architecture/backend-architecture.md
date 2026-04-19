@@ -9,3 +9,7 @@
 ## Для FEATURE-001
 
 Подробная карта bootstrap administrator, Telegram/test-mode authorization и role guard находится в `docs/architecture/application-map/backend-access.md`.
+
+## Для FEATURE-002
+
+Подробная карта server-side boundary управления каталогом меню находится в `docs/architecture/application-map/backend-menu-catalog.md`. Контур каталога использует access guard из `backend-access.md`, но не смешивается с identity/access модулем.

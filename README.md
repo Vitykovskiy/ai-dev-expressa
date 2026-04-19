@@ -70,8 +70,10 @@
 |   |   `-- application-map/
 |   |       |-- frontend-backoffice.md
 |   |       |-- backend-access.md
+|   |       |-- backend-menu-catalog.md
 |   |       |-- delivery-and-runtime.md
-|   |       `-- qa-access.md
+|   |       |-- qa-access.md
+|   |       `-- qa-menu-catalog.md
 |   |-- business/
 |   `-- system/
 |-- prompts/

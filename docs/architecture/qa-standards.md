@@ -9,3 +9,7 @@
 ## Для FEATURE-001
 
 Подробная карта проверок входа administrator находится в `docs/architecture/application-map/qa-access.md`.
+
+## Для FEATURE-002
+
+Подробная карта проверок управления каталогом меню находится в `docs/architecture/application-map/qa-menu-catalog.md`.

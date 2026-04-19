@@ -15,8 +15,10 @@
 - `application-map.md` — индекс контурных карт и маршрут выбора нужной карты.
 - `application-map/frontend-backoffice.md` — клиентский backoffice-контур.
 - `application-map/backend-access.md` — серверный контур идентификации, ролей и Telegram-доступа.
+- `application-map/backend-menu-catalog.md` — серверный контур управления каталогом меню.
 - `application-map/delivery-and-runtime.md` — env/config, запуск, развёртывание и smoke-check для затронутого контура.
 - `application-map/qa-access.md` — тестовый контур для проверки входа administrator.
+- `application-map/qa-menu-catalog.md` — тестовый контур для проверки управления каталогом меню.
 
 ## Правило использования
 
