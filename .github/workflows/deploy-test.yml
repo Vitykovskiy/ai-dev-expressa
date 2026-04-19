@@ -43,6 +43,7 @@ jobs:
 
             cd "${APP_DIR}"
             git fetch --prune origin
-            git pull --ff-only origin main
+            git checkout --force main
+            git reset --hard origin/main
             chmod +x scripts/deploy-test-vps.sh
             SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh
