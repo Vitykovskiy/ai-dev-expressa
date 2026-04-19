@@ -6,7 +6,11 @@
 
 ## Источники
 
-- `docs/system/ui-contracts/expressa-backoffice-ui-contract.json`
+- `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`
+- `.references/Expressa_admin/src/imports/expressa-backoffice-ui-contract.json`
+- `.references/Expressa_admin/src/app`
+- `.references/Expressa_admin/src/styles`
+- `.references/Expressa_admin/guidelines`
 - `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`
 - `.references/Expressa_admin/src/app/components/AddCategoryDialog.tsx`
 - `.references/Expressa_admin/src/app/components/EditCategoryDialog.tsx`
@@ -37,9 +41,9 @@
 - `docs/system/contracts/telegram-notifications.md`
 - `docs/system/state-models/order-lifecycle.md`
 
-## Правило parity для подпотока `menu`
+## Правило parity для UI
 
-Визуальный канон для `layout` и подпотока `menu` задается не этим файлом, а `docs/system/ui-contracts/expressa-backoffice-ui-contract.json` вместе с `.references/Expressa_admin`.
+Визуальный канон для `layout`, экранной композиции, визуальных состояний и подпотока `menu` задается не этим файлом, а `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` вместе с `.references/Expressa_admin`.
 
 Этот документ фиксирует только системно значимую привязку UI к:
 
@@ -49,6 +53,8 @@
 - валидациям;
 - ограничениям;
 - подтвержденным расхождениям.
+
+Этот документ не является местом для переопределения макета, отступов, цветов, текстов, responsive-поведения или компонентных паттернов из `.references/Expressa_admin`.
 
 Для `addon_group_detail` отдельный экран в `.references/Expressa_admin` не выделен, поэтому здесь сохраняется только системное требование: реализация не должна терять действия `save_addon_group`, `delete_addon_group`, `toggle selection_type`, `bind_parent_group`, `add_addon_inline` и `delete_addon_inline`, если иное не продиктовано действующими системными артефактами.
 

@@ -11,6 +11,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 - For large work, first write a short plan with execution order, dependencies, and completion criteria, then split the work into independent subtasks with minimal overlap in context and ownership.
 - If the environment supports subagents, delegate independent subtasks to subagents and keep final coordination, integration, and consistency checks in the main agent.
 - Read the parent `FEATURE-*` task, your `QA-*` task, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/quality-and-delivery.md`, and only the documents listed in `Минимальный read set`.
+- If the feature changes a user interface, read the relevant UI pointer and reference source before testing: `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` with `.references/Expressa_admin` for the internal administrative contour, or `docs/system/ui-contracts/expressa-customer-ui-contract.md` with `.references/Expressa_customer` for the customer web interface.
 - Read `docs/architecture/deployment-map.md` when the task changes or validates an environment, pipeline, deployment path, smoke-check, rollback, or restore path, and always when e2e are expected to run on the deployed `test` environment.
 - Do not read all of `docs/`, all of `apps/`, or the full `docs/architecture/application-map.md` unless the task explicitly requires an architecture-map change that cannot be resolved from the contour map.
 - After the required documents are read, search code only inside paths named by the task and the contour map.
@@ -28,6 +29,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 ## Validation rules
 
 - Mandatory checks are e2e-tests for the assigned feature and explicit confirmation that they pass on the assembled result, preferably on the deployed `test` environment when that route is available.
+- For UI features, mandatory checks include visual parity with the relevant `.references` source. Any deviation in layout, screen composition, visual states, texts, spacing, colors, responsive behavior, or component patterns is a defect unless the deviation is explicitly required by system artifacts.
 - Record any uncovered scenario, blocker, inconsistency, or defect directly in the task or handoff with enough detail to reproduce it.
 - Update `docs/architecture/application-map/quality-and-delivery.md` if the testing path or test location becomes stale; update `docs/architecture/application-map.md` only when index navigation or the contour list changes.
 - Update `README.md` if repository navigation becomes stale after the change.

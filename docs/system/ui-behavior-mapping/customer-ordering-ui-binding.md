@@ -6,7 +6,11 @@
 
 ## Источники
 
-- `docs/system/ui-contracts/expressa-customer-ui-contract.json`
+- `docs/system/ui-contracts/expressa-customer-ui-contract.md`
+- `.references/Expressa_customer/src/imports/figma-make-customer-screens.json`
+- `.references/Expressa_customer/src/app`
+- `.references/Expressa_customer/src/styles`
+- `.references/Expressa_customer/guidelines`
 - `docs/business/business-rules/access-and-roles.md`
 - `docs/business/business-rules/menu-catalog-and-options.md`
 - `docs/business/business-rules/pickup-slots-and-capacity.md`
@@ -21,6 +25,8 @@
 
 - Этот артефакт связывает экранное поведение с системными вариантами использования, contracts, state-models и бизнес-правилами.
 - Этот артефакт не является источником правды по визуальному оформлению, design tokens и декоративным состояниям.
+- Этот артефакт не является местом для переопределения макета, отступов, цветов, текстов, responsive-поведения или компонентных паттернов из `.references/Expressa_customer`.
+- Визуальный канон клиентского веб-интерфейса задается `docs/system/ui-contracts/expressa-customer-ui-contract.md` вместе с `.references/Expressa_customer`.
 
 ## Экран к системному поведению
 

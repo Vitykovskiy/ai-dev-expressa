@@ -86,8 +86,8 @@
 - `docs/system/use-cases/` — системное поведение по отдельным вариантам использования.
 - `docs/system/contracts/` — контракты взаимодействий, входы, выходы и ошибки.
 - `docs/system/state-models/` — жизненные циклы сущностей и допустимые переходы.
-- `docs/system/ui-contracts/` — входные UI-документы для системного анализа; для внутреннего административного контура здесь хранится компактный parity-документ, который отсылает к каноническому референсу в `.references/Expressa_admin`.
-- `docs/system/ui-behavior-mapping/` — привязка UI-поведения к системным артефактам без дублирования канонической экранной композиции из референсов.
+- `docs/system/ui-contracts/` — входные UI-указатели на канонические визуальные источники в `.references`: `.references/Expressa_admin` для внутреннего административного контура и `.references/Expressa_customer` для клиентского веб-интерфейса; макеты из `.references` являются единственным источником истины для UI независимо от выбранного стека.
+- `docs/system/ui-behavior-mapping/` — привязка UI-поведения к системным артефактам без дублирования и переопределения канонической экранной композиции из `.references`.
 - `prompts/` — промпты для рабочих ролей и агентов проекта; роль сборщика контекста описана в `prompts/context-collector/prompt.md`.
 - `templates/` — шаблоны артефактов и инструкции по их заполнению; шаблон контекстного пакета подзадачи находится в `templates/context-package-template.md`.
 - `tasks/` — каталог для итоговых задач проекта. Все оформленные и актуальные задачи нужно складывать сюда.
@@ -130,7 +130,8 @@
 - Для архитектурного контекста переходите в `docs/architecture/`.
 - Для бизнес-контекста переходите в `docs/business/`.
 - Для системного контекста переходите в `docs/system/`.
-- Для задач по layout и подпотоку `menu` внутреннего административного контура используйте маршрут чтения: `README.md` -> `docs/system/ui-contracts/expressa-backoffice-ui-contract.json` -> нужные файлы в `.references/Expressa_admin` -> `docs/system/ui-behavior-mapping/backoffice-ui-binding.md` -> целевые файлы в `docs/system/use-cases/`, `docs/system/contracts/`, `docs/system/domain-model/`, `docs/system/state-models/`.
+- Для задач по UI внутреннего административного контура используйте маршрут чтения: `README.md` -> `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` -> нужные файлы в `.references/Expressa_admin` -> `docs/system/ui-behavior-mapping/backoffice-ui-binding.md` -> целевые файлы в `docs/system/use-cases/`, `docs/system/contracts/`, `docs/system/domain-model/`, `docs/system/state-models/`.
+- Для задач по UI клиентского веб-интерфейса используйте маршрут чтения: `README.md` -> `docs/system/ui-contracts/expressa-customer-ui-contract.md` -> нужные файлы в `.references/Expressa_customer` -> `docs/system/ui-behavior-mapping/customer-ordering-ui-binding.md` -> целевые файлы в `docs/system/use-cases/`, `docs/system/contracts/`, `docs/system/domain-model/`, `docs/system/state-models/`.
 - Для запуска роли используйте каталог `prompts/`.
 - Для запуска роли сборщика контекста используйте `prompts/context-collector/prompt.md`.
 - Для постановки новых задач используйте каталог `templates/`.

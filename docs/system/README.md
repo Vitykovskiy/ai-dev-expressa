@@ -120,12 +120,14 @@
 ### `ui-contracts`
 
 - `Expressa Customer UI Contract`
-  - Файл: [ui-contracts/expressa-customer-ui-contract.json](./ui-contracts/expressa-customer-ui-contract.json)
-  - Использовать как входной UI-контракт клиентского Telegram веб-приложения перед формализацией системного поведения.
+  - Файл: [ui-contracts/expressa-customer-ui-contract.md](./ui-contracts/expressa-customer-ui-contract.md)
+  - Использовать как входной UI-указатель клиентского веб-интерфейса перед формализацией системного поведения.
+  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в `.references/Expressa_customer`.
 
 - `Expressa Backoffice UI Contract`
-  - Файл: [ui-contracts/expressa-backoffice-ui-contract.json](./ui-contracts/expressa-backoffice-ui-contract.json)
-  - Использовать как компактный parity-документ внутреннего административного контура: он фиксирует канонический референс в `.references/Expressa_admin`, строгие ограничения parity и допустимые исключения только из системных артефактов.
+  - Файл: [ui-contracts/expressa-backoffice-ui-contract.md](./ui-contracts/expressa-backoffice-ui-contract.md)
+  - Использовать как входной UI-указатель внутреннего административного контура: он фиксирует канонический референс в `.references/Expressa_admin`, строгие ограничения parity и допустимые исключения только из системных артефактов.
+  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в `.references/Expressa_admin`.
 
 ### `ui-behavior-mapping`
 
@@ -144,9 +146,9 @@
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
 - Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
-- Если задача приходит из UI-контракта или экранного флоу: читать соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`.
-- Если задача начинается с экранного контракта: сначала читать соответствующий файл в `ui-contracts/`, затем соответствующий файл в `ui-behavior-mapping/`.
-- Если задача про layout или подпоток `menu` внутреннего административного контура: читать `README.md`, затем `ui-contracts/expressa-backoffice-ui-contract.json`, затем нужные файлы в `.references/Expressa_admin`, после этого `ui-behavior-mapping/backoffice-ui-binding.md` и только потом целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача приходит из UI-контракта или экранного флоу: читать соответствующий файл в `ui-contracts/`, затем нужные файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`.
+- Если задача про UI внутреннего административного контура: читать `README.md`, затем `ui-contracts/expressa-backoffice-ui-contract.md`, затем нужные файлы в `.references/Expressa_admin`, после этого `ui-behavior-mapping/backoffice-ui-binding.md` и только потом целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача про UI клиентского веб-интерфейса: читать `README.md`, затем `ui-contracts/expressa-customer-ui-contract.md`, затем нужные файлы в `.references/Expressa_customer`, после этого `ui-behavior-mapping/customer-ordering-ui-binding.md` и только потом целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
 
 ## Зафиксированные blockers и вопросы
 
