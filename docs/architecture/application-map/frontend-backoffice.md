@@ -4,16 +4,24 @@
 
 Клиентский backoffice для ролей `barista` и `administrator`, реализуемый на `Vue 3` и `Vuetify` с опорой на визуальный React-референс `.references/Expressa_admin`.
 
+## Runtime contour
+
+- Исходный код клиентского контура находится в `frontend/`.
+- Локальный dev entrypoint: `frontend/` -> `npm run dev`.
+- Сборка: `frontend/` -> `npm run build`.
+- Тесты: `frontend/` -> `npm test`.
+
 ## Точки входа и маршруты
 
 | Route | Назначение | Guard |
 |---|---|---|
+| `/entry-denied` | Отказ во входе без валидного Telegram entry | public screen |
 | `/` | Заказы | `barista`, `administrator` |
 | `/availability` | Доступность меню | `barista`, `administrator` |
 | `/menu` | Управление меню | `administrator` |
 | `/users` | Пользователи | `administrator` |
 | `/settings` | Настройки слотов | `administrator` |
-| `/forbidden` или эквивалентный экран отказа | Недостаточная роль или прямой доступ без допустимого входа | system guard |
+| `/forbidden` | Недостаточная роль при прямом переходе на запрещённый route | system guard |
 
 ## Auth boundary
 
@@ -21,6 +29,13 @@
 - После успешной проверки frontend хранит только клиентское состояние сессии, необходимое для UI; источник истины по ролям остаётся на backend.
 - Без валидного Telegram-входа production UI не должен показывать рабочие экраны backoffice.
 - В test environment допускается bypass только при серверно разрешённом `DISABLE_TG_AUTH=true`; frontend не включает этот режим самостоятельно.
+- Для bootstrap session используется `POST /backoffice/auth/session`.
+- Клиентский guard опирается на `AuthenticatedActor.capabilities`, полученные от backend, а не на локально вычисленную роль.
+
+## Frontend config
+
+- `VITE_BACKOFFICE_API_BASE_URL` — необязательный base URL backend API; по умолчанию используется тот же origin.
+- `VITE_BACKOFFICE_TEST_TELEGRAM_ID` — локальный helper только для test-mode интеграции с backend при серверно разрешённом `DISABLE_TG_AUTH=true`; не является production fallback.
 
 ## Role navigation
 

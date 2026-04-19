@@ -2,7 +2,7 @@
 
 Репозиторий хранит рабочие инструкции, ролевые промпты, шаблоны задач и терминологические правила для подготовки проектных артефактов Expressa.
 
-В текущем состоянии это методический каркас проекта с минимальным backend-контуром доступа для `FEATURE-001`. Каталоги `docs/` и `tasks/` создаются и наполняются в рамках рабочих задач, когда появляются бизнес-, системные, архитектурные или реализационные артефакты.
+В текущем состоянии это методический каркас проекта с минимальными backend- и frontend-контурами доступа для `FEATURE-001`. Каталоги `docs/` и `tasks/` создаются и наполняются в рамках рабочих задач, когда появляются бизнес-, системные, архитектурные или реализационные артефакты.
 
 ## Старт работы
 
@@ -39,6 +39,21 @@
 |   |   |-- app.module.ts
 |   |   `-- identity-access/
 |   `-- test/
+|-- frontend/
+|   |-- package.json
+|   |-- package-lock.json
+|   |-- tsconfig.json
+|   |-- vite.config.ts
+|   |-- vitest.config.ts
+|   |-- index.html
+|   `-- src/
+|       |-- main.ts
+|       |-- App.vue
+|       |-- styles.css
+|       |-- components/
+|       |-- modules/
+|       |-- router/
+|       `-- views/
 |-- docs/
 |   |-- architecture/
 |   |   |-- README.md
@@ -86,6 +101,7 @@
 - `README.md` — корневая навигация по репозиторию и общий процессный слой.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
+- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, forbidden screen и тесты.
 - `prompts/` — ролевые промпты для участников рабочего процесса.
 - `templates/` — шаблоны карточек задач и контекстных пакетов.
 - `.gitignore` — исключения для локальных зависимостей, сборок, окружений, отчетов и `.references`.
@@ -129,6 +145,16 @@
 - Тесты: `npm test`.
 - Запуск: `ADMIN_TELEGRAM_ID=<id> SERVICE_TELEGRAM_BOT_TOKEN=<token> NODE_ENV=production npm start` после сборки.
 - Test-mode запуск без Telegram допустим только с `NODE_ENV=test DISABLE_TG_AUTH=true ADMIN_TELEGRAM_ID=<id>`.
+
+## Frontend
+
+- Контур находится в `frontend/`.
+- Установка зависимостей: `npm install` из каталога `frontend/`.
+- Dev server: `npm run dev`.
+- Сборка: `npm run build`.
+- Тесты: `npm test`.
+- Локальная интеграция с backend по умолчанию использует Vite proxy на `http://localhost:3000` для `/backoffice`.
+- Дополнительные переменные: `VITE_BACKOFFICE_API_BASE_URL=<url>` для явного base URL backend API, `VITE_BACKOFFICE_TEST_TELEGRAM_ID=<id>` только для серверно разрешённого test-mode.
 
 ## Работа с задачами
 
