@@ -53,7 +53,18 @@ eval "$RESTART_COMMAND"
 
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${PORT:-3000}}"
 
-curl --fail --silent --show-error "$BACKEND_BASE_URL/health" >/dev/null
+for attempt in {1..30}; do
+  if curl --fail --silent "$BACKEND_BASE_URL/health" >/dev/null; then
+    break
+  fi
+
+  if [[ "$attempt" -eq 30 ]]; then
+    curl --fail --silent --show-error "$BACKEND_BASE_URL/health" >/dev/null
+  fi
+
+  sleep 2
+done
+
 curl \
   --fail \
   --silent \
