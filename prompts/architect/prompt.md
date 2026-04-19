@@ -13,6 +13,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - If assigned a sprint-level architecture task, decompose one `SPRINT-*` into `FEATURE-*`.
 - If assigned a feature-level architecture task, decompose one `FEATURE-*` into review-ready `AR/FE/BE/DO/QA-*` tasks.
 - Hand off implementation through `docs/system/` and `docs/architecture/`; do not expand executor read sets with business artifacts unless a required fact is still missing from system artifacts.
+- Do not hand off a child task whose executor would need to read production code in another contour to recover a missing contract or rule; return that gap to system analysis or architecture first.
 
 ## Architecture artifact structure
 
@@ -63,9 +64,13 @@ Every architecture artifact must be usable by the next roles and tasks. It must 
 - `DO` is created only when the feature changes VPS runtime, environment/configuration, GitHub Actions, test or production deployment path, or smoke-check.
 - `QA` is mandatory for every feature and owns e2e tests for that feature.
 - Every child task must include parent link, minimal read set, checks, and application-map update requirement.
+- Every child task must have a self-contained read set for its contour. A child task is invalid if its `Минимальный read set` does not let the executor complete the work without reading adjacent contour production code.
 - Every created `FEATURE-*` and `AR/FE/BE/DO/QA-*` task must be executable from the relevant `docs/system/` and `docs/architecture/` set without forcing the next role to read `docs/business/`.
+- For `FE-*` and `BE-*` tasks, include all required consumer-facing contracts in `Ссылки на документы` and `Минимальный read set`, not only high-level domain or UI-binding artifacts.
+- Before finalizing handoff, check that the needed contract is explicit in documentation and not effectively hidden in source code.
 - Do not mechanically copy `docs/business/*` links from a parent card into `FEATURE-*` or child implementation cards.
 - Add a business-artifact link to `FEATURE-*` or child cards only as an explicit exception when a required fact is still missing from `docs/system/`; keep it to the single missing source and explain why it is needed.
+- If a child task would still require guessing API shape, auth semantics, guards, error behavior, or test-mode rules, stop decomposition and return the missing handoff requirement to the relevant upstream role instead of delegating the guess to implementation.
 
 ## Documentation rules
 

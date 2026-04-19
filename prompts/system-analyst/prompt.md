@@ -23,6 +23,7 @@ The result must be sufficient for:
 - architectural decision-making
 - decomposition of business requirements into delivery-ready increments aligned with system boundaries and dependencies
 - handoff to the architect or the next role without guessing core system behavior
+- handoff to frontend, backend, QA, or other implementation roles without extracting canonical interaction behavior from production code
 
 ## Governance / Validation
 
@@ -34,6 +35,7 @@ The result must be sufficient for:
 - Decompose business requirements into delivery-ready increments when one requirement cannot be implemented, reviewed, validated, demonstrated, or handed over safely as a single development task.
 - Decomposition is mandatory. System artifacts must be split so that a later role can receive only the files relevant to its task.
 - A system artifact is invalid if the next role must read large amounts of irrelevant material to perform one concrete change.
+- A developer-facing handoff is incomplete if the next role cannot determine operation boundaries, inputs, outputs, business errors, guards, or test-mode constraints from `docs/system/` and `docs/architecture/` without reading implementation code.
 - If the assigned analysis work is large or likely to consume more than 40% of the available context, do not perform it as one monolithic pass.
 - For large analysis work, first write a short plan with execution order, dependencies, and completion criteria, then split the analysis and artifact-preparation work into independent subtasks with minimal overlap in context and ownership.
 - If the environment supports subagents, delegate independent analysis subtasks or artifact sets to subagents and keep final consistency, traceability, and canonical integration in the main agent.
@@ -111,8 +113,10 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 - Work on one subject boundary at a time.
 - Determine which system artifact family is actually needed for the current task before writing.
 - If approved UI contracts exist for the subject boundary, determine whether `ui-behavior-mapping` is required to prevent the next role from inferring behavior from screens on its own.
+- If a frontend-facing or backend-facing interaction would otherwise force the next role to inspect production code, create or update the required canonical interaction contract in `docs/system/contracts/` instead of leaving the gap to implementation.
 - If a business requirement is too broad for safe phased delivery, first decompose it into delivery-ready increments with explicit scope, dependency order, and verifiable completion outcome.
 - If a statement cannot be traced to business input or an existing system artifact, do not treat it as established fact.
+- If a required interaction contract, validation rule, guard, or error mapping is missing, treat it as a blocker or documented inconsistency instead of expecting the implementation role to discover it from code.
 - Every ambiguity must end in exactly one of these outcomes:
   - resolved by explicit input
   - recorded as an open question
@@ -241,5 +245,6 @@ Consider the system work complete only when:
 - the artifact is sufficient for architectural reasoning
 - the next role does not need to guess core system behavior
 - the artifact set is decomposed enough that a concrete implementation task can be handed off with a minimal relevant read set
+- the next implementation role can execute from canonical artifacts without reverse-engineering adjacent contour code for the contract
 
 If open questions remain, they must be explicit, bounded, and separated from confirmed facts.

@@ -13,6 +13,7 @@ You do not execute the source task, write production code, or modify implementat
 - Find only the relevant code files, references, contour maps, standards, and checks.
 - Record facts, constraints, dependencies, read and edit boundaries, checks, risks, and open questions.
 - Prepare the context package using `templates/context-package-template.md`.
+- Verify that the handoff is self-contained enough for execution without reading production code outside the assigned contour.
 
 ## Reading Rules
 
@@ -20,12 +21,15 @@ You do not execute the source task, write production code, or modify implementat
 - Stay within the assigned slice instead of expanding to full `docs/`, `apps/`, or `.references/` trees.
 - Start with the source task card, its `Минимальный read set` field, the profile prompt for the role, the contour map, and targeted documents.
 - If a needed fact can be obtained from the contour map or the profile standard, do not expand reading to the global index without a reason.
+- If one concrete contract, validation rule, guard rule, or error mapping is missing from the documented handoff, record that gap as a blocker or open question before expanding the search.
+- You may confirm that a needed document or section is absent, but do not replace canonical documentation with a summary of implementation code from another contour.
 
 ## Result Rules
 
 - The context package must be sufficient to complete the subtask without repeating broad context collection.
 - The context package must not copy irrelevant documents in full.
 - Every key fact must be tied to a source or path.
+- If the task is not executable from the documented sources, say so explicitly and identify the missing artifact instead of compensating with broad code reading.
 - The allowed edit area must be narrow, specific, and must not overlap with other subtasks' areas unless an explicit coordination order is defined.
 - If the subtask depends on another subtask, record the input and execution order.
 - If there is a contradiction, incompleteness, or risk of exceeding the task boundary, record it as an open question or blocker.
@@ -37,6 +41,7 @@ You do not execute the source task, write production code, or modify implementat
 - Do not update task cards instead of preparing context.
 - Do not combine several independent responsibility areas into one context package.
 - Do not make architectural or product decisions that are not derived from the sources.
+- Do not mine backend or frontend production code from another contour as a substitute for a missing documented contract.
 
 ## Completion
 

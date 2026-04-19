@@ -1,0 +1,48 @@
+name: Deploy Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-test
+  cancel-in-progress: true
+
+jobs:
+  deploy-test:
+    name: deploy-test
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to test VPS and run smoke-check
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
+          DEPLOY_RESTART_COMMAND: ${{ secrets.TEST_DEPLOY_RESTART_COMMAND }}
+          ENV_FILE: ${{ secrets.TEST_VPS_ENV_FILE }}
+          SMOKE_BACKEND_BASE_URL: ${{ secrets.TEST_SMOKE_BACKEND_BASE_URL }}
+        with:
+          host: ${{ secrets.TEST_VPS_HOST }}
+          username: ${{ secrets.TEST_VPS_USER }}
+          key: ${{ secrets.TEST_VPS_SSH_KEY }}
+          port: ${{ secrets.TEST_VPS_PORT }}
+          fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
+          script_stop: true
+          envs: APP_DIR,DEPLOY_RESTART_COMMAND,ENV_FILE,SMOKE_BACKEND_BASE_URL
+          script: |
+            set -euo pipefail
+            if [ -z "${APP_DIR}" ] || [ -z "${DEPLOY_RESTART_COMMAND}" ]; then
+              echo "Required deploy secrets are missing."
+              exit 1
+            fi
+
+            cd "${APP_DIR}"
+            git fetch --prune origin
+            git pull --ff-only origin main
+            chmod +x scripts/deploy-test-vps.sh
+            SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh

@@ -101,6 +101,10 @@
   - Файл: [contracts/backoffice-order-processing.md](./contracts/backoffice-order-processing.md)
   - Использовать для операций barista по обработке заказа.
 
+- `Backoffice Auth And Capability Access`
+  - Файл: [contracts/backoffice-auth-and-capability-access.md](./contracts/backoffice-auth-and-capability-access.md)
+  - Использовать для `POST /backoffice/auth/session`, `GET /backoffice/:capability`, состава `AuthenticatedActor`, error mapping входа и связи между session bootstrap и route/capability guard.
+
 - `Menu And Availability Management`
   - Файл: [contracts/menu-and-availability-management.md](./contracts/menu-and-availability-management.md)
   - Использовать для изменения каталога administrator и оперативной доступности barista.
@@ -145,6 +149,7 @@
 - Если задача про каталог и допы: читать `domain-model/menu-catalog.md`, `use-cases/administrator-manage-menu.md`, `use-cases/barista-manage-menu-availability.md`, `contracts/menu-and-availability-management.md`.
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
 - Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
+- Если задача про вход во внутренний backoffice, session bootstrap, capability guard или test-mode ограничения: читать `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
 - Если задача приходит из UI-контракта или экранного флоу: читать соответствующий файл в `ui-contracts/`, затем нужные файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`.
 - Если задача про UI внутреннего административного контура: читать `README.md`, затем `ui-contracts/expressa-backoffice-ui-contract.md`, затем нужные файлы в `.references/Expressa_admin`, после этого `ui-behavior-mapping/backoffice-ui-binding.md` и только потом целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
@@ -157,6 +162,5 @@
 - Не зафиксировано системное поведение при конкурентной попытке занять последний слот выдачи.
 - Не определён требуемый уровень snapshot-данных каталога внутри заказа после последующего изменения меню.
 - UI-контракты содержат дополнительные расхождения: англоязычные статусы против русскоязычной каноники, действие `unblock_user`, диапазон `slot_capacity 1..50`, real-time индикатор новых заказов и атрибуты товара, не подтверждённые текущими бизнес-правилами.
-
 
 

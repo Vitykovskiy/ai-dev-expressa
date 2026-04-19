@@ -2,7 +2,7 @@
 
 Репозиторий хранит рабочие инструкции, ролевые промпты, шаблоны задач и терминологические правила для подготовки проектных артефактов Expressa.
 
-В текущем состоянии это методический каркас проекта, а не кодовая база приложения. Каталоги `docs/` и `tasks/` создаются и наполняются в рамках рабочих задач, когда появляются бизнес-, системные, архитектурные или реализационные артефакты.
+В текущем состоянии это методический каркас проекта с минимальными backend- и frontend-контурами доступа для `FEATURE-001`. Каталоги `docs/` и `tasks/` создаются и наполняются в рамках рабочих задач, когда появляются бизнес-, системные, архитектурные или реализационные артефакты.
 
 ## Старт работы
 
@@ -22,12 +22,58 @@
 .
 |-- .gitignore
 |-- .editorconfig
+|-- .env.example
+|-- .github/
+|   `-- workflows/
 |-- .gitattributes
 |-- .vscode/
 |   `-- settings.json
 |-- AGENTS.md
 |-- README.md
 |-- terms-map.md
+|-- backend/
+|   |-- package.json
+|   |-- package-lock.json
+|   |-- tsconfig.json
+|   |-- tsconfig.build.json
+|   |-- vitest.config.ts
+|   |-- src/
+|   |   |-- main.ts
+|   |   |-- app.module.ts
+|   |   `-- identity-access/
+|   `-- test/
+|-- frontend/
+|   |-- package.json
+|   |-- package-lock.json
+|   |-- tsconfig.json
+|   |-- vite.config.ts
+|   |-- vitest.config.ts
+|   |-- index.html
+|   `-- src/
+|       |-- main.ts
+|       |-- App.vue
+|       |-- styles.css
+|       |-- components/
+|       |-- modules/
+|       |-- router/
+|       `-- views/
+|-- docs/
+|   |-- architecture/
+|   |   |-- README.md
+|   |   |-- stack.md
+|   |   |-- frontend-architecture.md
+|   |   |-- backend-architecture.md
+|   |   |-- devops-standards.md
+|   |   |-- deployment-map.md
+|   |   |-- qa-standards.md
+|   |   |-- application-map.md
+|   |   `-- application-map/
+|   |       |-- frontend-backoffice.md
+|   |       |-- backend-access.md
+|   |       |-- delivery-and-runtime.md
+|   |       `-- qa-access.md
+|   |-- business/
+|   `-- system/
 |-- prompts/
 |   |-- architect/
 |   |   `-- prompt.md
@@ -46,6 +92,8 @@
 |   `-- system-analyst/
 |       |-- prompt.md
 |       `-- task-tree-rules.md
+|-- scripts/
+|   `-- deploy-test-vps.sh
 `-- templates/
     |-- context-package-template.md
     |-- task-template-instruction.md
@@ -57,12 +105,17 @@
 - `AGENTS.md` — обязательная инструкция для агентов: перед анализом, изменением файлов или постановкой задач нужно сначала прочитать `README.md`.
 - `README.md` — корневая навигация по репозиторию и общий процессный слой.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
+- `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
+- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, forbidden screen и тесты.
 - `prompts/` — ролевые промпты для участников рабочего процесса.
 - `templates/` — шаблоны карточек задач и контекстных пакетов.
 - `.gitignore` — исключения для локальных зависимостей, сборок, окружений, отчетов и `.references`.
 - `.gitattributes` — Git-правила нормализации текстовых файлов к `LF` и защиты бинарных файлов от текстовой обработки.
 - `.editorconfig` — базовые правила редактора: `UTF-8`, `LF`, финальная новая строка и обработка пробелов.
+- `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
 - `.vscode/settings.json` — рабочие настройки VS Code для кодировки `UTF-8`, окончания строк `LF` и отключенного автоугадывания кодировки.
+- `.env.example` — пример корневого runtime-конфига для VPS `test`; реальные значения хранятся только в локальном `.env` на сервере и не коммитятся.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
 
 ## Ролевые промпты
 
@@ -91,6 +144,25 @@
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
 - `tasks/` — итоговые карточки задач `SPRINT-*`, `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*`, `BA-*`, `SA-*`.
 - `.references/` — локальные визуальные или входные референсы; каталог исключен из Git через `.gitignore`.
+
+## Backend
+
+- Контур находится в `backend/`.
+- Установка зависимостей: `npm install` из каталога `backend/`.
+- Сборка: `npm run build`.
+- Тесты: `npm test`.
+- Запуск: `ADMIN_TELEGRAM_ID=<id> SERVICE_TELEGRAM_BOT_TOKEN=<token> NODE_ENV=production npm start` после сборки.
+- Test-mode запуск без Telegram допустим только с `NODE_ENV=test DISABLE_TG_AUTH=true ADMIN_TELEGRAM_ID=<id>`.
+
+## Frontend
+
+- Контур находится в `frontend/`.
+- Установка зависимостей: `npm install` из каталога `frontend/`.
+- Dev server: `npm run dev`.
+- Сборка: `npm run build`.
+- Тесты: `npm test`.
+- Локальная интеграция с backend по умолчанию использует Vite proxy на `http://localhost:3000` для `/backoffice`.
+- Дополнительные переменные: `VITE_BACKOFFICE_API_BASE_URL=<url>` для явного base URL backend API, `VITE_BACKOFFICE_TEST_TELEGRAM_ID=<id>` только для серверно разрешённого test-mode.
 
 ## Работа с задачами
 

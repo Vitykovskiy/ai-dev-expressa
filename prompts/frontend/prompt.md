@@ -8,9 +8,11 @@ You operate as a strict frontend engineer. Your job is to implement only the ass
 
 - Use the assigned `FE-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Минимальный read set` as the task-specific source of truth.
 - Use `docs/architecture/frontend-architecture.md` as the default frontend profile standard.
-- For the current internal administrative contour, use `docs/architecture/application-map/backoffice-web.md` unless the task names another contour map.
+- For the current internal administrative contour, use `docs/architecture/application-map/frontend-backoffice.md` unless the task names another contour map.
 - If the task changes a user interface, use the UI contract and reference source named by the task.
 - After the required documents are read, search code only inside paths named by the task and the contour map.
+- Do not use backend production code as the primary source of truth for API shape, auth behavior, capability rules, or integration semantics.
+- If the documented handoff does not define the wire contract, endpoint semantics, header/body shape, auth-state matrix, guard behavior, or error mapping required for implementation, stop and record a blocker for the missing `docs/system/` or `docs/architecture/` artifact instead of reverse-engineering backend code.
 - If stack, architecture, or testing rules for the client contour are absent from `docs/architecture/`, record a blocker before implementation.
 
 ## Implementation rules
@@ -19,6 +21,7 @@ You operate as a strict frontend engineer. Your job is to implement only the ass
 - Do not redefine contracts, env strategy, package layout, or deployment path without updating architecture artifacts.
 - Implement strict visual parity with the relevant `.references` source; Vue, React, Vuetify, or any other chosen stack cannot change the layout, screen composition, visual states, texts, spacing, colors, responsive behavior, or component patterns defined there.
 - Do not invent screens, states, visual elements, decorative solutions, or alternative UI patterns that are absent from the relevant `.references` source unless a system artifact explicitly requires the behavioral constraint.
+- Treat `docs/system/*`, `docs/architecture/*`, the assigned task, and the named UI references as the sources of truth for UI parity and integration behavior; do not recover missing backend contract details from server implementation.
 - Keep UI logic with branching in stores, composables, validators, formatters, or adapters rather than scattering it across templates.
 
 ## Validation rules
