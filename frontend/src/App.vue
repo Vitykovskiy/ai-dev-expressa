@@ -3,15 +3,27 @@ import { computed } from "vue";
 import { useAuthSession } from "./modules/auth/session-store";
 
 const auth = useAuthSession();
-const showOverlay = computed(() => auth.state.status === "loading" && !auth.state.actor);
+const showOverlay = computed(
+  () => auth.state.status === "loading" && !auth.state.actor,
+);
 </script>
 
 <template>
   <v-app>
     <router-view />
-    <div v-if="showOverlay" class="app-overlay" aria-live="polite" aria-busy="true">
+    <div
+      v-if="showOverlay"
+      class="app-overlay"
+      aria-live="polite"
+      aria-busy="true"
+    >
       <div class="app-overlay__content">
-        <v-progress-circular indeterminate color="primary" :size="44" :width="4" />
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          :size="44"
+          :width="4"
+        />
         <p class="app-overlay__text">Проверяем вход через Telegram</p>
       </div>
     </div>

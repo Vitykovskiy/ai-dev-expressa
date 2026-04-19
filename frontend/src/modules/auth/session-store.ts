@@ -6,7 +6,7 @@ import type { AuthenticatedActor, SessionState } from "./types";
 const state = reactive<SessionState>({
   status: "idle",
   actor: null,
-  errorCode: null
+  errorCode: null,
 });
 
 let pendingBootstrap: Promise<AuthenticatedActor> | null = null;
@@ -15,7 +15,7 @@ export function useAuthSession() {
   return {
     state: readonly(state),
     ensureSession,
-    resetSession
+    resetSession,
   };
 }
 
@@ -35,11 +35,12 @@ export async function ensureSession(): Promise<AuthenticatedActor> {
   pendingBootstrap = bootstrapSession(
     {
       initData: getTelegramInitData(),
-      testTelegramId: import.meta.env.VITE_BACKOFFICE_TEST_TELEGRAM_ID?.trim() || undefined
+      testTelegramId:
+        import.meta.env.VITE_BACKOFFICE_TEST_TELEGRAM_ID?.trim() || undefined,
     },
     {
-      apiBaseUrl: import.meta.env.VITE_BACKOFFICE_API_BASE_URL
-    }
+      apiBaseUrl: import.meta.env.VITE_BACKOFFICE_API_BASE_URL,
+    },
   )
     .then((actor) => {
       state.actor = actor;
@@ -51,7 +52,9 @@ export async function ensureSession(): Promise<AuthenticatedActor> {
       state.actor = null;
       state.status = "denied";
       state.errorCode =
-        error instanceof SessionApiError ? error.code : "backoffice-auth-failed";
+        error instanceof SessionApiError
+          ? error.code
+          : "backoffice-auth-failed";
       throw error;
     })
     .finally(() => {

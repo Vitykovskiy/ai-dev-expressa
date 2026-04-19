@@ -7,7 +7,7 @@ export const BACKOFFICE_CAPABILITIES = [
   "availability",
   "menu",
   "users",
-  "settings"
+  "settings",
 ] as const;
 
 export type BackofficeCapability = (typeof BACKOFFICE_CAPABILITIES)[number];
@@ -15,18 +15,20 @@ export type BackofficeCapability = (typeof BACKOFFICE_CAPABILITIES)[number];
 const roleCapabilities: Record<Role, readonly BackofficeCapability[]> = {
   customer: [],
   barista: ["orders", "availability"],
-  administrator: ["orders", "availability", "menu", "users", "settings"]
+  administrator: ["orders", "availability", "menu", "users", "settings"],
 };
 
 export function canAccessBackofficeCapability(
   roles: readonly Role[],
-  capability: BackofficeCapability
+  capability: BackofficeCapability,
 ): boolean {
   return roles.some((role) => roleCapabilities[role].includes(capability));
 }
 
-export function visibleBackofficeCapabilities(roles: readonly Role[]): BackofficeCapability[] {
+export function visibleBackofficeCapabilities(
+  roles: readonly Role[],
+): BackofficeCapability[] {
   return BACKOFFICE_CAPABILITIES.filter((capability) =>
-    canAccessBackofficeCapability(roles, capability)
+    canAccessBackofficeCapability(roles, capability),
   );
 }

@@ -3,7 +3,7 @@ export const BACKOFFICE_CAPABILITIES = [
   "availability",
   "menu",
   "users",
-  "settings"
+  "settings",
 ] as const;
 
 export type BackofficeCapability = (typeof BACKOFFICE_CAPABILITIES)[number];

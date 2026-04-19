@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import AccessDeniedView from "../views/AccessDeniedView.vue";
 import FeatureStubView from "../views/FeatureStubView.vue";
 import ForbiddenView from "../views/ForbiddenView.vue";
+import MenuCatalogView from "../views/MenuCatalogView.vue";
 import RootLayout from "../views/RootLayout.vue";
 import { ensureSession, useAuthSession } from "../modules/auth/session-store";
 import { SessionApiError } from "../modules/auth/session-api";
@@ -14,7 +15,7 @@ export const router = createRouter({
       path: "/entry-denied",
       name: "entry-denied",
       component: AccessDeniedView,
-      meta: { public: true }
+      meta: { public: true },
     },
     {
       path: "/",
@@ -27,9 +28,9 @@ export const router = createRouter({
           props: {
             title: "Заказы",
             description:
-              "Вход подтверждён. Операционная очередь заказов подключается отдельной задачей."
+              "Вход подтверждён. Операционная очередь заказов подключается отдельной задачей.",
           },
-          meta: { capability: "orders" }
+          meta: { capability: "orders" },
         },
         {
           path: "availability",
@@ -38,20 +39,15 @@ export const router = createRouter({
           props: {
             title: "Доступность",
             description:
-              "Вход подтверждён. Управление доступностью меню подключается отдельной задачей."
+              "Вход подтверждён. Управление доступностью меню подключается отдельной задачей.",
           },
-          meta: { capability: "availability" }
+          meta: { capability: "availability" },
         },
         {
           path: "menu",
           name: "menu",
-          component: FeatureStubView,
-          props: {
-            title: "Меню",
-            description:
-              "Вкладка видна только administrator. Наполнение каталога будет добавлено отдельной задачей."
-          },
-          meta: { capability: "menu" }
+          component: MenuCatalogView,
+          meta: { capability: "menu" },
         },
         {
           path: "users",
@@ -60,9 +56,9 @@ export const router = createRouter({
           props: {
             title: "Пользователи",
             description:
-              "Вкладка видна только administrator. Управление ролями и блокировкой будет добавлено отдельной задачей."
+              "Вкладка видна только administrator. Управление ролями и блокировкой будет добавлено отдельной задачей.",
           },
-          meta: { capability: "users" }
+          meta: { capability: "users" },
         },
         {
           path: "settings",
@@ -71,22 +67,22 @@ export const router = createRouter({
           props: {
             title: "Настройки",
             description:
-              "Вкладка видна только administrator. Управление слотами будет добавлено отдельной задачей."
+              "Вкладка видна только administrator. Управление слотами будет добавлено отдельной задачей.",
           },
-          meta: { capability: "settings" }
+          meta: { capability: "settings" },
         },
         {
           path: "forbidden",
           name: "forbidden",
-          component: ForbiddenView
-        }
-      ]
+          component: ForbiddenView,
+        },
+      ],
     },
     {
       path: "/:pathMatch(.*)*",
-      redirect: "/"
-    }
-  ]
+      redirect: "/",
+    },
+  ],
 });
 
 router.beforeEach(async (to) => {
@@ -98,7 +94,9 @@ router.beforeEach(async (to) => {
     await ensureSession();
   } catch (error) {
     const reason =
-      error instanceof SessionApiError ? error.code : useAuthSession().state.errorCode ?? "unknown";
+      error instanceof SessionApiError
+        ? error.code
+        : (useAuthSession().state.errorCode ?? "unknown");
     return { name: "entry-denied", query: { reason } };
   }
 
@@ -109,6 +107,6 @@ router.beforeEach(async (to) => {
 
   return {
     name: decision.name,
-    query: decision.name === "forbidden" ? { from: to.fullPath } : to.query
+    query: decision.name === "forbidden" ? { from: to.fullPath } : to.query,
   };
 });

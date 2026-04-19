@@ -22,7 +22,9 @@ export class TelegramInitDataVerifier {
       .join("\n");
 
     const secret = createHmac("sha256", "WebAppData").update(botToken).digest();
-    const expectedHash = createHmac("sha256", secret).update(dataCheckString).digest("hex");
+    const expectedHash = createHmac("sha256", secret)
+      .update(dataCheckString)
+      .digest("hex");
 
     if (!safeEqualHex(receivedHash, expectedHash)) {
       throw new UnauthorizedException("telegram-hash-invalid");

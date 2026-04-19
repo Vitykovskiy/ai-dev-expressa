@@ -11,6 +11,13 @@
 - Сборка: `frontend/` -> `npm run build`.
 - Тесты: `frontend/` -> `npm test`.
 
+## UI primitives boundary
+
+- Канонический слой повторяемых backoffice primitives находится в `frontend/src/components/ui/`.
+- `frontend/src/components/ui/README.md` является практическим каталогом компонентов, их props/slots/events и mapping на `.references/Expressa_admin`.
+- `docs/architecture/frontend-ui-kit.md` фиксирует архитектурное правило: новый shell-wide или повторяемый visual pattern сначала добавляется в `components/ui/`, затем применяется в `views/` и `components/<feature>/`.
+- Feature-specific код в `frontend/src/components/menu-catalog/` не должен заново определять top bar, navigation, section containers, dialog chrome, empty states или базовые action buttons.
+
 ## Точки входа и маршруты
 
 | Route | Назначение | Guard |
@@ -51,6 +58,28 @@
 - `.references/Expressa_admin/src/app/components/SideNav.tsx` и `TabBar.tsx` задают роль-зависимую навигацию.
 - `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`, `AddCategoryDialog.tsx`, `EditCategoryDialog.tsx`, `AddProductDialog.tsx`, `EditProductDialog.tsx` и `MenuGuide.tsx` задают визуальный и поведенческий ориентир для вкладки `Меню`.
 - Цвета, отступы и композиция берутся из UI-контракта и референса, но реализация должна быть на `Vue 3`/`Vuetify`.
+
+## FEATURE-002 frontend implementation map
+
+| Путь | Назначение |
+|---|---|
+| `frontend/src/components/ui/*.vue` | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
+| `frontend/src/views/MenuCatalogView.vue` | Экран `/menu`: категории, товары, цены, группы опций, опции и назначение групп опций на категории. |
+| `frontend/src/components/menu-catalog/*.vue` | Feature-specific панели и диалоги каталога меню: список категорий, панель групп опций, формы категорий, товаров и групп опций. |
+| `frontend/src/modules/menu-catalog/view-model.ts` | Form state, derived state и orchestration логика экрана меню без transport details. |
+| `frontend/src/modules/menu-catalog/types.ts` | Клиентские типы consumer-facing contract `Manage menu catalog`. |
+| `frontend/src/modules/menu-catalog/api.ts` | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract. |
+| `frontend/src/modules/menu-catalog/store.ts` | Локальное состояние snapshot каталога и операции сохранения через backend contract. |
+| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation. |
+
+## Code architecture standard for FEATURE-006
+
+- `MenuCatalogView.vue` является первым обязательным кандидатом на декомпозицию: view должен остаться route-level orchestration, а формы категорий, товаров, размеров, групп опций и повторяемые rows должны быть вынесены в компоненты или композиционные функции.
+- Все новые и рефакторимые SFC в этом контуре используют порядок `template` -> `script` -> `style` и `<style scoped lang="scss">`.
+- Повторяемые visual primitives для shell и menu flow выносятся в `frontend/src/components/ui/`; feature-компоненты собираются из `App*` компонентов и не дублируют их локальными стилями.
+- API calls к `/backoffice/menu/*`, Telegram/test-mode headers и transport error mapping остаются в `modules/menu-catalog/api.ts`; components не обращаются к backend напрямую.
+- Изменение структуры компонентов не должно менять route `/menu`, administrator-only guard, forbidden screen behavior, request/response DTO или mapping ошибок `invalid-drink-size-model` и `invalid-option-group-rule`.
+- Если декомпозиция добавляет новые постоянные components, composables или module files, эта карта обновляется в той же задаче.
 
 ## Handoff route for FEATURE-001
 

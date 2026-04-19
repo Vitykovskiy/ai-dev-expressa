@@ -9,25 +9,28 @@ describe("bootstrapSession", () => {
           userId: "1",
           telegramId: "1001",
           roles: ["administrator"],
-          capabilities: ["orders", "availability", "menu", "users", "settings"]
+          capabilities: ["orders", "availability", "menu", "users", "settings"],
         }),
         {
           status: 200,
-          headers: { "content-type": "application/json" }
-        }
-      )
+          headers: { "content-type": "application/json" },
+        },
+      ),
     );
 
     const actor = await bootstrapSession(
       { initData: "signed-init-data" },
-      { apiBaseUrl: "http://localhost:3000", fetchImpl }
+      { apiBaseUrl: "http://localhost:3000", fetchImpl },
     );
 
-    expect(fetchImpl).toHaveBeenCalledWith("http://localhost:3000/backoffice/auth/session", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ initData: "signed-init-data" })
-    });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/backoffice/auth/session",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ initData: "signed-init-data" }),
+      },
+    );
     expect(actor.roles).toEqual(["administrator"]);
   });
 
@@ -38,13 +41,13 @@ describe("bootstrapSession", () => {
           userId: "1",
           telegramId: "1001",
           roles: ["administrator"],
-          capabilities: ["orders", "availability", "menu", "users", "settings"]
+          capabilities: ["orders", "availability", "menu", "users", "settings"],
         }),
         {
           status: 200,
-          headers: { "content-type": "application/json" }
-        }
-      )
+          headers: { "content-type": "application/json" },
+        },
+      ),
     );
 
     await bootstrapSession({ testTelegramId: "1001" }, { fetchImpl });
@@ -52,7 +55,7 @@ describe("bootstrapSession", () => {
     expect(fetchImpl).toHaveBeenCalledWith("/backoffice/auth/session", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ testTelegramId: "1001" })
+      body: JSON.stringify({ testTelegramId: "1001" }),
     });
   });
 
@@ -62,18 +65,21 @@ describe("bootstrapSession", () => {
         { initData: "bad" },
         {
           fetchImpl: vi.fn().mockResolvedValue(
-            new Response(JSON.stringify({ message: "telegram-init-data-required" }), {
-              status: 401,
-              headers: { "content-type": "application/json" }
-            })
-          )
-        }
-      )
+            new Response(
+              JSON.stringify({ message: "telegram-init-data-required" }),
+              {
+                status: 401,
+                headers: { "content-type": "application/json" },
+              },
+            ),
+          ),
+        },
+      ),
     ).rejects.toEqual(
       expect.objectContaining<Partial<SessionApiError>>({
         status: 401,
-        code: "telegram-init-data-required"
-      })
+        code: "telegram-init-data-required",
+      }),
     );
   });
 });

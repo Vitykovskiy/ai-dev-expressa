@@ -8,7 +8,6 @@
 - Описание: `Нужно подготовить env/config, CI checks, test deployment flow и smoke-check для FEATURE-001: ADMIN_TELEGRAM_ID, секрет служебного Telegram-бота, ограничение DISABLE_TG_AUTH=true только test environment, два обязательных PR job и автодеплой merge в main на VPS test-окружения.`
 - Единица поставки: `FEATURE-001`
 - Роль: `Девопс`
-- Изменяемый контур: `devops`
 - Приоритет: `Критический`
 - Статус: `Выполнена`
 

@@ -9,7 +9,7 @@ export class BootstrapAdministratorService implements OnApplicationBootstrap {
     @Inject(ACCESS_CONFIG)
     private readonly config: AccessConfig,
     @Inject(IdentityAccessService)
-    private readonly identity: IdentityAccessService
+    private readonly identity: IdentityAccessService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -17,6 +17,8 @@ export class BootstrapAdministratorService implements OnApplicationBootstrap {
   }
 
   async bootstrap(): Promise<void> {
-    await this.identity.ensureUserWithRoles(this.config.adminTelegramId, ["administrator"]);
+    await this.identity.ensureUserWithRoles(this.config.adminTelegramId, [
+      "administrator",
+    ]);
   }
 }

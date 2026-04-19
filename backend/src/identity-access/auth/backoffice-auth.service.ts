@@ -2,31 +2,22 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from "@nestjs/common";
 import { AccessConfig } from "../config/access-config";
 import {
   BackofficeCapability,
   canAccessBackofficeCapability,
-  Role,
-  visibleBackofficeCapabilities
+  visibleBackofficeCapabilities,
 } from "../domain/role";
-import { User } from "../domain/user";
+import {
+  AuthenticatedActor,
+  toAuthenticatedActor,
+} from "../domain/authenticated-actor";
 import { ACCESS_CONFIG } from "../identity-access.tokens";
 import { IdentityAccessService } from "../users/identity-access.service";
+import { BackofficeAuthInput } from "./backoffice-auth.input";
 import { TelegramInitDataVerifier } from "./telegram-init-data.verifier";
-
-export interface BackofficeAuthInput {
-  readonly initData?: string;
-  readonly testTelegramId?: string;
-}
-
-export interface AuthenticatedActor {
-  readonly userId: string;
-  readonly telegramId: string;
-  readonly roles: readonly Role[];
-  readonly capabilities: readonly BackofficeCapability[];
-}
 
 @Injectable()
 export class BackofficeAuthService {
@@ -36,7 +27,7 @@ export class BackofficeAuthService {
     @Inject(IdentityAccessService)
     private readonly identity: IdentityAccessService,
     @Inject(TelegramInitDataVerifier)
-    private readonly telegramVerifier: TelegramInitDataVerifier
+    private readonly telegramVerifier: TelegramInitDataVerifier,
   ) {}
 
   async authenticate(input: BackofficeAuthInput): Promise<AuthenticatedActor> {
@@ -56,12 +47,12 @@ export class BackofficeAuthService {
       throw new ForbiddenException("backoffice-role-required");
     }
 
-    return toActor(user);
+    return toAuthenticatedActor(user);
   }
 
   async requireCapability(
     input: BackofficeAuthInput,
-    capability: BackofficeCapability
+    capability: BackofficeCapability,
   ): Promise<AuthenticatedActor> {
     const actor = await this.authenticate(input);
     if (!canAccessBackofficeCapability(actor.roles, capability)) {
@@ -87,13 +78,4 @@ export class BackofficeAuthService {
 
     return this.telegramVerifier.verify(input.initData, token).telegramId;
   }
-}
-
-function toActor(user: User): AuthenticatedActor {
-  return {
-    userId: user.userId,
-    telegramId: user.telegramId,
-    roles: user.roles,
-    capabilities: visibleBackofficeCapabilities(user.roles)
-  };
 }

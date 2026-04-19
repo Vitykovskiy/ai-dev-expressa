@@ -12,9 +12,9 @@ describe("BootstrapAdministratorService", () => {
       {
         environment: "test",
         adminTelegramId: "1001",
-        disableTelegramAuth: true
+        disableTelegramAuth: true,
       },
-      identity
+      identity,
     );
 
     await bootstrap.bootstrap();
@@ -35,9 +35,9 @@ describe("BootstrapAdministratorService", () => {
       {
         environment: "test",
         adminTelegramId: "1001",
-        disableTelegramAuth: true
+        disableTelegramAuth: true,
       },
-      identity
+      identity,
     );
 
     await bootstrap.bootstrap();
@@ -45,7 +45,7 @@ describe("BootstrapAdministratorService", () => {
 
     await expect(identity.findByTelegramId("1001")).resolves.toMatchObject({
       telegramId: "1001",
-      roles: ["customer", "administrator"]
+      roles: ["customer", "administrator"],
     });
   });
 });

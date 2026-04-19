@@ -3,7 +3,7 @@ import {
   ClipboardList,
   Settings,
   ToggleRight,
-  Users
+  Users,
 } from "lucide-vue-next";
 import type { BackofficeCapability } from "../auth/types";
 
@@ -16,14 +16,19 @@ export interface BackofficeTab {
 
 export const BACKOFFICE_TABS: readonly BackofficeTab[] = [
   { id: "orders", label: "Заказы", path: "/", icon: ClipboardList },
-  { id: "availability", label: "Доступность", path: "/availability", icon: ToggleRight },
+  {
+    id: "availability",
+    label: "Доступность",
+    path: "/availability",
+    icon: ToggleRight,
+  },
   { id: "menu", label: "Меню", path: "/menu", icon: BookOpen },
   { id: "users", label: "Пользователи", path: "/users", icon: Users },
-  { id: "settings", label: "Настройки", path: "/settings", icon: Settings }
+  { id: "settings", label: "Настройки", path: "/settings", icon: Settings },
 ];
 
 export function getVisibleTabs(
-  capabilities: readonly BackofficeCapability[]
+  capabilities: readonly BackofficeCapability[],
 ): readonly BackofficeTab[] {
   return BACKOFFICE_TABS.filter((tab) => capabilities.includes(tab.id));
 }

@@ -23,17 +23,27 @@
 |-- .gitignore
 |-- .editorconfig
 |-- .env.example
+|-- .lintstagedrc.mjs
 |-- .github/
 |   `-- workflows/
 |-- .gitattributes
+|-- .husky/
+|   |-- _/
+|   `-- pre-commit
+|-- .prettierignore
+|-- .prettierrc.json
+|-- .stylelintignore
 |-- .vscode/
 |   `-- settings.json
 |-- AGENTS.md
 |-- README.md
+|-- package.json
+|-- package-lock.json
 |-- terms-map.md
 |-- backend/
 |   |-- package.json
 |   |-- package-lock.json
+|   |-- eslint.config.mjs
 |   |-- tsconfig.json
 |   |-- tsconfig.build.json
 |   |-- vitest.config.ts
@@ -45,6 +55,8 @@
 |-- frontend/
 |   |-- package.json
 |   |-- package-lock.json
+|   |-- eslint.config.mjs
+|   |-- stylelint.config.mjs
 |   |-- tsconfig.json
 |   |-- vite.config.ts
 |   |-- vitest.config.ts
@@ -107,6 +119,7 @@
 - `AGENTS.md` — обязательная инструкция для агентов: перед анализом, изменением файлов или постановкой задач нужно сначала прочитать `README.md`.
 - `README.md` — корневая навигация по репозиторию и общий процессный слой.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
+- `package.json` и `package-lock.json` в корне — общий tooling-слой репозитория: `husky`, `lint-staged`, `prettier`, `eslint`, `stylelint` и агрегирующие quality-команды.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, forbidden screen и тесты.
 - `prompts/` — ролевые промпты для участников рабочего процесса.
@@ -115,6 +128,8 @@
 - `.gitattributes` — Git-правила нормализации текстовых файлов к `LF` и защиты бинарных файлов от текстовой обработки.
 - `.editorconfig` — базовые правила редактора: `UTF-8`, `LF`, финальная новая строка и обработка пробелов.
 - `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
+- `.husky/pre-commit` и `.lintstagedrc.mjs` — локальный quality gate для изменённых файлов перед commit.
+- `.prettierrc.json`, `.prettierignore`, `.stylelintignore` — репозиторные правила форматирования и style-проверок.
 - `.vscode/settings.json` — рабочие настройки VS Code для кодировки `UTF-8`, окончания строк `LF` и отключенного автоугадывания кодировки.
 - `.env.example` — пример корневого runtime-конфига для VPS `test`; реальные значения хранятся только в локальном `.env` на сервере и не коммитятся.
 - `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
@@ -147,11 +162,21 @@
 - `tasks/` — итоговые карточки задач `SPRINT-*`, `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*`, `BA-*`, `SA-*`.
 - `.references/` — локальные визуальные или входные референсы; каталог исключен из Git через `.gitignore`.
 
+## Tooling
+
+- Перед локальной работой с quality gates установите корневые tooling-зависимости: `npm install` в корне репозитория. Этот шаг подготавливает `husky` hook через `prepare`.
+- Для backend и frontend зависимости ставятся отдельно в своих каталогах: `cd backend && npm install`, `cd frontend && npm install`.
+- Корневой pre-commit hook запускает `lint-staged`: `prettier` для staged text-файлов, `eslint` для staged backend/frontend TypeScript/Vue и `stylelint` для staged frontend style-файлов и Vue style blocks.
+
 ## Backend
 
 - Контур находится в `backend/`.
 - Установка зависимостей: `npm install` из каталога `backend/`.
+- Lint: `npm run lint`.
+- Format: `npm run format`.
+- Format check: `npm run format:check`.
 - Сборка: `npm run build`.
+- Typecheck: `npm run typecheck`.
 - Тесты: `npm test`.
 - Запуск: `ADMIN_TELEGRAM_ID=<id> SERVICE_TELEGRAM_BOT_TOKEN=<token> NODE_ENV=production npm start` после сборки.
 - Test-mode запуск без Telegram допустим только с `NODE_ENV=test DISABLE_TG_AUTH=true ADMIN_TELEGRAM_ID=<id>`.
@@ -161,7 +186,12 @@
 - Контур находится в `frontend/`.
 - Установка зависимостей: `npm install` из каталога `frontend/`.
 - Dev server: `npm run dev`.
+- Lint: `npm run lint`.
+- Stylelint: `npm run stylelint`.
+- Format: `npm run format`.
+- Format check: `npm run format:check`.
 - Сборка: `npm run build`.
+- Typecheck: `npm run typecheck`.
 - Тесты: `npm test`.
 - Локальная интеграция с backend по умолчанию использует Vite proxy на `http://localhost:3000` для `/backoffice`.
 - Дополнительные переменные: `VITE_BACKOFFICE_API_BASE_URL=<url>` для явного base URL backend API, `VITE_BACKOFFICE_TEST_TELEGRAM_ID=<id>` только для серверно разрешённого test-mode.

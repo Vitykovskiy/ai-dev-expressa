@@ -7,6 +7,13 @@ export interface AccessConfig {
   readonly serviceTelegramBotToken?: string;
 }
 
+export interface AccessConfigEnvironment {
+  readonly NODE_ENV?: string;
+  readonly ADMIN_TELEGRAM_ID?: string;
+  readonly DISABLE_TG_AUTH?: string;
+  readonly SERVICE_TELEGRAM_BOT_TOKEN?: string;
+}
+
 export class ConfigValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -14,19 +21,27 @@ export class ConfigValidationError extends Error {
   }
 }
 
-export function loadAccessConfig(env: NodeJS.ProcessEnv = process.env): AccessConfig {
+export function loadAccessConfig(env: AccessConfigEnvironment): AccessConfig {
   const environment = normalizeEnvironment(env.NODE_ENV);
-  const adminTelegramId = readRequiredTelegramId(env.ADMIN_TELEGRAM_ID, "ADMIN_TELEGRAM_ID");
-  const disableTelegramAuth = readBoolean(env.DISABLE_TG_AUTH, "DISABLE_TG_AUTH");
+  const adminTelegramId = readRequiredTelegramId(
+    env.ADMIN_TELEGRAM_ID,
+    "ADMIN_TELEGRAM_ID",
+  );
+  const disableTelegramAuth = readBoolean(
+    env.DISABLE_TG_AUTH,
+    "DISABLE_TG_AUTH",
+  );
   const serviceTelegramBotToken = env.SERVICE_TELEGRAM_BOT_TOKEN?.trim();
 
   if (disableTelegramAuth && environment !== "test") {
-    throw new ConfigValidationError("DISABLE_TG_AUTH=true is allowed only when NODE_ENV=test.");
+    throw new ConfigValidationError(
+      "DISABLE_TG_AUTH=true is allowed only when NODE_ENV=test.",
+    );
   }
 
   if (!disableTelegramAuth && !serviceTelegramBotToken) {
     throw new ConfigValidationError(
-      "SERVICE_TELEGRAM_BOT_TOKEN is required when Telegram auth is enabled."
+      "SERVICE_TELEGRAM_BOT_TOKEN is required when Telegram auth is enabled.",
     );
   }
 
@@ -34,7 +49,7 @@ export function loadAccessConfig(env: NodeJS.ProcessEnv = process.env): AccessCo
     environment,
     adminTelegramId,
     disableTelegramAuth,
-    serviceTelegramBotToken
+    serviceTelegramBotToken,
   };
 }
 
@@ -46,14 +61,19 @@ function normalizeEnvironment(value: string | undefined): RuntimeEnvironment {
   return "development";
 }
 
-function readRequiredTelegramId(value: string | undefined, name: string): string {
+function readRequiredTelegramId(
+  value: string | undefined,
+  name: string,
+): string {
   const trimmed = value?.trim();
   if (!trimmed) {
     throw new ConfigValidationError(`${name} is required.`);
   }
 
   if (!/^\d+$/.test(trimmed)) {
-    throw new ConfigValidationError(`${name} must be a numeric Telegram identifier.`);
+    throw new ConfigValidationError(
+      `${name} must be a numeric Telegram identifier.`,
+    );
   }
 
   return trimmed;

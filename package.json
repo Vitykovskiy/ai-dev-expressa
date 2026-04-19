@@ -1,0 +1,39 @@
+{
+  "name": "expressa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "lint-staged": "lint-staged",
+    "lint:backend": "npm --prefix backend run lint",
+    "format:check:backend": "npm --prefix backend run format:check",
+    "typecheck:backend": "npm --prefix backend run typecheck",
+    "test:backend": "npm --prefix backend test",
+    "build:backend": "npm --prefix backend run build",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "stylelint:frontend": "npm --prefix frontend run stylelint",
+    "format:check:frontend": "npm --prefix frontend run format:check",
+    "typecheck:frontend": "npm --prefix frontend run typecheck",
+    "test:frontend": "npm --prefix frontend test",
+    "build:frontend": "npm --prefix frontend run build",
+    "quality": "npm run lint:backend && npm run format:check:backend && npm run typecheck:backend && npm run test:backend && npm run lint:frontend && npm run stylelint:frontend && npm run format:check:frontend && npm run typecheck:frontend && npm run test:frontend",
+    "build": "npm run build:backend && npm run build:frontend"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "postcss-html": "^1.8.1",
+    "postcss-scss": "^4.0.9",
+    "prettier": "^3.8.3",
+    "stylelint": "^17.8.0",
+    "stylelint-config-recommended-vue": "^1.6.1",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript-eslint": "^8.58.2",
+    "vue-eslint-parser": "^10.4.0"
+  }
+}

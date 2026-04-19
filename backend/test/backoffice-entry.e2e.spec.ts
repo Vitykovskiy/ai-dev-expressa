@@ -29,7 +29,7 @@ describe("Backoffice entry e2e", () => {
       environment: "production",
       adminTelegramId: "1001",
       disableTelegramAuth: false,
-      serviceTelegramBotToken
+      serviceTelegramBotToken,
     });
 
     const initData = signTelegramInitData("1001", serviceTelegramBotToken);
@@ -40,7 +40,13 @@ describe("Backoffice entry e2e", () => {
       .expect(201)
       .expect(({ body }) => {
         expect(body.roles).toEqual(["administrator"]);
-        expect(body.capabilities).toEqual(["orders", "availability", "menu", "users", "settings"]);
+        expect(body.capabilities).toEqual([
+          "orders",
+          "availability",
+          "menu",
+          "users",
+          "settings",
+        ]);
       });
 
     await request(app.getHttpServer())
@@ -58,7 +64,7 @@ describe("Backoffice entry e2e", () => {
       environment: "production",
       adminTelegramId: "1001",
       disableTelegramAuth: false,
-      serviceTelegramBotToken: "service-token"
+      serviceTelegramBotToken: "service-token",
     });
 
     await request(app.getHttpServer())
@@ -73,7 +79,7 @@ describe("Backoffice entry e2e", () => {
     app = await createTestApp({
       environment: "test",
       adminTelegramId: "1001",
-      disableTelegramAuth: true
+      disableTelegramAuth: true,
     });
 
     await request(app.getHttpServer())
@@ -82,7 +88,13 @@ describe("Backoffice entry e2e", () => {
       .expect(201)
       .expect(({ body }) => {
         expect(body.telegramId).toBe("1001");
-        expect(body.capabilities).toEqual(["orders", "availability", "menu", "users", "settings"]);
+        expect(body.capabilities).toEqual([
+          "orders",
+          "availability",
+          "menu",
+          "users",
+          "settings",
+        ]);
       });
   });
 });
@@ -94,14 +106,14 @@ async function createTestApp(config: AccessConfig): Promise<INestApplication> {
       provideAccessConfig(config),
       {
         provide: USER_REPOSITORY,
-        useClass: InMemoryUserRepository
+        useClass: InMemoryUserRepository,
       },
       IdentityAccessService,
       BootstrapAdministratorService,
       TelegramInitDataVerifier,
       BackofficeAuthService,
-      BackofficeAuthGuard
-    ]
+      BackofficeAuthGuard,
+    ],
   }).compile();
 
   const testApp = moduleRef.createNestApplication();
@@ -112,14 +124,16 @@ async function createTestApp(config: AccessConfig): Promise<INestApplication> {
 function signTelegramInitData(telegramId: string, botToken: string): string {
   const params = new URLSearchParams({
     auth_date: "1710000000",
-    user: JSON.stringify({ id: Number(telegramId), first_name: "Admin" })
+    user: JSON.stringify({ id: Number(telegramId), first_name: "Admin" }),
   });
   const dataCheckString = [...params.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
   const secret = createHmac("sha256", "WebAppData").update(botToken).digest();
-  const hash = createHmac("sha256", secret).update(dataCheckString).digest("hex");
+  const hash = createHmac("sha256", secret)
+    .update(dataCheckString)
+    .digest("hex");
   params.set("hash", hash);
   return params.toString();
 }

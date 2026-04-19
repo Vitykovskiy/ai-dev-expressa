@@ -8,7 +8,6 @@
 - Описание: `Нужно устранить пробелы в системной документации FEATURE-001, из-за которых frontend-исполнитель вынужден читать backend-код, чтобы понять auth bootstrap и capability guard. Результат должен вынести в canonical system artifacts frontend/backend-facing interaction contract для backoffice entry, чтобы следующий исполнитель мог определить operation boundary, входы, выходы, ошибки, test-mode ограничения и связь с role guard без чтения production-кода соседнего контура.`
 - Единица поставки: `FEATURE-001`
 - Роль: `Системный аналитик`
-- Изменяемый контур: `n/a`
 - Приоритет: `Высокий`
 - Статус: `Готова к работе`
 

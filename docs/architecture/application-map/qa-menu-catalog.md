@@ -26,6 +26,13 @@
 - Пользователь без capability `menu` не может выполнить операции управления каталогом по прямому route/API.
 - Оперативное включение/выключение доступности barista не проверяется как часть `FEATURE-002`, кроме регрессионного отсутствия смешения с управлением структурой меню.
 
+## Regression acceptance для FEATURE-006
+
+- После frontend/backend code architecture рефакторинга повторяются acceptance scenarios этой карты без изменения expected behavior.
+- Обязательное evidence: menu catalog CRUD, напиток с полным набором цен `S/M/L`, отказ для неполной размерной модели, создание группы дополнительных опций, платные и бесплатные опции, назначение группы на категорию, отказ пользователю без capability `menu`.
+- Рефакторинг не принимается, если изменились `/backoffice/menu/*` endpoint boundary, DTO snapshot shape, `invalid-drink-size-model`, `invalid-option-group-rule`, status code mapping или administrator-only capability requirement.
+- QA использует `docs/system/contracts/menu-and-availability-management.md` и `docs/system/domain-model/menu-catalog.md` как источники истины и не восстанавливает expected behavior из production-кода.
+
 ## Handoff route for FEATURE-002
 
 - QA читает `docs/system/contracts/menu-and-availability-management.md` как канонический источник contract `Manage menu catalog`, затем `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-menu-catalog.md`, `backend-access.md` и эту карту.

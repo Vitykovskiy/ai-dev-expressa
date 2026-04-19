@@ -13,13 +13,13 @@ describe("BackofficeAuthService", () => {
     const { auth } = await setup({
       environment: "test",
       adminTelegramId: "1001",
-      disableTelegramAuth: true
+      disableTelegramAuth: true,
     });
 
     await expect(auth.authenticate({})).resolves.toMatchObject({
       telegramId: "1001",
       roles: ["administrator"],
-      capabilities: ["orders", "availability", "menu", "users", "settings"]
+      capabilities: ["orders", "availability", "menu", "users", "settings"],
     });
   });
 
@@ -28,11 +28,11 @@ describe("BackofficeAuthService", () => {
       environment: "production",
       adminTelegramId: "1001",
       disableTelegramAuth: false,
-      serviceTelegramBotToken: "service-token"
+      serviceTelegramBotToken: "service-token",
     });
 
     await expect(auth.authenticate({})).rejects.toMatchObject({
-      response: { message: "telegram-init-data-required" }
+      response: { message: "telegram-init-data-required" },
     });
   });
 
@@ -42,16 +42,16 @@ describe("BackofficeAuthService", () => {
       environment: "production",
       adminTelegramId: "1001",
       disableTelegramAuth: false,
-      serviceTelegramBotToken
+      serviceTelegramBotToken,
     });
 
     await expect(
       auth.authenticate({
-        initData: signTelegramInitData("1001", serviceTelegramBotToken)
-      })
+        initData: signTelegramInitData("1001", serviceTelegramBotToken),
+      }),
     ).resolves.toMatchObject({
       telegramId: "1001",
-      roles: ["administrator"]
+      roles: ["administrator"],
     });
   });
 
@@ -60,38 +60,46 @@ describe("BackofficeAuthService", () => {
       environment: "production",
       adminTelegramId: "1001",
       disableTelegramAuth: false,
-      serviceTelegramBotToken: "service-token"
+      serviceTelegramBotToken: "service-token",
     });
 
     await expect(
       auth.authenticate({
-        initData: `${signTelegramInitData("1001", "service-token")}&extra=tampered`
-      })
+        initData: `${signTelegramInitData("1001", "service-token")}&extra=tampered`,
+      }),
     ).rejects.toMatchObject({
-      response: { message: "telegram-hash-invalid" }
+      response: { message: "telegram-hash-invalid" },
     });
   });
 });
 
-async function setup(config: AccessConfig): Promise<{ auth: BackofficeAuthService }> {
+async function setup(
+  config: AccessConfig,
+): Promise<{ auth: BackofficeAuthService }> {
   const identity = new IdentityAccessService(new InMemoryUserRepository());
   await new BootstrapAdministratorService(config, identity).bootstrap();
   return {
-    auth: new BackofficeAuthService(config, identity, new TelegramInitDataVerifier())
+    auth: new BackofficeAuthService(
+      config,
+      identity,
+      new TelegramInitDataVerifier(),
+    ),
   };
 }
 
 function signTelegramInitData(telegramId: string, botToken: string): string {
   const params = new URLSearchParams({
     auth_date: "1710000000",
-    user: JSON.stringify({ id: Number(telegramId), first_name: "Admin" })
+    user: JSON.stringify({ id: Number(telegramId), first_name: "Admin" }),
   });
   const dataCheckString = [...params.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
   const secret = createHmac("sha256", "WebAppData").update(botToken).digest();
-  const hash = createHmac("sha256", secret).update(dataCheckString).digest("hex");
+  const hash = createHmac("sha256", secret)
+    .update(dataCheckString)
+    .digest("hex");
   params.set("hash", hash);
   return params.toString();
 }

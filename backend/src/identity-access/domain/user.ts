@@ -18,14 +18,14 @@ export function createUser(input: {
     userId: input.userId ?? randomUUID(),
     telegramId: input.telegramId,
     roles: uniqueRoles(input.roles),
-    blocked: input.blocked ?? false
+    blocked: input.blocked ?? false,
   };
 }
 
 export function withRoles(user: User, roles: readonly Role[]): User {
   return {
     ...user,
-    roles: uniqueRoles([...user.roles, ...roles])
+    roles: uniqueRoles([...user.roles, ...roles]),
   };
 }
 

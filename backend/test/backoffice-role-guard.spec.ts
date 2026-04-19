@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, it } from "vitest";
 import { BackofficeAuthGuard } from "../src/identity-access/auth/backoffice-auth.guard";
 import { BackofficeAuthService } from "../src/identity-access/auth/backoffice-auth.service";
 import { TelegramInitDataVerifier } from "../src/identity-access/auth/telegram-init-data.verifier";
@@ -24,8 +24,16 @@ describe("BackofficeRoleGuard", () => {
   it("allows administrator to all backoffice capabilities", async () => {
     app = await createTestApp();
 
-    for (const capability of ["orders", "availability", "menu", "users", "settings"]) {
-      await request(app.getHttpServer()).get(`/backoffice/${capability}`).expect(200);
+    for (const capability of [
+      "orders",
+      "availability",
+      "menu",
+      "users",
+      "settings",
+    ]) {
+      await request(app.getHttpServer())
+        .get(`/backoffice/${capability}`)
+        .expect(200);
     }
   });
 
@@ -75,18 +83,18 @@ async function createTestApp(): Promise<INestApplication> {
       provideAccessConfig({
         environment: "test",
         adminTelegramId: "1001",
-        disableTelegramAuth: true
+        disableTelegramAuth: true,
       }),
       {
         provide: USER_REPOSITORY,
-        useClass: InMemoryUserRepository
+        useClass: InMemoryUserRepository,
       },
       IdentityAccessService,
       BootstrapAdministratorService,
       TelegramInitDataVerifier,
       BackofficeAuthService,
-      BackofficeAuthGuard
-    ]
+      BackofficeAuthGuard,
+    ],
   }).compile();
 
   const testApp = moduleRef.createNestApplication();
