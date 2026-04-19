@@ -13,6 +13,15 @@
 | E2E | Открытие backoffice administrator через служебный Telegram entrypoint и доступность разрешённых вкладок. |
 | Smoke | Сборка и запуск затронутых backend/frontend/runtime контуров. |
 
+## Текущее расположение проверок
+
+- `backend/test/bootstrap-administrator.spec.ts` — unit evidence для идемпотентного bootstrap administrator.
+- `backend/test/access-config.spec.ts` — unit evidence для env/config validation и запрета `DISABLE_TG_AUTH=true` вне `NODE_ENV=test`.
+- `backend/test/backoffice-auth.spec.ts` — integration evidence для Telegram/test-mode auth service.
+- `backend/test/backoffice-role-guard.spec.ts` — integration evidence для матрицы role guard по capabilities.
+- `backend/test/backoffice-entry.e2e.spec.ts` — e2e/regression evidence для `Telegram entry -> session -> capability access` и production-like отказа без Telegram.
+- `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts` — frontend contract/navigation evidence для bootstrap, guard и role-aware tab visibility.
+
 ## Handoff route for FEATURE-001
 
 - QA читает `docs/system/contracts/backoffice-auth-and-capability-access.md` как канонический источник по `401`/`403`, request boundary и capability guard, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-access.md` и `delivery-and-runtime.md`.

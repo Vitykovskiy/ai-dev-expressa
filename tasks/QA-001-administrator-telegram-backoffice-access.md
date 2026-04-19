@@ -10,7 +10,7 @@
 - Роль: `Тестирование`
 - Изменяемый контур: `qa`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -28,3 +28,15 @@
 - Проверки: `E2e administrator opens backoffice via service Telegram entrypoint; integration Telegram/test-mode auth; unit evidence for bootstrap and role guard; smoke build/start for affected contours.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/qa-access.md, если появляются новые e2e маршруты, fixtures, test env rules или smoke-check.`
 - Критерии готовности: `QA-задача завершена, когда FEATURE-001 может быть переведена в статус Выполнена на основании e2e, integration, unit и smoke evidence.`
+
+## Результат выполнения
+
+- Добавлен endpoint-level regression/e2e сценарий `backend/test/backoffice-entry.e2e.spec.ts` для цепочки `Telegram entry -> session -> capability access`, production-like отказа без Telegram и разрешённого test-mode входа.
+- Подтверждено unit/integration evidence: `backend/test/bootstrap-administrator.spec.ts`, `backend/test/access-config.spec.ts`, `backend/test/backoffice-auth.spec.ts`, `backend/test/backoffice-role-guard.spec.ts`, `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts`.
+- Подтверждён smoke affected contours: `cd backend && npm test && npm run build`, `cd frontend && npm test && npm run build`.
+- Подтверждён runtime smoke backend:
+  - production-like запуск с `NODE_ENV=production ADMIN_TELEGRAM_ID=1001 SERVICE_TELEGRAM_BOT_TOKEN=<token> DISABLE_TG_AUTH=false` поднимает сервис и возвращает `401 telegram-init-data-required` на прямой `GET /backoffice/orders` без Telegram entry;
+  - production-like запуск с `DISABLE_TG_AUTH=true` завершается `ConfigValidationError`;
+  - test-mode запуск с `NODE_ENV=test ADMIN_TELEGRAM_ID=1001 DISABLE_TG_AUTH=true` разрешает доступ administrator flow без Telegram.
+- Продуктовых дефектов по acceptance-сценариям FEATURE-001 не обнаружено.
+- Зафиксировано процедурное расхождение: на момент выполнения QA `FEATURE-001` оставалась в статусе `В работе`, а `FE-001` и `DO-001` не были синхронизированы со статусом фактической готовности, хотя QA evidence уже достаточно для перевода feature в следующий статус.
