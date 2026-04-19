@@ -7,6 +7,13 @@ export interface AccessConfig {
   readonly serviceTelegramBotToken?: string;
 }
 
+export interface AccessConfigEnvironment {
+  readonly NODE_ENV?: string;
+  readonly ADMIN_TELEGRAM_ID?: string;
+  readonly DISABLE_TG_AUTH?: string;
+  readonly SERVICE_TELEGRAM_BOT_TOKEN?: string;
+}
+
 export class ConfigValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -14,7 +21,7 @@ export class ConfigValidationError extends Error {
   }
 }
 
-export function loadAccessConfig(env: NodeJS.ProcessEnv = process.env): AccessConfig {
+export function loadAccessConfig(env: AccessConfigEnvironment): AccessConfig {
   const environment = normalizeEnvironment(env.NODE_ENV);
   const adminTelegramId = readRequiredTelegramId(env.ADMIN_TELEGRAM_ID, "ADMIN_TELEGRAM_ID");
   const disableTelegramAuth = readBoolean(env.DISABLE_TG_AUTH, "DISABLE_TG_AUTH");

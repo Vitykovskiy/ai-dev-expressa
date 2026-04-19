@@ -17,6 +17,21 @@
 
 - `administrator`
 
+### Operation boundary
+
+| Method | Path | Назначение |
+|---|---|---|
+| `GET` | `/backoffice/menu/catalog` | Получить полный snapshot каталога. |
+| `POST` | `/backoffice/menu/categories` | Создать категорию меню. |
+| `PATCH` | `/backoffice/menu/categories/:menuCategoryId` | Изменить название категории и назначенные группы опций. |
+| `DELETE` | `/backoffice/menu/categories/:menuCategoryId` | Удалить категорию, если в ней нет товаров. |
+| `POST` | `/backoffice/menu/items` | Создать товар в категории. |
+| `PATCH` | `/backoffice/menu/items/:menuItemId` | Изменить товар, категорию, тип товара и ценовую схему. |
+| `DELETE` | `/backoffice/menu/items/:menuItemId` | Удалить товар из каталога. |
+| `POST` | `/backoffice/menu/option-groups` | Создать группу дополнительных опций. |
+| `PATCH` | `/backoffice/menu/option-groups/:optionGroupId` | Изменить группу, режим выбора и состав опций. |
+| `DELETE` | `/backoffice/menu/option-groups/:optionGroupId` | Удалить группу, если она не назначена на категорию. |
+
 ### Inputs
 
 - Изменения категорий меню.
@@ -29,16 +44,34 @@
 - Для напитков должна поддерживаться ценовая модель по размерам `S`, `M`, `L`.
 - Группа дополнительных опций назначается на категорию меню и наследуется товарами этой категории.
 - Взаимоисключающая группа должна ограничивать выбор customer одной опцией.
+- Backoffice endpoints каталога требуют capability `menu`.
+- `itemType=drink` требует полный набор `drinkSizePrices` для `S`, `M`, `L`.
+- `itemType=regular` использует `basePrice` и не должен содержать `drinkSizePrices`.
+- `selectionMode=single` означает взаимоисключающую группу, `selectionMode=multiple` — множественный выбор.
+- `priceDelta` дополнительной опции может быть `0`, но не может быть отрицательным.
 
 ### Outputs
 
 - Обновлённый каталог меню.
+
+#### `MenuCatalogSnapshot`
+
+| Поле | Описание |
+|---|---|
+| `categories` | Массив категорий `{ menuCategoryId, name, optionGroupRefs }`. |
+| `items` | Массив товаров `{ menuItemId, menuCategoryId, name, itemType, basePrice, availability, drinkSizePrices }`. |
+| `optionGroups` | Массив групп `{ optionGroupId, name, selectionMode, options }`. |
+
+#### `Option`
+
+Опция в составе группы возвращается как `{ optionId, optionGroupId, name, priceDelta, availability }`.
 
 ### Business errors
 
 - `administrator-role-required`
 - `invalid-drink-size-model`
 - `invalid-option-group-rule`
+- Ошибки backoffice auth/capability соответствуют `docs/system/contracts/backoffice-auth-and-capability-access.md`.
 
 ## Contract `Change temporary availability`
 
