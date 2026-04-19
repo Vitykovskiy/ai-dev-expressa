@@ -10,20 +10,21 @@
 - Роль: `Разработка`
 - Изменяемый контур: `delivery-unit`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `В работе`
 
 ## Ссылки на документы
 
 - Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
-- Архитектурные артефакты: `не требуются`
-- Контурная карта: `не требуется`
+- Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/application-map/qa-access.md`
+- Контурная карта: `docs/architecture/application-map.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/application-map/qa-access.md`
 - Бизнес-артефакты: `не требуются`
 - Дополнительные материалы: `.references/Expressa_admin/src/app/App.tsx`, `.references/Expressa_admin/src/app/RootLayout.tsx`, `.references/Expressa_admin/src/app/routes.tsx`, `.references/Expressa_admin/src/app/components/SideNav.tsx`, `.references/Expressa_admin/src/app/components/TopBar.tsx`, `.references/Expressa_admin/src/app/components/TabBar.tsx`
 
 ## Примечания
 
 - Зависимости: `нет`
-- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/App.tsx`, `.references/Expressa_admin/src/app/RootLayout.tsx`, `.references/Expressa_admin/src/app/routes.tsx`
+- Декомпозиция: `AR-001`, `FE-001`, `BE-001`, `DO-001`, `QA-001`
+- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/application-map.md`, `.references/Expressa_admin/src/app/App.tsx`, `.references/Expressa_admin/src/app/RootLayout.tsx`, `.references/Expressa_admin/src/app/routes.tsx`
 - Ожидаемый результат для ревью: `Administrator может открыть внутренний административный контур через служебного Telegram-бота, система создаёт главного administrator из ADMIN_TELEGRAM_ID идемпотентно, вкладки доступны по роли, а прямой рабочий доступ без Telegram заблокирован вне test environment.`
 - Проверки: `Модульные тесты bootstrap administrator и role guard; интеграционные проверки Telegram/test-mode авторизации; e2e-сценарий открытия внутреннего административного контура administrator; дымовая проверка сборки и запуска затронутых контуров.`
 - Обновление карты приложения: `Обязательно в дочерних задачах, если появляются новые точки входа, env/config, маршруты внутреннего административного контура или правила запуска.`

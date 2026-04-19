@@ -28,6 +28,23 @@
 |-- AGENTS.md
 |-- README.md
 |-- terms-map.md
+|-- docs/
+|   |-- architecture/
+|   |   |-- README.md
+|   |   |-- stack.md
+|   |   |-- frontend-architecture.md
+|   |   |-- backend-architecture.md
+|   |   |-- devops-standards.md
+|   |   |-- deployment-map.md
+|   |   |-- qa-standards.md
+|   |   |-- application-map.md
+|   |   `-- application-map/
+|   |       |-- frontend-backoffice.md
+|   |       |-- backend-access.md
+|   |       |-- delivery-and-runtime.md
+|   |       `-- qa-access.md
+|   |-- business/
+|   `-- system/
 |-- prompts/
 |   |-- architect/
 |   |   `-- prompt.md
