@@ -1,5 +1,5 @@
 <template>
-  <AppButton
+  <ui-button
     class="app-icon-button"
     :variant="variant"
     :disabled="disabled"
@@ -8,11 +8,11 @@
     icon-only
   >
     <slot />
-  </AppButton>
+  </ui-button>
 </template>
 
 <script setup lang="ts">
-import AppButton from "./AppButton.vue";
+import UiButton from "./UiButton.vue";
 import type { AppButtonVariant } from "./contracts";
 
 withDefaults(

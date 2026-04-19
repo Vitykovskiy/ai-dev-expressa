@@ -1,14 +1,14 @@
 <template>
-  <AppSectionList class="option-panel" title="Группы опций" subtitle="Допы назначаются на группы меню">
+  <ui-section-list class="option-panel" title="Группы опций" subtitle="Допы назначаются на группы меню">
     <template #actions>
-      <AppIconButton title="Добавить группу опций" @click="$emit('create')">
+      <ui-icon-button title="Добавить группу опций" @click="$emit('create')">
         <Plus :size="18" />
-      </AppIconButton>
+      </ui-icon-button>
     </template>
 
     <div v-if="optionGroups.length === 0" class="option-panel__empty">Нет групп опций</div>
 
-    <AppButton
+    <ui-button
       v-for="group in optionGroups"
       :key="group.optionGroupId"
       class="option-group-row"
@@ -22,15 +22,15 @@
         </span>
         <ChevronRight :size="18" />
       </span>
-    </AppButton>
-  </AppSectionList>
+    </ui-button>
+  </ui-section-list>
 </template>
 
 <script setup lang="ts">
 import { ChevronRight, Plus } from "lucide-vue-next";
-import AppButton from "../ui/AppButton.vue";
-import AppIconButton from "../ui/AppIconButton.vue";
-import AppSectionList from "../ui/AppSectionList.vue";
+import UiButton from "../../ui/UiButton.vue";
+import UiIconButton from "../../ui/UiIconButton.vue";
+import UiSectionList from "../../ui/UiSectionList.vue";
 import { selectionModeLabel } from "../../modules/menu-catalog/presentation";
 import type { OptionGroup } from "../../modules/menu-catalog/types";
 

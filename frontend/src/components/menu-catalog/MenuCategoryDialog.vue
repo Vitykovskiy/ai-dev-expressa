@@ -1,5 +1,5 @@
 <template>
-  <AppDialogShell
+  <ui-dialog-shell
     :open="open"
     :title="editingCategory ? 'Редактировать группу' : 'Новая группа'"
     :description="
@@ -8,14 +8,14 @@
     @close="$emit('close')"
   >
     <template #headerActions>
-      <AppIconButton v-if="editingCategory" variant="ghost" title="Удалить группу" @click="$emit('delete')">
+      <ui-icon-button v-if="editingCategory" variant="ghost" title="Удалить группу" @click="$emit('delete')">
         <Trash2 :size="20" />
-      </AppIconButton>
+      </ui-icon-button>
     </template>
 
     <form @submit.prevent="submit">
       <div class="dialog-card__body">
-        <AppFormField label="Название группы">
+        <ui-form-field label="Название группы">
           <v-text-field
             v-model="form.name"
             placeholder="Например: Кофе, Чай, Десерты"
@@ -24,9 +24,9 @@
             autofocus
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
 
-        <AppSectionCard class="choice-block" title="Группы опций" body-class="choice-block__body">
+        <ui-section-card class="choice-block" title="Группы опций" body-class="choice-block__body">
           <p v-if="optionGroups.length === 0">Нет доступных групп опций</p>
           <div v-else class="choice-block__list">
             <v-checkbox
@@ -40,27 +40,27 @@
               color="primary"
             />
           </div>
-        </AppSectionCard>
+        </ui-section-card>
       </div>
 
       <div class="dialog-card__actions">
-        <AppButton block type="submit" :loading="isBusy" :disabled="isBusy">
+        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
           {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
-        </AppButton>
-        <AppButton block variant="ghost" @click="$emit('close')">Отмена</AppButton>
+        </ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
       </div>
     </form>
-  </AppDialogShell>
+  </ui-dialog-shell>
 </template>
 
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { reactive, watch } from "vue";
-import AppButton from "../ui/AppButton.vue";
-import AppDialogShell from "../ui/AppDialogShell.vue";
-import AppFormField from "../ui/AppFormField.vue";
-import AppIconButton from "../ui/AppIconButton.vue";
-import AppSectionCard from "../ui/AppSectionCard.vue";
+import UiButton from "../../ui/UiButton.vue";
+import UiDialogShell from "../../ui/UiDialogShell.vue";
+import UiFormField from "../../ui/UiFormField.vue";
+import UiIconButton from "../../ui/UiIconButton.vue";
+import UiSectionCard from "../../ui/UiSectionCard.vue";
 import type { MenuCategoryPayload } from "../../modules/menu-catalog/types";
 import type { MenuCategory, MenuCategoryFormState, OptionGroup } from "../../modules/menu-catalog/types";
 

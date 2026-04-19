@@ -1,19 +1,19 @@
 <template>
-  <AppDialogShell
+  <ui-dialog-shell
     :open="open"
     :title="editingItem ? 'Редактировать товар' : 'Новый товар'"
     description="Настройте группу, название и ценовую модель"
     @close="$emit('close')"
   >
     <template #headerActions>
-      <AppIconButton v-if="editingItem" title="Удалить товар" @click="$emit('delete')">
+      <ui-icon-button v-if="editingItem" title="Удалить товар" @click="$emit('delete')">
         <Trash2 :size="20" />
-      </AppIconButton>
+      </ui-icon-button>
     </template>
 
     <form @submit.prevent="submit">
       <div class="dialog-card__body">
-        <AppFormField label="Категория">
+        <ui-form-field label="Категория">
           <v-select
             v-model="form.menuCategoryId"
             :items="categoryItems"
@@ -24,9 +24,9 @@
             density="comfortable"
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
 
-        <AppFormField label="Название товара">
+        <ui-form-field label="Название товара">
           <v-text-field
             v-model="form.name"
             placeholder="Например: Капучино, Латте"
@@ -34,16 +34,16 @@
             density="comfortable"
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
 
-        <AppToggleRow
+        <ui-toggle-row
           :model-value="form.itemType === 'drink'"
           label="Размеры S / M / L"
           description="Включить разные размеры с отдельными ценами"
           @update:model-value="updateItemType"
         />
 
-        <AppSectionCard
+        <ui-section-card
           v-if="form.itemType === 'drink'"
           title="Цены по размерам, ₽"
           body-class="size-price-list"
@@ -61,9 +61,9 @@
               hide-details
             />
           </div>
-        </AppSectionCard>
+        </ui-section-card>
 
-        <AppFormField v-else label="Цена, ₽">
+        <ui-form-field v-else label="Цена, ₽">
           <v-text-field
             v-model="form.basePrice"
             type="number"
@@ -74,28 +74,28 @@
             density="comfortable"
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
       </div>
 
       <div class="dialog-card__actions">
-        <AppButton block type="submit" :loading="isBusy" :disabled="isBusy">
+        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
           {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
-        </AppButton>
-        <AppButton block variant="ghost" @click="$emit('close')">Отмена</AppButton>
+        </ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
       </div>
     </form>
-  </AppDialogShell>
+  </ui-dialog-shell>
 </template>
 
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { computed, reactive, watch } from "vue";
-import AppButton from "../ui/AppButton.vue";
-import AppDialogShell from "../ui/AppDialogShell.vue";
-import AppFormField from "../ui/AppFormField.vue";
-import AppIconButton from "../ui/AppIconButton.vue";
-import AppSectionCard from "../ui/AppSectionCard.vue";
-import AppToggleRow from "../ui/AppToggleRow.vue";
+import UiButton from "../../ui/UiButton.vue";
+import UiDialogShell from "../../ui/UiDialogShell.vue";
+import UiFormField from "../../ui/UiFormField.vue";
+import UiIconButton from "../../ui/UiIconButton.vue";
+import UiSectionCard from "../../ui/UiSectionCard.vue";
+import UiToggleRow from "../../ui/UiToggleRow.vue";
 import {
   DRINK_SIZES,
   type DrinkSize,

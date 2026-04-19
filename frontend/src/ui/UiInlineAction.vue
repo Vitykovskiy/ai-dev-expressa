@@ -1,11 +1,11 @@
 <template>
-  <AppButton class="app-inline-action" variant="tonal" :disabled="disabled" :loading="loading">
+  <ui-button class="app-inline-action" variant="tonal" :disabled="disabled" :loading="loading">
     <slot />
-  </AppButton>
+  </ui-button>
 </template>
 
 <script setup lang="ts">
-import AppButton from "./AppButton.vue";
+import UiButton from "./UiButton.vue";
 
 withDefaults(
   defineProps<{

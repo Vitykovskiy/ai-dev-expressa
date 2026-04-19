@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import AppSideNav from "../components/ui/AppSideNav.vue";
-import AppTabBar from "../components/ui/AppTabBar.vue";
+import UiSideNav from "../ui/UiSideNav.vue";
+import UiTabBar from "../ui/UiTabBar.vue";
 import { useAuthSession } from "../modules/auth/session-store";
 import { getVisibleTabs } from "../modules/navigation/tabs";
 
@@ -18,7 +18,7 @@ const roleLabel = computed(() => {
 
 <template>
   <div class="root-layout">
-    <AppSideNav
+    <ui-side-nav
       v-if="actor"
       :tabs="visibleTabs"
       :role-label="roleLabel"
@@ -29,7 +29,7 @@ const roleLabel = computed(() => {
       <router-view />
     </main>
 
-    <AppTabBar v-if="actor" :tabs="visibleTabs" :active-path="route.path" />
+    <ui-tab-bar v-if="actor" :tabs="visibleTabs" :active-path="route.path" />
   </div>
 </template>
 

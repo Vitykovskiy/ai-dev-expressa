@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppSectionCard from "../components/ui/AppSectionCard.vue";
-import AppTopBar from "../components/ui/AppTopBar.vue";
+import UiSectionCard from "../ui/UiSectionCard.vue";
+import UiTopBar from "../ui/UiTopBar.vue";
 
 defineProps<{
   title: string;
@@ -10,16 +10,16 @@ defineProps<{
 
 <template>
   <section class="feature-view">
-    <AppTopBar :title="title" />
+    <ui-top-bar :title="title" />
 
     <div class="feature-view__header">
       <h1 class="feature-view__title">{{ title }}</h1>
     </div>
 
     <div class="feature-view__body">
-      <AppSectionCard class="feature-view__panel">
+      <ui-section-card class="feature-view__panel">
         <p class="feature-view__message">{{ description }}</p>
-      </AppSectionCard>
+      </ui-section-card>
     </div>
   </section>
 </template>

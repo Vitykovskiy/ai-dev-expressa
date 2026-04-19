@@ -1,22 +1,22 @@
 <template>
-  <AppDialogShell
+  <ui-dialog-shell
     :open="open"
     :max-width="720"
     :title="editingOptionGroup ? 'Редактировать группу опций' : 'Новая группа опций'"
     @close="$emit('close')"
   >
     <template #headerActions>
-      <AppIconButton v-if="editingOptionGroup" title="Удалить группу опций" @click="$emit('delete')">
+      <ui-icon-button v-if="editingOptionGroup" title="Удалить группу опций" @click="$emit('delete')">
         <Trash2 :size="20" />
-      </AppIconButton>
-      <AppIconButton title="Закрыть" @click="$emit('close')">
+      </ui-icon-button>
+      <ui-icon-button title="Закрыть" @click="$emit('close')">
         <X :size="20" />
-      </AppIconButton>
+      </ui-icon-button>
     </template>
 
     <form @submit.prevent="submit">
       <div class="dialog-card__body">
-        <AppFormField label="Название группы опций">
+        <ui-form-field label="Название группы опций">
           <v-text-field
             v-model="form.name"
             placeholder="Например: Молоко, Сиропы"
@@ -25,9 +25,9 @@
             autofocus
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
 
-        <AppFormField label="Тип выбора">
+        <ui-form-field label="Тип выбора">
           <v-select
             v-model="form.selectionMode"
             :items="selectionModeItems"
@@ -37,9 +37,9 @@
             density="comfortable"
             hide-details
           />
-        </AppFormField>
+        </ui-form-field>
 
-        <AppSectionCard class="choice-block" title="Назначить на группы меню" body-class="choice-block__body">
+        <ui-section-card class="choice-block" title="Назначить на группы меню" body-class="choice-block__body">
           <p v-if="categories.length === 0">Сначала создайте группу меню</p>
           <div v-else class="choice-block__list">
             <v-checkbox
@@ -53,20 +53,20 @@
               color="primary"
             />
           </div>
-        </AppSectionCard>
+        </ui-section-card>
 
         <div class="options-editor">
           <div class="options-editor__header">
             <span>Опции</span>
-            <AppInlineAction @click="addEditableOption">Добавить опцию</AppInlineAction>
+            <ui-inline-action @click="addEditableOption">Добавить опцию</ui-inline-action>
           </div>
 
-          <AppSectionCard
+          <ui-section-card
             v-for="(option, index) in form.options"
             :key="option.optionId ?? index"
             body-class="option-edit-row"
           >
-            <AppFormField label="Название опции">
+            <ui-form-field label="Название опции">
               <v-text-field
                 v-model="option.name"
                 placeholder="Название опции"
@@ -74,8 +74,8 @@
                 density="comfortable"
                 hide-details
               />
-            </AppFormField>
-            <AppFormField label="Доплата">
+            </ui-form-field>
+            <ui-form-field label="Доплата">
               <v-text-field
                 v-model="option.priceDelta"
                 type="number"
@@ -86,34 +86,34 @@
                 density="comfortable"
                 hide-details
               />
-            </AppFormField>
+            </ui-form-field>
             <v-checkbox v-model="option.availability" label="Доступна" hide-details color="primary" />
-            <AppIconButton class="option-delete-button" title="Удалить опцию" @click="removeEditableOption(index)">
+            <ui-icon-button class="option-delete-button" title="Удалить опцию" @click="removeEditableOption(index)">
               <Trash2 :size="18" />
-            </AppIconButton>
-          </AppSectionCard>
+            </ui-icon-button>
+          </ui-section-card>
         </div>
       </div>
 
       <div class="dialog-card__actions">
-        <AppButton block type="submit" :loading="isBusy" :disabled="isBusy">
+        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
           {{ editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций" }}
-        </AppButton>
-        <AppButton block variant="ghost" @click="$emit('close')">Отмена</AppButton>
+        </ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
       </div>
     </form>
-  </AppDialogShell>
+  </ui-dialog-shell>
 </template>
 
 <script setup lang="ts">
 import { Trash2, X } from "lucide-vue-next";
 import { reactive, watch } from "vue";
-import AppButton from "../ui/AppButton.vue";
-import AppDialogShell from "../ui/AppDialogShell.vue";
-import AppFormField from "../ui/AppFormField.vue";
-import AppIconButton from "../ui/AppIconButton.vue";
-import AppInlineAction from "../ui/AppInlineAction.vue";
-import AppSectionCard from "../ui/AppSectionCard.vue";
+import UiButton from "../../ui/UiButton.vue";
+import UiDialogShell from "../../ui/UiDialogShell.vue";
+import UiFormField from "../../ui/UiFormField.vue";
+import UiIconButton from "../../ui/UiIconButton.vue";
+import UiInlineAction from "../../ui/UiInlineAction.vue";
+import UiSectionCard from "../../ui/UiSectionCard.vue";
 import { formatMoney, parseMoney } from "../../modules/menu-catalog/validation";
 import type {
   EditableOption,

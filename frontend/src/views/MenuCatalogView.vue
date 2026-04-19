@@ -1,6 +1,6 @@
 <template>
   <section class="menu-view">
-    <AppTopBar title="Меню" />
+    <ui-top-bar title="Меню" />
 
     <div class="menu-view__header">
       <div>
@@ -9,17 +9,17 @@
           {{ categoryCountLabel(categories.length) }}, {{ itemCountLabel(snapshot.items.length) }}
         </p>
       </div>
-      <AppButton class="guide-button" variant="outlined" @click="openCreateOptionGroupDialog">
+      <ui-button class="guide-button" variant="outlined" @click="openCreateOptionGroupDialog">
         <Plus :size="18" />
         <span>Группа опций</span>
-      </AppButton>
+      </ui-button>
     </div>
 
     <div class="menu-view__actions">
-      <AppButton class="action-button" :disabled="isBusy" @click="openCreateCategoryDialog">
+      <ui-button class="action-button" :disabled="isBusy" @click="openCreateCategoryDialog">
         Добавить группу
-      </AppButton>
-      <AppButton
+      </ui-button>
+      <ui-button
         class="action-button"
         variant="outlined"
         :disabled="categories.length === 0 || isBusy"
@@ -27,7 +27,7 @@
         @click="openCreateItemDialog()"
       >
         Добавить товар
-      </AppButton>
+      </ui-button>
     </div>
 
     <v-alert v-if="hasError" class="error-banner" type="error" variant="tonal" density="comfortable">
@@ -97,8 +97,8 @@ import MenuCatalogOptionGroupsPanel from "../components/menu-catalog/MenuCatalog
 import MenuCategoryDialog from "../components/menu-catalog/MenuCategoryDialog.vue";
 import MenuItemDialog from "../components/menu-catalog/MenuItemDialog.vue";
 import MenuOptionGroupDialog from "../components/menu-catalog/MenuOptionGroupDialog.vue";
-import AppButton from "../components/ui/AppButton.vue";
-import AppTopBar from "../components/ui/AppTopBar.vue";
+import UiButton from "../ui/UiButton.vue";
+import UiTopBar from "../ui/UiTopBar.vue";
 import { categoryCountLabel, itemCountLabel } from "../modules/menu-catalog/presentation";
 import { useMenuCatalogStore } from "../modules/menu-catalog/store";
 import type {

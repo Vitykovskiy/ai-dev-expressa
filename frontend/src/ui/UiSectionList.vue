@@ -1,16 +1,16 @@
 <template>
-  <AppSectionCard :title="title" :subtitle="subtitle" flush>
+  <ui-section-card :title="title" :subtitle="subtitle" flush>
     <template v-if="$slots.actions" #actions>
       <slot name="actions" />
     </template>
     <div class="app-section-list">
       <slot />
     </div>
-  </AppSectionCard>
+  </ui-section-card>
 </template>
 
 <script setup lang="ts">
-import AppSectionCard from "./AppSectionCard.vue";
+import UiSectionCard from "./UiSectionCard.vue";
 
 withDefaults(
   defineProps<{

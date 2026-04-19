@@ -1,5 +1,5 @@
 <template>
-  <AppSectionList class="catalog-panel">
+  <ui-section-list class="catalog-panel">
     <template #header>
       <div class="catalog-panel__header">
         <h2>Категории меню</h2>
@@ -7,7 +7,7 @@
       </div>
     </template>
     <div v-if="categories.length === 0" class="empty-state">
-      <AppEmptyState
+      <ui-empty-state
         :icon="BookOpen"
         :icon-size="38"
         title="Меню пусто"
@@ -18,7 +18,7 @@
     <div v-else class="category-list">
       <div v-for="category in categories" :key="category.menuCategoryId" class="category-block">
         <div class="category-row">
-          <AppButton
+          <ui-button
             class="category-row__main"
             variant="ghost"
             @click="toggleCategory(category.menuCategoryId)"
@@ -35,14 +35,14 @@
                 </span>
               </span>
             </span>
-          </AppButton>
-          <AppIconButton
+          </ui-button>
+          <ui-icon-button
             class="icon-button"
             title="Редактировать группу"
             @click="$emit('edit-category', category)"
           >
             <Edit3 :size="18" />
-          </AppIconButton>
+          </ui-icon-button>
         </div>
 
         <div v-if="expandedCategoryIds.has(category.menuCategoryId)" class="category-detail">
@@ -60,19 +60,19 @@
           </div>
 
           <div v-if="(categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0" class="category-empty">
-            <AppEmptyState
+            <ui-empty-state
               :icon="Coffee"
               :icon-size="32"
               title="Товаров в этой группе пока нет"
               subtitle="Создайте первый товар для выбранной группы"
             >
               <template #actions>
-                <AppInlineAction @click="$emit('create-item', category)">Добавить товар</AppInlineAction>
+                <ui-inline-action @click="$emit('create-item', category)">Добавить товар</ui-inline-action>
               </template>
-            </AppEmptyState>
+            </ui-empty-state>
           </div>
 
-          <AppButton
+          <ui-button
             v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
             :key="item.menuItemId"
             class="product-row"
@@ -86,21 +86,21 @@
               </span>
               <ChevronRight :size="18" />
             </span>
-          </AppButton>
+          </ui-button>
         </div>
       </div>
     </div>
-  </AppSectionList>
+  </ui-section-list>
 </template>
 
 <script setup lang="ts">
 import { BookOpen, ChevronDown, ChevronRight, Coffee, Edit3 } from "lucide-vue-next";
 import { ref } from "vue";
-import AppButton from "../ui/AppButton.vue";
-import AppEmptyState from "../ui/AppEmptyState.vue";
-import AppIconButton from "../ui/AppIconButton.vue";
-import AppInlineAction from "../ui/AppInlineAction.vue";
-import AppSectionList from "../ui/AppSectionList.vue";
+import UiButton from "../../ui/UiButton.vue";
+import UiEmptyState from "../../ui/UiEmptyState.vue";
+import UiIconButton from "../../ui/UiIconButton.vue";
+import UiInlineAction from "../../ui/UiInlineAction.vue";
+import UiSectionList from "../../ui/UiSectionList.vue";
 import { itemCountLabel, itemPriceLabel } from "../../modules/menu-catalog/presentation";
 import type { MenuCategory, MenuItem, OptionGroup } from "../../modules/menu-catalog/types";
 
