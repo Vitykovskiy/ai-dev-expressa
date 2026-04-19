@@ -22,6 +22,7 @@
 .
 |-- .gitignore
 |-- .editorconfig
+|-- .env.example
 |-- .github/
 |   `-- workflows/
 |-- .gitattributes
@@ -91,6 +92,8 @@
 |   `-- system-analyst/
 |       |-- prompt.md
 |       `-- task-tree-rules.md
+|-- scripts/
+|   `-- deploy-test-vps.sh
 `-- templates/
     |-- context-package-template.md
     |-- task-template-instruction.md
@@ -111,6 +114,8 @@
 - `.editorconfig` — базовые правила редактора: `UTF-8`, `LF`, финальная новая строка и обработка пробелов.
 - `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
 - `.vscode/settings.json` — рабочие настройки VS Code для кодировки `UTF-8`, окончания строк `LF` и отключенного автоугадывания кодировки.
+- `.env.example` — пример корневого runtime-конфига для VPS `test`; реальные значения хранятся только в локальном `.env` на сервере и не коммитятся.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
 
 ## Ролевые промпты
 
