@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import TopBar from "../components/TopBar.vue";
+import AppSectionCard from "../components/ui/AppSectionCard.vue";
+import AppTopBar from "../components/ui/AppTopBar.vue";
 
 defineProps<{
   title: string;
@@ -9,32 +10,32 @@ defineProps<{
 
 <template>
   <section class="feature-view">
-    <TopBar :title="title" />
+    <AppTopBar :title="title" />
 
     <div class="feature-view__header">
       <h1 class="feature-view__title">{{ title }}</h1>
     </div>
 
     <div class="feature-view__body">
-      <div class="feature-view__panel">
+      <AppSectionCard class="feature-view__panel">
         <p class="feature-view__message">{{ description }}</p>
-      </div>
+      </AppSectionCard>
     </div>
   </section>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .feature-view {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f5f5f7;
+  background: var(--app-color-background-secondary);
 }
 
 @media (min-width: 960px) {
   .feature-view {
-    background: #ffffff;
+    background: var(--app-color-background-primary);
   }
 }
 
@@ -45,7 +46,7 @@ defineProps<{
 @media (min-width: 960px) {
   .feature-view__header {
     display: block;
-    padding: 24px 24px 0;
+    padding: var(--app-spacing-lg) var(--app-spacing-lg) 0;
   }
 }
 
@@ -54,32 +55,28 @@ defineProps<{
   font-size: 32px;
   line-height: 40px;
   font-weight: 700;
-  color: #111111;
+  color: var(--app-color-text-primary);
 }
 
 .feature-view__body {
   flex: 1;
-  padding: 16px 16px 80px;
+  padding: var(--app-spacing-md) var(--app-spacing-md) 80px;
 }
 
 @media (min-width: 960px) {
   .feature-view__body {
-    padding: 24px;
+    padding: var(--app-spacing-lg);
   }
 }
 
 .feature-view__panel {
   max-width: 720px;
-  padding: 24px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #ffffff;
 }
 
 .feature-view__message {
   margin: 0;
   font-size: 15px;
   line-height: 24px;
-  color: #555555;
+  color: var(--app-color-text-secondary);
 }
 </style>

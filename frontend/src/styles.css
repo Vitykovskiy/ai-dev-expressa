@@ -1,7 +1,46 @@
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #111111;
-  background: #f5f5f7;
+  --app-font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-color-background-primary: #ffffff;
+  --app-color-background-secondary: #f5f5f7;
+  --app-color-background-surface: #ffffff;
+  --app-color-background-surface-raised: #f5f5f7;
+  --app-color-text-primary: #111111;
+  --app-color-text-secondary: #555555;
+  --app-color-text-muted: #999999;
+  --app-color-text-on-accent: #ffffff;
+  --app-color-accent: #1a1aff;
+  --app-color-accent-light: #e8e8ff;
+  --app-color-destructive: #d32f2f;
+  --app-color-destructive-light: #ffebee;
+  --app-color-success: #2e7d32;
+  --app-color-success-light: #e8f5e9;
+  --app-color-warning: #e65100;
+  --app-color-warning-light: #fff3e0;
+  --app-color-neutral: #757575;
+  --app-color-neutral-light: #f5f5f5;
+  --app-color-border: #e0e0e0;
+  --app-color-border-strong: #bdbdbd;
+  --app-spacing-xs: 4px;
+  --app-spacing-sm: 8px;
+  --app-spacing-md: 16px;
+  --app-spacing-lg: 24px;
+  --app-spacing-xl: 32px;
+  --app-radius-sm: 6px;
+  --app-radius-md: 10px;
+  --app-radius-lg: 16px;
+  --app-radius-pill: 999px;
+  --app-shadow-card: 0 1px 4px rgb(0 0 0 / 8%);
+  --app-shadow-modal: 0 8px 32px rgb(0 0 0 / 16%);
+  --app-shadow-tab-bar: 0 -1px 0 #e0e0e0;
+  --app-motion-fast: 120ms;
+  --app-motion-default: 200ms;
+  --app-motion-easing: ease-in-out;
+  --app-side-nav-width: 220px;
+  --app-top-bar-height: 52px;
+  --app-tab-bar-height: 60px;
+  font-family: var(--app-font-family);
+  color: var(--app-color-text-primary);
+  background: var(--app-color-background-secondary);
 }
 
 * {
@@ -16,7 +55,8 @@ body,
 }
 
 body {
-  background: #f5f5f7;
+  background: var(--app-color-background-secondary);
+  font-family: var(--app-font-family);
 }
 
 a {
@@ -26,6 +66,10 @@ a {
 
 button {
   font: inherit;
+}
+
+#app {
+  color: var(--app-color-text-primary);
 }
 
 .sr-only {

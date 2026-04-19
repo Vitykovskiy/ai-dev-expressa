@@ -1,93 +1,83 @@
 <template>
-  <v-dialog :model-value="open" max-width="720" @update:model-value="handleDialogModelUpdate">
-    <v-card class="dialog-card dialog-card--wide" rounded="lg">
-      <form @submit.prevent="submit">
-        <div class="dialog-card__header">
-          <div>
-            <h2>{{ editingOptionGroup ? "Редактировать группу опций" : "Новая группа опций" }}</h2>
-          </div>
-          <div class="dialog-card__icons">
-            <v-btn
-              v-if="editingOptionGroup"
-              color="error"
-              variant="text"
-              icon
-              title="Удалить группу опций"
-              @click="$emit('delete')"
-            >
-              <Trash2 :size="20" />
-            </v-btn>
-            <v-btn color="secondary" variant="text" icon title="Закрыть" @click="$emit('close')">
-              <X :size="20" />
-            </v-btn>
-          </div>
-        </div>
+  <AppDialogShell
+    :open="open"
+    :max-width="720"
+    :title="editingOptionGroup ? 'Редактировать группу опций' : 'Новая группа опций'"
+    @close="$emit('close')"
+  >
+    <template #headerActions>
+      <AppIconButton v-if="editingOptionGroup" title="Удалить группу опций" @click="$emit('delete')">
+        <Trash2 :size="20" />
+      </AppIconButton>
+      <AppIconButton title="Закрыть" @click="$emit('close')">
+        <X :size="20" />
+      </AppIconButton>
+    </template>
 
-        <div class="dialog-card__body">
+    <form @submit.prevent="submit">
+      <div class="dialog-card__body">
+        <AppFormField label="Название группы опций">
           <v-text-field
             v-model="form.name"
-            label="Название группы опций"
             placeholder="Например: Молоко, Сиропы"
             variant="outlined"
             density="comfortable"
             autofocus
             hide-details
           />
+        </AppFormField>
 
+        <AppFormField label="Тип выбора">
           <v-select
             v-model="form.selectionMode"
             :items="selectionModeItems"
             item-title="title"
             item-value="value"
-            label="Тип выбора"
             variant="outlined"
             density="comfortable"
             hide-details
           />
+        </AppFormField>
 
-          <v-sheet class="choice-block" rounded="lg" border>
-            <span class="choice-block__title">Назначить на группы меню</span>
-            <p v-if="categories.length === 0">Сначала создайте группу меню</p>
-            <div v-else class="choice-block__list">
-              <v-checkbox
-                v-for="category in categories"
-                :key="category.menuCategoryId"
-                v-model="form.assignedCategoryIds"
-                :label="category.name"
-                :value="category.menuCategoryId"
-                density="comfortable"
-                hide-details
-                color="primary"
-              />
-            </div>
-          </v-sheet>
+        <AppSectionCard class="choice-block" title="Назначить на группы меню" body-class="choice-block__body">
+          <p v-if="categories.length === 0">Сначала создайте группу меню</p>
+          <div v-else class="choice-block__list">
+            <v-checkbox
+              v-for="category in categories"
+              :key="category.menuCategoryId"
+              v-model="form.assignedCategoryIds"
+              :label="category.name"
+              :value="category.menuCategoryId"
+              density="comfortable"
+              hide-details
+              color="primary"
+            />
+          </div>
+        </AppSectionCard>
 
-          <div class="options-editor">
-            <div class="options-editor__header">
-              <span>Опции</span>
-              <v-btn class="inline-button" color="primary" variant="tonal" @click="addEditableOption">
-                Добавить опцию
-              </v-btn>
-            </div>
+        <div class="options-editor">
+          <div class="options-editor__header">
+            <span>Опции</span>
+            <AppInlineAction @click="addEditableOption">Добавить опцию</AppInlineAction>
+          </div>
 
-            <v-sheet
-              v-for="(option, index) in form.options"
-              :key="option.optionId ?? index"
-              class="option-edit-row"
-              rounded="lg"
-              border
-            >
+          <AppSectionCard
+            v-for="(option, index) in form.options"
+            :key="option.optionId ?? index"
+            body-class="option-edit-row"
+          >
+            <AppFormField label="Название опции">
               <v-text-field
                 v-model="option.name"
-                label="Название опции"
                 placeholder="Название опции"
                 variant="outlined"
                 density="comfortable"
                 hide-details
               />
+            </AppFormField>
+            <AppFormField label="Доплата">
               <v-text-field
                 v-model="option.priceDelta"
-                label="Доплата"
                 type="number"
                 min="0"
                 step="0.01"
@@ -96,35 +86,34 @@
                 density="comfortable"
                 hide-details
               />
-              <v-checkbox v-model="option.availability" label="Доступна" hide-details color="primary" />
-              <v-btn
-                class="option-delete-button"
-                color="error"
-                variant="text"
-                icon
-                title="Удалить опцию"
-                @click="removeEditableOption(index)"
-              >
-                <Trash2 :size="18" />
-              </v-btn>
-            </v-sheet>
-          </div>
+            </AppFormField>
+            <v-checkbox v-model="option.availability" label="Доступна" hide-details color="primary" />
+            <AppIconButton class="option-delete-button" title="Удалить опцию" @click="removeEditableOption(index)">
+              <Trash2 :size="18" />
+            </AppIconButton>
+          </AppSectionCard>
         </div>
+      </div>
 
-        <v-card-actions class="dialog-card__actions">
-          <v-btn class="dialog-action" color="primary" type="submit" :loading="isBusy" :disabled="isBusy">
-            {{ editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций" }}
-          </v-btn>
-          <v-btn class="dialog-action" color="secondary" variant="text" @click="$emit('close')">Отмена</v-btn>
-        </v-card-actions>
-      </form>
-    </v-card>
-  </v-dialog>
+      <div class="dialog-card__actions">
+        <AppButton block type="submit" :loading="isBusy" :disabled="isBusy">
+          {{ editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций" }}
+        </AppButton>
+        <AppButton block variant="ghost" @click="$emit('close')">Отмена</AppButton>
+      </div>
+    </form>
+  </AppDialogShell>
 </template>
 
 <script setup lang="ts">
 import { Trash2, X } from "lucide-vue-next";
 import { reactive, watch } from "vue";
+import AppButton from "../ui/AppButton.vue";
+import AppDialogShell from "../ui/AppDialogShell.vue";
+import AppFormField from "../ui/AppFormField.vue";
+import AppIconButton from "../ui/AppIconButton.vue";
+import AppInlineAction from "../ui/AppInlineAction.vue";
+import AppSectionCard from "../ui/AppSectionCard.vue";
 import { formatMoney, parseMoney } from "../../modules/menu-catalog/validation";
 import type {
   EditableOption,
@@ -192,12 +181,6 @@ watch(
   { immediate: true }
 );
 
-function handleDialogModelUpdate(value: boolean): void {
-  if (!value) {
-    emit("close");
-  }
-}
-
 function addEditableOption(): void {
   form.options.push(createEditableOption());
 }
@@ -244,27 +227,11 @@ function createEditableOption(): EditableOption {
 </script>
 
 <style scoped lang="scss">
-.dialog-card {
-  padding: 24px;
-  background: #ffffff;
-}
-
-.dialog-card__header,
-.dialog-card__icons,
 .options-editor__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.dialog-card__header,
-.options-editor__header {
   justify-content: space-between;
-}
-
-.dialog-card h2 {
-  margin: 0;
-  color: #111111;
+  gap: 12px;
 }
 
 .dialog-card__body,
@@ -279,24 +246,23 @@ function createEditableOption(): EditableOption {
 }
 
 .choice-block {
-  padding: 14px 16px;
+  padding: 0;
 }
 
-.choice-block__title,
 .options-editor__header > span {
   display: block;
-  color: #555555;
+  color: var(--app-color-text-secondary);
   font-size: 13px;
   font-weight: 600;
 }
 
-.choice-block__title {
-  margin-bottom: 8px;
+.choice-block :deep(.choice-block__body) {
+  padding-top: 0;
 }
 
 .choice-block p {
   margin: 0;
-  color: #999999;
+  color: var(--app-color-text-muted);
   font-size: 12px;
 }
 
@@ -305,28 +271,14 @@ function createEditableOption(): EditableOption {
   flex-direction: column;
 }
 
-.inline-button,
-.dialog-action {
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.inline-button {
-  min-height: 34px;
-}
-
-.option-edit-row {
+:deep(.option-edit-row) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 12px;
-  padding: 12px;
 }
 
 @media (min-width: 640px) {
-  .option-edit-row {
+  :deep(.option-edit-row) {
     grid-template-columns: minmax(0, 1fr) 140px 140px 44px;
     align-items: center;
   }
@@ -341,9 +293,5 @@ function createEditableOption(): EditableOption {
   flex-direction: column;
   gap: 12px;
   padding: 24px 0 0;
-}
-
-.dialog-action {
-  min-height: 42px;
 }
 </style>

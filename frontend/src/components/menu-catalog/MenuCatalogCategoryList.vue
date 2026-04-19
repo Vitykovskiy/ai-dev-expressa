@@ -1,18 +1,26 @@
 <template>
-  <v-card class="catalog-panel" rounded="lg">
+  <AppSectionList class="catalog-panel">
+    <template #header>
+      <div class="catalog-panel__header">
+        <h2>Категории меню</h2>
+        <p>Группы, товары и назначенные группы опций</p>
+      </div>
+    </template>
     <div v-if="categories.length === 0" class="empty-state">
-      <BookOpen :size="38" />
-      <h2>Меню пусто</h2>
-      <p>Добавьте первую группу для начала работы</p>
+      <AppEmptyState
+        :icon="BookOpen"
+        :icon-size="38"
+        title="Меню пусто"
+        subtitle="Добавьте первую группу для начала работы"
+      />
     </div>
 
     <div v-else class="category-list">
       <div v-for="category in categories" :key="category.menuCategoryId" class="category-block">
         <div class="category-row">
-          <v-btn
+          <AppButton
             class="category-row__main"
-            variant="text"
-            rounded="0"
+            variant="ghost"
             @click="toggleCategory(category.menuCategoryId)"
           >
             <span class="category-row__content">
@@ -27,17 +35,14 @@
                 </span>
               </span>
             </span>
-          </v-btn>
-          <v-btn
+          </AppButton>
+          <AppIconButton
             class="icon-button"
-            color="primary"
-            variant="text"
-            icon
             title="Редактировать группу"
             @click="$emit('edit-category', category)"
           >
             <Edit3 :size="18" />
-          </v-btn>
+          </AppIconButton>
         </div>
 
         <div v-if="expandedCategoryIds.has(category.menuCategoryId)" class="category-detail">
@@ -55,19 +60,23 @@
           </div>
 
           <div v-if="(categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0" class="category-empty">
-            <Coffee :size="32" />
-            <p>Товаров в этой группе пока нет</p>
-            <v-btn class="inline-button" color="primary" variant="tonal" @click="$emit('create-item', category)">
-              Добавить товар
-            </v-btn>
+            <AppEmptyState
+              :icon="Coffee"
+              :icon-size="32"
+              title="Товаров в этой группе пока нет"
+              subtitle="Создайте первый товар для выбранной группы"
+            >
+              <template #actions>
+                <AppInlineAction @click="$emit('create-item', category)">Добавить товар</AppInlineAction>
+              </template>
+            </AppEmptyState>
           </div>
 
-          <v-btn
+          <AppButton
             v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
             :key="item.menuItemId"
             class="product-row"
-            variant="text"
-            rounded="0"
+            variant="ghost"
             @click="$emit('edit-item', item)"
           >
             <span class="product-row__content">
@@ -77,16 +86,21 @@
               </span>
               <ChevronRight :size="18" />
             </span>
-          </v-btn>
+          </AppButton>
         </div>
       </div>
     </div>
-  </v-card>
+  </AppSectionList>
 </template>
 
 <script setup lang="ts">
 import { BookOpen, ChevronDown, ChevronRight, Coffee, Edit3 } from "lucide-vue-next";
 import { ref } from "vue";
+import AppButton from "../ui/AppButton.vue";
+import AppEmptyState from "../ui/AppEmptyState.vue";
+import AppIconButton from "../ui/AppIconButton.vue";
+import AppInlineAction from "../ui/AppInlineAction.vue";
+import AppSectionList from "../ui/AppSectionList.vue";
 import { itemCountLabel, itemPriceLabel } from "../../modules/menu-catalog/presentation";
 import type { MenuCategory, MenuItem, OptionGroup } from "../../modules/menu-catalog/types";
 
@@ -119,52 +133,41 @@ function toggleCategory(menuCategoryId: string): void {
 <style scoped lang="scss">
 .catalog-panel {
   overflow: hidden;
-  border: 1px solid #e0e0e0;
-  background: #ffffff;
+}
+
+.catalog-panel__header h2 {
+  margin: 0;
+  color: var(--app-color-text-primary);
+  font-size: 18px;
+}
+
+.catalog-panel__header p {
+  margin: 4px 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .empty-state,
 .category-empty {
-  padding: 36px 16px;
-  text-align: center;
-  color: #999999;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.empty-state h2,
-.category-row__label strong {
-  margin: 0;
-  color: #111111;
-}
-
-.empty-state p,
-.category-empty p {
-  margin: 0;
+  padding: 0;
 }
 
 .category-block + .category-block {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--app-color-border);
 }
 
 .category-row {
   display: flex;
   align-items: stretch;
-  background: #f5f5f7;
+  background: var(--app-color-background-secondary);
 }
 
 .category-row__main,
 .product-row {
   width: 100%;
   justify-content: flex-start;
-  color: #111111;
-  text-transform: none;
-  letter-spacing: 0;
+  border-radius: 0;
 }
 
 .category-row__main {
@@ -188,6 +191,10 @@ function toggleCategory(menuCategoryId: string): void {
   gap: 12px;
 }
 
+.category-row__label strong {
+  color: var(--app-color-text-primary);
+}
+
 .category-row__label > span,
 .product-row__content > span {
   display: flex;
@@ -197,12 +204,12 @@ function toggleCategory(menuCategoryId: string): void {
 
 .category-row__label small,
 .product-row__content small {
-  color: #999999;
+  color: var(--app-color-text-muted);
   font-size: 12px;
 }
 
 .category-detail {
-  background: #ffffff;
+  background: var(--app-color-background-surface);
 }
 
 .assigned-groups {
@@ -215,21 +222,10 @@ function toggleCategory(menuCategoryId: string): void {
 .product-row {
   min-height: 56px;
   padding: 0 16px 0 48px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--app-color-border);
 }
 
 .icon-button {
-  min-width: 44px;
-  min-height: 44px;
   align-self: center;
-}
-
-.inline-button {
-  min-height: 34px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
 }
 </style>

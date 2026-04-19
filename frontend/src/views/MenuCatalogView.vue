@@ -1,6 +1,6 @@
 <template>
   <section class="menu-view">
-    <TopBar title="Меню" />
+    <AppTopBar title="Меню" />
 
     <div class="menu-view__header">
       <div>
@@ -9,26 +9,25 @@
           {{ categoryCountLabel(categories.length) }}, {{ itemCountLabel(snapshot.items.length) }}
         </p>
       </div>
-      <v-btn class="guide-button" color="surface" variant="outlined" @click="openCreateOptionGroupDialog">
+      <AppButton class="guide-button" variant="outlined" @click="openCreateOptionGroupDialog">
         <Plus :size="18" />
         <span>Группа опций</span>
-      </v-btn>
+      </AppButton>
     </div>
 
     <div class="menu-view__actions">
-      <v-btn class="action-button" color="primary" :disabled="isBusy" @click="openCreateCategoryDialog">
+      <AppButton class="action-button" :disabled="isBusy" @click="openCreateCategoryDialog">
         Добавить группу
-      </v-btn>
-      <v-btn
+      </AppButton>
+      <AppButton
         class="action-button"
-        color="surface"
         variant="outlined"
         :disabled="categories.length === 0 || isBusy"
         title="Сначала создайте группу"
         @click="openCreateItemDialog()"
       >
         Добавить товар
-      </v-btn>
+      </AppButton>
     </div>
 
     <v-alert v-if="hasError" class="error-banner" type="error" variant="tonal" density="comfortable">
@@ -98,7 +97,8 @@ import MenuCatalogOptionGroupsPanel from "../components/menu-catalog/MenuCatalog
 import MenuCategoryDialog from "../components/menu-catalog/MenuCategoryDialog.vue";
 import MenuItemDialog from "../components/menu-catalog/MenuItemDialog.vue";
 import MenuOptionGroupDialog from "../components/menu-catalog/MenuOptionGroupDialog.vue";
-import TopBar from "../components/TopBar.vue";
+import AppButton from "../components/ui/AppButton.vue";
+import AppTopBar from "../components/ui/AppTopBar.vue";
 import { categoryCountLabel, itemCountLabel } from "../modules/menu-catalog/presentation";
 import { useMenuCatalogStore } from "../modules/menu-catalog/store";
 import type {
@@ -352,12 +352,12 @@ function clearError(): void {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f5f5f7;
+  background: var(--app-color-background-secondary);
 }
 
 @media (min-width: 960px) {
   .menu-view {
-    background: #ffffff;
+    background: var(--app-color-background-primary);
   }
 }
 
@@ -370,14 +370,14 @@ function clearError(): void {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 24px 24px 0;
+    gap: var(--app-spacing-md);
+    padding: var(--app-spacing-lg) var(--app-spacing-lg) 0;
   }
 }
 
 .menu-view__title {
   margin: 0;
-  color: #111111;
+  color: var(--app-color-text-primary);
   font-size: 32px;
   line-height: 40px;
   font-weight: 700;
@@ -387,19 +387,19 @@ function clearError(): void {
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 20px;
-  color: #777777;
+  color: var(--app-color-text-secondary);
 }
 
 .menu-view__actions {
   display: flex;
-  gap: 8px;
-  padding: 16px 16px 12px;
+  gap: var(--app-spacing-sm);
+  padding: var(--app-spacing-md) var(--app-spacing-md) 12px;
 }
 
 @media (min-width: 960px) {
   .menu-view__actions {
     justify-content: flex-start;
-    padding: 16px 24px 12px;
+    padding: var(--app-spacing-md) var(--app-spacing-lg) 12px;
   }
 }
 
@@ -407,26 +407,16 @@ function clearError(): void {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
-  padding: 4px 16px 88px;
+  gap: var(--app-spacing-md);
+  padding: 4px var(--app-spacing-md) 88px;
 }
 
 @media (min-width: 960px) {
   .menu-view__body {
     grid-template-columns: minmax(0, 1fr) 340px;
     align-items: start;
-    padding: 12px 24px 24px;
+    padding: 12px var(--app-spacing-lg) var(--app-spacing-lg);
   }
-}
-
-.action-button,
-.guide-button {
-  min-height: 42px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .action-button {
@@ -438,12 +428,12 @@ function clearError(): void {
 }
 
 .error-banner {
-  margin: 0 16px 12px;
+  margin: 0 var(--app-spacing-md) 12px;
 }
 
 @media (min-width: 960px) {
   .error-banner {
-    margin: 0 24px 12px;
+    margin: 0 var(--app-spacing-lg) 12px;
   }
 }
 
@@ -452,7 +442,7 @@ function clearError(): void {
   align-items: center;
   gap: 12px;
   padding: 24px;
-  color: #555555;
+  color: var(--app-color-text-secondary);
   font-size: 14px;
 }
 </style>

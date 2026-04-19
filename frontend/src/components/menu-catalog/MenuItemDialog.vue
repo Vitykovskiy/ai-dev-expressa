@@ -1,82 +1,71 @@
 <template>
-  <v-dialog :model-value="open" max-width="480" @update:model-value="handleDialogModelUpdate">
-    <v-card class="dialog-card" rounded="lg">
-      <form @submit.prevent="submit">
-        <div class="dialog-card__header">
-          <div>
-            <h2>{{ editingItem ? "Редактировать товар" : "Новый товар" }}</h2>
-            <p class="dialog-card__description">Настройте группу, название и ценовую модель</p>
-          </div>
-          <v-btn
-            v-if="editingItem"
-            color="error"
-            variant="text"
-            icon
-            title="Удалить товар"
-            @click="$emit('delete')"
-          >
-            <Trash2 :size="20" />
-          </v-btn>
-        </div>
+  <AppDialogShell
+    :open="open"
+    :title="editingItem ? 'Редактировать товар' : 'Новый товар'"
+    description="Настройте группу, название и ценовую модель"
+    @close="$emit('close')"
+  >
+    <template #headerActions>
+      <AppIconButton v-if="editingItem" title="Удалить товар" @click="$emit('delete')">
+        <Trash2 :size="20" />
+      </AppIconButton>
+    </template>
 
-        <div class="dialog-card__body">
+    <form @submit.prevent="submit">
+      <div class="dialog-card__body">
+        <AppFormField label="Категория">
           <v-select
             v-model="form.menuCategoryId"
             :items="categoryItems"
             item-title="title"
             item-value="value"
-            label="Категория"
             placeholder="Выберите категорию"
             variant="outlined"
             density="comfortable"
             hide-details
           />
+        </AppFormField>
 
+        <AppFormField label="Название товара">
           <v-text-field
             v-model="form.name"
-            label="Название товара"
             placeholder="Например: Капучино, Латте"
             variant="outlined"
             density="comfortable"
             hide-details
           />
+        </AppFormField>
 
-          <v-sheet class="switch-row" rounded="lg" border>
-            <span>
-              <strong>Размеры S / M / L</strong>
-              <small>Включить разные размеры с отдельными ценами</small>
-            </span>
-            <v-switch
-              :model-value="form.itemType === 'drink'"
-              color="primary"
+        <AppToggleRow
+          :model-value="form.itemType === 'drink'"
+          label="Размеры S / M / L"
+          description="Включить разные размеры с отдельными ценами"
+          @update:model-value="updateItemType"
+        />
+
+        <AppSectionCard
+          v-if="form.itemType === 'drink'"
+          title="Цены по размерам, ₽"
+          body-class="size-price-list"
+        >
+          <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
+            <strong>{{ size }}</strong>
+            <v-text-field
+              v-model="form.sizePrices[size]"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0"
+              variant="outlined"
               density="comfortable"
               hide-details
-              inset
-              @update:model-value="updateItemType"
             />
-          </v-sheet>
-
-          <div v-if="form.itemType === 'drink'" class="size-price-list">
-            <span class="field-title">Цены по размерам, ₽</span>
-            <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
-              <strong>{{ size }}</strong>
-              <v-text-field
-                v-model="form.sizePrices[size]"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0"
-                variant="outlined"
-                density="comfortable"
-                hide-details
-              />
-            </div>
           </div>
+        </AppSectionCard>
 
+        <AppFormField v-else label="Цена, ₽">
           <v-text-field
-            v-else
             v-model="form.basePrice"
-            label="Цена, ₽"
             type="number"
             min="0"
             step="0.01"
@@ -85,22 +74,28 @@
             density="comfortable"
             hide-details
           />
-        </div>
+        </AppFormField>
+      </div>
 
-        <v-card-actions class="dialog-card__actions">
-          <v-btn class="dialog-action" color="primary" type="submit" :loading="isBusy" :disabled="isBusy">
-            {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
-          </v-btn>
-          <v-btn class="dialog-action" color="secondary" variant="text" @click="$emit('close')">Отмена</v-btn>
-        </v-card-actions>
-      </form>
-    </v-card>
-  </v-dialog>
+      <div class="dialog-card__actions">
+        <AppButton block type="submit" :loading="isBusy" :disabled="isBusy">
+          {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
+        </AppButton>
+        <AppButton block variant="ghost" @click="$emit('close')">Отмена</AppButton>
+      </div>
+    </form>
+  </AppDialogShell>
 </template>
 
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { computed, reactive, watch } from "vue";
+import AppButton from "../ui/AppButton.vue";
+import AppDialogShell from "../ui/AppDialogShell.vue";
+import AppFormField from "../ui/AppFormField.vue";
+import AppIconButton from "../ui/AppIconButton.vue";
+import AppSectionCard from "../ui/AppSectionCard.vue";
+import AppToggleRow from "../ui/AppToggleRow.vue";
 import {
   DRINK_SIZES,
   type DrinkSize,
@@ -159,12 +154,6 @@ watch(
   { immediate: true }
 );
 
-function handleDialogModelUpdate(value: boolean): void {
-  if (!value) {
-    emit("close");
-  }
-}
-
 function updateItemType(value: boolean | null): void {
   form.itemType = value ? "drink" : "regular";
 }
@@ -207,32 +196,7 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
 </script>
 
 <style scoped lang="scss">
-.dialog-card {
-  padding: 24px;
-  background: #ffffff;
-}
-
-.dialog-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.dialog-card h2 {
-  margin: 0;
-  color: #111111;
-}
-
-.dialog-card__description {
-  margin: 4px 0 0;
-  color: #777777;
-  font-size: 13px;
-  line-height: 20px;
-}
-
-.dialog-card__body,
-.size-price-list {
+.dialog-card__body {
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -242,33 +206,10 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   margin-top: 20px;
 }
 
-.switch-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-}
-
-.switch-row span {
+.dialog-card__body :deep(.size-price-list) {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-}
-
-.switch-row strong {
-  color: #111111;
-}
-
-.switch-row small {
-  color: #999999;
-  font-size: 12px;
-}
-
-.field-title {
-  color: #555555;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 18px;
 }
 
 .size-field {
@@ -283,9 +224,9 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   height: 42px;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #f5f5f7;
-  color: #555555;
+  border-radius: var(--app-radius-md);
+  background: var(--app-color-background-secondary);
+  color: var(--app-color-text-secondary);
 }
 
 .dialog-card__actions {
@@ -293,14 +234,5 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   flex-direction: column;
   gap: 12px;
   padding: 24px 0 0;
-}
-
-.dialog-action {
-  min-height: 42px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
 }
 </style>

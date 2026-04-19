@@ -8,6 +8,7 @@
 
 - `stack.md` — базовые технологические ограничения и принятые рамки реализации.
 - `frontend-architecture.md` — базовый стандарт клиентской части, Vue SFC, frontend-декомпозиции и frontend quality gates.
+- `frontend-ui-kit.md` — правила канонического `App*` UI-набора для backoffice и граница между `ui` и feature-компонентами.
 - `backend-architecture.md` — базовый стандарт серверной части, NestJS boundaries и backend quality gates.
 - `devops-standards.md` — базовый стандарт runtime, delivery, локальных hooks и PR gates.
 - `deployment-map.md` — окружения и deployment-ограничения.

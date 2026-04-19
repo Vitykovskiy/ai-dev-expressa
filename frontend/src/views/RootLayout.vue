@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import SideNav from "../components/SideNav.vue";
-import TabBar from "../components/TabBar.vue";
+import { useRoute } from "vue-router";
+import AppSideNav from "../components/ui/AppSideNav.vue";
+import AppTabBar from "../components/ui/AppTabBar.vue";
 import { useAuthSession } from "../modules/auth/session-store";
+import { getVisibleTabs } from "../modules/navigation/tabs";
 
 const auth = useAuthSession();
+const route = useRoute();
 const actor = computed(() => auth.state.actor);
+const visibleTabs = computed(() => getVisibleTabs(actor.value?.capabilities ?? []));
 const roleLabel = computed(() => {
   const roles = actor.value?.roles ?? [];
   return roles.includes("administrator") ? "Администратор" : "Бариста";
@@ -14,21 +18,26 @@ const roleLabel = computed(() => {
 
 <template>
   <div class="root-layout">
-    <SideNav v-if="actor" :capabilities="actor.capabilities" :role-label="roleLabel" />
+    <AppSideNav
+      v-if="actor"
+      :tabs="visibleTabs"
+      :role-label="roleLabel"
+      :active-path="route.path"
+    />
 
     <main class="root-layout__content">
       <router-view />
     </main>
 
-    <TabBar v-if="actor" :capabilities="actor.capabilities" />
+    <AppTabBar v-if="actor" :tabs="visibleTabs" :active-path="route.path" />
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .root-layout {
   min-height: 100vh;
   display: flex;
-  background: #f5f5f7;
+  background: var(--app-color-background-secondary);
 }
 
 .root-layout__content {
@@ -39,7 +48,7 @@ const roleLabel = computed(() => {
 
 @media (min-width: 960px) {
   .root-layout__content {
-    margin-left: 220px;
+    margin-left: var(--app-side-nav-width);
   }
 }
 </style>
