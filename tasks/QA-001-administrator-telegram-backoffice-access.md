@@ -8,7 +8,6 @@
 - Описание: `Нужно проверить собранную FEATURE-001: administrator открывает backoffice через служебного Telegram-бота, bootstrap administrator идемпотентен, вкладки доступны по роли, прямой production доступ без Telegram заблокирован, а DISABLE_TG_AUTH=true работает только в test environment.`
 - Единица поставки: `FEATURE-001`
 - Роль: `Тестирование`
-- Изменяемый контур: `qa`
 - Приоритет: `Критический`
 - Статус: `Выполнена`
 

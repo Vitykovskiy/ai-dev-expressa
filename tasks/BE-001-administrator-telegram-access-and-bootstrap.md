@@ -8,7 +8,6 @@
 - Описание: `Нужно реализовать серверный контур входа administrator: идемпотентно создать главного administrator из ADMIN_TELEGRAM_ID, проверять служебный Telegram-вход, разрешать test-mode bypass только в test environment при DISABLE_TG_AUTH=true и применять role guard для backoffice вкладок и прямых обращений.`
 - Единица поставки: `FEATURE-001`
 - Роль: `Бэкенд`
-- Изменяемый контур: `backend`
 - Приоритет: `Критический`
 - Статус: `Выполнена`
 
