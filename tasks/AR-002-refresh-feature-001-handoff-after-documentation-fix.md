@@ -10,7 +10,7 @@
 - Роль: `Архитектор`
 - Изменяемый контур: `architecture`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -28,3 +28,8 @@
 - Проверки: `Проверить, что FE/BE/QA карточки содержат достаточный Минимальный read set, явные ссылки на consumer-facing contract и корректные application maps; проверить, что docs/architecture/application-map/*.md обновлены при изменении handoff route или contour rules.`
 - Обновление карты приложения: `Обязательно, если обновление handoff меняет frontend/backend/qa contour maps, auth route, config route или navigation path для FEATURE-001; индекс docs/architecture/application-map.md обновлять только если меняется карта навигации.`
 - Критерии готовности: `Задача завершена, когда developer-facing cards FEATURE-001 и связанные архитектурные карты можно отдать исполнителю без дополнительных догадок, а FE-001 больше не требует чтения backend/src для implementable handoff.`
+
+## Результат выполнения
+
+- В `FEATURE-001`, `FE-001`, `BE-001` и `QA-001` добавлен явный consumer-facing contract `docs/system/contracts/backoffice-auth-and-capability-access.md` в `Ссылки на документы` и `Минимальный read set`.
+- В `docs/architecture/application-map/frontend-backoffice.md`, `backend-access.md` и `qa-access.md` зафиксирован handoff route к каноническому contract и запрет восстанавливать auth/capability semantics из production-кода соседнего контура.

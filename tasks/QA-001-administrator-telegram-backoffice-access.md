@@ -14,7 +14,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
+- Системные артефакты: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Архитектурные артефакты: `docs/architecture/application-map/qa-access.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
 - Контурная карта: `docs/architecture/application-map/qa-access.md`
 - Бизнес-артефакты: `не требуются`
@@ -23,7 +23,7 @@
 ## Примечания
 
 - Зависимости: `FE-001`, `BE-001`, `DO-001`
-- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/qa-access.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
+- Минимальный read set: `docs/system/system-context/expressa-v1-telegram-ordering.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/qa-access.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
 - Ожидаемый результат для ревью: `Есть воспроизводимый e2e-сценарий administrator Telegram entry, проверки bootstrap idempotency, role guard и test-mode исключения; дефекты зафиксированы с шагами воспроизведения.`
 - Проверки: `E2e administrator opens backoffice via service Telegram entrypoint; integration Telegram/test-mode auth; unit evidence for bootstrap and role guard; smoke build/start for affected contours.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/qa-access.md, если появляются новые e2e маршруты, fixtures, test env rules или smoke-check.`

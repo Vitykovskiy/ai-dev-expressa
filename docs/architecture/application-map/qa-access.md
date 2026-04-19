@@ -13,6 +13,11 @@
 | E2E | Открытие backoffice administrator через служебный Telegram entrypoint и доступность разрешённых вкладок. |
 | Smoke | Сборка и запуск затронутых backend/frontend/runtime контуров. |
 
+## Handoff route for FEATURE-001
+
+- QA читает `docs/system/contracts/backoffice-auth-and-capability-access.md` как канонический источник по `401`/`403`, request boundary и capability guard, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-access.md` и `delivery-and-runtime.md`.
+- E2E и integration checks не должны опираться на чтение `frontend/src/*` или `backend/src/*`, чтобы восстановить состав `AuthenticatedActor`, test-mode fallback или набор capability.
+
 ## Acceptance scenarios
 
 - При первом запуске создаётся пользователь `ADMIN_TELEGRAM_ID` с ролью `administrator`.

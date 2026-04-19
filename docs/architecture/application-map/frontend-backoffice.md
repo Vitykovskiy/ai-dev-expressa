@@ -27,6 +27,7 @@
 
 - При открытии из служебного Telegram-бота frontend получает Telegram Web App init data и передаёт его backend-контуру для валидации.
 - После успешной проверки frontend хранит только клиентское состояние сессии, необходимое для UI; источник истины по ролям остаётся на backend.
+- Канонический consumer-facing contract для session bootstrap, capability guard, error mapping и test-mode ограничений находится в `docs/system/contracts/backoffice-auth-and-capability-access.md`; восстанавливать эти правила из `backend/src/*` нельзя.
 - Без валидного Telegram-входа production UI не должен показывать рабочие экраны backoffice.
 - В test environment допускается bypass только при серверно разрешённом `DISABLE_TG_AUTH=true`; frontend не включает этот режим самостоятельно.
 - Для bootstrap session используется `POST /backoffice/auth/session`.
@@ -49,6 +50,11 @@
 - `.references/Expressa_admin/src/app/RootLayout.tsx` задаёт общую layout-структуру.
 - `.references/Expressa_admin/src/app/components/SideNav.tsx` и `TabBar.tsx` задают роль-зависимую навигацию.
 - Цвета, отступы и композиция берутся из UI-контракта и референса, но реализация должна быть на `Vue 3`/`Vuetify`.
+
+## Handoff route for FEATURE-001
+
+- Для входа в backoffice и route guard исполнитель читает `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
+- Если в FEATURE-001 меняются route, auth state, client-side guard или frontend env/config, обновляется эта карта вместе с consumer-facing contract при изменении request/response boundary.
 
 ## Запрещено в FEATURE-001
 

@@ -14,7 +14,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
+- Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/application-map/frontend-backoffice.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Бизнес-артефакты: `не требуются`
@@ -23,7 +23,7 @@
 ## Примечания
 
 - Зависимости: `BE-001 для финальной интеграции authenticated actor/roles; можно начать с контрактного client boundary и mock adapter.`
-- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/application-map/frontend-backoffice.md`, `.references/Expressa_admin/src/app/App.tsx`, `.references/Expressa_admin/src/app/RootLayout.tsx`, `.references/Expressa_admin/src/app/routes.tsx`, `.references/Expressa_admin/src/app/components/SideNav.tsx`, `.references/Expressa_admin/src/app/components/TabBar.tsx`
+- Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/stack.md`, `docs/architecture/application-map/frontend-backoffice.md`, `.references/Expressa_admin/src/app/App.tsx`, `.references/Expressa_admin/src/app/RootLayout.tsx`, `.references/Expressa_admin/src/app/routes.tsx`, `.references/Expressa_admin/src/app/components/SideNav.tsx`, `.references/Expressa_admin/src/app/components/TabBar.tsx`
 - Ожидаемый результат для ревью: `Administrator, открывший backoffice через служебный Telegram entrypoint, видит разрешённые вкладки; прямой доступ без допустимого входа не показывает рабочий UI; role guard защищает прямые routes.`
 - Проверки: `Модульные тесты role navigation и route guard; интеграционная проверка frontend auth bootstrap с backend contract/mock; сборка frontend; ручная проверка desktop/mobile навигации по референсу.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/frontend-backoffice.md, если появляются новые routes, auth states, frontend env/config или навигационные правила.`

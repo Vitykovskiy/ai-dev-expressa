@@ -41,12 +41,19 @@
 
 ## Server contracts for FEATURE-001
 
+- Канонический contract для `POST /backoffice/auth/session`, `GET /backoffice/:capability`, `AuthenticatedActor`, заголовков, error mapping и test-mode fallback находится в `docs/system/contracts/backoffice-auth-and-capability-access.md`.
 - На старте системы должен существовать пользователь с `telegramId=ADMIN_TELEGRAM_ID` и ролью `administrator`.
 - Повторный старт не должен создавать дубликаты пользователя или роли.
 - Backoffice auth принимает только служебный Telegram entrypoint, кроме test-mode исключения.
 - Role guard возвращает отказ для прямого доступа без Telegram в production.
 - Role guard разрешает `administrator` доступ ко всем вкладкам backoffice, перечисленным в `identity-and-access.md`.
 - Role guard разрешает `barista` только `orders` и `availability`, но назначение/управление barista не входит в эту feature.
+- Backend handoff для FEATURE-001 считается невалидным, если состав `AuthenticatedActor` или guard semantics нужно восстанавливать из `backend/src/*` вместо системного contract.
+
+## Handoff route for FEATURE-001
+
+- Для server-side реализации сначала читать `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/domain-model/identity-and-access.md`, затем эту карту и `docs/architecture/application-map/delivery-and-runtime.md`.
+- Если меняются endpoint boundary, auth headers/body, env/config или guard behavior, обновляется эта карта и соответствующий system contract в одном handoff.
 
 ## Env/config
 
