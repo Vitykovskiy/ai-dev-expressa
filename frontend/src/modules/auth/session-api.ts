@@ -5,6 +5,10 @@ export interface SessionApiOptions {
   readonly fetchImpl?: typeof fetch;
 }
 
+interface ErrorResponseBody {
+  readonly message?: string;
+}
+
 export class SessionApiError extends Error {
   constructor(
     message: string,
@@ -30,7 +34,10 @@ export async function bootstrapSession(
 
   const body = await readJson(response);
   if (!response.ok) {
-    const code = typeof body?.message === "string" ? body.message : "backoffice-auth-failed";
+    const code =
+      isErrorResponseBody(body) && typeof body.message === "string"
+        ? body.message
+        : "backoffice-auth-failed";
     throw new SessionApiError(code, response.status, code);
   }
 
@@ -40,6 +47,10 @@ export async function bootstrapSession(
 function resolveUrl(apiBaseUrl?: string): string {
   const base = apiBaseUrl?.trim();
   return `${base ? base.replace(/\/$/, "") : ""}/backoffice/auth/session`;
+}
+
+function isErrorResponseBody(value: unknown): value is ErrorResponseBody {
+  return typeof value === "object" && value !== null && "message" in value;
 }
 
 async function readJson(response: Response): Promise<unknown> {

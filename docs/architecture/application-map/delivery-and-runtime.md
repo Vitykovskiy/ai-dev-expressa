@@ -12,6 +12,21 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 | `test` | Допустима | Разрешён только при `DISABLE_TG_AUTH=true` |
 | local development | Определяется проектной конфигурацией | Не должен маскировать production ограничения |
 
+## Branch policy and pipeline
+
+- Pull request в `main` запускает только обязательные проверки `quality` и `build`; PR workflow не выполняет deploy.
+- Job `quality` обязан проверять `backend` и `frontend` unit tests, typecheck и связанные статические проверки, достаточные для `FEATURE-001`.
+- Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
+- Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
+- Secrets для VPS-доступа, `ADMIN_TELEGRAM_ID` и `SERVICE_TELEGRAM_BOT_TOKEN` передаются только через CI/VPS secrets и не хранятся в репозитории.
+
+## Test VPS deployment contract
+
+- Ветка `main` является источником автодеплоя на VPS `test`-окружения.
+- `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<secret>` и `DISABLE_TG_AUTH=true`.
+- `SERVICE_TELEGRAM_BOT_TOKEN` для `test` передаётся только если стенд должен одновременно проверять Telegram auth path; отсутствие этого секрета не должно ломать test-mode bypass сценарий.
+- Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в секрете CI/VPS.
+
 ## Env vars
 
 - `ADMIN_TELEGRAM_ID` должен быть задан до запуска backend.
@@ -23,9 +38,17 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 - Установка: `cd backend && npm install`.
 - Сборка: `cd backend && npm run build`.
+- Typecheck: `cd backend && npm run typecheck`.
 - Тесты: `cd backend && npm test`.
 - Production-like запуск после сборки: `cd backend && NODE_ENV=production ADMIN_TELEGRAM_ID=<id> SERVICE_TELEGRAM_BOT_TOKEN=<token> npm start`.
 - Test-mode без Telegram: `cd backend && NODE_ENV=test ADMIN_TELEGRAM_ID=<id> DISABLE_TG_AUTH=true npm start`.
+
+## Frontend commands
+
+- Установка: `cd frontend && npm install`.
+- Сборка: `cd frontend && npm run build`.
+- Typecheck: `cd frontend && npm run typecheck`.
+- Тесты: `cd frontend && npm test`.
 
 ## Smoke-check
 
@@ -33,7 +56,9 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Production-like запуск с `DISABLE_TG_AUTH=true` завершается ошибкой конфигурации или блокирует bypass.
 - Backoffice без Telegram-входа в production-like режиме не открывает рабочие вкладки.
 - Test environment с `DISABLE_TG_AUTH=true` позволяет выполнить проверку role guard без Telegram.
-- `cd backend && npm run build && npm test && npm audit --audit-level=moderate` завершается успешно.
+- PR workflow `quality` успешно завершает `backend/frontend` typecheck и unit tests.
+- PR workflow `build` успешно завершает сборку `backend/frontend`.
+- Deploy workflow для `main` после выкладки проверяет `GET /health`, прямой test-mode доступ к `GET /backoffice/orders` на test VPS и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
 
 ## Обновлять эту карту
 
