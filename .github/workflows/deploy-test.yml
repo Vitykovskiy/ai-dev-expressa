@@ -41,7 +41,25 @@ jobs:
             fi
 
             cd "${APP_DIR}"
-            git fetch --prune origin
-            git pull --ff-only origin main
+            app_dir_abs="$(pwd -P)"
+            repo_root="$(git rev-parse --show-toplevel)"
+            repo_root_abs="$(cd "${repo_root}" && pwd -P)"
+            if [ "${repo_root_abs}" != "${app_dir_abs}" ]; then
+              echo "APP_DIR must point to the repository root before resetting the deploy worktree."
+              exit 1
+            fi
+
+            git fetch --prune origin main
+            git reset --hard origin/main
+            clean_excludes=(-e .env)
+            if [ -n "${ENV_FILE:-}" ]; then
+              env_file_abs="$(realpath -m "${ENV_FILE}")"
+              case "${env_file_abs}" in
+                "${app_dir_abs}"/*)
+                  clean_excludes+=(-e "${env_file_abs#${app_dir_abs}/}")
+                  ;;
+              esac
+            fi
+            git clean -fd "${clean_excludes[@]}"
             chmod +x scripts/deploy-test-vps.sh
             SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh
