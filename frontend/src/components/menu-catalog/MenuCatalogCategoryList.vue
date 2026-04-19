@@ -16,7 +16,11 @@
     </div>
 
     <div v-else class="category-list">
-      <div v-for="category in categories" :key="category.menuCategoryId" class="category-block">
+      <div
+        v-for="category in categories"
+        :key="category.menuCategoryId"
+        class="category-block"
+      >
         <div class="category-row">
           <ui-button
             class="category-row__main"
@@ -26,12 +30,20 @@
             <span class="category-row__content">
               <span class="category-row__label">
                 <component
-                  :is="expandedCategoryIds.has(category.menuCategoryId) ? ChevronDown : ChevronRight"
+                  :is="
+                    expandedCategoryIds.has(category.menuCategoryId)
+                      ? ChevronDown
+                      : ChevronRight
+                  "
                   :size="20"
                 />
                 <span>
                   <strong>{{ category.name }}</strong>
-                  <small>{{ itemCountLabel(categoryItemsMap[category.menuCategoryId]?.length ?? 0) }}</small>
+                  <small>{{
+                    itemCountLabel(
+                      categoryItemsMap[category.menuCategoryId]?.length ?? 0,
+                    )
+                  }}</small>
                 </span>
               </span>
             </span>
@@ -45,8 +57,17 @@
           </ui-icon-button>
         </div>
 
-        <div v-if="expandedCategoryIds.has(category.menuCategoryId)" class="category-detail">
-          <div v-if="(categoryOptionGroupsMap[category.menuCategoryId]?.length ?? 0) > 0" class="assigned-groups">
+        <div
+          v-if="expandedCategoryIds.has(category.menuCategoryId)"
+          class="category-detail"
+        >
+          <div
+            v-if="
+              (categoryOptionGroupsMap[category.menuCategoryId]?.length ?? 0) >
+              0
+            "
+            class="assigned-groups"
+          >
             <v-chip
               v-for="group in categoryOptionGroupsMap[category.menuCategoryId]"
               :key="group.optionGroupId"
@@ -59,7 +80,12 @@
             </v-chip>
           </div>
 
-          <div v-if="(categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0" class="category-empty">
+          <div
+            v-if="
+              (categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0
+            "
+            class="category-empty"
+          >
             <ui-empty-state
               :icon="Coffee"
               :icon-size="32"
@@ -67,7 +93,9 @@
               subtitle="Создайте первый товар для выбранной группы"
             >
               <template #actions>
-                <ui-inline-action @click="$emit('create-item', category)">Добавить товар</ui-inline-action>
+                <ui-inline-action @click="$emit('create-item', category)"
+                  >Добавить товар</ui-inline-action
+                >
               </template>
             </ui-empty-state>
           </div>
@@ -94,15 +122,28 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, ChevronDown, ChevronRight, Coffee, Edit3 } from "lucide-vue-next";
+import {
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Coffee,
+  Edit3,
+} from "lucide-vue-next";
 import { ref } from "vue";
 import UiButton from "../../ui/UiButton.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
 import UiIconButton from "../../ui/UiIconButton.vue";
 import UiInlineAction from "../../ui/UiInlineAction.vue";
 import UiSectionList from "../../ui/UiSectionList.vue";
-import { itemCountLabel, itemPriceLabel } from "../../modules/menu-catalog/presentation";
-import type { MenuCategory, MenuItem, OptionGroup } from "../../modules/menu-catalog/types";
+import {
+  itemCountLabel,
+  itemPriceLabel,
+} from "../../modules/menu-catalog/presentation";
+import type {
+  MenuCategory,
+  MenuItem,
+  OptionGroup,
+} from "../../modules/menu-catalog/types";
 
 defineProps<{
   categories: readonly MenuCategory[];

@@ -8,14 +8,14 @@ describe("toAuthenticatedActor", () => {
     const actor = toAuthenticatedActor(
       createUser({
         telegramId: "1001",
-        roles: ["administrator", "barista"]
-      })
+        roles: ["administrator", "barista"],
+      }),
     );
 
     expect(actor).toMatchObject({
       telegramId: "1001",
       roles: ["administrator", "barista"],
-      capabilities: ["orders", "availability", "menu", "users", "settings"]
+      capabilities: ["orders", "availability", "menu", "users", "settings"],
     });
   });
 });

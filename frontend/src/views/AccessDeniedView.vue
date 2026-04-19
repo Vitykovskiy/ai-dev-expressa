@@ -16,8 +16,8 @@ const reason = computed(() => {
       <p class="access-denied__eyebrow">Expressa</p>
       <h1 class="access-denied__title">Вход в backoffice недоступен</h1>
       <p class="access-denied__text">
-        Откройте backoffice из служебного Telegram-бота. Прямой вход по URL в продуктовой
-        среде не поддерживается.
+        Откройте backoffice из служебного Telegram-бота. Прямой вход по URL в
+        продуктовой среде не поддерживается.
       </p>
       <p class="access-denied__reason">Причина: {{ reason }}</p>
     </div>

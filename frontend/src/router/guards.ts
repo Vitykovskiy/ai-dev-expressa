@@ -1,5 +1,8 @@
 import type { RouteLocationNormalized } from "vue-router";
-import type { AuthenticatedActor, BackofficeCapability } from "../modules/auth/types";
+import type {
+  AuthenticatedActor,
+  BackofficeCapability,
+} from "../modules/auth/types";
 
 export type GuardDecision =
   | { readonly kind: "allow" }
@@ -7,7 +10,7 @@ export type GuardDecision =
 
 export function resolveGuardDecision(
   to: RouteLocationNormalized,
-  actor: AuthenticatedActor | null
+  actor: AuthenticatedActor | null,
 ): GuardDecision {
   if (to.meta.public === true) {
     return { kind: "allow" };
@@ -17,7 +20,9 @@ export function resolveGuardDecision(
     return { kind: "redirect", name: "entry-denied" };
   }
 
-  const requiredCapability = to.meta.capability as BackofficeCapability | undefined;
+  const requiredCapability = to.meta.capability as
+    | BackofficeCapability
+    | undefined;
   if (!requiredCapability) {
     return { kind: "allow" };
   }

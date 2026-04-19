@@ -6,17 +6,26 @@
       <div>
         <h1 class="menu-view__title">Меню</h1>
         <p class="menu-view__subtitle">
-          {{ categoryCountLabel(categories.length) }}, {{ itemCountLabel(snapshot.items.length) }}
+          {{ categoryCountLabel(categories.length) }},
+          {{ itemCountLabel(snapshot.items.length) }}
         </p>
       </div>
-      <ui-button class="guide-button" variant="outlined" @click="openCreateOptionGroupDialog">
+      <ui-button
+        class="guide-button"
+        variant="outlined"
+        @click="openCreateOptionGroupDialog"
+      >
         <Plus :size="18" />
         <span>Группа опций</span>
       </ui-button>
     </div>
 
     <div class="menu-view__actions">
-      <ui-button class="action-button" :disabled="isBusy" @click="openCreateCategoryDialog">
+      <ui-button
+        class="action-button"
+        :disabled="isBusy"
+        @click="openCreateCategoryDialog"
+      >
         Добавить группу
       </ui-button>
       <ui-button
@@ -30,12 +39,28 @@
       </ui-button>
     </div>
 
-    <v-alert v-if="hasError" class="error-banner" type="error" variant="tonal" density="comfortable">
+    <v-alert
+      v-if="hasError"
+      class="error-banner"
+      type="error"
+      variant="tonal"
+      density="comfortable"
+    >
       {{ errorMessage }}
     </v-alert>
 
-    <v-sheet v-if="isLoading" class="loading-panel" rounded="lg" color="surface">
-      <v-progress-circular indeterminate color="primary" :size="36" :width="4" />
+    <v-sheet
+      v-if="isLoading"
+      class="loading-panel"
+      rounded="lg"
+      color="surface"
+    >
+      <v-progress-circular
+        indeterminate
+        color="primary"
+        :size="36"
+        :width="4"
+      />
       <span>Загружаем каталог</span>
     </v-sheet>
 
@@ -99,7 +124,10 @@ import MenuItemDialog from "../components/menu-catalog/MenuItemDialog.vue";
 import MenuOptionGroupDialog from "../components/menu-catalog/MenuOptionGroupDialog.vue";
 import UiButton from "../ui/UiButton.vue";
 import UiTopBar from "../ui/UiTopBar.vue";
-import { categoryCountLabel, itemCountLabel } from "../modules/menu-catalog/presentation";
+import {
+  categoryCountLabel,
+  itemCountLabel,
+} from "../modules/menu-catalog/presentation";
 import { useMenuCatalogStore } from "../modules/menu-catalog/store";
 import type {
   MenuCategory,
@@ -107,12 +135,12 @@ import type {
   MenuItem,
   MenuItemPayload,
   OptionGroup,
-  OptionGroupPayload
+  OptionGroupPayload,
 } from "../modules/menu-catalog/types";
 import {
   mapMenuCatalogError,
   validateMenuItemPayload,
-  validateOptionGroupPayload
+  validateOptionGroupPayload,
 } from "../modules/menu-catalog/validation";
 
 const store = useMenuCatalogStore();
@@ -137,20 +165,26 @@ const categoryItemsMap = computed<Record<string, MenuItem[]>>(() =>
     list.push(item);
     acc[item.menuCategoryId] = list;
     return acc;
-  }, {})
+  }, {}),
 );
 const categoryOptionGroupsMap = computed<Record<string, OptionGroup[]>>(() =>
   categories.value.reduce<Record<string, OptionGroup[]>>((acc, category) => {
     acc[category.menuCategoryId] = optionGroups.value.filter((group) =>
-      category.optionGroupRefs.includes(group.optionGroupId)
+      category.optionGroupRefs.includes(group.optionGroupId),
     );
     return acc;
-  }, {})
+  }, {}),
 );
-const isBusy = computed(() => store.state.status === "loading" || store.state.status === "saving");
+const isBusy = computed(
+  () => store.state.status === "loading" || store.state.status === "saving",
+);
 const isLoading = computed(() => store.state.status === "loading");
-const errorMessage = computed(() => localError.value ?? mapMenuCatalogError(store.state.errorCode));
-const hasError = computed(() => Boolean(localError.value || store.state.errorCode));
+const errorMessage = computed(
+  () => localError.value ?? mapMenuCatalogError(store.state.errorCode),
+);
+const hasError = computed(() =>
+  Boolean(localError.value || store.state.errorCode),
+);
 
 onMounted(() => {
   void store.loadCatalog().catch(() => undefined);
@@ -209,7 +243,8 @@ async function deleteCurrentCategory(): Promise<void> {
 function openCreateItemDialog(category?: MenuCategory): void {
   clearError();
   editingItem.value = null;
-  defaultItemCategoryId.value = category?.menuCategoryId ?? categories.value[0]?.menuCategoryId ?? "";
+  defaultItemCategoryId.value =
+    category?.menuCategoryId ?? categories.value[0]?.menuCategoryId ?? "";
   itemDialogOpen.value = true;
 }
 
@@ -279,7 +314,7 @@ function closeOptionGroupDialog(): void {
 
 async function submitOptionGroup({
   payload,
-  assignedCategoryIds
+  assignedCategoryIds,
 }: {
   payload: OptionGroupPayload;
   assignedCategoryIds: string[];
@@ -293,14 +328,20 @@ async function submitOptionGroup({
 
   try {
     const nextSnapshot = editingOptionGroup.value
-      ? await store.updateOptionGroup(editingOptionGroup.value.optionGroupId, payload)
+      ? await store.updateOptionGroup(
+          editingOptionGroup.value.optionGroupId,
+          payload,
+        )
       : await store.createOptionGroup(payload);
     const savedGroup =
       editingOptionGroup.value ??
       nextSnapshot.optionGroups.find((group) => group.name === payload.name);
 
     if (savedGroup) {
-      await syncOptionGroupAssignments(savedGroup.optionGroupId, assignedCategoryIds);
+      await syncOptionGroupAssignments(
+        savedGroup.optionGroupId,
+        assignedCategoryIds,
+      );
     }
 
     closeOptionGroupDialog();
@@ -322,7 +363,10 @@ async function deleteCurrentOptionGroup(): Promise<void> {
   }
 }
 
-async function syncOptionGroupAssignments(optionGroupId: string, assignedCategoryIds: string[]): Promise<void> {
+async function syncOptionGroupAssignments(
+  optionGroupId: string,
+  assignedCategoryIds: string[],
+): Promise<void> {
   const assigned = new Set(assignedCategoryIds);
   for (const category of categories.value) {
     const hasRef = category.optionGroupRefs.includes(optionGroupId);
@@ -336,7 +380,7 @@ async function syncOptionGroupAssignments(optionGroupId: string, assignedCategor
       : category.optionGroupRefs.filter((ref) => ref !== optionGroupId);
     await store.updateCategory(category.menuCategoryId, {
       name: category.name,
-      optionGroupRefs: nextRefs
+      optionGroupRefs: nextRefs,
     });
   }
 }

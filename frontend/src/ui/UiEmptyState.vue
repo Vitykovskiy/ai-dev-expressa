@@ -20,8 +20,8 @@ withDefaults(
     iconSize?: number;
   }>(),
   {
-    iconSize: 48
-  }
+    iconSize: 48,
+  },
 );
 </script>
 

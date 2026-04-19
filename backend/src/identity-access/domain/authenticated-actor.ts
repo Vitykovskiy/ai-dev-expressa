@@ -1,7 +1,7 @@
 import {
   BackofficeCapability,
   Role,
-  visibleBackofficeCapabilities
+  visibleBackofficeCapabilities,
 } from "./role";
 import { User } from "./user";
 
@@ -17,6 +17,6 @@ export function toAuthenticatedActor(user: User): AuthenticatedActor {
     userId: user.userId,
     telegramId: user.telegramId,
     roles: user.roles,
-    capabilities: visibleBackofficeCapabilities(user.roles)
+    capabilities: visibleBackofficeCapabilities(user.roles),
   };
 }

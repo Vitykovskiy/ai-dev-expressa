@@ -13,7 +13,7 @@ export class SessionApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
-    readonly code: string
+    readonly code: string,
   ) {
     super(message);
     this.name = "SessionApiError";
@@ -22,15 +22,18 @@ export class SessionApiError extends Error {
 
 export async function bootstrapSession(
   payload: SessionPayload,
-  options: SessionApiOptions = {}
+  options: SessionApiOptions = {},
 ): Promise<AuthenticatedActor> {
-  const response = await (options.fetchImpl ?? fetch)(resolveUrl(options.apiBaseUrl), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json"
+  const response = await (options.fetchImpl ?? fetch)(
+    resolveUrl(options.apiBaseUrl),
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload)
-  });
+  );
 
   const body = await readJson(response);
   if (!response.ok) {

@@ -39,8 +39,8 @@ describe("Menu catalog e2e", () => {
         selectionMode: "single",
         options: [
           { name: "Regular", priceDelta: 0 },
-          { name: "Oat", priceDelta: 60 }
-        ]
+          { name: "Oat", priceDelta: 60 },
+        ],
       })
       .expect(201)
       .then((response) => response.body.optionGroupId as string);
@@ -63,8 +63,8 @@ describe("Menu catalog e2e", () => {
         drinkSizePrices: [
           { size: "S", price: 250 },
           { size: "M", price: 300 },
-          { size: "L", price: 350 }
-        ]
+          { size: "L", price: 350 },
+        ],
       })
       .expect(201)
       .expect(({ body }) => {
@@ -95,8 +95,8 @@ describe("Menu catalog e2e", () => {
         itemType: "drink",
         drinkSizePrices: [
           { size: "S", price: 250 },
-          { size: "M", price: 300 }
-        ]
+          { size: "M", price: 300 },
+        ],
       })
       .expect(400)
       .expect(({ body }) => {
@@ -119,7 +119,9 @@ describe("Menu catalog e2e", () => {
 
   it("rejects menu catalog access without administrator menu capability", async () => {
     app = await createTestApp();
-    await app.get(IdentityAccessService).ensureUserWithRoles("2002", ["barista"]);
+    await app
+      .get(IdentityAccessService)
+      .ensureUserWithRoles("2002", ["barista"]);
 
     await request(app.getHttpServer())
       .get("/backoffice/menu/catalog")
@@ -135,7 +137,7 @@ async function createTestApp(): Promise<INestApplication> {
   const config: AccessConfig = {
     environment: "test",
     adminTelegramId: "1001",
-    disableTelegramAuth: true
+    disableTelegramAuth: true,
   };
   const moduleRef = await Test.createTestingModule({
     controllers: [BackofficeController, MenuCatalogController],
@@ -143,11 +145,11 @@ async function createTestApp(): Promise<INestApplication> {
       provideAccessConfig(config),
       {
         provide: USER_REPOSITORY,
-        useClass: InMemoryUserRepository
+        useClass: InMemoryUserRepository,
       },
       {
         provide: MENU_CATALOG_REPOSITORY,
-        useClass: InMemoryMenuCatalogRepository
+        useClass: InMemoryMenuCatalogRepository,
       },
       Reflector,
       IdentityAccessService,
@@ -156,8 +158,8 @@ async function createTestApp(): Promise<INestApplication> {
       BackofficeAuthService,
       BackofficeAuthGuard,
       MenuCatalogValidator,
-      MenuCatalogService
-    ]
+      MenuCatalogService,
+    ],
   }).compile();
 
   const testApp = moduleRef.createNestApplication();
@@ -165,7 +167,10 @@ async function createTestApp(): Promise<INestApplication> {
   return testApp;
 }
 
-async function createCategory(app: INestApplication, name: string): Promise<string> {
+async function createCategory(
+  app: INestApplication,
+  name: string,
+): Promise<string> {
   return request(app.getHttpServer())
     .post("/backoffice/menu/categories")
     .set("x-test-telegram-id", "1001")

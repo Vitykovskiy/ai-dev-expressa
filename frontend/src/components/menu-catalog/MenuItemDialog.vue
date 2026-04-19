@@ -6,7 +6,11 @@
     @close="$emit('close')"
   >
     <template #headerActions>
-      <ui-icon-button v-if="editingItem" title="Удалить товар" @click="$emit('delete')">
+      <ui-icon-button
+        v-if="editingItem"
+        title="Удалить товар"
+        @click="$emit('delete')"
+      >
         <Trash2 :size="20" />
       </ui-icon-button>
     </template>
@@ -81,7 +85,9 @@
         <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
           {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
         </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')"
+          >Отмена</ui-button
+        >
       </div>
     </form>
   </ui-dialog-shell>
@@ -102,9 +108,13 @@ import {
   type MenuCategory,
   type MenuItem,
   type MenuItemFormState,
-  type MenuItemPayload
+  type MenuItemPayload,
 } from "../../modules/menu-catalog/types";
-import { formatMoney, normalizeDrinkSizePrices, parseMoney } from "../../modules/menu-catalog/validation";
+import {
+  formatMoney,
+  normalizeDrinkSizePrices,
+  parseMoney,
+} from "../../modules/menu-catalog/validation";
 
 const props = defineProps<{
   open: boolean;
@@ -124,8 +134,8 @@ const form = reactive<MenuItemFormState>(createEmptyItemForm());
 const categoryItems = computed(() =>
   props.categories.map((category) => ({
     title: category.name,
-    value: category.menuCategoryId
-  }))
+    value: category.menuCategoryId,
+  })),
 );
 
 watch(
@@ -151,7 +161,7 @@ watch(
       form.sizePrices[sizePrice.size] = formatMoney(sizePrice.price);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function updateItemType(value: boolean | null): void {
@@ -163,8 +173,12 @@ function submit(): void {
     menuCategoryId: form.menuCategoryId,
     name: form.name.trim(),
     itemType: form.itemType,
-    basePrice: form.itemType === "regular" ? parseMoney(form.basePrice) : undefined,
-    drinkSizePrices: form.itemType === "drink" ? normalizeDrinkSizePrices(form.sizePrices) : undefined
+    basePrice:
+      form.itemType === "regular" ? parseMoney(form.basePrice) : undefined,
+    drinkSizePrices:
+      form.itemType === "drink"
+        ? normalizeDrinkSizePrices(form.sizePrices)
+        : undefined,
   });
 }
 
@@ -182,7 +196,7 @@ function createEmptyItemForm(): MenuItemFormState {
     name: "",
     itemType: "regular",
     basePrice: "",
-    sizePrices: createEmptySizePrices()
+    sizePrices: createEmptySizePrices(),
   };
 }
 
@@ -190,7 +204,7 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   return {
     S: "",
     M: "",
-    L: ""
+    L: "",
   };
 }
 </script>
@@ -200,9 +214,6 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-.dialog-card__body {
   margin-top: 20px;
 }
 

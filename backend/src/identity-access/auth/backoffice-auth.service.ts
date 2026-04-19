@@ -2,17 +2,17 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from "@nestjs/common";
 import { AccessConfig } from "../config/access-config";
 import {
   BackofficeCapability,
   canAccessBackofficeCapability,
-  visibleBackofficeCapabilities
+  visibleBackofficeCapabilities,
 } from "../domain/role";
 import {
   AuthenticatedActor,
-  toAuthenticatedActor
+  toAuthenticatedActor,
 } from "../domain/authenticated-actor";
 import { ACCESS_CONFIG } from "../identity-access.tokens";
 import { IdentityAccessService } from "../users/identity-access.service";
@@ -27,7 +27,7 @@ export class BackofficeAuthService {
     @Inject(IdentityAccessService)
     private readonly identity: IdentityAccessService,
     @Inject(TelegramInitDataVerifier)
-    private readonly telegramVerifier: TelegramInitDataVerifier
+    private readonly telegramVerifier: TelegramInitDataVerifier,
   ) {}
 
   async authenticate(input: BackofficeAuthInput): Promise<AuthenticatedActor> {
@@ -52,7 +52,7 @@ export class BackofficeAuthService {
 
   async requireCapability(
     input: BackofficeAuthInput,
-    capability: BackofficeCapability
+    capability: BackofficeCapability,
   ): Promise<AuthenticatedActor> {
     const actor = await this.authenticate(input);
     if (!canAccessBackofficeCapability(actor.roles, capability)) {

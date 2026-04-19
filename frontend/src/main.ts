@@ -24,11 +24,11 @@ const vuetify = createVuetify({
           "error-light": "#FFEBEE",
           "success-light": "#E8F5E9",
           "warning-light": "#FFF3E0",
-          border: "#E0E0E0"
-        }
-      }
-    }
-  }
+          border: "#E0E0E0",
+        },
+      },
+    },
+  },
 });
 
 createApp(App).use(vuetify).use(router).mount("#app");

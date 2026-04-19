@@ -3,7 +3,7 @@ import {
   mapMenuCatalogError,
   normalizeDrinkSizePrices,
   validateMenuItemPayload,
-  validateOptionGroupPayload
+  validateOptionGroupPayload,
 } from "./validation";
 
 describe("menu catalog validation", () => {
@@ -14,13 +14,13 @@ describe("menu catalog validation", () => {
       itemType: "drink",
       drinkSizePrices: [
         { size: "S", price: 180 },
-        { size: "M", price: 220 }
-      ]
+        { size: "M", price: 220 },
+      ],
     });
 
     expect(result).toEqual({
       valid: false,
-      message: "Укажите цены для размеров S, M и L"
+      message: "Укажите цены для размеров S, M и L",
     });
   });
 
@@ -30,16 +30,18 @@ describe("menu catalog validation", () => {
         menuCategoryId: "cat-1",
         name: "Круассан",
         itemType: "regular",
-        basePrice: 160
-      })
+        basePrice: 160,
+      }),
     ).toEqual({ valid: true, message: null });
   });
 
   it("normalizes drink size prices from form strings", () => {
-    expect(normalizeDrinkSizePrices({ S: "180", M: "220,5", L: "260" })).toEqual([
+    expect(
+      normalizeDrinkSizePrices({ S: "180", M: "220,5", L: "260" }),
+    ).toEqual([
       { size: "S", price: 180 },
       { size: "M", price: 220.5 },
-      { size: "L", price: 260 }
+      { size: "L", price: 260 },
     ]);
   });
 
@@ -48,16 +50,20 @@ describe("menu catalog validation", () => {
       validateOptionGroupPayload({
         name: "Сиропы",
         selectionMode: "multiple",
-        options: [{ name: "Ваниль", priceDelta: -1, availability: true }]
-      })
+        options: [{ name: "Ваниль", priceDelta: -1, availability: true }],
+      }),
     ).toEqual({
       valid: false,
-      message: "Укажите названия опций и неотрицательные доплаты"
+      message: "Укажите названия опций и неотрицательные доплаты",
     });
   });
 
   it("maps backend validation codes to operator messages", () => {
-    expect(mapMenuCatalogError("invalid-drink-size-model")).toContain("S, M и L");
-    expect(mapMenuCatalogError("invalid-option-group-rule")).toContain("тип выбора");
+    expect(mapMenuCatalogError("invalid-drink-size-model")).toContain(
+      "S, M и L",
+    );
+    expect(mapMenuCatalogError("invalid-option-group-rule")).toContain(
+      "тип выбора",
+    );
   });
 });

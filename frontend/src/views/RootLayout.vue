@@ -9,7 +9,9 @@ import { getVisibleTabs } from "../modules/navigation/tabs";
 const auth = useAuthSession();
 const route = useRoute();
 const actor = computed(() => auth.state.actor);
-const visibleTabs = computed(() => getVisibleTabs(actor.value?.capabilities ?? []));
+const visibleTabs = computed(() =>
+  getVisibleTabs(actor.value?.capabilities ?? []),
+);
 const roleLabel = computed(() => {
   const roles = actor.value?.roles ?? [];
   return roles.includes("administrator") ? "Администратор" : "Бариста";

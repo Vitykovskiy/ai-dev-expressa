@@ -2,17 +2,17 @@
 
 ## Окружения
 
-| Environment | Назначение | Ограничение |
-|---|---|---|
-| `production` | Рабочий контур | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён. |
-| `test` | Проверочный контур | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок. |
+| Environment  | Назначение         | Ограничение                                                             |
+| ------------ | ------------------ | ----------------------------------------------------------------------- |
+| `production` | Рабочий контур     | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён.             |
+| `test`       | Проверочный контур | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок. |
 
 ## Branch-to-environment mapping
 
-| Source branch/event | Target environment | Delivery rule |
-|---|---|---|
-| `pull_request` -> `main` | нет | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён. |
-| `push`/merge -> `main` | `test` | Выполняется автодеплой на VPS test-окружения и post-deploy smoke-check. |
+| Source branch/event      | Target environment | Delivery rule                                                                                          |
+| ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------ |
+| `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён. |
+| `push`/merge -> `main`   | `test`             | Выполняется автодеплой на VPS test-окружения и post-deploy smoke-check.                                |
 
 ## Test deployment contract
 
@@ -26,6 +26,7 @@
 
 ## Required GitHub checks
 
+- Workflow `PR Checks` публикует обязательные check-runs:
 - `quality`
 - `build`
 

@@ -14,9 +14,9 @@ import { MENU_CATALOG_REPOSITORY } from "./repository/menu-catalog.repository";
     MenuCatalogService,
     {
       provide: MENU_CATALOG_REPOSITORY,
-      useClass: InMemoryMenuCatalogRepository
-    }
+      useClass: InMemoryMenuCatalogRepository,
+    },
   ],
-  exports: [MenuCatalogService]
+  exports: [MenuCatalogService],
 })
 export class MenuCatalogModule {}

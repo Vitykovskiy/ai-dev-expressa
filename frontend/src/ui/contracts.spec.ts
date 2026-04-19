@@ -3,7 +3,7 @@ import {
   APP_BUTTON_VARIANTS,
   APP_STATUS_BADGE_VARIANTS,
   resolveButtonVariant,
-  resolveStatusBadgeVariant
+  resolveStatusBadgeVariant,
 } from "./contracts";
 
 describe("ui contracts", () => {
@@ -14,14 +14,14 @@ describe("ui contracts", () => {
       "outlined",
       "destructive",
       "ghost",
-      "tonal"
+      "tonal",
     ]);
     expect(resolveButtonVariant("primary")).toMatchObject({
       color: "primary",
-      variant: "flat"
+      variant: "flat",
     });
     expect(resolveButtonVariant("outlined")).toMatchObject({
-      variant: "outlined"
+      variant: "outlined",
     });
   });
 
@@ -31,10 +31,10 @@ describe("ui contracts", () => {
       "Confirmed",
       "Ready for pickup",
       "Rejected",
-      "Closed"
+      "Closed",
     ]);
     expect(resolveStatusBadgeVariant("Confirmed")).toMatchObject({
-      background: "var(--app-color-success-light)"
+      background: "var(--app-color-success-light)",
     });
   });
 });

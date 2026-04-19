@@ -15,14 +15,14 @@ import { USER_REPOSITORY } from "./users/user.repository";
     provideAccessConfigFromNestConfig(),
     {
       provide: USER_REPOSITORY,
-      useClass: InMemoryUserRepository
+      useClass: InMemoryUserRepository,
     },
     IdentityAccessService,
     BootstrapAdministratorService,
     TelegramInitDataVerifier,
     BackofficeAuthService,
-    BackofficeAuthGuard
+    BackofficeAuthGuard,
   ],
-  exports: [IdentityAccessService, BackofficeAuthService]
+  exports: [IdentityAccessService, BackofficeAuthService],
 })
 export class IdentityAccessModule {}

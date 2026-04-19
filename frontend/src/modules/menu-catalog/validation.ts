@@ -1,11 +1,19 @@
-import { DRINK_SIZES, type DrinkSizePrice, type MenuCatalogErrorCode, type MenuItemPayload, type OptionGroupPayload } from "./types";
+import {
+  DRINK_SIZES,
+  type DrinkSizePrice,
+  type MenuCatalogErrorCode,
+  type MenuItemPayload,
+  type OptionGroupPayload,
+} from "./types";
 
 export interface ValidationResult {
   readonly valid: boolean;
   readonly message: string | null;
 }
 
-export function validateMenuItemPayload(payload: MenuItemPayload): ValidationResult {
+export function validateMenuItemPayload(
+  payload: MenuItemPayload,
+): ValidationResult {
   if (!payload.name.trim()) {
     return invalid("Введите название товара");
   }
@@ -24,7 +32,7 @@ export function validateMenuItemPayload(payload: MenuItemPayload): ValidationRes
 
   const prices = payload.drinkSizePrices ?? [];
   const hasAllSizes = DRINK_SIZES.every((size) =>
-    prices.some((price) => price.size === size && isPositiveMoney(price.price))
+    prices.some((price) => price.size === size && isPositiveMoney(price.price)),
   );
 
   if (!hasAllSizes) {
@@ -34,24 +42,34 @@ export function validateMenuItemPayload(payload: MenuItemPayload): ValidationRes
   return valid();
 }
 
-export function normalizeDrinkSizePrices(input: Record<string, string>): DrinkSizePrice[] {
+export function normalizeDrinkSizePrices(
+  input: Record<string, string>,
+): DrinkSizePrice[] {
   return DRINK_SIZES.map((size) => ({
     size,
-    price: parseMoney(input[size] ?? "")
+    price: parseMoney(input[size] ?? ""),
   }));
 }
 
-export function validateOptionGroupPayload(payload: OptionGroupPayload): ValidationResult {
+export function validateOptionGroupPayload(
+  payload: OptionGroupPayload,
+): ValidationResult {
   if (!payload.name.trim()) {
     return invalid("Введите название группы опций");
   }
 
-  if (payload.selectionMode !== "single" && payload.selectionMode !== "multiple") {
+  if (
+    payload.selectionMode !== "single" &&
+    payload.selectionMode !== "multiple"
+  ) {
     return invalid("Выберите тип выбора опций");
   }
 
   const hasInvalidOption = payload.options.some(
-    (option) => !option.name.trim() || option.priceDelta < 0 || !Number.isFinite(option.priceDelta)
+    (option) =>
+      !option.name.trim() ||
+      option.priceDelta < 0 ||
+      !Number.isFinite(option.priceDelta),
   );
 
   if (hasInvalidOption) {

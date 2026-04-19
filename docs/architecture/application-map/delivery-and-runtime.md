@@ -6,16 +6,16 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Окружения
 
-| Environment | Telegram auth | Test-mode bypass |
-|---|---|---|
-| `production` | Обязательна | Запрещён |
-| `test` | Допустима | Разрешён только при `DISABLE_TG_AUTH=true` |
+| Environment       | Telegram auth                        | Test-mode bypass                             |
+| ----------------- | ------------------------------------ | -------------------------------------------- |
+| `production`      | Обязательна                          | Запрещён                                     |
+| `test`            | Допустима                            | Разрешён только при `DISABLE_TG_AUTH=true`   |
 | local development | Определяется проектной конфигурацией | Не должен маскировать production ограничения |
 
 ## Branch policy and pipeline
 
 - Pull request в `main` запускает только обязательные проверки `quality` и `build`; PR workflow не выполняет deploy.
-- Job `quality` обязан проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки; для `frontend` дополнительно обязателен stylelint.
+- Job `quality` обязан после `npm ci` в корне репозитория и отдельных `npm ci` в `backend/` и `frontend/` проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки; для `frontend` дополнительно обязателен stylelint.
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
@@ -24,8 +24,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Local quality hooks
 
-- Pre-commit hook запускает `lint-staged` на изменённых файлах.
-- `lint-staged` должен применять formatting/lint к backend и frontend TypeScript/Vue файлам и stylelint к изменённым frontend style blocks или style files, где применимо.
+- Pre-commit hook из `.husky/pre-commit` запускает root-команду `npm run lint-staged` на изменённых файлах.
+- `lint-staged` применяет `prettier --write` к staged text-файлам, `eslint --fix` к staged backend/frontend TypeScript/Vue файлам и `stylelint --fix` к staged frontend style blocks или style files, где применимо.
 - Hooks являются быстрым локальным gate и не заменяют полные `test`, `typecheck` и `build` перед ревью.
 - Изменение hooks, lint-staged или npm scripts должно обновлять эту карту и `docs/architecture/devops-standards.md`.
 
@@ -50,8 +50,10 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Backend commands
 
+- Root tooling install: `npm install` в корне репозитория.
 - Установка: `cd backend && npm install`.
 - Lint: `cd backend && npm run lint`.
+- Format: `cd backend && npm run format`.
 - Format check: `cd backend && npm run format:check`.
 - Сборка: `cd backend && npm run build`.
 - Typecheck: `cd backend && npm run typecheck`.
@@ -61,9 +63,11 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Frontend commands
 
+- Root tooling install: `npm install` в корне репозитория.
 - Установка: `cd frontend && npm install`.
 - Lint: `cd frontend && npm run lint`.
 - Stylelint: `cd frontend && npm run stylelint`.
+- Format: `cd frontend && npm run format`.
 - Format check: `cd frontend && npm run format:check`.
 - Сборка: `cd frontend && npm run build`.
 - Typecheck: `cd frontend && npm run typecheck`.

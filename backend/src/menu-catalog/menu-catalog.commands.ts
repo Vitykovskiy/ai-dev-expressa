@@ -1,7 +1,7 @@
 import {
   DrinkSizePrice,
   MenuItemType,
-  OptionSelectionMode
+  OptionSelectionMode,
 } from "./domain/menu-catalog.types";
 
 export interface CreateCategoryInput {

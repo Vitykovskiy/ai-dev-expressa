@@ -7,11 +7,11 @@ import {
   MenuCatalogSnapshot,
   MenuItem,
   OPTION_SELECTION_MODES,
-  OptionGroup
+  OptionGroup,
 } from "./menu-catalog.types";
 import {
   InvalidDrinkSizeModelError,
-  InvalidOptionGroupRuleError
+  InvalidOptionGroupRuleError,
 } from "./menu-catalog.errors";
 
 @Injectable()
@@ -58,8 +58,12 @@ export class MenuCatalogValidator {
   }
 
   validateCategoryReferences(snapshot: MenuCatalogSnapshot): void {
-    const optionGroupIds = new Set(snapshot.optionGroups.map((group) => group.optionGroupId));
-    const categoryIds = new Set(snapshot.categories.map((category) => category.menuCategoryId));
+    const optionGroupIds = new Set(
+      snapshot.optionGroups.map((group) => group.optionGroupId),
+    );
+    const categoryIds = new Set(
+      snapshot.categories.map((category) => category.menuCategoryId),
+    );
 
     for (const category of snapshot.categories) {
       assertText(category.name, "menu-category-name-required");

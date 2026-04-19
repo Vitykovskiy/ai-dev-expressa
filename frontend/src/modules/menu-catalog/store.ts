@@ -1,23 +1,27 @@
 import { reactive, readonly } from "vue";
-import { createMenuCatalogApi, MenuCatalogApiError, type MenuCatalogClient } from "./api";
+import {
+  createMenuCatalogApi,
+  MenuCatalogApiError,
+  type MenuCatalogClient,
+} from "./api";
 import type {
   MenuCatalogSnapshot,
   MenuCatalogState,
   MenuCategoryPayload,
   MenuItemPayload,
-  OptionGroupPayload
+  OptionGroupPayload,
 } from "./types";
 
 const emptySnapshot: MenuCatalogSnapshot = {
   categories: [],
   items: [],
-  optionGroups: []
+  optionGroups: [],
 };
 
 const state = reactive<MenuCatalogState>({
   status: "idle",
   snapshot: emptySnapshot,
-  errorCode: null
+  errorCode: null,
 });
 
 let api: MenuCatalogClient = createMenuCatalogApi();
@@ -35,7 +39,7 @@ export function useMenuCatalogStore() {
     deleteItem,
     createOptionGroup,
     updateOptionGroup,
-    deleteOptionGroup
+    deleteOptionGroup,
   };
 }
 
@@ -73,52 +77,66 @@ export async function loadCatalog(): Promise<MenuCatalogSnapshot> {
   return pendingLoad;
 }
 
-export async function createCategory(payload: MenuCategoryPayload): Promise<MenuCatalogSnapshot> {
+export async function createCategory(
+  payload: MenuCategoryPayload,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.createCategory(payload));
 }
 
 export async function updateCategory(
   menuCategoryId: string,
-  payload: MenuCategoryPayload
+  payload: MenuCategoryPayload,
 ): Promise<MenuCatalogSnapshot> {
   return save(() => api.updateCategory(menuCategoryId, payload));
 }
 
-export async function deleteCategory(menuCategoryId: string): Promise<MenuCatalogSnapshot> {
+export async function deleteCategory(
+  menuCategoryId: string,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.deleteCategory(menuCategoryId));
 }
 
-export async function createItem(payload: MenuItemPayload): Promise<MenuCatalogSnapshot> {
+export async function createItem(
+  payload: MenuItemPayload,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.createItem(payload));
 }
 
 export async function updateItem(
   menuItemId: string,
-  payload: MenuItemPayload
+  payload: MenuItemPayload,
 ): Promise<MenuCatalogSnapshot> {
   return save(() => api.updateItem(menuItemId, payload));
 }
 
-export async function deleteItem(menuItemId: string): Promise<MenuCatalogSnapshot> {
+export async function deleteItem(
+  menuItemId: string,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.deleteItem(menuItemId));
 }
 
-export async function createOptionGroup(payload: OptionGroupPayload): Promise<MenuCatalogSnapshot> {
+export async function createOptionGroup(
+  payload: OptionGroupPayload,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.createOptionGroup(payload));
 }
 
 export async function updateOptionGroup(
   optionGroupId: string,
-  payload: OptionGroupPayload
+  payload: OptionGroupPayload,
 ): Promise<MenuCatalogSnapshot> {
   return save(() => api.updateOptionGroup(optionGroupId, payload));
 }
 
-export async function deleteOptionGroup(optionGroupId: string): Promise<MenuCatalogSnapshot> {
+export async function deleteOptionGroup(
+  optionGroupId: string,
+): Promise<MenuCatalogSnapshot> {
   return save(() => api.deleteOptionGroup(optionGroupId));
 }
 
-async function save(operation: () => Promise<MenuCatalogSnapshot>): Promise<MenuCatalogSnapshot> {
+async function save(
+  operation: () => Promise<MenuCatalogSnapshot>,
+): Promise<MenuCatalogSnapshot> {
   state.status = "saving";
   state.errorCode = null;
 
@@ -135,6 +153,8 @@ function applySnapshot(snapshot: MenuCatalogSnapshot): MenuCatalogSnapshot {
 function handleError(error: unknown): never {
   state.status = "error";
   state.errorCode =
-    error instanceof MenuCatalogApiError ? error.code : "menu-catalog-request-failed";
+    error instanceof MenuCatalogApiError
+      ? error.code
+      : "menu-catalog-request-failed";
   throw error;
 }

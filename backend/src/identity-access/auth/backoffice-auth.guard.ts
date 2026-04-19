@@ -5,14 +5,11 @@ import {
   Injectable,
   NotFoundException,
   Optional,
-  SetMetadata
+  SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
-import {
-  BACKOFFICE_CAPABILITIES,
-  BackofficeCapability
-} from "../domain/role";
+import { BACKOFFICE_CAPABILITIES, BackofficeCapability } from "../domain/role";
 import { AuthenticatedActor } from "../domain/authenticated-actor";
 import { BackofficeAuthService } from "./backoffice-auth.service";
 import { getBackofficeAuthInputFromRequest } from "./backoffice-auth.input";
@@ -32,7 +29,7 @@ export class BackofficeAuthGuard implements CanActivate {
     @Inject(BackofficeAuthService)
     private readonly auth: BackofficeAuthService,
     @Optional()
-    private readonly reflector?: Reflector
+    private readonly reflector?: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -43,24 +40,29 @@ export class BackofficeAuthGuard implements CanActivate {
       throw new NotFoundException("backoffice-capability-not-found");
     }
 
-    request.actor = await this.auth.requireCapability(getBackofficeAuthInputFromRequest(request), capability);
+    request.actor = await this.auth.requireCapability(
+      getBackofficeAuthInputFromRequest(request),
+      capability,
+    );
 
     return true;
   }
 
   private resolveCapability(
     context: ExecutionContext,
-    request: BackofficeRequest
+    request: BackofficeRequest,
   ): string | undefined {
     return (
       this.reflector?.getAllAndOverride<BackofficeCapability>(
         BACKOFFICE_CAPABILITY_METADATA,
-        [context.getHandler(), context.getClass()]
+        [context.getHandler(), context.getClass()],
       ) ?? request.params.capability
     );
   }
 }
 
-function isBackofficeCapability(value: string | undefined): value is BackofficeCapability {
+function isBackofficeCapability(
+  value: string | undefined,
+): value is BackofficeCapability {
   return BACKOFFICE_CAPABILITIES.includes(value as BackofficeCapability);
 }

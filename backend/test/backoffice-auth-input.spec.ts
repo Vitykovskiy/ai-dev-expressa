@@ -7,13 +7,13 @@ describe("getBackofficeAuthInputFromRequest", () => {
     const input = getBackofficeAuthInputFromRequest({
       headers: {
         "x-telegram-init-data": "telegram",
-        "x-test-telegram-id": ["1001", "ignored"]
-      }
+        "x-test-telegram-id": ["1001", "ignored"],
+      },
     } as never);
 
     expect(input).toEqual({
       initData: "telegram",
-      testTelegramId: "1001"
+      testTelegramId: "1001",
     });
   });
 });

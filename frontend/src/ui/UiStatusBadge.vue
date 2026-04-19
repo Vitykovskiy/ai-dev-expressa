@@ -6,7 +6,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { resolveStatusBadgeVariant, type AppStatusBadgeVariant } from "./contracts";
+import {
+  resolveStatusBadgeVariant,
+  type AppStatusBadgeVariant,
+} from "./contracts";
 
 const props = defineProps<{
   value: AppStatusBadgeVariant;

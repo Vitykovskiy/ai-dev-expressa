@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
-import { InvalidDrinkSizeModelError, InvalidOptionGroupRuleError } from "../src/menu-catalog/domain/menu-catalog.errors";
+import {
+  InvalidDrinkSizeModelError,
+  InvalidOptionGroupRuleError,
+} from "../src/menu-catalog/domain/menu-catalog.errors";
 import { MenuCatalogValidator } from "../src/menu-catalog/domain/menu-catalog.validator";
 
 describe("MenuCatalogValidator", () => {
@@ -17,9 +20,9 @@ describe("MenuCatalogValidator", () => {
         availability: true,
         drinkSizePrices: [
           { size: "S", price: 250 },
-          { size: "M", price: 300 }
-        ]
-      })
+          { size: "M", price: 300 },
+        ],
+      }),
     ).toThrow(InvalidDrinkSizeModelError);
   });
 
@@ -32,8 +35,8 @@ describe("MenuCatalogValidator", () => {
         itemType: "regular",
         basePrice: 180,
         availability: true,
-        drinkSizePrices: [{ size: "S", price: 180 }]
-      })
+        drinkSizePrices: [{ size: "S", price: 180 }],
+      }),
     ).toThrow(InvalidDrinkSizeModelError);
   });
 
@@ -43,8 +46,8 @@ describe("MenuCatalogValidator", () => {
         optionGroupId: "group-1",
         name: "Milk",
         selectionMode: "exclusive" as "single",
-        options: []
-      })
+        options: [],
+      }),
     ).toThrow(InvalidOptionGroupRuleError);
   });
 });

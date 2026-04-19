@@ -17,8 +17,8 @@ withDefaults(
   {
     label: undefined,
     hint: undefined,
-    error: null
-  }
+    error: null,
+  },
 );
 </script>
 

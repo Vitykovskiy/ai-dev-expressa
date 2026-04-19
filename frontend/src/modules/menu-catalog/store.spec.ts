@@ -1,21 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MenuCatalogApiError, type MenuCatalogClient } from "./api";
-import { resetMenuCatalogStore, setMenuCatalogApiForTests, useMenuCatalogStore } from "./store";
+import {
+  resetMenuCatalogStore,
+  setMenuCatalogApiForTests,
+  useMenuCatalogStore,
+} from "./store";
 import type { MenuCatalogSnapshot } from "./types";
 
 const emptySnapshot: MenuCatalogSnapshot = {
   categories: [],
   items: [],
-  optionGroups: []
+  optionGroups: [],
 };
 
 const categorySnapshot: MenuCatalogSnapshot = {
   categories: [{ menuCategoryId: "cat-1", name: "Кофе", optionGroupRefs: [] }],
   items: [],
-  optionGroups: []
+  optionGroups: [],
 };
 
-function createApiMock(overrides: Partial<MenuCatalogClient> = {}): MenuCatalogClient {
+function createApiMock(
+  overrides: Partial<MenuCatalogClient> = {},
+): MenuCatalogClient {
   return {
     getCatalog: vi.fn().mockResolvedValue(emptySnapshot),
     createCategory: vi.fn().mockResolvedValue(categorySnapshot),
@@ -27,7 +33,7 @@ function createApiMock(overrides: Partial<MenuCatalogClient> = {}): MenuCatalogC
     createOptionGroup: vi.fn().mockResolvedValue(emptySnapshot),
     updateOptionGroup: vi.fn().mockResolvedValue(emptySnapshot),
     deleteOptionGroup: vi.fn().mockResolvedValue(emptySnapshot),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -52,21 +58,34 @@ describe("menu catalog store", () => {
 
     await store.createCategory({ name: "Кофе", optionGroupRefs: [] });
 
-    expect(api.createCategory).toHaveBeenCalledWith({ name: "Кофе", optionGroupRefs: [] });
-    expect(store.state.snapshot.categories).toEqual(categorySnapshot.categories);
+    expect(api.createCategory).toHaveBeenCalledWith({
+      name: "Кофе",
+      optionGroupRefs: [],
+    });
+    expect(store.state.snapshot.categories).toEqual(
+      categorySnapshot.categories,
+    );
   });
 
   it("keeps backend validation code in state", async () => {
-    const error = new MenuCatalogApiError("invalid-option-group-rule", 400, "invalid-option-group-rule");
+    const error = new MenuCatalogApiError(
+      "invalid-option-group-rule",
+      400,
+      "invalid-option-group-rule",
+    );
     setMenuCatalogApiForTests(
       createApiMock({
-        createOptionGroup: vi.fn().mockRejectedValue(error)
-      })
+        createOptionGroup: vi.fn().mockRejectedValue(error),
+      }),
     );
     const store = useMenuCatalogStore();
 
     await expect(
-      store.createOptionGroup({ name: "Сиропы", selectionMode: "single", options: [] })
+      store.createOptionGroup({
+        name: "Сиропы",
+        selectionMode: "single",
+        options: [],
+      }),
     ).rejects.toBe(error);
     expect(store.state.status).toBe("error");
     expect(store.state.errorCode).toBe("invalid-option-group-rule");

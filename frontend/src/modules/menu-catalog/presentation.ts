@@ -7,7 +7,9 @@ export function itemPriceLabel(item: MenuItem): string {
     return Number.isFinite(minPrice) ? `от ${minPrice} ₽` : "Нет цены";
   }
 
-  return typeof item.basePrice === "number" ? `${item.basePrice} ₽` : "Нет цены";
+  return typeof item.basePrice === "number"
+    ? `${item.basePrice} ₽`
+    : "Нет цены";
 }
 
 export function selectionModeLabel(mode: SelectionMode): string {

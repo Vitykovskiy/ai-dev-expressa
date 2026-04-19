@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
-import type { BackofficeTab } from "../../modules/navigation/tabs";
+import type { BackofficeTab } from "../modules/navigation/tabs";
 
 defineProps<{
   tabs: readonly BackofficeTab[];
@@ -84,7 +84,8 @@ defineProps<{
   font-size: 13px;
   line-height: 18px;
   font-weight: 500;
-  transition: background-color var(--app-motion-default) var(--app-motion-easing);
+  transition: background-color var(--app-motion-default)
+    var(--app-motion-easing);
 }
 
 .app-side-nav__link:hover {

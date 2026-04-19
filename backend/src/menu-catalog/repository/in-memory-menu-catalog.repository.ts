@@ -5,7 +5,7 @@ import { MenuCatalogRepository } from "./menu-catalog.repository";
 const emptySnapshot: MenuCatalogSnapshot = {
   categories: [],
   items: [],
-  optionGroups: []
+  optionGroups: [],
 };
 
 @Injectable()
@@ -16,7 +16,9 @@ export class InMemoryMenuCatalogRepository implements MenuCatalogRepository {
     return cloneSnapshot(this.snapshot);
   }
 
-  async saveSnapshot(snapshot: MenuCatalogSnapshot): Promise<MenuCatalogSnapshot> {
+  async saveSnapshot(
+    snapshot: MenuCatalogSnapshot,
+  ): Promise<MenuCatalogSnapshot> {
     this.snapshot = cloneSnapshot(snapshot);
     return this.getSnapshot();
   }
@@ -30,15 +32,15 @@ function cloneSnapshot(snapshot: MenuCatalogSnapshot): MenuCatalogSnapshot {
   return {
     categories: snapshot.categories.map((category) => ({
       ...category,
-      optionGroupRefs: [...category.optionGroupRefs]
+      optionGroupRefs: [...category.optionGroupRefs],
     })),
     items: snapshot.items.map((item) => ({
       ...item,
-      drinkSizePrices: item.drinkSizePrices.map((price) => ({ ...price }))
+      drinkSizePrices: item.drinkSizePrices.map((price) => ({ ...price })),
     })),
     optionGroups: snapshot.optionGroups.map((group) => ({
       ...group,
-      options: group.options.map((option) => ({ ...option }))
-    }))
+      options: group.options.map((option) => ({ ...option })),
+    })),
   };
 }

@@ -4,7 +4,7 @@ import { MenuCatalogApi, MenuCatalogApiError } from "./api";
 const snapshot = {
   categories: [],
   items: [],
-  optionGroups: []
+  optionGroups: [],
 };
 
 describe("MenuCatalogApi", () => {
@@ -12,33 +12,36 @@ describe("MenuCatalogApi", () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(snapshot), {
         status: 200,
-        headers: { "content-type": "application/json" }
-      })
+        headers: { "content-type": "application/json" },
+      }),
     );
     const api = new MenuCatalogApi({
       apiBaseUrl: "http://localhost:3000",
       initData: "signed-init-data",
       testTelegramId: "1001",
-      fetchImpl
+      fetchImpl,
     });
 
     await api.getCatalog();
 
-    expect(fetchImpl).toHaveBeenCalledWith("http://localhost:3000/backoffice/menu/catalog", {
-      headers: {
-        "content-type": "application/json",
-        "x-telegram-init-data": "signed-init-data",
-        "x-test-telegram-id": "1001"
-      }
-    });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/backoffice/menu/catalog",
+      {
+        headers: {
+          "content-type": "application/json",
+          "x-telegram-init-data": "signed-init-data",
+          "x-test-telegram-id": "1001",
+        },
+      },
+    );
   });
 
   it("posts category payload to contract endpoint", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(snapshot), {
         status: 200,
-        headers: { "content-type": "application/json" }
-      })
+        headers: { "content-type": "application/json" },
+      }),
     );
     const api = new MenuCatalogApi({ fetchImpl });
 
@@ -47,7 +50,7 @@ describe("MenuCatalogApi", () => {
     expect(fetchImpl).toHaveBeenCalledWith("/backoffice/menu/categories", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: "Кофе", optionGroupRefs: ["milk"] })
+      body: JSON.stringify({ name: "Кофе", optionGroupRefs: ["milk"] }),
     });
   });
 
@@ -56,16 +59,22 @@ describe("MenuCatalogApi", () => {
       fetchImpl: vi.fn().mockResolvedValue(
         new Response(JSON.stringify({ message: "invalid-drink-size-model" }), {
           status: 400,
-          headers: { "content-type": "application/json" }
-        })
-      )
+          headers: { "content-type": "application/json" },
+        }),
+      ),
     });
 
-    await expect(api.createItem({ menuCategoryId: "cat", name: "Латте", itemType: "drink" })).rejects.toEqual(
+    await expect(
+      api.createItem({
+        menuCategoryId: "cat",
+        name: "Латте",
+        itemType: "drink",
+      }),
+    ).rejects.toEqual(
       expect.objectContaining<Partial<MenuCatalogApiError>>({
         status: 400,
-        code: "invalid-drink-size-model"
-      })
+        code: "invalid-drink-size-model",
+      }),
     );
   });
 });

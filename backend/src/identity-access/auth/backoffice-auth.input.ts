@@ -5,10 +5,12 @@ export interface BackofficeAuthInput {
   readonly testTelegramId?: string;
 }
 
-export function getBackofficeAuthInputFromRequest(request: Request): BackofficeAuthInput {
+export function getBackofficeAuthInputFromRequest(
+  request: Request,
+): BackofficeAuthInput {
   return {
     initData: getHeader(request, "x-telegram-init-data"),
-    testTelegramId: getHeader(request, "x-test-telegram-id")
+    testTelegramId: getHeader(request, "x-test-telegram-id"),
   };
 }
 

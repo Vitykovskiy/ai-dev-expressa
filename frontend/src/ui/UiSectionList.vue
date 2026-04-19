@@ -19,8 +19,8 @@ withDefaults(
   }>(),
   {
     title: undefined,
-    subtitle: undefined
-  }
+    subtitle: undefined,
+  },
 );
 </script>
 

@@ -7,20 +7,25 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards
+  UseGuards,
 } from "@nestjs/common";
 import {
   BackofficeAuthGuard,
-  RequireBackofficeCapability
+  RequireBackofficeCapability,
 } from "../identity-access/auth/backoffice-auth.guard";
-import { MenuCatalogSnapshot, MenuCategory, MenuItem, OptionGroup } from "./domain/menu-catalog.types";
+import {
+  MenuCatalogSnapshot,
+  MenuCategory,
+  MenuItem,
+  OptionGroup,
+} from "./domain/menu-catalog.types";
 import {
   CreateCategoryInput,
   CreateItemInput,
   CreateOptionGroupInput,
   UpdateCategoryInput,
   UpdateItemInput,
-  UpdateOptionGroupInput
+  UpdateOptionGroupInput,
 } from "./menu-catalog.commands";
 import { MenuCatalogService } from "./menu-catalog.service";
 
@@ -30,7 +35,7 @@ import { MenuCatalogService } from "./menu-catalog.service";
 export class MenuCatalogController {
   constructor(
     @Inject(MenuCatalogService)
-    private readonly menuCatalog: MenuCatalogService
+    private readonly menuCatalog: MenuCatalogService,
   ) {}
 
   @Get("catalog")
@@ -39,20 +44,24 @@ export class MenuCatalogController {
   }
 
   @Post("categories")
-  async createCategory(@Body() body: CreateCategoryInput): Promise<MenuCategory> {
+  async createCategory(
+    @Body() body: CreateCategoryInput,
+  ): Promise<MenuCategory> {
     return this.menuCatalog.createCategory(body);
   }
 
   @Patch("categories/:menuCategoryId")
   async updateCategory(
     @Param("menuCategoryId") menuCategoryId: string,
-    @Body() body: UpdateCategoryInput
+    @Body() body: UpdateCategoryInput,
   ): Promise<MenuCategory> {
     return this.menuCatalog.updateCategory(menuCategoryId, body);
   }
 
   @Delete("categories/:menuCategoryId")
-  async deleteCategory(@Param("menuCategoryId") menuCategoryId: string): Promise<MenuCatalogSnapshot> {
+  async deleteCategory(
+    @Param("menuCategoryId") menuCategoryId: string,
+  ): Promise<MenuCatalogSnapshot> {
     return this.menuCatalog.deleteCategory(menuCategoryId);
   }
 
@@ -64,32 +73,36 @@ export class MenuCatalogController {
   @Patch("items/:menuItemId")
   async updateItem(
     @Param("menuItemId") menuItemId: string,
-    @Body() body: UpdateItemInput
+    @Body() body: UpdateItemInput,
   ): Promise<MenuItem> {
     return this.menuCatalog.updateItem(menuItemId, body);
   }
 
   @Delete("items/:menuItemId")
-  async deleteItem(@Param("menuItemId") menuItemId: string): Promise<MenuCatalogSnapshot> {
+  async deleteItem(
+    @Param("menuItemId") menuItemId: string,
+  ): Promise<MenuCatalogSnapshot> {
     return this.menuCatalog.deleteItem(menuItemId);
   }
 
   @Post("option-groups")
-  async createOptionGroup(@Body() body: CreateOptionGroupInput): Promise<OptionGroup> {
+  async createOptionGroup(
+    @Body() body: CreateOptionGroupInput,
+  ): Promise<OptionGroup> {
     return this.menuCatalog.createOptionGroup(body);
   }
 
   @Patch("option-groups/:optionGroupId")
   async updateOptionGroup(
     @Param("optionGroupId") optionGroupId: string,
-    @Body() body: UpdateOptionGroupInput
+    @Body() body: UpdateOptionGroupInput,
   ): Promise<OptionGroup> {
     return this.menuCatalog.updateOptionGroup(optionGroupId, body);
   }
 
   @Delete("option-groups/:optionGroupId")
   async deleteOptionGroup(
-    @Param("optionGroupId") optionGroupId: string
+    @Param("optionGroupId") optionGroupId: string,
   ): Promise<MenuCatalogSnapshot> {
     return this.menuCatalog.deleteOptionGroup(optionGroupId);
   }

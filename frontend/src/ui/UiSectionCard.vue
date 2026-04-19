@@ -1,10 +1,15 @@
 <template>
   <v-card class="app-section-card" rounded="lg">
-    <header v-if="title || subtitle || $slots.header || $slots.actions" class="app-section-card__header">
+    <header
+      v-if="title || subtitle || $slots.header || $slots.actions"
+      class="app-section-card__header"
+    >
       <div class="app-section-card__copy">
         <slot name="header">
           <h2 v-if="title" class="app-section-card__title">{{ title }}</h2>
-          <p v-if="subtitle" class="app-section-card__subtitle">{{ subtitle }}</p>
+          <p v-if="subtitle" class="app-section-card__subtitle">
+            {{ subtitle }}
+          </p>
         </slot>
       </div>
       <div v-if="$slots.actions" class="app-section-card__actions">
@@ -33,8 +38,8 @@ withDefaults(
     title: undefined,
     subtitle: undefined,
     flush: false,
-    bodyClass: undefined
-  }
+    bodyClass: undefined,
+  },
 );
 </script>
 

@@ -1,12 +1,18 @@
 <template>
-  <ui-section-list class="option-panel" title="Группы опций" subtitle="Допы назначаются на группы меню">
+  <ui-section-list
+    class="option-panel"
+    title="Группы опций"
+    subtitle="Допы назначаются на группы меню"
+  >
     <template #actions>
       <ui-icon-button title="Добавить группу опций" @click="$emit('create')">
         <Plus :size="18" />
       </ui-icon-button>
     </template>
 
-    <div v-if="optionGroups.length === 0" class="option-panel__empty">Нет групп опций</div>
+    <div v-if="optionGroups.length === 0" class="option-panel__empty">
+      Нет групп опций
+    </div>
 
     <ui-button
       v-for="group in optionGroups"
@@ -18,7 +24,10 @@
       <span class="option-group-row__content">
         <span>
           <strong>{{ group.name }}</strong>
-          <small>{{ selectionModeLabel(group.selectionMode) }} · {{ group.options.length }} опций</small>
+          <small
+            >{{ selectionModeLabel(group.selectionMode) }} ·
+            {{ group.options.length }} опций</small
+          >
         </span>
         <ChevronRight :size="18" />
       </span>

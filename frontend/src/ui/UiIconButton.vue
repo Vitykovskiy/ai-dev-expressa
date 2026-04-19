@@ -26,8 +26,8 @@ withDefaults(
     variant: "ghost",
     disabled: false,
     loading: false,
-    title: undefined
-  }
+    title: undefined,
+  },
 );
 </script>
 

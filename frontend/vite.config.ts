@@ -9,11 +9,11 @@ export default defineConfig({
     proxy: {
       "/backoffice": {
         target: "http://localhost:3000",
-        changeOrigin: true
-      }
-    }
+        changeOrigin: true,
+      },
+    },
   },
   test: {
-    environment: "node"
-  }
+    environment: "node",
+  },
 });

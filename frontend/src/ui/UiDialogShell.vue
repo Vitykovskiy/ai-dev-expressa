@@ -1,13 +1,22 @@
 <template>
-  <v-dialog :model-value="open" :max-width="maxWidth" @update:model-value="emitModelUpdate">
+  <v-dialog
+    :model-value="open"
+    :max-width="maxWidth"
+    @update:model-value="emitModelUpdate"
+  >
     <v-card class="app-dialog-shell" rounded="lg">
       <div class="app-dialog-shell__header">
         <div class="app-dialog-shell__copy">
           <h2 class="app-dialog-shell__title">{{ title }}</h2>
-          <p v-if="description" class="app-dialog-shell__description">{{ description }}</p>
+          <p v-if="description" class="app-dialog-shell__description">
+            {{ description }}
+          </p>
         </div>
 
-        <div v-if="$slots.headerActions" class="app-dialog-shell__header-actions">
+        <div
+          v-if="$slots.headerActions"
+          class="app-dialog-shell__header-actions"
+        >
           <slot name="headerActions" />
         </div>
       </div>
@@ -33,8 +42,8 @@ const props = withDefaults(
   }>(),
   {
     description: undefined,
-    maxWidth: 480
-  }
+    maxWidth: 480,
+  },
 );
 
 const emit = defineEmits<{

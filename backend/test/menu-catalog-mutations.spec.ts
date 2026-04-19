@@ -6,17 +6,23 @@ import {
   createOptionGroup,
   removeCategory,
   removeOptionGroup,
-  updateItem
+  updateItem,
 } from "../src/menu-catalog/domain/menu-catalog.mutations";
 import { MenuCatalogSnapshot } from "../src/menu-catalog/domain/menu-catalog.types";
 
 describe("menu catalog mutations", () => {
   it("rejects deleting a category that still has items", () => {
-    expectBadRequest(() => removeCategory(createSnapshot(), "category-1"), "menu-category-has-items");
+    expectBadRequest(
+      () => removeCategory(createSnapshot(), "category-1"),
+      "menu-category-has-items",
+    );
   });
 
   it("rejects deleting an option group that is still assigned to a category", () => {
-    expectBadRequest(() => removeOptionGroup(createSnapshot(), "group-1"), "option-group-in-use");
+    expectBadRequest(
+      () => removeOptionGroup(createSnapshot(), "group-1"),
+      "option-group-in-use",
+    );
   });
 
   it("creates and updates item defaults without changing DTO semantics", () => {
@@ -27,13 +33,13 @@ describe("menu catalog mutations", () => {
       drinkSizePrices: [
         { size: "S", price: 250 },
         { size: "M", price: 300 },
-        { size: "L", price: 350 }
-      ]
+        { size: "L", price: 350 },
+      ],
     });
 
     const updated = updateItem(item, {
       availability: false,
-      basePrice: 0
+      basePrice: 0,
     });
 
     expect(item.menuItemId).toEqual(expect.any(String));
@@ -46,8 +52,8 @@ describe("menu catalog mutations", () => {
       drinkSizePrices: [
         { size: "S", price: 250 },
         { size: "M", price: 300 },
-        { size: "L", price: 350 }
-      ]
+        { size: "L", price: 350 },
+      ],
     });
   });
 
@@ -55,7 +61,7 @@ describe("menu catalog mutations", () => {
     const group = createOptionGroup({
       name: "Milk",
       selectionMode: "single",
-      options: [{ name: "Regular" }, { name: "Oat", priceDelta: 60 }]
+      options: [{ name: "Regular" }, { name: "Oat", priceDelta: 60 }],
     });
 
     expect(group.options).toHaveLength(2);
@@ -63,7 +69,7 @@ describe("menu catalog mutations", () => {
       optionGroupId: group.optionGroupId,
       name: "Regular",
       priceDelta: 0,
-      availability: true
+      availability: true,
     });
     expect(group.options[0].optionId).toEqual(expect.any(String));
   });
@@ -71,7 +77,13 @@ describe("menu catalog mutations", () => {
 
 function createSnapshot(): MenuCatalogSnapshot {
   return {
-    categories: [{ menuCategoryId: "category-1", name: "Coffee", optionGroupRefs: ["group-1"] }],
+    categories: [
+      {
+        menuCategoryId: "category-1",
+        name: "Coffee",
+        optionGroupRefs: ["group-1"],
+      },
+    ],
     items: [
       {
         menuItemId: "item-1",
@@ -83,18 +95,18 @@ function createSnapshot(): MenuCatalogSnapshot {
         drinkSizePrices: [
           { size: "S", price: 250 },
           { size: "M", price: 300 },
-          { size: "L", price: 350 }
-        ]
-      }
+          { size: "L", price: 350 },
+        ],
+      },
     ],
     optionGroups: [
       {
         optionGroupId: "group-1",
         name: "Milk",
         selectionMode: "single",
-        options: []
-      }
-    ]
+        options: [],
+      },
+    ],
   };
 }
 
@@ -104,6 +116,8 @@ function expectBadRequest(action: () => unknown, message: string): void {
     throw new Error("Expected action to throw");
   } catch (error) {
     expect(error).toBeInstanceOf(BadRequestException);
-    expect((error as BadRequestException).getResponse()).toMatchObject({ message });
+    expect((error as BadRequestException).getResponse()).toMatchObject({
+      message,
+    });
   }
 }

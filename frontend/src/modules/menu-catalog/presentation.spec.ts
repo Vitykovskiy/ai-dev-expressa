@@ -13,8 +13,8 @@ describe("menu catalog presentation", () => {
       drinkSizePrices: [
         { size: "S", price: 180 },
         { size: "M", price: 220 },
-        { size: "L", price: 260 }
-      ]
+        { size: "L", price: 260 },
+      ],
     };
 
     expect(itemPriceLabel(item)).toBe("от 180 ₽");

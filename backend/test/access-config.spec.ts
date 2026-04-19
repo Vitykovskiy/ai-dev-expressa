@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   ConfigValidationError,
-  loadAccessConfig
+  loadAccessConfig,
 } from "../src/identity-access/config/access-config";
 
 describe("loadAccessConfig", () => {
   it("requires ADMIN_TELEGRAM_ID", () => {
-    expect(() => loadAccessConfig({ NODE_ENV: "test", DISABLE_TG_AUTH: "true" })).toThrow(
-      ConfigValidationError
-    );
+    expect(() =>
+      loadAccessConfig({ NODE_ENV: "test", DISABLE_TG_AUTH: "true" }),
+    ).toThrow(ConfigValidationError);
   });
 
   it("rejects production test-mode bypass", () => {
@@ -16,8 +16,8 @@ describe("loadAccessConfig", () => {
       loadAccessConfig({
         NODE_ENV: "production",
         ADMIN_TELEGRAM_ID: "1001",
-        DISABLE_TG_AUTH: "true"
-      })
+        DISABLE_TG_AUTH: "true",
+      }),
     ).toThrow("DISABLE_TG_AUTH=true is allowed only when NODE_ENV=test.");
   });
 
@@ -26,12 +26,12 @@ describe("loadAccessConfig", () => {
       loadAccessConfig({
         NODE_ENV: "test",
         ADMIN_TELEGRAM_ID: "1001",
-        DISABLE_TG_AUTH: "true"
-      })
+        DISABLE_TG_AUTH: "true",
+      }),
     ).toMatchObject({
       environment: "test",
       adminTelegramId: "1001",
-      disableTelegramAuth: true
+      disableTelegramAuth: true,
     });
   });
 
@@ -39,8 +39,10 @@ describe("loadAccessConfig", () => {
     expect(() =>
       loadAccessConfig({
         NODE_ENV: "production",
-        ADMIN_TELEGRAM_ID: "1001"
-      })
-    ).toThrow("SERVICE_TELEGRAM_BOT_TOKEN is required when Telegram auth is enabled.");
+        ADMIN_TELEGRAM_ID: "1001",
+      }),
+    ).toThrow(
+      "SERVICE_TELEGRAM_BOT_TOKEN is required when Telegram auth is enabled.",
+    );
   });
 });

@@ -2,11 +2,17 @@
   <ui-dialog-shell
     :open="open"
     :max-width="720"
-    :title="editingOptionGroup ? 'Редактировать группу опций' : 'Новая группа опций'"
+    :title="
+      editingOptionGroup ? 'Редактировать группу опций' : 'Новая группа опций'
+    "
     @close="$emit('close')"
   >
     <template #headerActions>
-      <ui-icon-button v-if="editingOptionGroup" title="Удалить группу опций" @click="$emit('delete')">
+      <ui-icon-button
+        v-if="editingOptionGroup"
+        title="Удалить группу опций"
+        @click="$emit('delete')"
+      >
         <Trash2 :size="20" />
       </ui-icon-button>
       <ui-icon-button title="Закрыть" @click="$emit('close')">
@@ -39,7 +45,11 @@
           />
         </ui-form-field>
 
-        <ui-section-card class="choice-block" title="Назначить на группы меню" body-class="choice-block__body">
+        <ui-section-card
+          class="choice-block"
+          title="Назначить на группы меню"
+          body-class="choice-block__body"
+        >
           <p v-if="categories.length === 0">Сначала создайте группу меню</p>
           <div v-else class="choice-block__list">
             <v-checkbox
@@ -58,7 +68,9 @@
         <div class="options-editor">
           <div class="options-editor__header">
             <span>Опции</span>
-            <ui-inline-action @click="addEditableOption">Добавить опцию</ui-inline-action>
+            <ui-inline-action @click="addEditableOption"
+              >Добавить опцию</ui-inline-action
+            >
           </div>
 
           <ui-section-card
@@ -87,8 +99,17 @@
                 hide-details
               />
             </ui-form-field>
-            <v-checkbox v-model="option.availability" label="Доступна" hide-details color="primary" />
-            <ui-icon-button class="option-delete-button" title="Удалить опцию" @click="removeEditableOption(index)">
+            <v-checkbox
+              v-model="option.availability"
+              label="Доступна"
+              hide-details
+              color="primary"
+            />
+            <ui-icon-button
+              class="option-delete-button"
+              title="Удалить опцию"
+              @click="removeEditableOption(index)"
+            >
               <Trash2 :size="18" />
             </ui-icon-button>
           </ui-section-card>
@@ -97,9 +118,13 @@
 
       <div class="dialog-card__actions">
         <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
-          {{ editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций" }}
+          {{
+            editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций"
+          }}
         </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')"
+          >Отмена</ui-button
+        >
       </div>
     </form>
   </ui-dialog-shell>
@@ -122,12 +147,12 @@ import type {
   OptionGroupFormState,
   OptionGroupPayload,
   OptionPayload,
-  SelectionMode
+  SelectionMode,
 } from "../../modules/menu-catalog/types";
 
 const selectionModeItems: Array<{ title: string; value: SelectionMode }> = [
   { title: "Несколько вариантов", value: "multiple" },
-  { title: "Один вариант", value: "single" }
+  { title: "Один вариант", value: "single" },
 ];
 
 const props = defineProps<{
@@ -147,7 +172,7 @@ const form = reactive<OptionGroupFormState>({
   name: "",
   selectionMode: "multiple",
   assignedCategoryIds: [],
-  options: [createEditableOption()]
+  options: [createEditableOption()],
 });
 
 watch(
@@ -166,7 +191,9 @@ watch(
     form.name = editingOptionGroup.name;
     form.selectionMode = editingOptionGroup.selectionMode;
     form.assignedCategoryIds = categories
-      .filter((category) => category.optionGroupRefs.includes(editingOptionGroup.optionGroupId))
+      .filter((category) =>
+        category.optionGroupRefs.includes(editingOptionGroup.optionGroupId),
+      )
       .map((category) => category.menuCategoryId);
     form.options =
       editingOptionGroup.options.length > 0
@@ -174,11 +201,11 @@ watch(
             optionId: option.optionId,
             name: option.name,
             priceDelta: formatMoney(option.priceDelta),
-            availability: option.availability
+            availability: option.availability,
           }))
         : [createEditableOption()];
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function addEditableOption(): void {
@@ -203,10 +230,10 @@ function submit(): void {
           optionId: option.optionId,
           name: option.name.trim(),
           priceDelta: parseMoney(option.priceDelta),
-          availability: option.availability
-        }))
+          availability: option.availability,
+        })),
     },
-    assignedCategoryIds: [...form.assignedCategoryIds]
+    assignedCategoryIds: [...form.assignedCategoryIds],
   });
 }
 
@@ -221,7 +248,7 @@ function createEditableOption(): EditableOption {
   return {
     name: "",
     priceDelta: "0",
-    availability: true
+    availability: true,
   };
 }
 </script>

@@ -5,7 +5,7 @@ import {
   MenuCategory,
   MenuItem,
   MenuOption,
-  OptionGroup
+  OptionGroup,
 } from "./menu-catalog.types";
 import {
   CreateCategoryInput,
@@ -14,31 +14,31 @@ import {
   OptionInput,
   UpdateCategoryInput,
   UpdateItemInput,
-  UpdateOptionGroupInput
+  UpdateOptionGroupInput,
 } from "../menu-catalog.commands";
 
 export function createCategory(input: CreateCategoryInput): MenuCategory {
   return {
     menuCategoryId: randomUUID(),
     name: input.name,
-    optionGroupRefs: input.optionGroupRefs ?? []
+    optionGroupRefs: input.optionGroupRefs ?? [],
   };
 }
 
 export function updateCategory(
   category: MenuCategory,
-  input: UpdateCategoryInput
+  input: UpdateCategoryInput,
 ): MenuCategory {
   return {
     ...category,
     name: input.name ?? category.name,
-    optionGroupRefs: input.optionGroupRefs ?? category.optionGroupRefs
+    optionGroupRefs: input.optionGroupRefs ?? category.optionGroupRefs,
   };
 }
 
 export function removeCategory(
   snapshot: MenuCatalogSnapshot,
-  menuCategoryId: string
+  menuCategoryId: string,
 ): MenuCatalogSnapshot {
   assertCategoryExists(snapshot, menuCategoryId);
 
@@ -48,7 +48,9 @@ export function removeCategory(
 
   return {
     ...snapshot,
-    categories: snapshot.categories.filter((category) => category.menuCategoryId !== menuCategoryId)
+    categories: snapshot.categories.filter(
+      (category) => category.menuCategoryId !== menuCategoryId,
+    ),
   };
 }
 
@@ -60,7 +62,7 @@ export function createItem(input: CreateItemInput): MenuItem {
     itemType: input.itemType,
     basePrice: input.basePrice ?? 0,
     availability: input.availability ?? true,
-    drinkSizePrices: input.drinkSizePrices ?? []
+    drinkSizePrices: input.drinkSizePrices ?? [],
   };
 }
 
@@ -72,15 +74,18 @@ export function updateItem(item: MenuItem, input: UpdateItemInput): MenuItem {
     itemType: input.itemType ?? item.itemType,
     basePrice: input.basePrice ?? item.basePrice,
     availability: input.availability ?? item.availability,
-    drinkSizePrices: input.drinkSizePrices ?? item.drinkSizePrices
+    drinkSizePrices: input.drinkSizePrices ?? item.drinkSizePrices,
   };
 }
 
-export function removeItem(snapshot: MenuCatalogSnapshot, menuItemId: string): MenuCatalogSnapshot {
+export function removeItem(
+  snapshot: MenuCatalogSnapshot,
+  menuItemId: string,
+): MenuCatalogSnapshot {
   findItem(snapshot, menuItemId);
   return {
     ...snapshot,
-    items: snapshot.items.filter((item) => item.menuItemId !== menuItemId)
+    items: snapshot.items.filter((item) => item.menuItemId !== menuItemId),
   };
 }
 
@@ -90,46 +95,57 @@ export function createOptionGroup(input: CreateOptionGroupInput): OptionGroup {
     optionGroupId,
     name: input.name,
     selectionMode: input.selectionMode,
-    options: toOptions(optionGroupId, input.options ?? [])
+    options: toOptions(optionGroupId, input.options ?? []),
   };
 }
 
 export function updateOptionGroup(
   group: OptionGroup,
-  input: UpdateOptionGroupInput
+  input: UpdateOptionGroupInput,
 ): OptionGroup {
   return {
     ...group,
     name: input.name ?? group.name,
     selectionMode: input.selectionMode ?? group.selectionMode,
-    options: input.options ? toOptions(group.optionGroupId, input.options) : group.options
+    options: input.options
+      ? toOptions(group.optionGroupId, input.options)
+      : group.options,
   };
 }
 
 export function removeOptionGroup(
   snapshot: MenuCatalogSnapshot,
-  optionGroupId: string
+  optionGroupId: string,
 ): MenuCatalogSnapshot {
   findOptionGroup(snapshot, optionGroupId);
 
-  if (snapshot.categories.some((category) => category.optionGroupRefs.includes(optionGroupId))) {
+  if (
+    snapshot.categories.some((category) =>
+      category.optionGroupRefs.includes(optionGroupId),
+    )
+  ) {
     throw new BadRequestException("option-group-in-use");
   }
 
   return {
     ...snapshot,
-    optionGroups: snapshot.optionGroups.filter((group) => group.optionGroupId !== optionGroupId)
+    optionGroups: snapshot.optionGroups.filter(
+      (group) => group.optionGroupId !== optionGroupId,
+    ),
   };
 }
 
 export function findCategory(
   snapshot: MenuCatalogSnapshot,
-  menuCategoryId: string
+  menuCategoryId: string,
 ): MenuCategory {
   return assertCategoryExists(snapshot, menuCategoryId);
 }
 
-export function findItem(snapshot: MenuCatalogSnapshot, menuItemId: string): MenuItem {
+export function findItem(
+  snapshot: MenuCatalogSnapshot,
+  menuItemId: string,
+): MenuItem {
   const item = snapshot.items.find((entry) => entry.menuItemId === menuItemId);
   if (!item) {
     throw new NotFoundException("menu-item-not-found");
@@ -140,9 +156,11 @@ export function findItem(snapshot: MenuCatalogSnapshot, menuItemId: string): Men
 
 export function findOptionGroup(
   snapshot: MenuCatalogSnapshot,
-  optionGroupId: string
+  optionGroupId: string,
 ): OptionGroup {
-  const group = snapshot.optionGroups.find((entry) => entry.optionGroupId === optionGroupId);
+  const group = snapshot.optionGroups.find(
+    (entry) => entry.optionGroupId === optionGroupId,
+  );
   if (!group) {
     throw new NotFoundException("option-group-not-found");
   }
@@ -152,9 +170,11 @@ export function findOptionGroup(
 
 function assertCategoryExists(
   snapshot: MenuCatalogSnapshot,
-  menuCategoryId: string
+  menuCategoryId: string,
 ): MenuCategory {
-  const category = snapshot.categories.find((entry) => entry.menuCategoryId === menuCategoryId);
+  const category = snapshot.categories.find(
+    (entry) => entry.menuCategoryId === menuCategoryId,
+  );
   if (!category) {
     throw new NotFoundException("menu-category-not-found");
   }
@@ -162,12 +182,15 @@ function assertCategoryExists(
   return category;
 }
 
-function toOptions(optionGroupId: string, inputs: readonly OptionInput[]): MenuOption[] {
+function toOptions(
+  optionGroupId: string,
+  inputs: readonly OptionInput[],
+): MenuOption[] {
   return inputs.map((input) => ({
     optionId: input.optionId ?? randomUUID(),
     optionGroupId,
     name: input.name,
     priceDelta: input.priceDelta ?? 0,
-    availability: input.availability ?? true
+    availability: input.availability ?? true,
   }));
 }

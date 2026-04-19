@@ -1,5 +1,10 @@
 <template>
-  <ui-button class="app-inline-action" variant="tonal" :disabled="disabled" :loading="loading">
+  <ui-button
+    class="app-inline-action"
+    variant="tonal"
+    :disabled="disabled"
+    :loading="loading"
+  >
     <slot />
   </ui-button>
 </template>
@@ -14,8 +19,8 @@ withDefaults(
   }>(),
   {
     disabled: false,
-    loading: false
-  }
+    loading: false,
+  },
 );
 </script>
 

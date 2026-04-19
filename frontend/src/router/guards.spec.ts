@@ -6,14 +6,14 @@ const administrator: AuthenticatedActor = {
   userId: "1",
   telegramId: "1001",
   roles: ["administrator"],
-  capabilities: ["orders", "availability", "menu", "users", "settings"]
+  capabilities: ["orders", "availability", "menu", "users", "settings"],
 };
 
 const barista: AuthenticatedActor = {
   userId: "2",
   telegramId: "1002",
   roles: ["barista"],
-  capabilities: ["orders", "availability"]
+  capabilities: ["orders", "availability"],
 };
 
 describe("resolveGuardDecision", () => {
@@ -21,10 +21,10 @@ describe("resolveGuardDecision", () => {
     expect(
       resolveGuardDecision(
         {
-          meta: { capability: "orders" }
+          meta: { capability: "orders" },
         } as never,
-        null
-      )
+        null,
+      ),
     ).toEqual({ kind: "redirect", name: "entry-denied" });
   });
 
@@ -32,10 +32,10 @@ describe("resolveGuardDecision", () => {
     expect(
       resolveGuardDecision(
         {
-          meta: { capability: "users" }
+          meta: { capability: "users" },
         } as never,
-        administrator
-      )
+        administrator,
+      ),
     ).toEqual({ kind: "allow" });
   });
 
@@ -43,10 +43,10 @@ describe("resolveGuardDecision", () => {
     expect(
       resolveGuardDecision(
         {
-          meta: { capability: "users" }
+          meta: { capability: "users" },
         } as never,
-        barista
-      )
+        barista,
+      ),
     ).toEqual({ kind: "redirect", name: "forbidden" });
   });
 });

@@ -35,8 +35,8 @@ const props = withDefaults(
     block: false,
     iconOnly: false,
     type: "button",
-    title: undefined
-  }
+    title: undefined,
+  },
 );
 
 const variantContract = computed(() => resolveButtonVariant(props.variant));

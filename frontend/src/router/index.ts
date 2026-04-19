@@ -15,7 +15,7 @@ export const router = createRouter({
       path: "/entry-denied",
       name: "entry-denied",
       component: AccessDeniedView,
-      meta: { public: true }
+      meta: { public: true },
     },
     {
       path: "/",
@@ -28,9 +28,9 @@ export const router = createRouter({
           props: {
             title: "Заказы",
             description:
-              "Вход подтверждён. Операционная очередь заказов подключается отдельной задачей."
+              "Вход подтверждён. Операционная очередь заказов подключается отдельной задачей.",
           },
-          meta: { capability: "orders" }
+          meta: { capability: "orders" },
         },
         {
           path: "availability",
@@ -39,15 +39,15 @@ export const router = createRouter({
           props: {
             title: "Доступность",
             description:
-              "Вход подтверждён. Управление доступностью меню подключается отдельной задачей."
+              "Вход подтверждён. Управление доступностью меню подключается отдельной задачей.",
           },
-          meta: { capability: "availability" }
+          meta: { capability: "availability" },
         },
         {
           path: "menu",
           name: "menu",
           component: MenuCatalogView,
-          meta: { capability: "menu" }
+          meta: { capability: "menu" },
         },
         {
           path: "users",
@@ -56,9 +56,9 @@ export const router = createRouter({
           props: {
             title: "Пользователи",
             description:
-              "Вкладка видна только administrator. Управление ролями и блокировкой будет добавлено отдельной задачей."
+              "Вкладка видна только administrator. Управление ролями и блокировкой будет добавлено отдельной задачей.",
           },
-          meta: { capability: "users" }
+          meta: { capability: "users" },
         },
         {
           path: "settings",
@@ -67,22 +67,22 @@ export const router = createRouter({
           props: {
             title: "Настройки",
             description:
-              "Вкладка видна только administrator. Управление слотами будет добавлено отдельной задачей."
+              "Вкладка видна только administrator. Управление слотами будет добавлено отдельной задачей.",
           },
-          meta: { capability: "settings" }
+          meta: { capability: "settings" },
         },
         {
           path: "forbidden",
           name: "forbidden",
-          component: ForbiddenView
-        }
-      ]
+          component: ForbiddenView,
+        },
+      ],
     },
     {
       path: "/:pathMatch(.*)*",
-      redirect: "/"
-    }
-  ]
+      redirect: "/",
+    },
+  ],
 });
 
 router.beforeEach(async (to) => {
@@ -94,7 +94,9 @@ router.beforeEach(async (to) => {
     await ensureSession();
   } catch (error) {
     const reason =
-      error instanceof SessionApiError ? error.code : useAuthSession().state.errorCode ?? "unknown";
+      error instanceof SessionApiError
+        ? error.code
+        : (useAuthSession().state.errorCode ?? "unknown");
     return { name: "entry-denied", query: { reason } };
   }
 
@@ -105,6 +107,6 @@ router.beforeEach(async (to) => {
 
   return {
     name: decision.name,
-    query: decision.name === "forbidden" ? { from: to.fullPath } : to.query
+    query: decision.name === "forbidden" ? { from: to.fullPath } : to.query,
   };
 });

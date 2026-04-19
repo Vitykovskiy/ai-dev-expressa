@@ -7,7 +7,11 @@
       class="app-tab-bar__link"
       :class="{ 'app-tab-bar__link--active': activePath === tab.path }"
     >
-      <span v-if="activePath === tab.path" class="app-tab-bar__indicator" aria-hidden="true" />
+      <span
+        v-if="activePath === tab.path"
+        class="app-tab-bar__indicator"
+        aria-hidden="true"
+      />
       <component :is="tab.icon" :size="22" />
       <span class="app-tab-bar__label">{{ tab.label }}</span>
     </RouterLink>
@@ -16,7 +20,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
-import type { BackofficeTab } from "../../modules/navigation/tabs";
+import type { BackofficeTab } from "../modules/navigation/tabs";
 
 defineProps<{
   tabs: readonly BackofficeTab[];

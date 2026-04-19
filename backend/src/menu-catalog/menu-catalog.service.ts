@@ -3,7 +3,7 @@ import {
   MenuCatalogSnapshot,
   MenuCategory,
   MenuItem,
-  OptionGroup
+  OptionGroup,
 } from "./domain/menu-catalog.types";
 import {
   createCategory,
@@ -17,7 +17,7 @@ import {
   removeOptionGroup,
   updateCategory,
   updateItem,
-  updateOptionGroup
+  updateOptionGroup,
 } from "./domain/menu-catalog.mutations";
 import { MenuCatalogValidator } from "./domain/menu-catalog.validator";
 import {
@@ -26,11 +26,11 @@ import {
   CreateOptionGroupInput,
   UpdateCategoryInput,
   UpdateItemInput,
-  UpdateOptionGroupInput
+  UpdateOptionGroupInput,
 } from "./menu-catalog.commands";
 import {
   MENU_CATALOG_REPOSITORY,
-  MenuCatalogRepository
+  MenuCatalogRepository,
 } from "./repository/menu-catalog.repository";
 
 @Injectable()
@@ -39,7 +39,7 @@ export class MenuCatalogService {
     @Inject(MENU_CATALOG_REPOSITORY)
     private readonly repository: MenuCatalogRepository,
     @Inject(MenuCatalogValidator)
-    private readonly validator: MenuCatalogValidator
+    private readonly validator: MenuCatalogValidator,
   ) {}
 
   async getCatalog(): Promise<MenuCatalogSnapshot> {
@@ -49,24 +49,35 @@ export class MenuCatalogService {
   async createCategory(input: CreateCategoryInput): Promise<MenuCategory> {
     const snapshot = await this.repository.getSnapshot();
     const category = createCategory(input);
-    await this.save({ ...snapshot, categories: [...snapshot.categories, category] });
+    await this.save({
+      ...snapshot,
+      categories: [...snapshot.categories, category],
+    });
     return category;
   }
 
-  async updateCategory(menuCategoryId: string, input: UpdateCategoryInput): Promise<MenuCategory> {
+  async updateCategory(
+    menuCategoryId: string,
+    input: UpdateCategoryInput,
+  ): Promise<MenuCategory> {
     const snapshot = await this.repository.getSnapshot();
-    const updated = updateCategory(findCategory(snapshot, menuCategoryId), input);
+    const updated = updateCategory(
+      findCategory(snapshot, menuCategoryId),
+      input,
+    );
     await this.save({
       ...snapshot,
       categories: snapshot.categories.map((category) =>
-        category.menuCategoryId === menuCategoryId ? updated : category
-      )
+        category.menuCategoryId === menuCategoryId ? updated : category,
+      ),
     });
     return updated;
   }
 
   async deleteCategory(menuCategoryId: string): Promise<MenuCatalogSnapshot> {
-    return this.save(removeCategory(await this.repository.getSnapshot(), menuCategoryId));
+    return this.save(
+      removeCategory(await this.repository.getSnapshot(), menuCategoryId),
+    );
   }
 
   async createItem(input: CreateItemInput): Promise<MenuItem> {
@@ -77,48 +88,65 @@ export class MenuCatalogService {
     return item;
   }
 
-  async updateItem(menuItemId: string, input: UpdateItemInput): Promise<MenuItem> {
+  async updateItem(
+    menuItemId: string,
+    input: UpdateItemInput,
+  ): Promise<MenuItem> {
     const snapshot = await this.repository.getSnapshot();
     const updated = updateItem(findItem(snapshot, menuItemId), input);
     findCategory(snapshot, updated.menuCategoryId);
     await this.save({
       ...snapshot,
-      items: snapshot.items.map((item) => (item.menuItemId === menuItemId ? updated : item))
+      items: snapshot.items.map((item) =>
+        item.menuItemId === menuItemId ? updated : item,
+      ),
     });
     return updated;
   }
 
   async deleteItem(menuItemId: string): Promise<MenuCatalogSnapshot> {
-    return this.save(removeItem(await this.repository.getSnapshot(), menuItemId));
+    return this.save(
+      removeItem(await this.repository.getSnapshot(), menuItemId),
+    );
   }
 
   async createOptionGroup(input: CreateOptionGroupInput): Promise<OptionGroup> {
     const snapshot = await this.repository.getSnapshot();
     const group = createOptionGroup(input);
-    await this.save({ ...snapshot, optionGroups: [...snapshot.optionGroups, group] });
+    await this.save({
+      ...snapshot,
+      optionGroups: [...snapshot.optionGroups, group],
+    });
     return group;
   }
 
   async updateOptionGroup(
     optionGroupId: string,
-    input: UpdateOptionGroupInput
+    input: UpdateOptionGroupInput,
   ): Promise<OptionGroup> {
     const snapshot = await this.repository.getSnapshot();
-    const updated = updateOptionGroup(findOptionGroup(snapshot, optionGroupId), input);
+    const updated = updateOptionGroup(
+      findOptionGroup(snapshot, optionGroupId),
+      input,
+    );
     await this.save({
       ...snapshot,
       optionGroups: snapshot.optionGroups.map((group) =>
-        group.optionGroupId === optionGroupId ? updated : group
-      )
+        group.optionGroupId === optionGroupId ? updated : group,
+      ),
     });
     return updated;
   }
 
   async deleteOptionGroup(optionGroupId: string): Promise<MenuCatalogSnapshot> {
-    return this.save(removeOptionGroup(await this.repository.getSnapshot(), optionGroupId));
+    return this.save(
+      removeOptionGroup(await this.repository.getSnapshot(), optionGroupId),
+    );
   }
 
-  private async save(snapshot: MenuCatalogSnapshot): Promise<MenuCatalogSnapshot> {
+  private async save(
+    snapshot: MenuCatalogSnapshot,
+  ): Promise<MenuCatalogSnapshot> {
     this.validator.validateCategoryReferences(snapshot);
     return this.repository.saveSnapshot(snapshot);
   }

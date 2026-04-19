@@ -9,11 +9,11 @@ import { MenuCatalogModule } from "./menu-catalog/menu-catalog.module";
   imports: [
     ConfigModule.forRoot({
       envFilePath: join(__dirname, "..", "..", ".env"),
-      isGlobal: true
+      isGlobal: true,
     }),
     IdentityAccessModule,
-    MenuCatalogModule
+    MenuCatalogModule,
   ],
-  controllers: [HealthController]
+  controllers: [HealthController],
 })
 export class AppModule {}

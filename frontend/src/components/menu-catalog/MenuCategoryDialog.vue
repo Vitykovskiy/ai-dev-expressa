@@ -3,12 +3,19 @@
     :open="open"
     :title="editingCategory ? 'Редактировать группу' : 'Новая группа'"
     :description="
-      editingCategory ? 'Измените название и назначенные группы опций' : 'Создайте новую группу для товаров'
+      editingCategory
+        ? 'Измените название и назначенные группы опций'
+        : 'Создайте новую группу для товаров'
     "
     @close="$emit('close')"
   >
     <template #headerActions>
-      <ui-icon-button v-if="editingCategory" variant="ghost" title="Удалить группу" @click="$emit('delete')">
+      <ui-icon-button
+        v-if="editingCategory"
+        variant="ghost"
+        title="Удалить группу"
+        @click="$emit('delete')"
+      >
         <Trash2 :size="20" />
       </ui-icon-button>
     </template>
@@ -26,7 +33,11 @@
           />
         </ui-form-field>
 
-        <ui-section-card class="choice-block" title="Группы опций" body-class="choice-block__body">
+        <ui-section-card
+          class="choice-block"
+          title="Группы опций"
+          body-class="choice-block__body"
+        >
           <p v-if="optionGroups.length === 0">Нет доступных групп опций</p>
           <div v-else class="choice-block__list">
             <v-checkbox
@@ -47,7 +58,9 @@
         <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
           {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
         </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')">Отмена</ui-button>
+        <ui-button block variant="ghost" @click="$emit('close')"
+          >Отмена</ui-button
+        >
       </div>
     </form>
   </ui-dialog-shell>
@@ -62,7 +75,11 @@ import UiFormField from "../../ui/UiFormField.vue";
 import UiIconButton from "../../ui/UiIconButton.vue";
 import UiSectionCard from "../../ui/UiSectionCard.vue";
 import type { MenuCategoryPayload } from "../../modules/menu-catalog/types";
-import type { MenuCategory, MenuCategoryFormState, OptionGroup } from "../../modules/menu-catalog/types";
+import type {
+  MenuCategory,
+  MenuCategoryFormState,
+  OptionGroup,
+} from "../../modules/menu-catalog/types";
 
 const props = defineProps<{
   open: boolean;
@@ -79,7 +96,7 @@ const emit = defineEmits<{
 
 const form = reactive<MenuCategoryFormState>({
   name: "",
-  optionGroupRefs: []
+  optionGroupRefs: [],
 });
 
 watch(
@@ -91,15 +108,17 @@ watch(
     }
 
     form.name = editingCategory?.name ?? "";
-    form.optionGroupRefs = editingCategory ? [...editingCategory.optionGroupRefs] : [];
+    form.optionGroupRefs = editingCategory
+      ? [...editingCategory.optionGroupRefs]
+      : [];
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function submit(): void {
   emit("submit", {
     name: form.name.trim(),
-    optionGroupRefs: [...form.optionGroupRefs]
+    optionGroupRefs: [...form.optionGroupRefs],
   });
 }
 
