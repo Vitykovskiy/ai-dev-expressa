@@ -51,15 +51,7 @@ jobs:
 
             git fetch --prune origin main
             git reset --hard origin/main
-            clean_excludes=(-e .env)
-            if [ -n "${ENV_FILE:-}" ]; then
-              env_file_abs="$(realpath -m "${ENV_FILE}")"
-              case "${env_file_abs}" in
-                "${app_dir_abs}"/*)
-                  clean_excludes+=(-e "${env_file_abs#${app_dir_abs}/}")
-                  ;;
-              esac
-            fi
-            git clean -fd "${clean_excludes[@]}"
+            env_file_name="$(basename "${ENV_FILE:-.env}")"
+            git clean -fd -e .env -e "${env_file_name}"
             chmod +x scripts/deploy-test-vps.sh
             SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh
