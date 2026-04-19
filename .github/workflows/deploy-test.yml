@@ -31,7 +31,6 @@ jobs:
           username: ${{ secrets.TEST_VPS_USER }}
           key: ${{ secrets.TEST_VPS_SSH_KEY }}
           port: ${{ secrets.TEST_VPS_PORT }}
-          fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
           envs: APP_DIR,DEPLOY_RESTART_COMMAND,ENV_FILE,SMOKE_BACKEND_BASE_URL
           script: |
