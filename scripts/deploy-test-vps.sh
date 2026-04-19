@@ -43,6 +43,7 @@ if [[ "${DISABLE_TG_AUTH:-}" != "true" ]]; then
   exit 1
 fi
 
+rm -rf backend/node_modules frontend/node_modules
 npm install --prefix backend
 npm install --prefix frontend
 npm run build --prefix backend
