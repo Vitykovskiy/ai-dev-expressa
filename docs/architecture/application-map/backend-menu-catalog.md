@@ -21,11 +21,14 @@
 |---|---|
 | `backend/src/menu-catalog/menu-catalog.module.ts` | NestJS-модуль server-side boundary каталога меню. |
 | `backend/src/menu-catalog/menu-catalog.controller.ts` | Backoffice endpoints `/backoffice/menu/*`, защищённые capability `menu`. |
+| `backend/src/menu-catalog/menu-catalog.commands.ts` | Application command/input types для controller boundary и service orchestration без смешения с domain rules. |
 | `backend/src/menu-catalog/menu-catalog.service.ts` | Оркестрация операций над категориями, товарами, ценами, группами опций и назначениями. |
 | `backend/src/menu-catalog/domain/menu-catalog.types.ts` | Shared backend DTO/domain shape для snapshot и сущностей каталога. |
 | `backend/src/menu-catalog/domain/menu-catalog.validator.ts` | Проверка размерной модели напитков, правил групп опций и ссылочной целостности. |
 | `backend/src/menu-catalog/domain/menu-catalog.errors.ts` | Канонические доменные ошибки каталога. |
+| `backend/src/menu-catalog/domain/menu-catalog.mutations.ts` | Доменная сборка и изменение категорий, товаров и групп опций без transport-логики. |
 | `backend/src/menu-catalog/repository/in-memory-menu-catalog.repository.ts` | Текущий in-memory адаптер хранения каталога. |
+| `backend/test/menu-catalog-mutations.spec.ts` | Unit-проверки доменных mutations для поведенчески нейтрального рефакторинга `FEATURE-006`. |
 | `backend/test/menu-catalog-domain.spec.ts` | Модульные тесты доменных правил каталога. |
 | `backend/test/menu-catalog.e2e.spec.ts` | Integration/e2e проверки backoffice menu endpoints и доступа. |
 
@@ -33,8 +36,10 @@
 
 - Controller остаётся HTTP boundary для `/backoffice/menu/*`, DTO input/output и capability `menu`.
 - `MenuCatalogService` выполняет application orchestration и не содержит HTTP headers, Telegram/test-mode parsing или UI-specific state.
+- Input contracts controller/service могут жить в отдельном `menu-catalog.commands.ts`, если shape запросов и ответов остаётся неизменным.
 - `domain/menu-catalog.validator.ts` является местом доменных инвариантов каталога: размерная модель напитка, правила групп опций и ссылочная целостность.
 - `domain/menu-catalog.errors.ts` содержит канонические ошибки каталога; controller/service не создают новые error codes локально.
+- `domain/menu-catalog.mutations.ts` может содержать конструирование и изменение snapshot/entity state, если service остаётся orchestration layer.
 - Repository adapter отвечает за storage snapshot и не должен принимать решения о capability, role или HTTP status.
 - Рефакторинг этого контура не должен менять endpoint boundary, DTO shape, `administrator` capability requirement, `invalid-drink-size-model`, `invalid-option-group-rule` или status code mapping.
 

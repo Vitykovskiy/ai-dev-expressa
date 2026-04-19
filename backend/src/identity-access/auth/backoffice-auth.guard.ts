@@ -13,10 +13,9 @@ import {
   BACKOFFICE_CAPABILITIES,
   BackofficeCapability
 } from "../domain/role";
-import {
-  AuthenticatedActor,
-  BackofficeAuthService
-} from "./backoffice-auth.service";
+import { AuthenticatedActor } from "../domain/authenticated-actor";
+import { BackofficeAuthService } from "./backoffice-auth.service";
+import { getBackofficeAuthInputFromRequest } from "./backoffice-auth.input";
 
 export interface BackofficeRequest extends Request {
   actor?: AuthenticatedActor;
@@ -44,13 +43,7 @@ export class BackofficeAuthGuard implements CanActivate {
       throw new NotFoundException("backoffice-capability-not-found");
     }
 
-    request.actor = await this.auth.requireCapability(
-      {
-        initData: getHeader(request, "x-telegram-init-data"),
-        testTelegramId: getHeader(request, "x-test-telegram-id")
-      },
-      capability
-    );
+    request.actor = await this.auth.requireCapability(getBackofficeAuthInputFromRequest(request), capability);
 
     return true;
   }
@@ -66,11 +59,6 @@ export class BackofficeAuthGuard implements CanActivate {
       ) ?? request.params.capability
     );
   }
-}
-
-function getHeader(request: Request, name: string): string | undefined {
-  const value = request.headers[name];
-  return Array.isArray(value) ? value[0] : value;
 }
 
 function isBackofficeCapability(value: string | undefined): value is BackofficeCapability {

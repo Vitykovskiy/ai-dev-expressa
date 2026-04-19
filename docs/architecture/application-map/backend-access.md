@@ -23,6 +23,8 @@
 | `backend/src/main.ts` | Получает `PORT` через `ConfigService`, без прямого `dotenv` bootstrap. |
 | `backend/src/identity-access/config/access-config.ts` | Валидация `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH`, `SERVICE_TELEGRAM_BOT_TOKEN` и environment-ограничений по значениям, переданным из NestJS config layer. |
 | `backend/src/identity-access/bootstrap/bootstrap-administrator.service.ts` | Lifecycle bootstrap главного `administrator` при старте приложения. |
+| `backend/src/identity-access/domain/authenticated-actor.ts` | Канонический backend shape `AuthenticatedActor` и mapper из `User` в capabilities-aware actor response. |
+| `backend/src/identity-access/auth/backoffice-auth.input.ts` | Нормализация auth input для session body и guard header extraction без смешения с capability decision. |
 | `backend/src/identity-access/auth/telegram-init-data.verifier.ts` | Проверка подписи Telegram Web App `initData` через секрет служебного бота. |
 | `backend/src/identity-access/auth/backoffice-auth.service.ts` | Единая авторизация backoffice через Telegram или test-mode. |
 | `backend/src/identity-access/auth/backoffice-auth.guard.ts` | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
@@ -32,6 +34,7 @@
 
 - Контур `identity-access` должен сохранять разделение `config`, `bootstrap`, `auth`, `users` и module boundary.
 - Auth service и guard не должны смешиваться с управлением меню, слотами, заказами или пользовательским UI behavior.
+- `AuthenticatedActor` mapper и auth input normalization могут быть вынесены в отдельные domain/auth helper files, если contract и error mapping остаются неизменными.
 - Config validation остаётся в `config/access-config.ts`; production запрет `DISABLE_TG_AUTH=true` нельзя переносить в controller или frontend.
 - Repository adapter отвечает только за хранение пользователей и ролей; bootstrap, guard matrix и Telegram verification остаются отдельными responsibilities.
 - Рефакторинг этого контура не должен менять `POST /backoffice/auth/session`, `GET /backoffice/:capability`, auth headers/body, `AuthenticatedActor`, capability semantics или error mapping из `docs/system/contracts/backoffice-auth-and-capability-access.md`.

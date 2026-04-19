@@ -18,11 +18,11 @@ import {
   CreateCategoryInput,
   CreateItemInput,
   CreateOptionGroupInput,
-  MenuCatalogService,
   UpdateCategoryInput,
   UpdateItemInput,
   UpdateOptionGroupInput
-} from "./menu-catalog.service";
+} from "./menu-catalog.commands";
+import { MenuCatalogService } from "./menu-catalog.service";
 
 @Controller("backoffice/menu")
 @UseGuards(BackofficeAuthGuard)
