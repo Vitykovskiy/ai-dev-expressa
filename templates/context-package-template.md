@@ -32,8 +32,6 @@ Before making changes, read the mandatory read set. After making changes, run th
 
 ## Обязательный read set
 
-- `<README.md>`
-- `<terms-map.md>`
 - `<исходная карточка задачи>`
 - `<профильный стандарт или контурная карта>`
 - `<точечные системные, архитектурные или референс-файлы>`
