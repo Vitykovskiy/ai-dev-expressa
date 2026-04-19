@@ -24,9 +24,10 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Test VPS deployment contract
 
 - Ветка `main` является источником автодеплоя на VPS `test`-окружения.
-- Перед запуском deploy workflow выполняет `git pull --ff-only origin main` на VPS и вызывает версионированный скрипт `scripts/deploy-test-vps.sh`.
+- Перед запуском deploy workflow приводит checkout на VPS к `origin/main` и вызывает версионированный скрипт `scripts/deploy-test-vps.sh`.
 - Корневой `.env` на VPS является источником runtime-конфигурации для backend и frontend build.
 - `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<root .env>` и `DISABLE_TG_AUTH=true`.
+- Собранный frontend на `test` отдаётся backend runtime с того же origin; `VITE_BACKOFFICE_TEST_TELEGRAM_ID` по умолчанию наследует `ADMIN_TELEGRAM_ID` во время test deploy.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в `.env` задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
 - Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
 

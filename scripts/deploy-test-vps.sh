@@ -43,6 +43,8 @@ if [[ "${DISABLE_TG_AUTH:-}" != "true" ]]; then
   exit 1
 fi
 
+export VITE_BACKOFFICE_TEST_TELEGRAM_ID="${VITE_BACKOFFICE_TEST_TELEGRAM_ID:-$ADMIN_TELEGRAM_ID}"
+
 rm -rf backend/node_modules frontend/node_modules
 npm install --prefix backend
 npm install --prefix frontend
@@ -64,6 +66,8 @@ for attempt in {1..30}; do
 
   sleep 2
 done
+
+curl --fail --silent --show-error "$BACKEND_BASE_URL/" >/dev/null
 
 curl \
   --fail \
