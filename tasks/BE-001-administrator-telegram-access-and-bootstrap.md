@@ -10,7 +10,7 @@
 - Роль: `Бэкенд`
 - Изменяемый контур: `backend`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -28,3 +28,10 @@
 - Проверки: `Модульные тесты bootstrap administrator, config validation и role guard matrix; интеграционные проверки Telegram auth и DISABLE_TG_AUTH=true в test environment; negative test для production-like bypass.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/backend-access.md и при необходимости docs/architecture/application-map/delivery-and-runtime.md, если появляются новые modules, endpoints, env vars или правила запуска.`
 - Критерии готовности: `BE-задача завершена, когда backend является источником истины по пользователю и ролям, а test-mode авторизация не может быть использована как production fallback.`
+
+## Результат выполнения
+
+- Создан минимальный NestJS backend в `backend/`.
+- Реализованы `IdentityAccessModule`, bootstrap главного `administrator`, проверка Telegram Web App `initData`, test-mode bypass только для `NODE_ENV=test DISABLE_TG_AUTH=true` и role guard для `orders`, `availability`, `menu`, `users`, `settings`.
+- Добавлены тесты `backend/test/*.spec.ts`: bootstrap administrator, config validation, Telegram auth, test-mode auth, production-like negative bypass и матрица role guard.
+- Обновлены `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md` и `README.md`.
