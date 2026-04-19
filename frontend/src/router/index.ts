@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import AccessDeniedView from "../views/AccessDeniedView.vue";
 import FeatureStubView from "../views/FeatureStubView.vue";
 import ForbiddenView from "../views/ForbiddenView.vue";
+import MenuCatalogView from "../views/MenuCatalogView.vue";
 import RootLayout from "../views/RootLayout.vue";
 import { ensureSession, useAuthSession } from "../modules/auth/session-store";
 import { SessionApiError } from "../modules/auth/session-api";
@@ -45,12 +46,7 @@ export const router = createRouter({
         {
           path: "menu",
           name: "menu",
-          component: FeatureStubView,
-          props: {
-            title: "Меню",
-            description:
-              "Вкладка видна только administrator. Наполнение каталога будет добавлено отдельной задачей."
-          },
+          component: MenuCatalogView,
           meta: { capability: "menu" }
         },
         {
