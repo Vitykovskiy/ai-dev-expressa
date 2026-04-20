@@ -14,6 +14,11 @@
 
 - DevOps готовит e2e run path только по назначенной `DO-*` задаче, когда feature-level QA требует финальный e2e-прогон на задеплоенном `test` VPS.
 - DevOps-owned run path должен включать воспроизводимый скрипт или documented command wrapper, список обязательных env/secrets, preflight backend health, проверку опубликованного backoffice origin и формат pass/fail артефакта для QA.
+- Воспроизводимый entrypoint для `DO-003`: `npm run test:vps:e2e:preflight` для диагностики без запуска сценариев и `npm run test:vps:e2e` для запуска QA-owned команды через `scripts/run-test-vps-e2e.sh`.
+- GitHub entrypoint для QA: ручной workflow `Test VPS E2E` (`workflow_dispatch`, `environment: test`) использует существующие GitHub Secrets/Variables окружения `test` и запускает `scripts/run-test-vps-e2e.sh` на VPS; workflow не является обязательным gate.
+- Обязательные env для entrypoint могут задаваться явно через `TEST_E2E_BACKEND_BASE_URL`, `TEST_E2E_BACKOFFICE_ORIGIN`, `TEST_E2E_TELEGRAM_ID`; при запуске на VPS wrapper также использует уже существующие runtime/deploy names: `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT`, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS`, `ADMIN_TELEGRAM_ID`.
+- `TEST_E2E_COMMAND` обязателен только для полного запуска и должен указывать на QA-owned e2e command.
+- Опциональные env для evidence и диагностики: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
 - DevOps не создает, не адаптирует и не поддерживает feature e2e assertions; сценарии, fixtures, expected behavior и defect handoff остаются ответственностью `QA-*`.
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
 - Изменение e2e run path, связанных env vars, secrets, diagnostic checks или скриптов считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.

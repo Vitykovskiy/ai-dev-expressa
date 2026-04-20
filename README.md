@@ -80,7 +80,8 @@
 |       |-- prompt.md
 |       `-- task-tree-rules.md
 |-- scripts/
-|   `-- deploy-test-vps.sh
+|   |-- deploy-test-vps.sh
+|   `-- run-test-vps-e2e.sh
 `-- templates/
     |-- context-package-template.md
     |-- task-template-instruction.md
