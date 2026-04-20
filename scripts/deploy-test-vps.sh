@@ -4,6 +4,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$(pwd)}"
 RESTART_COMMAND="${DEPLOY_RESTART_COMMAND:-}"
+FRONTEND_RESTART_COMMAND="${DEPLOY_FRONTEND_RESTART_COMMAND:-}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
 
 require_env() {
@@ -39,6 +40,7 @@ set +a
 
 require_env "ADMIN_TELEGRAM_ID"
 require_env "BACKOFFICE_CORS_ORIGINS"
+require_env "BACKOFFICE_PUBLIC_URL"
 
 if [[ "${NODE_ENV:-}" != "test" ]]; then
   echo "NODE_ENV must be set to test on the test VPS."
@@ -55,9 +57,19 @@ npm ci --prefix frontend
 npm run build --prefix backend
 npm run build --prefix frontend
 
+if [[ -n "${FRONTEND_PUBLISH_DIR:-}" ]]; then
+  mkdir -p "$FRONTEND_PUBLISH_DIR"
+  cp -R frontend/dist/. "$FRONTEND_PUBLISH_DIR/"
+fi
+
 eval "$RESTART_COMMAND"
 
+if [[ -n "$FRONTEND_RESTART_COMMAND" ]]; then
+  eval "$FRONTEND_RESTART_COMMAND"
+fi
+
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${PORT:-3000}}"
+BACKOFFICE_ORIGIN="${BACKOFFICE_PUBLIC_URL%/}"
 
 for attempt in {1..30}; do
   if curl --fail --silent "$BACKEND_BASE_URL/health" >/dev/null; then
@@ -77,6 +89,13 @@ curl \
   --show-error \
   --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
   "$BACKEND_BASE_URL/backoffice/orders" >/dev/null
+
+curl \
+  --fail \
+  --silent \
+  --show-error \
+  --max-time "${SMOKE_FRONTEND_TIMEOUT:-10}" \
+  "$BACKOFFICE_ORIGIN/" >/dev/null
 
 node <<'NODE'
 const path = require("node:path");

@@ -100,23 +100,30 @@ source_env_file() {
 first_csv_value() {
   local value="$1"
   value="${value%%,*}"
-  printf "%s" "$value"
+  trim_whitespace "$value"
 }
 
 resolve_route_env() {
-  TEST_E2E_BACKEND_BASE_URL="${TEST_E2E_BACKEND_BASE_URL:-${TEST_SMOKE_BACKEND_BASE_URL:-}}"
+  TEST_E2E_BACKEND_BASE_URL="$(trim_whitespace "${TEST_E2E_BACKEND_BASE_URL:-${TEST_SMOKE_BACKEND_BASE_URL:-}}")"
 
   if [[ -z "$TEST_E2E_BACKEND_BASE_URL" ]]; then
     TEST_E2E_BACKEND_BASE_URL="http://127.0.0.1:${PORT:-${SERVER_PORT:-3000}}"
   fi
 
-  TEST_E2E_BACKOFFICE_ORIGIN="${TEST_E2E_BACKOFFICE_ORIGIN:-${BACKOFFICE_PUBLIC_URL:-}}"
+  TEST_E2E_BACKOFFICE_ORIGIN="$(trim_whitespace "${TEST_E2E_BACKOFFICE_ORIGIN:-${BACKOFFICE_PUBLIC_URL:-}}")"
 
   if [[ -z "$TEST_E2E_BACKOFFICE_ORIGIN" && -n "${BACKOFFICE_CORS_ORIGINS:-}" ]]; then
     TEST_E2E_BACKOFFICE_ORIGIN="$(first_csv_value "$BACKOFFICE_CORS_ORIGINS")"
   fi
 
-  TEST_E2E_TELEGRAM_ID="${TEST_E2E_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-}}"
+  TEST_E2E_TELEGRAM_ID="$(trim_whitespace "${TEST_E2E_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-}}")"
+}
+
+trim_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf "%s" "$value"
 }
 
 trim_trailing_slash() {
@@ -146,6 +153,10 @@ http_probe() {
   log "Preflight: $label -> $url"
 
   local status
+  local curl_error_file
+  local curl_exit_code
+
+  curl_error_file="$(mktemp)"
   status="$(
     curl \
       --location \
@@ -155,10 +166,23 @@ http_probe() {
       --write-out "%{http_code}" \
       --max-time "$CURL_TIMEOUT" \
       "$@" \
-      "$url" 2>>"$LOG_FILE"
+      "$url" 2>"$curl_error_file"
   )"
+  curl_exit_code="$?"
 
-  if [[ "$status" =~ ^[23] ]]; then
+  if [[ -s "$curl_error_file" ]]; then
+    while IFS= read -r line; do
+      log "Preflight: $label curl: $line"
+    done <"$curl_error_file"
+  fi
+
+  rm -f "$curl_error_file"
+
+  if [[ "$curl_exit_code" -ne 0 && -z "$status" ]]; then
+    status="000"
+  fi
+
+  if [[ "$curl_exit_code" -eq 0 && "$status" =~ ^[23] ]]; then
     log "Preflight: $label passed with HTTP $status."
     return 0
   fi

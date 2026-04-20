@@ -44,6 +44,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
 - Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до рестарта backend.
+- Env-файл стенда или GitHub environment `test` должен задавать `BACKOFFICE_PUBLIC_URL`; deploy-скрипт проверяет опубликованный frontend origin после сборки и рестарта.
+- Если frontend публикуется через статический каталог, GitHub environment `test` задаёт `FRONTEND_PUBLISH_DIR`, а deploy-скрипт копирует туда `frontend/dist` после сборки. Если frontend требует отдельного process manager restart, команда хранится в secret `TEST_DEPLOY_FRONTEND_RESTART_COMMAND` и передаётся как `DEPLOY_FRONTEND_RESTART_COMMAND`.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
 - Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
 
@@ -69,6 +71,9 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `NODE_ENV=test` обязателен для test VPS.
 - `PORT` определяет локальный порт backend для smoke-check; по умолчанию используется `3000`.
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
+- `BACKOFFICE_PUBLIC_URL` задаёт опубликованный frontend origin test-стенда и проверяется в `Deploy Test` и `Test VPS E2E`.
+- `FRONTEND_PUBLISH_DIR` опционально задаёт каталог на VPS, в который `Deploy Test` копирует `frontend/dist`.
+- `DEPLOY_FRONTEND_RESTART_COMMAND` опционально задаёт команду рестарта frontend/static server на VPS; в GitHub Actions передаётся из secret `TEST_DEPLOY_FRONTEND_RESTART_COMMAND`.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
 - `TEST_E2E_BACKEND_BASE_URL` задаёт backend target для DevOps-owned test VPS e2e route.
