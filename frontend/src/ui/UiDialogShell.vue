@@ -2,9 +2,11 @@
   <v-dialog
     :model-value="open"
     :max-width="maxWidth"
+    :fullscreen="isMobile"
+    transition="dialog-bottom-transition"
     @update:model-value="emitModelUpdate"
   >
-    <v-card class="app-dialog-shell" rounded="lg">
+    <v-card class="app-dialog-shell" :rounded="isMobile ? 't-lg' : 'lg'">
       <div class="app-dialog-shell__header">
         <div class="app-dialog-shell__copy">
           <h2 class="app-dialog-shell__title">{{ title }}</h2>
@@ -33,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { useDisplay } from "vuetify";
+
 const props = withDefaults(
   defineProps<{
     open: boolean;
@@ -50,6 +54,9 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { smAndDown } = useDisplay();
+const isMobile = smAndDown;
+
 function emitModelUpdate(value: boolean): void {
   if (!value) {
     emit("close");
@@ -61,8 +68,10 @@ void props;
 
 <style scoped lang="scss">
 .app-dialog-shell {
-  padding: 24px;
   background: var(--app-color-background-surface);
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 760px);
 }
 
 .app-dialog-shell__header,
@@ -75,6 +84,8 @@ void props;
 .app-dialog-shell__header {
   align-items: flex-start;
   justify-content: space-between;
+  padding: 24px 24px 0;
+  border-bottom: 1px solid transparent;
 }
 
 .app-dialog-shell__copy {
@@ -94,14 +105,44 @@ void props;
 }
 
 .app-dialog-shell__body {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 20px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 24px;
 }
 
 .app-dialog-shell__actions {
   flex-direction: column;
-  padding-top: 24px;
+  padding: 0 24px 24px;
+  border-top: 1px solid transparent;
+}
+
+@media (max-width: 959px) {
+  .app-dialog-shell {
+    margin-top: auto;
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .app-dialog-shell__header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding-top: 20px;
+    background: var(--app-color-background-surface);
+    border-bottom-color: var(--app-color-border);
+  }
+
+  .app-dialog-shell__body {
+    padding: 20px 24px;
+  }
+
+  .app-dialog-shell__actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--app-color-background-surface);
+    border-top-color: var(--app-color-border);
+    padding-top: 16px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
 }
 </style>

@@ -4,8 +4,8 @@
     :title="editingCategory ? 'Редактировать группу' : 'Новая группа'"
     :description="
       editingCategory
-        ? 'Измените название и назначенные группы опций'
-        : 'Создайте новую группу для товаров'
+        ? `${productCount} ${productCount === 1 ? 'товар' : 'товаров'} в группе`
+        : 'Создайте новую группу для организации товаров в меню'
     "
     @close="$emit('close')"
   >
@@ -20,11 +20,11 @@
       </ui-icon-button>
     </template>
 
-    <form @submit.prevent="submit">
+    <form id="menu-category-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
         <ui-form-field label="Название группы">
           <v-text-field
-            v-model="form.name"
+            v-model="name"
             placeholder="Например: Кофе, Чай, Десерты"
             variant="outlined"
             density="comfortable"
@@ -33,51 +33,63 @@
           />
         </ui-form-field>
 
-        <ui-section-card
-          class="choice-block"
-          title="Группы опций"
-          body-class="choice-block__body"
-        >
-          <p v-if="optionGroups.length === 0">Нет доступных групп опций</p>
-          <div v-else class="choice-block__list">
-            <v-checkbox
-              v-for="group in optionGroups"
-              :key="group.optionGroupId"
-              v-model="form.optionGroupRefs"
-              :label="group.name"
-              :value="group.optionGroupId"
-              density="comfortable"
-              hide-details
-              color="primary"
-            />
-          </div>
-        </ui-section-card>
-      </div>
+        <ui-toggle-row
+          :model-value="isOptionGroup"
+          label="Группа опций"
+          description="Эта группа является набором опций для другой группы"
+          @update:model-value="toggleOptionGroup"
+        />
 
-      <div class="dialog-card__actions">
-        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
-          {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
-        </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')"
-          >Отмена</ui-button
-        >
+        <ui-form-field label="Выбрать группу опций">
+          <v-select
+            v-model="selectedOptionGroupId"
+            :items="optionGroupItems"
+            item-title="title"
+            item-value="value"
+            placeholder="Не выбрано"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :disabled="isOptionGroup"
+          />
+          <p
+            v-if="!isOptionGroup && optionGroups.length === 0"
+            class="dialog-card__hint"
+          >
+            Нет доступных групп опций
+          </p>
+        </ui-form-field>
       </div>
     </form>
+
+    <template #actions>
+      <ui-button
+        block
+        type="submit"
+        form="menu-category-dialog-form"
+        :loading="isBusy"
+        :disabled="isBusy"
+      >
+        {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
+      </ui-button>
+      <ui-button block variant="ghost" @click="$emit('close')"
+        >Отмена</ui-button
+      >
+    </template>
   </ui-dialog-shell>
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
 import { Trash2 } from "lucide-vue-next";
-import { reactive, watch } from "vue";
 import UiButton from "../../ui/UiButton.vue";
 import UiDialogShell from "../../ui/UiDialogShell.vue";
 import UiFormField from "../../ui/UiFormField.vue";
 import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionCard from "../../ui/UiSectionCard.vue";
-import type { MenuCategoryPayload } from "../../modules/menu-catalog/types";
+import UiToggleRow from "../../ui/UiToggleRow.vue";
 import type {
+  CategoryDialogSubmitPayload,
   MenuCategory,
-  MenuCategoryFormState,
   OptionGroup,
 } from "../../modules/menu-catalog/types";
 
@@ -85,46 +97,76 @@ const props = defineProps<{
   open: boolean;
   isBusy: boolean;
   editingCategory: MenuCategory | null;
+  productCount: number;
   optionGroups: readonly OptionGroup[];
+  ownedOptionGroupId?: string;
 }>();
 
 const emit = defineEmits<{
   close: [];
-  submit: [payload: MenuCategoryPayload];
+  submit: [payload: CategoryDialogSubmitPayload];
   delete: [];
 }>();
 
-const form = reactive<MenuCategoryFormState>({
-  name: "",
-  optionGroupRefs: [],
-});
+const name = ref("");
+const isOptionGroup = ref(false);
+const selectedOptionGroupId = ref("");
+const optionGroupItems = computed(() =>
+  props.optionGroups.map((group) => ({
+    title: group.name,
+    value: group.optionGroupId,
+  })),
+);
 
 watch(
-  () => [props.open, props.editingCategory] as const,
-  ([open, editingCategory]) => {
+  () => [props.open, props.editingCategory, props.ownedOptionGroupId] as const,
+  ([open, editingCategory, ownedOptionGroupId]) => {
     if (!open) {
       resetForm();
       return;
     }
 
-    form.name = editingCategory?.name ?? "";
-    form.optionGroupRefs = editingCategory
-      ? [...editingCategory.optionGroupRefs]
-      : [];
+    name.value = editingCategory?.name ?? "";
+
+    const assignedOptionGroupId = editingCategory?.optionGroupRefs[0] ?? "";
+    const ownedOptionGroup = props.optionGroups.find(
+      (group) => group.optionGroupId === ownedOptionGroupId,
+    );
+
+    isOptionGroup.value = Boolean(ownedOptionGroup);
+    selectedOptionGroupId.value = isOptionGroup.value
+      ? ""
+      : assignedOptionGroupId;
   },
   { immediate: true },
 );
 
 function submit(): void {
+  const category = {
+    name: name.value.trim(),
+    optionGroupRefs:
+      !isOptionGroup.value && selectedOptionGroupId.value
+        ? [selectedOptionGroupId.value]
+        : [],
+  };
+
   emit("submit", {
-    name: form.name.trim(),
-    optionGroupRefs: [...form.optionGroupRefs],
+    category,
+    isOptionGroup: isOptionGroup.value,
   });
 }
 
+function toggleOptionGroup(value: boolean): void {
+  isOptionGroup.value = value;
+  if (value) {
+    selectedOptionGroupId.value = "";
+  }
+}
+
 function resetForm(): void {
-  form.name = "";
-  form.optionGroupRefs = [];
+  name.value = "";
+  isOptionGroup.value = false;
+  selectedOptionGroupId.value = "";
 }
 </script>
 
@@ -133,32 +175,12 @@ function resetForm(): void {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  margin-top: 20px;
 }
 
-.choice-block {
-  padding: 0;
-}
-
-.choice-block :deep(.choice-block__body) {
-  padding-top: 0;
-}
-
-.choice-block p {
-  margin: 0;
+.dialog-card__hint {
+  margin: 6px 0 0;
   color: var(--app-color-text-muted);
   font-size: 12px;
-}
-
-.choice-block__list {
-  display: flex;
-  flex-direction: column;
-}
-
-.dialog-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px 0 0;
+  line-height: 18px;
 }
 </style>

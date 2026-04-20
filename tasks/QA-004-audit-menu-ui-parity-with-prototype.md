@@ -38,14 +38,14 @@
 
 ### Подтвержденные расхождения
 
-1. `High` Поток управления группами опций все еще не соответствует прототипу: экранная standalone-панель уже убрана, но category dialog по-прежнему уводит в отдельный modal flow `MenuOptionGroupDialog` через inline-actions `Создать группу опций` / `Редактировать группу опций`. В референсе весь сценарий остается внутри add/edit category dialogs без отдельного dialog для option-group management.
-   Текущее: `frontend/src/components/menu-catalog/MenuCategoryDialog.vue:63-73`, `frontend/src/views/MenuCatalogView.vue:77-89`, `:102-109`, `frontend/src/components/menu-catalog/MenuOptionGroupDialog.vue:1-114`.
+1. `High` Поведение category dialog при активном флаге `Группа опций` все еще не совпадает с прототипом: в текущем приложении в этой же модалке раскрывается полноценный встроенный editor `Настройка группы опций` с выбором `Тип выбора`, кнопкой `Добавить опцию`, списком карточек опций, полями `Название опции` / `Доплата` и чекбоксом `Доступна`. В референсе после активации toggle внутри category dialog не появляется embedded-конструктор опций: сценарий ограничен переключателем и select `Выбрать группу опций`.
+   Текущее: `frontend/src/components/menu-catalog/MenuCategoryDialog.vue:36-129`.
    Референс add: `.references/Expressa_admin/src/app/components/AddCategoryDialog.tsx:90-127`.
    Референс edit: `.references/Expressa_admin/src/app/components/EditCategoryDialog.tsx:116-153`.
-   Repro: открыть `Добавить группу` или `Редактировать группу`, затем перейти по inline-action к созданию/редактированию группы опций; в прототипе такого второго modal-step нет.
+   Repro: открыть `Добавить группу`, включить `Группа опций` и сравнить содержимое модалки с прототипом.
 
-2. `High` Семантика controls в category dialogs остается инвертированной относительно прототипа. В референсе toggle `Группа опций` означает, что текущая категория сама является option group, поэтому select `Выбрать группу опций` блокируется при включенном toggle. В текущей Vue-реализации toggle фактически означает наличие назначенной option group: `selectedOptionGroupId` очищается при выключении, payload пишет `optionGroupRefs`, а select блокируется при выключенном toggle, то есть interaction model противоположна тексту интерфейса.
-   Текущее: `frontend/src/components/menu-catalog/MenuCategoryDialog.vue:36-54`, `:147-170`.
+2. `High` Семантика controls в category dialogs остается инвертированной относительно прототипа. В референсе toggle `Группа опций` означает, что текущая категория сама является option group, поэтому select `Выбрать группу опций` блокируется при включенном toggle и никакой дополнительный assigned-flow не активируется. В текущей Vue-реализации toggle одновременно переключает режим category dialog в embedded editor option-group и управляет очисткой `selectedOptionGroupId`; payload пишет `optionGroupRefs` только когда toggle выключен. Это делает interaction model и смысл переключателя отличными от prototype-flow.
+   Текущее: `frontend/src/components/menu-catalog/MenuCategoryDialog.vue:36-54`, `:191-317`.
    Референс add: `.references/Expressa_admin/src/app/components/AddCategoryDialog.tsx:90-127`.
    Референс edit: `.references/Expressa_admin/src/app/components/EditCategoryDialog.tsx:116-153`.
    Repro: открыть `Добавить группу`, включить/выключить `Группа опций` и сравнить доступность select + смысл toggle с поведением референса.
@@ -67,7 +67,7 @@
 
 ### Итог для FE-004
 
-- Повторная проверка показала, что часть замечаний из первого QA-отчета уже закрыта, но parity все еще не достигнут по flow групп опций, desktop action-row, error-state presentation и create-product dialog.
+- Повторная проверка показала, что часть замечаний из первого QA-отчета уже закрыта, но parity все еще не достигнут по поведению category dialog в режиме `Группа опций`, desktop action-row, error-state presentation и create-product dialog.
 - `QA-004` остается открытой по 5 актуальным расхождениям.
-- Для закрытия `FE-004` frontend должен убрать отдельный modal flow управления группами опций, синхронизировать смысл toggle/select в category dialogs с прототипом, вернуть desktop-кнопкам content-width presentation, заменить широкий inline error-banner на уведомление, совпадающее с reference-flow, и довести add-product dialog до того же порядка полей, что и в прототипе.
+- Для закрытия `FE-004` frontend должен привести category dialog к prototype-flow без встроенного конструктора опций внутри этой модалки, синхронизировать смысл toggle/select с прототипом, вернуть desktop-кнопкам content-width presentation, заменить широкий inline error-banner на уведомление, совпадающее с reference-flow, и довести add-product dialog до того же порядка полей, что и в прототипе.
 - `docs/architecture/application-map/qa-menu-catalog.md` не обновлялся: acceptance path и QA-маршрут не изменились, изменился только результат аудита по конкретной feature.

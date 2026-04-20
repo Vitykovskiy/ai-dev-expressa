@@ -72,6 +72,11 @@ export interface OptionGroupPayload {
   readonly options: readonly OptionPayload[];
 }
 
+export interface CategoryDialogSubmitPayload {
+  readonly category: MenuCategoryPayload;
+  readonly isOptionGroup: boolean;
+}
+
 export interface EditableOption {
   readonly optionId?: string;
   name: string;

@@ -16,7 +16,7 @@ export const APP_BUTTON_VARIANTS = {
     className: "app-button--secondary",
   },
   outlined: {
-    color: "surface",
+    color: "secondary-text",
     variant: "outlined",
     className: "app-button--outlined",
   },

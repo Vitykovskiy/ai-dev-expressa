@@ -5,19 +5,10 @@
     <div class="menu-view__header">
       <div>
         <h1 class="menu-view__title">Меню</h1>
-        <p class="menu-view__subtitle">
-          {{ categoryCountLabel(categories.length) }},
-          {{ itemCountLabel(snapshot.items.length) }}
+        <p v-if="categories.length > 0" class="menu-view__subtitle">
+          {{ categoryCountLabel(categories.length) }}
         </p>
       </div>
-      <ui-button
-        class="guide-button"
-        variant="outlined"
-        @click="openCreateOptionGroupDialog"
-      >
-        <Plus :size="18" />
-        <span>Группа опций</span>
-      </ui-button>
     </div>
 
     <div class="menu-view__actions">
@@ -28,26 +19,24 @@
       >
         Добавить группу
       </ui-button>
-      <ui-button
-        class="action-button"
-        variant="outlined"
-        :disabled="categories.length === 0 || isBusy"
-        title="Сначала создайте группу"
-        @click="openCreateItemDialog()"
-      >
-        Добавить товар
-      </ui-button>
+      <div class="menu-view__tooltip-group">
+        <ui-button
+          class="action-button"
+          variant="outlined"
+          :disabled="categories.length === 0 || isBusy"
+          @click="openCreateItemDialog()"
+        >
+          Добавить товар
+        </ui-button>
+        <div
+          v-if="categories.length === 0"
+          class="menu-view__tooltip"
+          role="tooltip"
+        >
+          Сначала создайте группу
+        </div>
+      </div>
     </div>
-
-    <v-alert
-      v-if="hasError"
-      class="error-banner"
-      type="error"
-      variant="tonal"
-      density="comfortable"
-    >
-      {{ errorMessage }}
-    </v-alert>
 
     <v-sheet
       v-if="isLoading"
@@ -68,16 +57,9 @@
       <MenuCatalogCategoryList
         :categories="categories"
         :category-items-map="categoryItemsMap"
-        :category-option-groups-map="categoryOptionGroupsMap"
         @edit-category="openEditCategoryDialog"
         @create-item="openCreateItemDialog"
         @edit-item="openEditItemDialog"
-      />
-
-      <MenuCatalogOptionGroupsPanel
-        :option-groups="optionGroups"
-        @create="openCreateOptionGroupDialog"
-        @edit="openEditOptionGroupDialog"
       />
     </div>
 
@@ -85,7 +67,9 @@
       :open="categoryDialogOpen"
       :is-busy="isBusy"
       :editing-category="editingCategory"
+      :product-count="editingCategoryProductCount"
       :option-groups="optionGroups"
+      :owned-option-group-id="ownedOptionGroupId"
       @close="closeCategoryDialog"
       @submit="submitCategory"
       @delete="deleteCurrentCategory"
@@ -102,36 +86,32 @@
       @delete="deleteCurrentItem"
     />
 
-    <MenuOptionGroupDialog
-      :open="optionGroupDialogOpen"
-      :is-busy="isBusy"
-      :editing-option-group="editingOptionGroup"
-      :categories="categories"
-      @close="closeOptionGroupDialog"
-      @submit="submitOptionGroup"
-      @delete="deleteCurrentOptionGroup"
-    />
+    <v-snackbar
+      v-model="errorToastOpen"
+      location="top"
+      color="error"
+      :timeout="4000"
+    >
+      {{ errorMessage }}
+    </v-snackbar>
   </section>
 </template>
 
 <script setup lang="ts">
-import { Plus } from "lucide-vue-next";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import MenuCatalogCategoryList from "../components/menu-catalog/MenuCatalogCategoryList.vue";
-import MenuCatalogOptionGroupsPanel from "../components/menu-catalog/MenuCatalogOptionGroupsPanel.vue";
 import MenuCategoryDialog from "../components/menu-catalog/MenuCategoryDialog.vue";
 import MenuItemDialog from "../components/menu-catalog/MenuItemDialog.vue";
-import MenuOptionGroupDialog from "../components/menu-catalog/MenuOptionGroupDialog.vue";
 import UiButton from "../ui/UiButton.vue";
 import UiTopBar from "../ui/UiTopBar.vue";
 import {
   categoryCountLabel,
-  itemCountLabel,
+  findCategoryOwnedOptionGroup,
 } from "../modules/menu-catalog/presentation";
 import { useMenuCatalogStore } from "../modules/menu-catalog/store";
 import type {
+  CategoryDialogSubmitPayload,
   MenuCategory,
-  MenuCategoryPayload,
   MenuItem,
   MenuItemPayload,
   OptionGroup,
@@ -140,38 +120,35 @@ import type {
 import {
   mapMenuCatalogError,
   validateMenuItemPayload,
-  validateOptionGroupPayload,
 } from "../modules/menu-catalog/validation";
 
 const store = useMenuCatalogStore();
 const localError = ref<string | null>(null);
+const errorToastOpen = ref(false);
 
 const categoryDialogOpen = ref(false);
 const editingCategory = ref<MenuCategory | null>(null);
+const ownedOptionGroupId = ref("");
+const ownedOptionGroupMap = reactive<Record<string, string>>({});
 
 const itemDialogOpen = ref(false);
 const editingItem = ref<MenuItem | null>(null);
 const defaultItemCategoryId = ref("");
 
-const optionGroupDialogOpen = ref(false);
-const editingOptionGroup = ref<OptionGroup | null>(null);
-
 const snapshot = computed(() => store.state.snapshot);
 const categories = computed(() => snapshot.value.categories);
 const optionGroups = computed(() => snapshot.value.optionGroups);
+const editingCategoryProductCount = computed(
+  () =>
+    (editingCategory.value &&
+      categoryItemsMap.value[editingCategory.value.menuCategoryId]?.length) ??
+    0,
+);
 const categoryItemsMap = computed<Record<string, MenuItem[]>>(() =>
   snapshot.value.items.reduce<Record<string, MenuItem[]>>((acc, item) => {
     const list = acc[item.menuCategoryId] ?? [];
     list.push(item);
     acc[item.menuCategoryId] = list;
-    return acc;
-  }, {}),
-);
-const categoryOptionGroupsMap = computed<Record<string, OptionGroup[]>>(() =>
-  categories.value.reduce<Record<string, OptionGroup[]>>((acc, category) => {
-    acc[category.menuCategoryId] = optionGroups.value.filter((group) =>
-      category.optionGroupRefs.includes(group.optionGroupId),
-    );
     return acc;
   }, {}),
 );
@@ -182,43 +159,105 @@ const isLoading = computed(() => store.state.status === "loading");
 const errorMessage = computed(
   () => localError.value ?? mapMenuCatalogError(store.state.errorCode),
 );
-const hasError = computed(() =>
-  Boolean(localError.value || store.state.errorCode),
-);
 
 onMounted(() => {
   void store.loadCatalog().catch(() => undefined);
 });
 
+watch(
+  errorMessage,
+  (message) => {
+    errorToastOpen.value = Boolean(
+      message && (localError.value || store.state.errorCode),
+    );
+  },
+  { immediate: true },
+);
+
 function openCreateCategoryDialog(): void {
   clearError();
   editingCategory.value = null;
+  ownedOptionGroupId.value = "";
   categoryDialogOpen.value = true;
 }
 
 function openEditCategoryDialog(category: MenuCategory): void {
   clearError();
   editingCategory.value = category;
+  ownedOptionGroupId.value =
+    ownedOptionGroupMap[category.menuCategoryId] ??
+    findCategoryOwnedOptionGroup(category, optionGroups.value)?.optionGroupId ??
+    "";
   categoryDialogOpen.value = true;
 }
 
 function closeCategoryDialog(): void {
   categoryDialogOpen.value = false;
+  ownedOptionGroupId.value = "";
   clearError();
 }
 
-async function submitCategory(payload: MenuCategoryPayload): Promise<void> {
+async function submitCategory(
+  submission: CategoryDialogSubmitPayload,
+): Promise<void> {
   clearError();
-  if (!payload.name.trim()) {
+  if (!submission.category.name.trim()) {
     localError.value = "Введите название группы";
     return;
   }
 
   try {
+    const knownOwnedOptionGroupId = editingCategory.value
+      ? (ownedOptionGroupMap[editingCategory.value.menuCategoryId] ??
+        findCategoryOwnedOptionGroup(editingCategory.value, optionGroups.value)
+          ?.optionGroupId ??
+        "")
+      : "";
+    let savedOwnedOptionGroupId = knownOwnedOptionGroupId;
+
     if (editingCategory.value) {
-      await store.updateCategory(editingCategory.value.menuCategoryId, payload);
+      if (submission.isOptionGroup) {
+        savedOwnedOptionGroupId = await ensureOwnedOptionGroup(
+          knownOwnedOptionGroupId,
+          submission.category.name,
+        );
+      } else if (knownOwnedOptionGroupId) {
+        await store.deleteOptionGroup(knownOwnedOptionGroupId);
+        savedOwnedOptionGroupId = "";
+      }
+
+      await store.updateCategory(
+        editingCategory.value.menuCategoryId,
+        submission.category,
+      );
+      if (savedOwnedOptionGroupId) {
+        ownedOptionGroupMap[editingCategory.value.menuCategoryId] =
+          savedOwnedOptionGroupId;
+      } else {
+        delete ownedOptionGroupMap[editingCategory.value.menuCategoryId];
+      }
     } else {
-      await store.createCategory(payload);
+      const previousCategoryIds = new Set(
+        categories.value.map((category) => category.menuCategoryId),
+      );
+      const createCategorySnapshot = await store.createCategory(
+        submission.category,
+      );
+
+      if (submission.isOptionGroup) {
+        savedOwnedOptionGroupId = await ensureOwnedOptionGroup(
+          "",
+          submission.category.name,
+        );
+        const createdCategory = findCreatedCategory(
+          createCategorySnapshot.categories,
+          previousCategoryIds,
+        );
+        if (createdCategory && savedOwnedOptionGroupId) {
+          ownedOptionGroupMap[createdCategory.menuCategoryId] =
+            savedOwnedOptionGroupId;
+        }
+      }
     }
 
     closeCategoryDialog();
@@ -233,7 +272,17 @@ async function deleteCurrentCategory(): Promise<void> {
   }
 
   try {
+    const ownedOptionGroupId =
+      ownedOptionGroupMap[editingCategory.value.menuCategoryId] ??
+      findCategoryOwnedOptionGroup(editingCategory.value, optionGroups.value)
+        ?.optionGroupId ??
+      "";
+
     await store.deleteCategory(editingCategory.value.menuCategoryId);
+    if (ownedOptionGroupId) {
+      await store.deleteOptionGroup(ownedOptionGroupId);
+      delete ownedOptionGroupMap[editingCategory.value.menuCategoryId];
+    }
     closeCategoryDialog();
   } catch {
     localError.value = null;
@@ -295,98 +344,76 @@ async function deleteCurrentItem(): Promise<void> {
   }
 }
 
-function openCreateOptionGroupDialog(): void {
-  clearError();
-  editingOptionGroup.value = null;
-  optionGroupDialogOpen.value = true;
-}
-
-function openEditOptionGroupDialog(group: OptionGroup): void {
-  clearError();
-  editingOptionGroup.value = group;
-  optionGroupDialogOpen.value = true;
-}
-
-function closeOptionGroupDialog(): void {
-  optionGroupDialogOpen.value = false;
-  clearError();
-}
-
-async function submitOptionGroup({
-  payload,
-  assignedCategoryIds,
-}: {
-  payload: OptionGroupPayload;
-  assignedCategoryIds: string[];
-}): Promise<void> {
-  clearError();
-  const validation = validateOptionGroupPayload(payload);
-  if (!validation.valid) {
-    localError.value = validation.message;
-    return;
-  }
-
-  try {
-    const nextSnapshot = editingOptionGroup.value
-      ? await store.updateOptionGroup(
-          editingOptionGroup.value.optionGroupId,
-          payload,
-        )
-      : await store.createOptionGroup(payload);
-    const savedGroup =
-      editingOptionGroup.value ??
-      nextSnapshot.optionGroups.find((group) => group.name === payload.name);
-
-    if (savedGroup) {
-      await syncOptionGroupAssignments(
-        savedGroup.optionGroupId,
-        assignedCategoryIds,
-      );
-    }
-
-    closeOptionGroupDialog();
-  } catch {
-    localError.value = null;
-  }
-}
-
-async function deleteCurrentOptionGroup(): Promise<void> {
-  if (!editingOptionGroup.value || !window.confirm("Удалить группу опций?")) {
-    return;
-  }
-
-  try {
-    await store.deleteOptionGroup(editingOptionGroup.value.optionGroupId);
-    closeOptionGroupDialog();
-  } catch {
-    localError.value = null;
-  }
-}
-
-async function syncOptionGroupAssignments(
-  optionGroupId: string,
-  assignedCategoryIds: string[],
-): Promise<void> {
-  const assigned = new Set(assignedCategoryIds);
-  for (const category of categories.value) {
-    const hasRef = category.optionGroupRefs.includes(optionGroupId);
-    const shouldHaveRef = assigned.has(category.menuCategoryId);
-    if (hasRef === shouldHaveRef) {
-      continue;
-    }
-
-    const nextRefs = shouldHaveRef
-      ? [...category.optionGroupRefs, optionGroupId]
-      : category.optionGroupRefs.filter((ref) => ref !== optionGroupId);
-    await store.updateCategory(category.menuCategoryId, {
-      name: category.name,
-      optionGroupRefs: nextRefs,
-    });
-  }
-}
-
 function clearError(): void {
   localError.value = null;
+  errorToastOpen.value = false;
+}
+
+async function ensureOwnedOptionGroup(
+  ownedOptionGroupId: string,
+  name: string,
+): Promise<string> {
+  const payload = createOwnedOptionGroupPayload(ownedOptionGroupId, name);
+  if (ownedOptionGroupId) {
+    const snapshot = await store.updateOptionGroup(ownedOptionGroupId, payload);
+    return (
+      snapshot.optionGroups.find(
+        (group) => group.optionGroupId === ownedOptionGroupId,
+      )?.optionGroupId ?? ownedOptionGroupId
+    );
+  }
+
+  const previousGroupIds = new Set(
+    optionGroups.value.map((group) => group.optionGroupId),
+  );
+  const snapshot = await store.createOptionGroup(payload);
+  return (
+    findCreatedOptionGroup(snapshot.optionGroups, previousGroupIds)
+      ?.optionGroupId ?? ""
+  );
+}
+
+function createOwnedOptionGroupPayload(
+  ownedOptionGroupId: string,
+  name: string,
+): OptionGroupPayload {
+  const existingGroup = optionGroups.value.find(
+    (group) => group.optionGroupId === ownedOptionGroupId,
+  );
+
+  return {
+    name,
+    selectionMode: existingGroup?.selectionMode ?? "multiple",
+    options:
+      existingGroup?.options.map((option) => ({
+        optionId: option.optionId,
+        name: option.name,
+        priceDelta: option.priceDelta,
+        availability: option.availability,
+      })) ?? [],
+  };
+}
+
+function findCreatedCategory(
+  nextCategories: readonly MenuCategory[],
+  previousCategoryIds: Set<string>,
+): MenuCategory | null {
+  return (
+    nextCategories.find(
+      (category) => !previousCategoryIds.has(category.menuCategoryId),
+    ) ?? null
+  );
+}
+
+function findCreatedOptionGroup(
+  nextOptionGroups: readonly OptionGroup[],
+  previousGroupIds: Set<string>,
+): OptionGroup | null {
+  return (
+    nextOptionGroups.find(
+      (optionGroup) => !previousGroupIds.has(optionGroup.optionGroupId),
+    ) ?? null
+  );
 }
 </script>
 
@@ -449,16 +476,12 @@ function clearError(): void {
 
 .menu-view__body {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--app-spacing-md);
+  display: block;
   padding: 4px var(--app-spacing-md) 88px;
 }
 
 @media (min-width: 960px) {
   .menu-view__body {
-    grid-template-columns: minmax(0, 1fr) 340px;
-    align-items: start;
     padding: 12px var(--app-spacing-lg) var(--app-spacing-lg);
   }
 }
@@ -467,18 +490,14 @@ function clearError(): void {
   flex: 1;
 }
 
-.guide-button {
-  gap: 8px;
+.menu-view__tooltip-group {
+  position: relative;
+  flex: 1;
+  display: flex;
 }
 
-.error-banner {
-  margin: 0 var(--app-spacing-md) 12px;
-}
-
-@media (min-width: 960px) {
-  .error-banner {
-    margin: 0 var(--app-spacing-lg) 12px;
-  }
+.menu-view__tooltip {
+  display: none;
 }
 
 .loading-panel {
@@ -488,5 +507,42 @@ function clearError(): void {
   padding: 24px;
   color: var(--app-color-text-secondary);
   font-size: 14px;
+}
+
+@media (min-width: 960px) {
+  .action-button,
+  .menu-view__tooltip-group {
+    flex: 0 0 auto;
+  }
+
+  .menu-view__tooltip-group:hover .menu-view__tooltip {
+    display: block;
+  }
+
+  .menu-view__tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    border-radius: var(--app-radius-md);
+    background: #111111;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .menu-view__tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #111111;
+  }
 }
 </style>
