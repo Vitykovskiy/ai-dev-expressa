@@ -45,9 +45,11 @@ const variantContract = computed(() => resolveButtonVariant(props.variant));
 <style scoped lang="scss">
 .app-button {
   min-height: 42px;
+  padding-inline: 20px;
   border-radius: var(--app-radius-md);
-  font-size: 14px;
-  font-weight: 600;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -56,21 +58,42 @@ const variantContract = computed(() => resolveButtonVariant(props.variant));
   width: 100%;
 }
 
+.app-button--primary {
+  background: var(--app-color-accent) !important;
+  color: var(--app-color-text-on-accent) !important;
+}
+
 .app-button--secondary {
-  color: var(--app-color-text-primary);
+  background: var(--app-color-background-secondary) !important;
+  border: 1px solid var(--app-color-border) !important;
+  color: var(--app-color-text-primary) !important;
 }
 
 .app-button--outlined {
-  border-color: var(--app-color-border);
-  color: var(--app-color-text-primary);
+  background: var(--app-color-background-surface) !important;
+  border: 1px solid var(--app-color-border) !important;
+  color: var(--app-color-text-primary) !important;
 }
 
 .app-button--destructive {
-  color: var(--app-color-destructive);
+  background: var(--app-color-destructive-light) !important;
+  color: var(--app-color-destructive) !important;
 }
 
 .app-button--ghost {
+  background: transparent !important;
   min-width: auto;
+  color: var(--app-color-text-secondary) !important;
+}
+
+.app-button:deep(.v-btn__overlay) {
+  background: currentcolor;
+}
+
+.app-button:deep(.v-btn__content) {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
 }
 
 .app-button--tonal {

@@ -24,55 +24,12 @@ jobs:
           cache: npm
           cache-dependency-path: |
             package-lock.json
-            backend/package-lock.json
-            frontend/package-lock.json
 
-      - name: Install root tooling dependencies
+      - name: Install workspace dependencies
         run: npm ci
 
-      - name: Install backend dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Backend lint
-        working-directory: backend
-        run: npm run lint
-
-      - name: Backend format check
-        working-directory: backend
-        run: npm run format:check
-
-      - name: Backend typecheck
-        working-directory: backend
-        run: npm run typecheck
-
-      - name: Backend unit tests
-        working-directory: backend
-        run: npm test
-
-      - name: Frontend lint
-        working-directory: frontend
-        run: npm run lint
-
-      - name: Frontend stylelint
-        working-directory: frontend
-        run: npm run stylelint
-
-      - name: Frontend format check
-        working-directory: frontend
-        run: npm run format:check
-
-      - name: Frontend typecheck
-        working-directory: frontend
-        run: npm run typecheck
-
-      - name: Frontend unit tests
-        working-directory: frontend
-        run: npm test
+      - name: Quality checks
+        run: npm run quality
 
   build:
     name: build
@@ -87,21 +44,10 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+            package-lock.json
 
-      - name: Install backend dependencies
-        working-directory: backend
+      - name: Install workspace dependencies
         run: npm ci
 
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build backend
-        working-directory: backend
-        run: npm run build
-
-      - name: Build frontend
-        working-directory: frontend
+      - name: Build workspaces
         run: npm run build

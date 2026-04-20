@@ -2,7 +2,7 @@
   <ui-dialog-shell
     :open="open"
     :title="editingItem ? 'Редактировать товар' : 'Новый товар'"
-    description="Настройте группу, название и ценовую модель"
+    :description="dialogDescription"
     @close="$emit('close')"
   >
     <template #headerActions>
@@ -15,7 +15,7 @@
       </ui-icon-button>
     </template>
 
-    <form @submit.prevent="submit">
+    <form id="menu-item-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
         <ui-form-field label="Категория">
           <v-select
@@ -27,6 +27,7 @@
             variant="outlined"
             density="comfortable"
             hide-details
+            :autofocus="!editingItem"
           />
         </ui-form-field>
 
@@ -37,6 +38,7 @@
             variant="outlined"
             density="comfortable"
             hide-details
+            :autofocus="Boolean(editingItem)"
           />
         </ui-form-field>
 
@@ -80,16 +82,22 @@
           />
         </ui-form-field>
       </div>
-
-      <div class="dialog-card__actions">
-        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
-          {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
-        </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')"
-          >Отмена</ui-button
-        >
-      </div>
     </form>
+
+    <template #actions>
+      <ui-button
+        block
+        type="submit"
+        form="menu-item-dialog-form"
+        :loading="isBusy"
+        :disabled="isBusy"
+      >
+        {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
+      </ui-button>
+      <ui-button block variant="ghost" @click="$emit('close')"
+        >Отмена</ui-button
+      >
+    </template>
   </ui-dialog-shell>
 </template>
 
@@ -136,6 +144,18 @@ const categoryItems = computed(() =>
     title: category.name,
     value: category.menuCategoryId,
   })),
+);
+const editingCategoryName = computed(
+  () =>
+    props.categories.find(
+      (category) =>
+        category.menuCategoryId === props.editingItem?.menuCategoryId,
+    )?.name ?? "",
+);
+const dialogDescription = computed(() =>
+  props.editingItem
+    ? `Категория: "${editingCategoryName.value}"`
+    : "Добавьте новый товар в меню",
 );
 
 watch(
@@ -214,7 +234,6 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  margin-top: 20px;
 }
 
 .dialog-card__body :deep(.size-price-list) {
@@ -238,12 +257,5 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   border-radius: var(--app-radius-md);
   background: var(--app-color-background-secondary);
   color: var(--app-color-text-secondary);
-}
-
-.dialog-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px 0 0;
 }
 </style>

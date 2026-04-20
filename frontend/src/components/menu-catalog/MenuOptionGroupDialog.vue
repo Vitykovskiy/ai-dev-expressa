@@ -5,6 +5,7 @@
     :title="
       editingOptionGroup ? 'Редактировать группу опций' : 'Новая группа опций'
     "
+    description="Настройте тип выбора и состав опций"
     @close="$emit('close')"
   >
     <template #headerActions>
@@ -15,12 +16,9 @@
       >
         <Trash2 :size="20" />
       </ui-icon-button>
-      <ui-icon-button title="Закрыть" @click="$emit('close')">
-        <X :size="20" />
-      </ui-icon-button>
     </template>
 
-    <form @submit.prevent="submit">
+    <form id="menu-option-group-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
         <ui-form-field label="Название группы опций">
           <v-text-field
@@ -44,26 +42,6 @@
             hide-details
           />
         </ui-form-field>
-
-        <ui-section-card
-          class="choice-block"
-          title="Назначить на группы меню"
-          body-class="choice-block__body"
-        >
-          <p v-if="categories.length === 0">Сначала создайте группу меню</p>
-          <div v-else class="choice-block__list">
-            <v-checkbox
-              v-for="category in categories"
-              :key="category.menuCategoryId"
-              v-model="form.assignedCategoryIds"
-              :label="category.name"
-              :value="category.menuCategoryId"
-              density="comfortable"
-              hide-details
-              color="primary"
-            />
-          </div>
-        </ui-section-card>
 
         <div class="options-editor">
           <div class="options-editor__header">
@@ -115,23 +93,29 @@
           </ui-section-card>
         </div>
       </div>
-
-      <div class="dialog-card__actions">
-        <ui-button block type="submit" :loading="isBusy" :disabled="isBusy">
-          {{
-            editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций"
-          }}
-        </ui-button>
-        <ui-button block variant="ghost" @click="$emit('close')"
-          >Отмена</ui-button
-        >
-      </div>
     </form>
+
+    <template #actions>
+      <ui-button
+        block
+        type="submit"
+        form="menu-option-group-dialog-form"
+        :loading="isBusy"
+        :disabled="isBusy"
+      >
+        {{
+          editingOptionGroup ? "Сохранить изменения" : "Добавить группу опций"
+        }}
+      </ui-button>
+      <ui-button block variant="ghost" @click="$emit('close')"
+        >Отмена</ui-button
+      >
+    </template>
   </ui-dialog-shell>
 </template>
 
 <script setup lang="ts">
-import { Trash2, X } from "lucide-vue-next";
+import { Trash2 } from "lucide-vue-next";
 import { reactive, watch } from "vue";
 import UiButton from "../../ui/UiButton.vue";
 import UiDialogShell from "../../ui/UiDialogShell.vue";
@@ -142,7 +126,6 @@ import UiSectionCard from "../../ui/UiSectionCard.vue";
 import { formatMoney, parseMoney } from "../../modules/menu-catalog/validation";
 import type {
   EditableOption,
-  MenuCategory,
   OptionGroup,
   OptionGroupFormState,
   OptionGroupPayload,
@@ -159,12 +142,11 @@ const props = defineProps<{
   open: boolean;
   isBusy: boolean;
   editingOptionGroup: OptionGroup | null;
-  categories: readonly MenuCategory[];
 }>();
 
 const emit = defineEmits<{
   close: [];
-  submit: [{ payload: OptionGroupPayload; assignedCategoryIds: string[] }];
+  submit: [payload: OptionGroupPayload];
   delete: [];
 }>();
 
@@ -176,8 +158,8 @@ const form = reactive<OptionGroupFormState>({
 });
 
 watch(
-  () => [props.open, props.editingOptionGroup, props.categories] as const,
-  ([open, editingOptionGroup, categories]) => {
+  () => [props.open, props.editingOptionGroup] as const,
+  ([open, editingOptionGroup]) => {
     if (!open) {
       resetForm();
       return;
@@ -190,11 +172,6 @@ watch(
 
     form.name = editingOptionGroup.name;
     form.selectionMode = editingOptionGroup.selectionMode;
-    form.assignedCategoryIds = categories
-      .filter((category) =>
-        category.optionGroupRefs.includes(editingOptionGroup.optionGroupId),
-      )
-      .map((category) => category.menuCategoryId);
     form.options =
       editingOptionGroup.options.length > 0
         ? editingOptionGroup.options.map((option) => ({
@@ -221,19 +198,16 @@ function removeEditableOption(index: number): void {
 
 function submit(): void {
   emit("submit", {
-    payload: {
-      name: form.name.trim(),
-      selectionMode: form.selectionMode,
-      options: form.options
-        .filter((option) => option.name.trim())
-        .map<OptionPayload>((option) => ({
-          optionId: option.optionId,
-          name: option.name.trim(),
-          priceDelta: parseMoney(option.priceDelta),
-          availability: option.availability,
-        })),
-    },
-    assignedCategoryIds: [...form.assignedCategoryIds],
+    name: form.name.trim(),
+    selectionMode: form.selectionMode,
+    options: form.options
+      .filter((option) => option.name.trim())
+      .map<OptionPayload>((option) => ({
+        optionId: option.optionId,
+        name: option.name.trim(),
+        priceDelta: parseMoney(option.priceDelta),
+        availability: option.availability,
+      })),
   });
 }
 
@@ -269,11 +243,7 @@ function createEditableOption(): EditableOption {
 }
 
 .dialog-card__body {
-  margin-top: 20px;
-}
-
-.choice-block {
-  padding: 0;
+  margin: 0;
 }
 
 .options-editor__header > span {
@@ -281,21 +251,6 @@ function createEditableOption(): EditableOption {
   color: var(--app-color-text-secondary);
   font-size: 13px;
   font-weight: 600;
-}
-
-.choice-block :deep(.choice-block__body) {
-  padding-top: 0;
-}
-
-.choice-block p {
-  margin: 0;
-  color: var(--app-color-text-muted);
-  font-size: 12px;
-}
-
-.choice-block__list {
-  display: flex;
-  flex-direction: column;
 }
 
 :deep(.option-edit-row) {
@@ -313,12 +268,5 @@ function createEditableOption(): EditableOption {
 
 .option-delete-button {
   justify-self: end;
-}
-
-.dialog-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px 0 0;
 }
 </style>

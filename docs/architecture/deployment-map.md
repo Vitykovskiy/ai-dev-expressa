@@ -17,7 +17,7 @@
 ## Test deployment contract
 
 - VPS `test` получает код только из `main`.
-- Корневой `.env` на VPS является источником runtime-конфигурации для backend и frontend build.
+- Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Backend на `test` запускается в `NODE_ENV=test`.
 - `DISABLE_TG_AUTH=true` допустим только для `test` и не переносится в `production`.
 - GitHub Actions хранит только инфраструктурные секреты: `TEST_VPS_HOST`, `TEST_VPS_USER`, `TEST_VPS_SSH_KEY`, `TEST_VPS_PORT`, `TEST_VPS_HOST_FINGERPRINT`, `TEST_VPS_APP_DIR`, `TEST_DEPLOY_RESTART_COMMAND`, опционально `TEST_VPS_ENV_FILE` и `TEST_SMOKE_BACKEND_BASE_URL`.

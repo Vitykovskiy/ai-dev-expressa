@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare module "vuetify/styles";
+
 interface ImportMetaEnv {
   readonly VITE_BACKOFFICE_API_BASE_URL?: string;
   readonly VITE_BACKOFFICE_TEST_TELEGRAM_ID?: string;

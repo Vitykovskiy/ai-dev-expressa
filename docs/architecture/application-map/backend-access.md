@@ -6,29 +6,29 @@
 
 ## Модули
 
-| Модуль | Ответственность |
-|---|---|
-| `IdentityAccessModule` или локальный эквивалент | Пользователи, роли, blocked state как доменная модель доступа. |
-| `BootstrapAdministrator` | Идемпотентно создаёт или обновляет пользователя из `ADMIN_TELEGRAM_ID` с ролью `administrator`. |
-| `TelegramAuth` | Проверяет вход из служебного Telegram-бота и связывает `telegramId` с пользователем. |
-| `TestModeAuth` | Разрешает bypass Telegram только в test environment при `DISABLE_TG_AUTH=true`. |
-| `BackofficeRoleGuard` | Защищает backoffice capabilities и прямые route/API обращения по ролям. |
+| Модуль                                          | Ответственность                                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `IdentityAccessModule` или локальный эквивалент | Пользователи, роли, blocked state как доменная модель доступа.                                  |
+| `BootstrapAdministrator`                        | Идемпотентно создаёт или обновляет пользователя из `ADMIN_TELEGRAM_ID` с ролью `administrator`. |
+| `TelegramAuth`                                  | Проверяет вход из служебного Telegram-бота и связывает `telegramId` с пользователем.            |
+| `TestModeAuth`                                  | Разрешает bypass Telegram только в test environment при `DISABLE_TG_AUTH=true`.                 |
+| `BackofficeRoleGuard`                           | Защищает backoffice capabilities и прямые route/API обращения по ролям.                         |
 
 ## Реализация
 
-| Путь | Назначение |
-|---|---|
-| `backend/src/identity-access/identity-access.module.ts` | NestJS-модуль серверного контура идентификации и доступа. |
-| `backend/src/app.module.ts` | Подключает глобальный `ConfigModule` из `@nestjs/config` и загружает корневой `.env`. |
-| `backend/src/main.ts` | Получает `PORT` через `ConfigService`, без прямого `dotenv` bootstrap. |
-| `backend/src/identity-access/config/access-config.ts` | Валидация `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH`, `SERVICE_TELEGRAM_BOT_TOKEN` и environment-ограничений по значениям, переданным из NestJS config layer. |
-| `backend/src/identity-access/bootstrap/bootstrap-administrator.service.ts` | Lifecycle bootstrap главного `administrator` при старте приложения. |
-| `backend/src/identity-access/domain/authenticated-actor.ts` | Канонический backend shape `AuthenticatedActor` и mapper из `User` в capabilities-aware actor response. |
-| `backend/src/identity-access/auth/backoffice-auth.input.ts` | Нормализация auth input для session body и guard header extraction без смешения с capability decision. |
-| `backend/src/identity-access/auth/telegram-init-data.verifier.ts` | Проверка подписи Telegram Web App `initData` через секрет служебного бота. |
-| `backend/src/identity-access/auth/backoffice-auth.service.ts` | Единая авторизация backoffice через Telegram или test-mode. |
-| `backend/src/identity-access/auth/backoffice-auth.guard.ts` | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
-| `backend/src/identity-access/users/in-memory-user.repository.ts` | Текущий in-memory адаптер `UserRepository`; замена на постоянное хранилище должна выполняться отдельной архитектурной задачей. |
+| Путь                                                                       | Назначение                                                                                                                                                           |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `backend/src/identity-access/identity-access.module.ts`                    | NestJS-модуль серверного контура идентификации и доступа.                                                                                                            |
+| `backend/src/app.module.ts`                                                | Подключает глобальный `ConfigModule` из `@nestjs/config` и загружает локальный `backend/.env.local`.                                                                 |
+| `backend/src/main.ts`                                                      | Получает `PORT` через `ConfigService`, без прямого `dotenv` bootstrap.                                                                                               |
+| `backend/src/identity-access/config/access-config.ts`                      | Валидация `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH`, `SERVICE_TELEGRAM_BOT_TOKEN` и environment-ограничений по значениям, переданным из NestJS config layer.            |
+| `backend/src/identity-access/bootstrap/bootstrap-administrator.service.ts` | Lifecycle bootstrap главного `administrator` при старте приложения.                                                                                                  |
+| `backend/src/identity-access/domain/authenticated-actor.ts`                | Канонический backend shape `AuthenticatedActor` и mapper из `User` в capabilities-aware actor response.                                                              |
+| `backend/src/identity-access/auth/backoffice-auth.input.ts`                | Нормализация auth input для session body и guard header extraction без смешения с capability decision.                                                               |
+| `backend/src/identity-access/auth/telegram-init-data.verifier.ts`          | Проверка подписи Telegram Web App `initData` через секрет служебного бота.                                                                                           |
+| `backend/src/identity-access/auth/backoffice-auth.service.ts`              | Единая авторизация backoffice через Telegram или test-mode.                                                                                                          |
+| `backend/src/identity-access/auth/backoffice-auth.guard.ts`                | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
+| `backend/src/identity-access/users/in-memory-user.repository.ts`           | Текущий in-memory адаптер `UserRepository`; замена на постоянное хранилище должна выполняться отдельной архитектурной задачей.                                       |
 
 ## Code architecture standard for FEATURE-006
 
@@ -41,11 +41,11 @@
 
 ## Endpoints
 
-| Method | Path | Назначение |
-|---|---|---|
-| `GET` | `/health` | Техническая проверка живости backend. |
-| `POST` | `/backoffice/auth/session` | Создаёт backoffice session context из Telegram `initData` или test-mode входа. |
-| `GET` | `/backoffice/:capability` | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`. |
+| Method | Path                       | Назначение                                                                                                              |
+| ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/health`                  | Техническая проверка живости backend.                                                                                   |
+| `POST` | `/backoffice/auth/session` | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                          |
+| `GET`  | `/backoffice/:capability`  | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`. |
 
 ## Auth headers and body
 
@@ -71,11 +71,11 @@
 
 ## Env/config
 
-| Name | Required | Scope | Правило |
-|---|---|---|---|
-| `ADMIN_TELEGRAM_ID` | Да | production, test | Должен быть валидным Telegram identifier для bootstrap administrator. |
-| `DISABLE_TG_AUTH` | Нет | только test | `true` разрешает test-mode без Telegram. В production значение `true` является ошибкой конфигурации. |
-| `SERVICE_TELEGRAM_BOT_TOKEN` | Да для Telegram validation | production, test при включённой Telegram auth | Используется для проверки служебного Telegram-входа. |
+| Name                         | Required                   | Scope                                         | Правило                                                                                              |
+| ---------------------------- | -------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `ADMIN_TELEGRAM_ID`          | Да                         | production, test                              | Должен быть валидным Telegram identifier для bootstrap administrator.                                |
+| `DISABLE_TG_AUTH`            | Нет                        | только test                                   | `true` разрешает test-mode без Telegram. В production значение `true` является ошибкой конфигурации. |
+| `SERVICE_TELEGRAM_BOT_TOKEN` | Да для Telegram validation | production, test при включённой Telegram auth | Используется для проверки служебного Telegram-входа.                                                 |
 
 Runtime env загружается через `@nestjs/config` `ConfigModule`; прямой bootstrap через пакет `dotenv` в приложении не используется.
 

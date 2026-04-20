@@ -1,11 +1,5 @@
 <template>
   <ui-section-list class="catalog-panel">
-    <template #header>
-      <div class="catalog-panel__header">
-        <h2>Категории меню</h2>
-        <p>Группы, товары и назначенные группы опций</p>
-      </div>
-    </template>
     <div v-if="categories.length === 0" class="empty-state">
       <ui-empty-state
         :icon="BookOpen"
@@ -63,41 +57,12 @@
         >
           <div
             v-if="
-              (categoryOptionGroupsMap[category.menuCategoryId]?.length ?? 0) >
-              0
-            "
-            class="assigned-groups"
-          >
-            <v-chip
-              v-for="group in categoryOptionGroupsMap[category.menuCategoryId]"
-              :key="group.optionGroupId"
-              color="primary"
-              variant="tonal"
-              size="small"
-              rounded="lg"
-            >
-              {{ group.name }}
-            </v-chip>
-          </div>
-
-          <div
-            v-if="
               (categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0
             "
             class="category-empty"
           >
-            <ui-empty-state
-              :icon="Coffee"
-              :icon-size="32"
-              title="Товаров в этой группе пока нет"
-              subtitle="Создайте первый товар для выбранной группы"
-            >
-              <template #actions>
-                <ui-inline-action @click="$emit('create-item', category)"
-                  >Добавить товар</ui-inline-action
-                >
-              </template>
-            </ui-empty-state>
+            <Coffee :size="32" class="category-empty__icon" />
+            <p class="category-empty__text">Товаров в этой группе пока нет</p>
           </div>
 
           <ui-button
@@ -133,28 +98,23 @@ import { ref } from "vue";
 import UiButton from "../../ui/UiButton.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
 import UiIconButton from "../../ui/UiIconButton.vue";
-import UiInlineAction from "../../ui/UiInlineAction.vue";
 import UiSectionList from "../../ui/UiSectionList.vue";
 import {
   itemCountLabel,
   itemPriceLabel,
 } from "../../modules/menu-catalog/presentation";
-import type {
-  MenuCategory,
-  MenuItem,
-  OptionGroup,
-} from "../../modules/menu-catalog/types";
+import type { MenuCategory, MenuItem } from "../../modules/menu-catalog/types";
 
 defineProps<{
   categories: readonly MenuCategory[];
   categoryItemsMap: Record<string, MenuItem[]>;
-  categoryOptionGroupsMap: Record<string, OptionGroup[]>;
 }>();
 
 defineEmits<{
   "edit-category": [category: MenuCategory];
   "create-item": [category: MenuCategory];
   "edit-item": [item: MenuItem];
+  "edit-option-group": [optionGroupId: string];
 }>();
 
 const expandedCategoryIds = ref<Set<string>>(new Set());
@@ -174,19 +134,6 @@ function toggleCategory(menuCategoryId: string): void {
 <style scoped lang="scss">
 .catalog-panel {
   overflow: hidden;
-}
-
-.catalog-panel__header h2 {
-  margin: 0;
-  color: var(--app-color-text-primary);
-  font-size: 18px;
-}
-
-.catalog-panel__header p {
-  margin: 4px 0 0;
-  color: var(--app-color-text-secondary);
-  font-size: 13px;
-  line-height: 20px;
 }
 
 .empty-state,
@@ -253,11 +200,25 @@ function toggleCategory(menuCategoryId: string): void {
   background: var(--app-color-background-surface);
 }
 
-.assigned-groups {
+.category-empty {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 10px 16px 0 48px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  border-top: 1px solid var(--app-color-border);
+  text-align: center;
+}
+
+.category-empty__icon,
+.category-empty__text {
+  color: var(--app-color-text-muted);
+}
+
+.category-empty__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .product-row {
