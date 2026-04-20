@@ -28,6 +28,7 @@ export class BackofficeAuthGuard implements CanActivate {
   constructor(
     @Inject(BackofficeAuthService)
     private readonly auth: BackofficeAuthService,
+    @Inject(Reflector)
     @Optional()
     private readonly reflector?: Reflector,
   ) {}
