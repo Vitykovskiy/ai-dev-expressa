@@ -24,7 +24,7 @@
 - Зависимости: `BE-002`, `FE-002`
 - Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
 - Ожидаемый результат для ревью: `Есть manual QA evidence по пользовательским сценариям управления каталогом меню, negative evidence для доступа без capability menu, desktop/mobile UI parity evidence против backoffice UI contract и .references/Expressa_admin, а также список заведенных BUG-задач с метками контура причины или явное подтверждение, что воспроизводимые product defects не обнаружены.`
-- Проверки: `Ручные сценарии: открыть вкладку Меню после backoffice session; создать категорию; создать товар в категории; задать цены S/M/L для напитка; создать группу дополнительных опций; создать платные и бесплатные опции; назначить группу на категорию; проверить отказ пользователю без capability menu. UI parity: desktop/mobile сравнение экрана Меню и диалогов категорий/товаров с .references/Expressa_admin. Exploratory checks: empty/error/disabled states, validation messages, responsive behavior. Defect handoff: список созданных BUG-задач с метками frontend/backend/devops или подтверждение отсутствия воспроизводимых defects.`
+- Проверки: `Ручные сценарии: открыть вкладку Меню после backoffice session; создать категорию; создать товар в категории; задать цены S/M/L для напитка; создать группу дополнительных опций через toggle "Группа опций"; создать платные и бесплатные опции как товары внутри этой группы, где цена 0 означает бесплатную опцию; назначить группу на категорию через "Выбрать группу опций"; проверить отказ пользователю без capability menu. UI parity: desktop/mobile сравнение экрана Меню и диалогов категорий/товаров с .references/Expressa_admin. Exploratory checks: empty/error/disabled states, validation messages, responsive behavior. Defect handoff: список созданных BUG-задач с метками frontend/backend/devops/documentation или подтверждение отсутствия воспроизводимых defects.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/qa-menu-catalog.md, если меняются manual acceptance path, UI parity route, required manual evidence или зона ответственности QA по menu catalog.`
 - Критерии готовности: `Manual QA-задача завершена, когда ручные пользовательские сценарии и UI parity FEATURE-002 подтверждены, все воспроизводимые defects оформлены через BUG-задачи с метками контура причины или явно отсутствуют, а закрытие FEATURE-002 остается заблокированным только при незавершенной E2E QA-005 или открытых blocking BUG-задачах.`
 
@@ -49,26 +49,26 @@
 - Создание категории: `FAIL/BLOCKED BY BUG-001`. `POST /backoffice/menu/categories` вернул `201`, backend snapshot содержит категорию `Кофе`, но UI после сохранения завис в модалке `Новая группа` с busy/disabled state. После reload категория отображается.
 - Создание товара в категории: `FAIL/BLOCKED BY BUG-001`. Товар `Брауни` с `basePrice=250` сохраняется в backend snapshot, но UI после `Добавить товар` зависает в busy/disabled state. После reload товар отображается в категории.
 - Напиток с ценами `S/M/L`: `FAIL/BLOCKED BY BUG-001`. Напиток `Капучино` сохраняется в backend snapshot с `drinkSizePrices`: `S=180`, `M=220`, `L=260`, но UI после сохранения зависает до reload.
-- Создание группы дополнительных опций: `FAIL/BLOCKED BY BUG-001` и `BUG-002`. Toggle `Группа опций` в category dialog вызывает сохранение пустой option group `Кофе` с `selectionMode=multiple`, но UI зависает после save; отдельного доступного UI-flow создания/редактирования option group на экране нет.
-- Создание платных и бесплатных опций: `FAIL/BLOCKED BY BUG-002`. Live UI `/menu` не предоставляет доступного action/dialog для `Название опции`, `Доплата`, `Доступна`; `MenuOptionGroupDialog.vue` существует в коде, но не подключен к `MenuCatalogView.vue`.
-- Назначение группы дополнительных опций на категорию: `FAIL/BLOCKED BY BUG-002`. Category dialog показывает select `Выбрать группу опций`, но из UI нельзя создать группу с обязательным составом опций; текущий snapshot после toggle содержит пустую option group, а `category.optionGroupRefs` остается пустым.
+- Создание группы дополнительных опций: `FAIL/BLOCKED BY BUG-001`; `BUG-002` закрыт как ошибка документации. Канонический UI-flow: открыть `Добавить группу`, включить toggle `Группа опций`, сохранить группу. На проверенном проходе сохранение было заблокировано зависанием после save из `BUG-001`.
+- Создание платных и бесплатных опций: `BLOCKED BY BUG-001 / RETEST REQUIRED`. После сохранения группы с флагом `Группа опций` нужно добавить товары в эту группу: товар с ценой `0` считается бесплатной опцией, товар с ценой `>0` считается платной опцией.
+- Назначение группы дополнительных опций на категорию: `BLOCKED BY BUG-001 / RETEST REQUIRED`. После успешного создания группы опций через toggle обычная группа назначает ее через select `Выбрать группу опций`.
 - Negative access evidence: `PARTIAL`. Direct API request `GET /backoffice/menu/catalog` с `x-test-telegram-id=2002` получил `403 Forbidden`, то есть пользователь без текущего administrator test id не может выполнить операцию. Capability-specific `barista without menu` не изолирован в local runtime, потому что подготовленный non-menu user не доступен через live session bootstrap.
 
 ### UI parity и exploratory findings
 
 - Desktop/mobile shell, navigation, empty state, category row и product rows визуально соответствуют основному reference-flow на проверенных состояниях, но полная parity не подтверждена из-за blocking UI behavior.
 - Category/item dialogs открываются и содержат reference-поля для category, regular item и drink size prices, но успешный save ломает interactive state.
-- Option group parity не подтверждена: обязательный flow создания платных/бесплатных опций недоступен из текущего live UI.
+- Option group parity требует ретеста после `BUG-001`: отдельная кнопка/панель групп опций не должна появляться, а сценарий должен проходить через `Добавить группу` -> `Группа опций` -> добавление товаров в эту группу.
 - Console evidence для зависания: `Vue warn: Unhandled error during execution of render function`, затем `Uncaught (in promise)` со stack trace `MenuCatalogView.vue:8:29`, `store.ts:147:9`, `submitCategory` или `submitItem`.
 
 ### Defect handoff
 
 - Создан `BUG-001` с меткой контура `frontend`: `tasks/BUG-001-menu-ui-freezes-after-successful-save.md`.
-- Создан `BUG-002` с меткой контура `frontend`: `tasks/BUG-002-menu-ui-has-no-option-group-options-management-flow.md`.
+- `BUG-002` переклассифицирован с `frontend` на `documentation`: отдельный UI-flow групп опций не нужен, QA acceptance path обновлен под текущий дизайн.
 - Новые `backend` или `devops` BUG не создавались: проверенные API-вызовы сохраняют category, regular item, drink item и option group snapshot; runtime health/session доступны.
 
 ### Итог QA-002
 
-- `QA-002` не может быть закрыта как выполненная: обязательные сценарии manual QA и UI parity `FEATURE-002` не подтверждены.
-- Закрытие `FEATURE-002` заблокировано открытыми blocking defects `BUG-001` и `BUG-002`, а также остается зависимость от `QA-005` по e2e lane.
-- После исправления `BUG-001` и `BUG-002` требуется повторный полный manual pass по сценариям этой карточки: category CRUD, regular item, drink S/M/L, option group, paid/free options, category assignment, negative capability evidence и desktop/mobile UI parity.
+- `QA-002` не может быть закрыта как выполненная: обязательные сценарии manual QA и UI parity `FEATURE-002` не подтверждены из-за `BUG-001`.
+- Закрытие `FEATURE-002` заблокировано открытым blocking defect `BUG-001`, а также остается зависимость от `QA-005` по e2e lane.
+- После исправления `BUG-001` требуется повторный полный manual pass по сценариям этой карточки: category CRUD, regular item, drink S/M/L, option group через toggle, paid/free options как товары внутри option-group, category assignment, negative capability evidence и desktop/mobile UI parity.

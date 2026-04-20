@@ -71,7 +71,7 @@
               type="number"
               min="0"
               step="0.01"
-              placeholder="0"
+              placeholder="Введите цену"
               variant="outlined"
               density="comfortable"
               hide-details
@@ -87,7 +87,7 @@
             type="number"
             min="0"
             step="0.01"
-            placeholder="0"
+            placeholder="Введите цену"
             variant="outlined"
             density="comfortable"
             hide-details
@@ -166,7 +166,7 @@ const editingCategoryName = computed(
 );
 const hasValidPrice = computed(() => {
   if (form.itemType === "regular") {
-    return parseMoney(form.basePrice) > 0;
+    return hasNonNegativeMoneyInput(form.basePrice);
   }
 
   return normalizeDrinkSizePrices(form.sizePrices).length > 0;
@@ -249,6 +249,16 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
     M: "",
     L: "",
   };
+}
+
+function hasNonNegativeMoneyInput(value: string): boolean {
+  const normalized = value.replace(",", ".").trim();
+  if (!normalized) {
+    return false;
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) && parsed >= 0;
 }
 </script>
 

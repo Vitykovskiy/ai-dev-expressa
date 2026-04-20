@@ -35,6 +35,31 @@ describe("menu catalog validation", () => {
     ).toEqual({ valid: true, message: null });
   });
 
+  it("accepts regular product with zero base price", () => {
+    expect(
+      validateMenuItemPayload({
+        menuCategoryId: "cat-1",
+        name: "Сахар",
+        itemType: "regular",
+        basePrice: 0,
+      }),
+    ).toEqual({ valid: true, message: null });
+  });
+
+  it("rejects regular product with negative base price", () => {
+    expect(
+      validateMenuItemPayload({
+        menuCategoryId: "cat-1",
+        name: "Сахар",
+        itemType: "regular",
+        basePrice: -1,
+      }),
+    ).toEqual({
+      valid: false,
+      message: "Укажите цену товара",
+    });
+  });
+
   it("normalizes drink size prices from form strings", () => {
     expect(
       normalizeDrinkSizePrices({ S: "180", M: "220,5", L: "260" }),

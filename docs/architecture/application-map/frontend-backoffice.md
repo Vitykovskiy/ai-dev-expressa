@@ -20,15 +20,15 @@
 
 ## Точки входа и маршруты
 
-| Route | Назначение | Guard |
-|---|---|---|
-| `/entry-denied` | Отказ во входе без валидного Telegram entry | public screen |
-| `/` | Заказы | `barista`, `administrator` |
-| `/availability` | Доступность меню | `barista`, `administrator` |
-| `/menu` | Управление меню | `administrator` |
-| `/users` | Пользователи | `administrator` |
-| `/settings` | Настройки слотов | `administrator` |
-| `/forbidden` | Недостаточная роль при прямом переходе на запрещённый route | system guard |
+| Route           | Назначение                                                  | Guard                      |
+| --------------- | ----------------------------------------------------------- | -------------------------- |
+| `/entry-denied` | Отказ во входе без валидного Telegram entry                 | public screen              |
+| `/`             | Заказы                                                      | `barista`, `administrator` |
+| `/availability` | Доступность меню                                            | `barista`, `administrator` |
+| `/menu`         | Управление меню                                             | `administrator`            |
+| `/users`        | Пользователи                                                | `administrator`            |
+| `/settings`     | Настройки слотов                                            | `administrator`            |
+| `/forbidden`    | Недостаточная роль при прямом переходе на запрещённый route | system guard               |
 
 ## Auth boundary
 
@@ -61,20 +61,20 @@
 
 ## FEATURE-002 frontend implementation map
 
-| Путь | Назначение |
-|---|---|
-| `frontend/src/components/ui/*.vue` | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
-| `frontend/src/views/MenuCatalogView.vue` | Экран `/menu`: категории, товары, цены, группы опций, опции и назначение групп опций на категории. |
-| `frontend/src/components/menu-catalog/*.vue` | Feature-specific панели и диалоги каталога меню: список категорий, панель групп опций, формы категорий, товаров и групп опций. |
-| `frontend/src/modules/menu-catalog/view-model.ts` | Form state, derived state и orchestration логика экрана меню без transport details. |
-| `frontend/src/modules/menu-catalog/types.ts` | Клиентские типы consumer-facing contract `Manage menu catalog`. |
-| `frontend/src/modules/menu-catalog/api.ts` | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract. |
-| `frontend/src/modules/menu-catalog/store.ts` | Локальное состояние snapshot каталога и операции сохранения через backend contract. |
-| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation. |
+| Путь                                                                 | Назначение                                                                                                                                               |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/components/ui/*.vue`                                   | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
+| `frontend/src/views/MenuCatalogView.vue`                             | Экран `/menu`: категории, товары, цены, группы опций через флаг категории и назначение групп опций на категории.                                         |
+| `frontend/src/components/menu-catalog/*.vue`                         | Feature-specific компоненты каталога меню: список категорий, формы категорий и товаров.                                                                  |
+| `frontend/src/modules/menu-catalog/view-model.ts`                    | Form state, derived state и orchestration логика экрана меню без transport details.                                                                      |
+| `frontend/src/modules/menu-catalog/types.ts`                         | Клиентские типы consumer-facing contract `Manage menu catalog`.                                                                                          |
+| `frontend/src/modules/menu-catalog/api.ts`                           | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract.                                                   |
+| `frontend/src/modules/menu-catalog/store.ts`                         | Локальное состояние snapshot каталога и операции сохранения через backend contract.                                                                      |
+| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation.                                                                 |
 
 ## Code architecture standard for FEATURE-006
 
-- `MenuCatalogView.vue` является первым обязательным кандидатом на декомпозицию: view должен остаться route-level orchestration, а формы категорий, товаров, размеров, групп опций и повторяемые rows должны быть вынесены в компоненты или композиционные функции.
+- `MenuCatalogView.vue` является первым обязательным кандидатом на декомпозицию: view должен остаться route-level orchestration, а формы категорий, товаров, размеров и повторяемые rows должны быть вынесены в компоненты или композиционные функции.
 - Все новые и рефакторимые SFC в этом контуре используют порядок `template` -> `script` -> `style` и `<style scoped lang="scss">`.
 - Повторяемые visual primitives для shell и menu flow выносятся в `frontend/src/components/ui/`; feature-компоненты собираются из `App*` компонентов и не дублируют их локальными стилями.
 - API calls к `/backoffice/menu/*`, Telegram/test-mode headers и transport error mapping остаются в `modules/menu-catalog/api.ts`; components не обращаются к backend напрямую.
@@ -90,7 +90,8 @@
 
 - Для управления меню исполнитель читает `docs/system/contracts/menu-and-availability-management.md`, затем `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
 - Frontend использует `/menu` как существующий administrator-only route и не добавляет новые top-level routes без обновления этой карты.
-- Экран `Меню` должен поддержать категории, товары, базовые цены, размерные цены `S/M/L`, группы дополнительных опций, варианты опций и назначение групп на категории.
+- Экран `Меню` должен поддержать категории, товары, базовые цены, размерные цены `S/M/L`, группы дополнительных опций через toggle `Группа опций`, платные/бесплатные опции как товары внутри такой группы и назначение групп на категории через `Выбрать группу опций`.
+- Отдельная route-level панель или отдельная кнопка `Добавить группу опций` не входит в канонический UI `FEATURE-002`, потому что `.references/Expressa_admin` задает сценарий через диалоги групп и товаров.
 - Клиентская валидация не заменяет backend validation: неполная размерная модель напитка и неверное правило группы опций должны обрабатываться через contract `Manage menu catalog`.
 - Оперативная доступность barista не входит в экран структурного управления каталогом этой feature.
 

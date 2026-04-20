@@ -4,12 +4,12 @@
 
 - Идентификатор: `BUG-002`
 - Родительская задача: `FEATURE-002`
-- Заголовок: `frontend: во вкладке Меню нет доступного UI-сценария управления опциями группы`
-- Описание: `Manual QA-002 не может пройти обязательные сценарии создания группы дополнительных опций, платных и бесплатных опций и назначения группы на категорию через live UI. В коде есть `MenuOptionGroupDialog.vue`и`MenuCatalogOptionGroupsPanel.vue`, но текущий route-level экран `MenuCatalogView.vue` не рендерит панель/диалог групп опций и не предоставляет пользователю action для создания или редактирования состава опций. Переключатель "Группа опций" в category dialog создает только пустую option group с именем категории, без полей selectionMode/options и без явного сценария платных/бесплатных опций.`
+- Заголовок: `documentation: QA-ожидание отдельного UI-flow групп опций не соответствует дизайну Меню`
+- Описание: `Manual QA-002 трактовала создание групп дополнительных опций как отдельный route-level сценарий с панелью/диалогом управления OptionGroup.options. Это не соответствует визуальному канону .references/Expressa_admin и текущей реализации FEATURE-002: группа опций создается как обычная группа меню через переключатель "Группа опций", а платные и бесплатные опции добавляются как товары внутри этой группы. Отдельная кнопка или панель "Добавить группу опций" является лишним UI и должна быть удалена из клиентского дерева.`
 - Единица поставки: `FEATURE-002`
-- Роль: `Фронтенд`
+- Роль: `Системный аналитик`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -17,23 +17,23 @@
 - Архитектурные артефакты: `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/qa-menu-catalog.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Бизнес-артефакты: `не требуются`
-- Дополнительные материалы: `frontend/src/views/MenuCatalogView.vue`, `frontend/src/components/menu-catalog/MenuOptionGroupDialog.vue`, `frontend/src/components/menu-catalog/MenuCatalogOptionGroupsPanel.vue`, `tasks/QA-002-administrator-menu-catalog-management.md`
+- Дополнительные материалы: `frontend/src/views/MenuCatalogView.vue`, `frontend/src/components/menu-catalog/MenuCategoryDialog.vue`, `frontend/src/components/menu-catalog/MenuItemDialog.vue`, `tasks/QA-002-administrator-menu-catalog-management.md`
 
 ## Примечания
 
-- Метка контура причины: `frontend`
+- Метка контура причины: `documentation`
 - Зависимости: `FE-002`, `QA-002`
-- Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `frontend/src/views/MenuCatalogView.vue`, `frontend/src/components/menu-catalog/MenuOptionGroupDialog.vue`, `frontend/src/components/menu-catalog/MenuCatalogOptionGroupsPanel.vue`
-- Ожидаемый результат для ревью: `Administrator во вкладке Меню имеет доступный UI-flow для создания/редактирования option group, выбора selectionMode single/multiple, добавления платной опции, добавления бесплатной опции и назначения группы на категорию в соответствии с contract Manage menu catalog.`
-- Проверки: `В local test-mode через UI создать группу дополнительных опций, задать selectionMode, добавить бесплатную опцию priceDelta=0, добавить платную опцию priceDelta>0, назначить эту группу на категорию, проверить snapshot `/backoffice/menu/catalog` и отображение связи в UI. Проверить desktop/mobile доступность сценария и frontend lint/stylelint/typecheck/test/build.`
-- Обновление карты приложения: `Обновить docs/architecture/application-map/frontend-backoffice.md, если исправление добавляет новый постоянный route-level блок, action boundary или меняет frontend module/component map.`
-- Критерии готовности: `BUG закрыт, когда обязательные option group / options / category assignment сценарии QA-002 проходятся через UI без обращения к API вручную.`
+- Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `frontend/src/views/MenuCatalogView.vue`, `frontend/src/components/menu-catalog/MenuCategoryDialog.vue`, `frontend/src/components/menu-catalog/MenuItemDialog.vue`
+- Ожидаемый результат для ревью: `Документация и QA acceptance path фиксируют текущий UI-flow: administrator создает группу через "Добавить группу", включает "Группа опций", затем добавляет товары в эту группу как платные или бесплатные опции; обычная категория назначает такую группу через "Выбрать группу опций".`
+- Проверки: `В local test-mode через UI создать группу с включенным флагом "Группа опций"; добавить в нее товар с ценой 0 как бесплатную опцию; добавить товар с ценой >0 как платную опцию; создать обычную группу и выбрать созданную группу опций в "Выбрать группу опций"; проверить snapshot /backoffice/menu/catalog и отображение связи после reload. Проверить, что во вкладке Меню нет отдельной кнопки, панели или диалога "Добавить группу опций".`
+- Обновление карты приложения: `docs/architecture/application-map/frontend-backoffice.md обновлена: route-level экран Меню не содержит отдельный постоянный блок управления группами опций.`
+- Критерии готовности: `BUG закрыт, когда лишний клиентский UI-flow удален, а системная/QA документация описывает прохождение option group, paid option, free option и category assignment через текущую реализацию интерфейса.`
 
 ## Evidence QA-002
 
 - Окружение: local test-mode, backend `http://127.0.0.1:3000`, frontend `http://localhost:5173/menu`.
-- На экране `/menu` доступны только actions `Добавить группу`, `Добавить товар`, раскрытие категории и `Редактировать группу`.
+- На экране `/menu` по дизайну доступны actions `Добавить группу`, `Добавить товар`, раскрытие категории и `Редактировать группу`.
 - В `MenuCategoryDialog` доступны `Название группы`, toggle `Группа опций` и select `Выбрать группу опций`.
-- После включения toggle `Группа опций` select блокируется, но не появляется UI для `Тип выбора`, `Добавить опцию`, `Название опции`, `Доплата`, `Доступна`.
-- `MenuOptionGroupDialog.vue` содержит нужные поля, но `MenuCatalogView.vue` не импортирует и не рендерит этот компонент; `MenuCatalogOptionGroupsPanel.vue` также не подключен к текущему template экрана.
-- Фактический backend snapshot после сохранения toggle содержит пустую option group `{"name":"Кофе","selectionMode":"multiple","options":[]}`, но обязательные платные/бесплатные опции через UI создать нельзя.
+- Toggle `Группа опций` является каноническим способом пометить группу меню как группу дополнительных опций; select `Выбрать группу опций` назначает такую группу на обычную группу меню.
+- Платная или бесплатная опция в текущем UI создается как товар внутри группы, помеченной `Группа опций`; цена `0` означает бесплатную опцию, цена `>0` означает платную опцию.
+- Отдельный route-level UI для `OptionGroup.options`, включая панель или кнопку `Добавить группу опций`, не требуется для FEATURE-002 и расходится с `.references/Expressa_admin`.
