@@ -26,6 +26,8 @@
 - Administrator назначает группу дополнительных опций на категорию, и товары категории наследуют эту группу.
 - Пользователь без capability `menu` не может выполнить операции управления каталогом по прямому route/API.
 - Финальный e2e acceptance для `QA-005` подтверждается на задеплоенном `test` VPS после успешного deploy и smoke-check; локальный backend e2e допустим только как вспомогательный contract/debug слой.
+- QA-owned команда для DevOps wrapper: `npm run test:e2e:menu-catalog:vps --workspace @expressa/backend`.
+- Для strict negative capability check на deployed `test` стенде нужен заранее заведённый пользователь без capability `menu`; его Telegram id передаётся QA-owned spec через `E2E_NON_MENU_TELEGRAM_ID`. Без этого значения deployed прогон покрывает product CRUD и validation errors, но capability-specific denial остаётся подтверждённым только локальным in-process e2e.
 - QA фиксирует evidence, что вкладка `Меню` идентична backoffice UI contract и `.references/Expressa_admin` по экранной композиции, текстам, состояниям, визуальным стилям и responsive-поведению.
 - Оперативное включение/выключение доступности barista не проверяется как часть `FEATURE-002`, кроме регрессионного отсутствия смешения с управлением структурой меню.
 

@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Тестирование`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `В тестировании`
 
 ## Ссылки на документы
 
@@ -27,3 +27,11 @@
 - Проверки: `E2E-сценарии: administrator открывает контур управления меню; создает категорию; создает товар-напиток с полным набором цен S/M/L; получает отказ для неполной размерной модели; создает группу дополнительных опций с корректным правилом выбора; получает отказ для неверного правила группы опций; создает платные и бесплатные опции; назначает группу на категорию; пользователь без capability menu получает отказ. Финальный acceptance-прогон выполняется на задеплоенном test VPS route после успешного main -> test deploy и smoke-check по DevOps-owned команде или скрипту из DO-003. Локальная команда npm run test --workspace @expressa/backend -- menu-catalog.e2e.spec.ts допустима только для разработки и debug сценариев, но не закрывает e2e QA без deployed test VPS evidence. Результат: зафиксирован pass/fail прогон на test VPS и ссылки на созданные BUG-задачи с метками frontend/backend/devops при воспроизводимых defects.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/qa-menu-catalog.md, если меняются e2e сценарии каталога, fixtures, contract mocks, test route или acceptance path.`
 - Критерии готовности: `E2E QA-задача завершена, когда e2e-покрытие FEATURE-002 актуально, финальная команда запуска на test VPS воспроизводима, последний deployed прогон зафиксирован, а все найденные blocking defects оформлены через BUG-задачи с метками контура причины или явно отсутствуют.`
+
+## QA evidence
+
+- Локальный contract/debug e2e: `passed` — `npm run test --workspace @expressa/backend -- menu-catalog.e2e.spec.ts`; 4 теста passed.
+- Локальная проверка QA-owned VPS spec против HTTP backend: `passed` — `npm run test:e2e:menu-catalog:vps --workspace @expressa/backend`; 3 теста passed, 2 skipped без deployed `E2E_NON_MENU_TELEGRAM_ID`.
+- Deployed `test` VPS e2e команда: `TEST_E2E_COMMAND="npm run test:e2e:menu-catalog:vps --workspace @expressa/backend" npm run test:vps:e2e`.
+- Для полного deployed negative check `backoffice-capability-forbidden` требуется `E2E_NON_MENU_TELEGRAM_ID` — Telegram id заранее заведённого пользователя без capability `menu` на `test` стенде.
+- Финальный deployed pass/fail evidence: `ожидает прогона после main -> test deploy и smoke-check`.
