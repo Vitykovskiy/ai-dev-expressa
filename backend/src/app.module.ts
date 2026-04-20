@@ -8,7 +8,7 @@ import { MenuCatalogModule } from "./menu-catalog/menu-catalog.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: join(__dirname, "..", "..", ".env"),
+      envFilePath: join(__dirname, "..", ".env.local"),
       isGlobal: true,
     }),
     IdentityAccessModule,

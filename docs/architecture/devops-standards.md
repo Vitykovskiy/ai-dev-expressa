@@ -13,9 +13,10 @@
 ## PR gates для качества кода
 
 - Каждый запрос на слияние в `main` должен запускать обязательные jobs для статических проверок, тестов и сборки затронутых контуров.
-- Workflow `PR Checks` использует root-level tooling install `npm ci` в корне репозитория и отдельные `npm ci` в `backend/` и `frontend/`, чтобы `eslint`, `prettier`, `stylelint`, `husky` и `lint-staged` были версионированы и воспроизводимы.
+- Workflow `PR Checks` использует `npm ci` в корне репозитория как единый источник установки `npm workspaces`, чтобы `eslint`, `prettier`, `stylelint`, `husky`, `lint-staged` и зависимости `backend/frontend` были версионированы и воспроизводимы.
 - Обязательные backend gates: `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.
 - Обязательные frontend gates: `npm run lint`, `npm run stylelint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.
+- Корневые orchestration-команды `npm run quality` и `npm run build` обязаны воспроизводить тот же набор проверок и сборок через workspace-скрипты без отдельного ручного `npm ci` в контурах.
 - CI workflow должен завершаться ошибкой при любом нарушении lint, formatting, stylelint, typecheck, tests или build. Warning-only режим для обязательного gate запрещён.
 - PR считается готовым к ревью только если локальный исполнитель может воспроизвести те же команды в соответствующих каталогах `backend/` и `frontend/`.
 - Если задача затрагивает только один контур, CI может оптимизировать запуск по paths, но обязательные gates для затронутого контура не должны пропадать.
@@ -29,3 +30,10 @@
 - Hook не заменяет полные `test`, `typecheck` и `build`; эти команды остаются обязательными перед передачей задачи на ревью.
 - Конфигурация hooks должна быть версионирована в репозитории. Установка hooks должна быть описана через npm scripts или стандартный lifecycle, а не через ручные локальные инструкции.
 - Отключение hook допустимо только как аварийное действие исполнителя и не является evidence для ревью.
+
+## Local runtime
+
+- Локальный backend запускается из корня командой `npm run dev:backend`.
+- Локальный frontend запускается из корня командой `npm run dev:frontend`.
+- Backend использует `backend/.env.local`; frontend использует `frontend/.env.local`. Оба файла не коммитятся.
+- Локальный bypass допустим только при `NODE_ENV=test`; перенос этого поведения в `production` или неограниченный `development` запрещён.
