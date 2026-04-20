@@ -47,6 +47,15 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
 - Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
 
+## Test VPS e2e route
+
+- Финальный feature-level e2e-прогон выполняется против задеплоенного `test` VPS после успешного `Deploy Test` и smoke-check; локальный e2e используется только для разработки или debug.
+- DevOps-owned route для `DO-003` должен предоставить скрипт или command wrapper, например `scripts/run-test-vps-e2e.sh`, с режимом preflight и запуском QA-owned e2e command against deployed `test`.
+- Обязательные входные параметры route: backend base URL для `test`, опубликованный backoffice origin, test-mode Telegram id, путь к e2e command или package script, и при необходимости SSH/env данные стенда.
+- Preflight должен подтвердить `GET /health`, test-mode доступ к backoffice API и доступность опубликованного frontend origin до запуска QA-сценариев.
+- Pass/fail output должен содержать commit/версию стенда, backend/frontend targets, результат preflight, результат e2e run и путь или ссылку на лог для QA evidence.
+- Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
+
 ## Env vars
 
 - `ADMIN_TELEGRAM_ID` должен быть задан до запуска backend.
@@ -100,4 +109,4 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Обновлять эту карту
 
-Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions или smoke-check.
+Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check или test VPS e2e route.

@@ -61,7 +61,7 @@ Every architecture artifact must be usable by the next roles and tasks. It must 
 - Then decompose only one selected `FEATURE-*` at a time into contour tasks.
 - One child task equals one reviewable outcome in one contour.
 - `FE` and `BE` must be split by default.
-- `DO` is created only when the feature changes VPS runtime, environment/configuration, GitHub Actions, test or production deployment path, or smoke-check.
+- `DO` is created when the feature changes VPS runtime, environment/configuration, GitHub Actions, test or production deployment path, smoke-check, or introduces a mandatory VPS test/e2e run path needed for QA acceptance.
 - Two `QA` tasks are mandatory for every subsequent feature decomposition: manual QA owns user scenario acceptance, manual checks, UI parity and defect triage; e2e QA owns e2e tests for that feature.
 - Both QA tasks depend on completion of the mandatory `FE/BE/DO-*` tasks for the feature.
 - A `FEATURE-*` can move to `Выполнена` only after manual QA is complete, e2e QA is complete, and blocking `BUG-*` tasks are closed.

@@ -18,6 +18,9 @@
 
 - Manual QA-задача покрывает ручной проход пользовательских сценариев, exploratory checks в границах feature, UI parity для UI-фич и defect triage.
 - E2e QA-задача покрывает создание или обновление e2e-тестов, прогон e2e на документированном окружении и evidence результата.
+- Если feature поставляется через `main -> test` и для нее задокументирован test VPS e2e route, финальное acceptance evidence e2e lane собирается на задеплоенном `test` VPS после успешного deploy и smoke-check.
+- Локальный e2e или in-process backend e2e допустим для разработки, отладки и быстрого contract feedback, но не закрывает feature-level e2e QA, когда карточка требует deployed test VPS evidence.
+- QA владеет e2e-сценариями, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным run path, preflight, env/secrets и диагностикой доступности стенда.
 - `FEATURE-*` может быть закрыта только после завершения manual QA, e2e QA и закрытия блокирующих `BUG-*` задач.
 
 ## Defect handoff

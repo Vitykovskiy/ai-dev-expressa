@@ -16,7 +16,7 @@ This instruction defines how the system analyst must form the task tree for one 
 - For every subsequent feature decomposition, two QA tasks are mandatory: one manual QA task and one e2e QA task.
 - The manual QA task must cover user scenario acceptance, manual exploratory checks, UI parity for UI features, and defect triage.
 - The e2e QA task must include e2e tests for that feature based on user scenarios.
-- `DO-*` is created only when the feature actually changes the VPS environment, `test` or `production` deployment, or GitHub Actions.
+- `DO-*` is created only when the feature actually changes the VPS environment, `test` or `production` deployment, GitHub Actions, or introduces a mandatory VPS test/e2e run path needed for QA acceptance.
 - While at least one `FEATURE-*` inside the sprint is incomplete, `SPRINT-*` remains in status `В работе`.
 - `FEATURE-*` moves to status `Ожидает тестирования` only after all mandatory contour tasks for that feature are complete.
 - The QA engineer takes `FEATURE-*` only after it has moved to status `Ожидает тестирования`.

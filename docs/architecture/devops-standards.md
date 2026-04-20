@@ -10,6 +10,14 @@
 
 Подробная runtime карта для `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH` и smoke-check находится в `docs/architecture/application-map/delivery-and-runtime.md`.
 
+## E2E run path для test VPS
+
+- DevOps готовит e2e run path только по назначенной `DO-*` задаче, когда feature-level QA требует финальный e2e-прогон на задеплоенном `test` VPS.
+- DevOps-owned run path должен включать воспроизводимый скрипт или documented command wrapper, список обязательных env/secrets, preflight backend health, проверку опубликованного backoffice origin и формат pass/fail артефакта для QA.
+- DevOps не создает, не адаптирует и не поддерживает feature e2e assertions; сценарии, fixtures, expected behavior и defect handoff остаются ответственностью `QA-*`.
+- E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
+- Изменение e2e run path, связанных env vars, secrets, diagnostic checks или скриптов считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
+
 ## PR gates для качества кода
 
 - Каждый запрос на слияние в `main` должен запускать обязательные jobs для статических проверок, тестов и сборки затронутых контуров.

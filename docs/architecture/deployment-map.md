@@ -25,6 +25,14 @@
 - Deploy workflow обновляет checkout на VPS, запускает `scripts/deploy-test-vps.sh`, валидирует runtime env до рестарта, затем выполняет smoke-check по локальному адресу `http://127.0.0.1:${PORT:-3000}` или по `TEST_SMOKE_BACKEND_BASE_URL`.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
+## Test VPS e2e route
+
+- Feature-level e2e acceptance запускается после успешного `main -> test` deploy и post-deploy smoke-check; e2e не является частью обязательного `PR Checks` или `Deploy Test` gate.
+- Test VPS e2e route должен проверять доступность backend health, опубликованного backoffice origin, test-mode доступа и всех env/secrets, нужных QA для запуска сценариев против стенда.
+- DevOps предоставляет скрипт или documented command wrapper для preflight и запуска QA-owned e2e command against deployed `test`; QA предоставляет сами сценарии и фиксирует pass/fail evidence.
+- Минимальный output e2e route: commit/версия стенда, целевые backend/frontend URL, результат preflight, результат e2e run и путь или ссылка на лог.
+- Smoke-check и restore path остаются отдельными delivery/runtime проверками и не заменяют e2e acceptance.
+
 ## Required GitHub checks
 
 - Workflow `PR Checks` публикует обязательные check-runs:
