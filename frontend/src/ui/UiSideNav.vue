@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
-import type { BackofficeTab } from "../modules/navigation/tabs";
+import type { BackofficeTab } from "@/modules/navigation/tabs";
 
 defineProps<{
   tabs: readonly BackofficeTab[];

@@ -99,16 +99,16 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import MenuCatalogCategoryList from "../components/menu-catalog/MenuCatalogCategoryList.vue";
-import MenuCategoryDialog from "../components/menu-catalog/MenuCategoryDialog.vue";
-import MenuItemDialog from "../components/menu-catalog/MenuItemDialog.vue";
-import UiButton from "../ui/UiButton.vue";
-import UiTopBar from "../ui/UiTopBar.vue";
+import MenuCatalogCategoryList from "@/components/menu-catalog/MenuCatalogCategoryList.vue";
+import MenuCategoryDialog from "@/components/menu-catalog/MenuCategoryDialog.vue";
+import MenuItemDialog from "@/components/menu-catalog/MenuItemDialog.vue";
+import UiButton from "@/ui/UiButton.vue";
+import UiTopBar from "@/ui/UiTopBar.vue";
 import {
   categoryCountLabel,
   findCategoryOwnedOptionGroup,
-} from "../modules/menu-catalog/presentation";
-import { useMenuCatalogStore } from "../modules/menu-catalog/store";
+} from "@/modules/menu-catalog/presentation";
+import { useMenuCatalogStore } from "@/modules/menu-catalog/store";
 import type {
   CategoryDialogSubmitPayload,
   MenuCategory,
@@ -116,11 +116,11 @@ import type {
   MenuItemPayload,
   OptionGroup,
   OptionGroupPayload,
-} from "../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/types";
 import {
   mapMenuCatalogError,
   validateMenuItemPayload,
-} from "../modules/menu-catalog/validation";
+} from "@/modules/menu-catalog/validation";
 
 const store = useMenuCatalogStore();
 const localError = ref<string | null>(null);

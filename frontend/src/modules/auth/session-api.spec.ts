@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { bootstrapSession, SessionApiError } from "./session-api";
+import { bootstrapSession, SessionApiError } from "@/modules/auth/session-api";
 
 describe("bootstrapSession", () => {
   it("posts initData to the backend session endpoint", async () => {

@@ -28,7 +28,7 @@
 ## Обязательное применение сейчас
 
 - Shell: `RootLayout`, `ui-side-nav`, `ui-tab-bar`, `ui-top-bar`.
-- Menu flow: `MenuCatalogView`, `MenuCatalogCategoryList`, `MenuCatalogOptionGroupsPanel`, `MenuCategoryDialog`, `MenuItemDialog`, `MenuOptionGroupDialog`.
+- Menu flow: `MenuCatalogView`, `MenuCatalogCategoryList`, `MenuCategoryDialog`, `MenuItemDialog`.
 - Stub views текущих вкладок: использовать `ui-top-bar` и `ui-section-card` как базовый каркас вместо локальных panel styles.
 
 ## Подготовлено для следующих вкладок

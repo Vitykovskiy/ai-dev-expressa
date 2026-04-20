@@ -4,7 +4,7 @@ import {
   type MenuCatalogErrorCode,
   type MenuItemPayload,
   type OptionGroupPayload,
-} from "./types";
+} from "@/modules/menu-catalog/types";
 
 export interface ValidationResult {
   readonly valid: boolean;
@@ -23,7 +23,7 @@ export function validateMenuItemPayload(
   }
 
   if (payload.itemType === "regular") {
-    if (!isPositiveMoney(payload.basePrice)) {
+    if (!isNonNegativeMoney(payload.basePrice)) {
       return invalid("Укажите цену товара");
     }
 
@@ -116,6 +116,10 @@ export function mapMenuCatalogError(code: string | null): string {
 
 function isPositiveMoney(value: number | undefined): boolean {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function isNonNegativeMoney(value: number | undefined): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
 function valid(): ValidationResult {

@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { MenuCatalogApi, MenuCatalogApiError } from "./api";
+import {
+  MenuCatalogApi,
+  MenuCatalogApiError,
+} from "@/modules/menu-catalog/api";
 
 const snapshot = {
   categories: [],
@@ -51,6 +54,54 @@ describe("MenuCatalogApi", () => {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name: "Кофе", optionGroupRefs: ["milk"] }),
+    });
+  });
+
+  it("reloads catalog snapshot when mutation returns only the changed entity", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            menuCategoryId: "category-1",
+            name: "Кофе",
+            optionGroupRefs: [],
+          }),
+          {
+            status: 201,
+            headers: { "content-type": "application/json" },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            categories: [
+              {
+                menuCategoryId: "category-1",
+                name: "Кофе",
+                optionGroupRefs: [],
+              },
+            ],
+            items: [],
+            optionGroups: [],
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          },
+        ),
+      );
+    const api = new MenuCatalogApi({ fetchImpl });
+
+    const catalog = await api.createCategory({
+      name: "Кофе",
+      optionGroupRefs: [],
+    });
+
+    expect(catalog.categories).toHaveLength(1);
+    expect(fetchImpl).toHaveBeenNthCalledWith(2, "/backoffice/menu/catalog", {
+      headers: { "content-type": "application/json" },
     });
   });
 

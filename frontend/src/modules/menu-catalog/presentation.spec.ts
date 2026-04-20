@@ -4,8 +4,12 @@ import {
   findCategoryOwnedOptionGroup,
   itemPriceLabel,
   selectionModeLabel,
-} from "./presentation";
-import type { MenuCategory, MenuItem, OptionGroup } from "./types";
+} from "@/modules/menu-catalog/presentation";
+import type {
+  MenuCategory,
+  MenuItem,
+  OptionGroup,
+} from "@/modules/menu-catalog/types";
 
 describe("menu catalog presentation", () => {
   it("formats drink price from the minimum size price", () => {

@@ -17,28 +17,30 @@
 
     <form id="menu-item-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
-        <ui-form-field label="Категория">
+        <ui-form-field label="Категория" input-id="menu-item-category">
           <v-select
+            id="menu-item-category"
             v-model="form.menuCategoryId"
             :items="categoryItems"
             item-title="title"
             item-value="value"
+            name="menuItemCategory"
             placeholder="Выберите категорию"
             variant="outlined"
             density="comfortable"
             hide-details
-            :autofocus="!editingItem"
           />
         </ui-form-field>
 
-        <ui-form-field label="Название товара">
+        <ui-form-field label="Название товара" input-id="menu-item-name">
           <v-text-field
+            id="menu-item-name"
             v-model="form.name"
+            name="menuItemName"
             placeholder="Например: Капучино, Латте"
             variant="outlined"
             density="comfortable"
             hide-details
-            :autofocus="Boolean(editingItem)"
           />
         </ui-form-field>
 
@@ -56,12 +58,20 @@
         >
           <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
             <strong>{{ size }}</strong>
+            <span
+              :id="`menu-item-size-price-${size.toLowerCase()}-label`"
+              class="size-field__label"
+            >
+              Цена размера {{ size }}
+            </span>
             <v-text-field
+              :id="`menu-item-size-price-${size.toLowerCase()}`"
               v-model="form.sizePrices[size]"
+              :name="`menuItemSizePrice${size}`"
               type="number"
               min="0"
               step="0.01"
-              placeholder="0"
+              placeholder="Введите цену"
               variant="outlined"
               density="comfortable"
               hide-details
@@ -69,13 +79,15 @@
           </div>
         </ui-section-card>
 
-        <ui-form-field v-else label="Цена, ₽">
+        <ui-form-field v-else label="Цена, ₽" input-id="menu-item-base-price">
           <v-text-field
+            id="menu-item-base-price"
             v-model="form.basePrice"
+            name="menuItemBasePrice"
             type="number"
             min="0"
             step="0.01"
-            placeholder="0"
+            placeholder="Введите цену"
             variant="outlined"
             density="comfortable"
             hide-details
@@ -90,7 +102,7 @@
         type="submit"
         form="menu-item-dialog-form"
         :loading="isBusy"
-        :disabled="isBusy"
+        :disabled="isSubmitDisabled"
       >
         {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
       </ui-button>
@@ -104,12 +116,12 @@
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { computed, reactive, watch } from "vue";
-import UiButton from "../../ui/UiButton.vue";
-import UiDialogShell from "../../ui/UiDialogShell.vue";
-import UiFormField from "../../ui/UiFormField.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionCard from "../../ui/UiSectionCard.vue";
-import UiToggleRow from "../../ui/UiToggleRow.vue";
+import UiButton from "@/ui/UiButton.vue";
+import UiDialogShell from "@/ui/UiDialogShell.vue";
+import UiFormField from "@/ui/UiFormField.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSectionCard from "@/ui/UiSectionCard.vue";
+import UiToggleRow from "@/ui/UiToggleRow.vue";
 import {
   DRINK_SIZES,
   type DrinkSize,
@@ -117,12 +129,12 @@ import {
   type MenuItem,
   type MenuItemFormState,
   type MenuItemPayload,
-} from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/types";
 import {
   formatMoney,
   normalizeDrinkSizePrices,
   parseMoney,
-} from "../../modules/menu-catalog/validation";
+} from "@/modules/menu-catalog/validation";
 
 const props = defineProps<{
   open: boolean;
@@ -152,6 +164,17 @@ const editingCategoryName = computed(
         category.menuCategoryId === props.editingItem?.menuCategoryId,
     )?.name ?? "",
 );
+const hasValidPrice = computed(() => {
+  if (form.itemType === "regular") {
+    return hasNonNegativeMoneyInput(form.basePrice);
+  }
+
+  return normalizeDrinkSizePrices(form.sizePrices).length > 0;
+});
+const isFormValid = computed(
+  () => Boolean(form.menuCategoryId && form.name.trim()) && hasValidPrice.value,
+);
+const isSubmitDisabled = computed(() => props.isBusy || !isFormValid.value);
 const dialogDescription = computed(() =>
   props.editingItem
     ? `Категория: "${editingCategoryName.value}"`
@@ -227,6 +250,16 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
     L: "",
   };
 }
+
+function hasNonNegativeMoneyInput(value: string): boolean {
+  const normalized = value.replace(",", ".").trim();
+  if (!normalized) {
+    return false;
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) && parsed >= 0;
+}
 </script>
 
 <style scoped lang="scss">
@@ -257,5 +290,14 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
   border-radius: var(--app-radius-md);
   background: var(--app-color-background-secondary);
   color: var(--app-color-text-secondary);
+}
+
+.size-field__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 </style>

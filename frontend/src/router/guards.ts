@@ -2,7 +2,7 @@ import type { RouteLocationNormalized } from "vue-router";
 import type {
   AuthenticatedActor,
   BackofficeCapability,
-} from "../modules/auth/types";
+} from "@/modules/auth/types";
 
 export type GuardDecision =
   | { readonly kind: "allow" }

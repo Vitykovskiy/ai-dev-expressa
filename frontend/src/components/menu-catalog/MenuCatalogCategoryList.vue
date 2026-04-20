@@ -43,7 +43,7 @@
             </span>
           </ui-button>
           <ui-icon-button
-            class="icon-button"
+            class="category-row__edit"
             title="Редактировать группу"
             @click="$emit('edit-category', category)"
           >
@@ -95,15 +95,15 @@ import {
   Edit3,
 } from "lucide-vue-next";
 import { ref } from "vue";
-import UiButton from "../../ui/UiButton.vue";
-import UiEmptyState from "../../ui/UiEmptyState.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionList from "../../ui/UiSectionList.vue";
+import UiButton from "@/ui/UiButton.vue";
+import UiEmptyState from "@/ui/UiEmptyState.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSectionList from "@/ui/UiSectionList.vue";
 import {
   itemCountLabel,
   itemPriceLabel,
-} from "../../modules/menu-catalog/presentation";
-import type { MenuCategory, MenuItem } from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/presentation";
+import type { MenuCategory, MenuItem } from "@/modules/menu-catalog/types";
 
 defineProps<{
   categories: readonly MenuCategory[];
@@ -153,12 +153,13 @@ function toggleCategory(menuCategoryId: string): void {
 
 .category-row__main,
 .product-row {
-  width: 100%;
   justify-content: flex-start;
   border-radius: 0;
 }
 
 .category-row__main {
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: 56px;
   padding: 0 16px;
 }
@@ -222,12 +223,25 @@ function toggleCategory(menuCategoryId: string): void {
 }
 
 .product-row {
+  display: flex;
+  width: 100%;
+  flex: 1 1 auto;
   min-height: 56px;
   padding: 0 16px 0 48px;
   border-top: 1px solid var(--app-color-border);
 }
 
-.icon-button {
+.product-row :deep(.v-btn__content) {
+  width: 100%;
+}
+
+.category-row__edit {
   align-self: center;
+  flex: 0 0 auto;
+  color: var(--app-color-accent) !important;
+}
+
+.category-row__edit:hover {
+  background: var(--app-color-accent-light) !important;
 }
 </style>

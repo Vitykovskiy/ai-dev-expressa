@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { resolveGuardDecision } from "./guards";
-import type { AuthenticatedActor } from "../modules/auth/types";
+import { resolveGuardDecision } from "@/router/guards";
+import type { AuthenticatedActor } from "@/modules/auth/types";
 
 const administrator: AuthenticatedActor = {
   userId: "1",

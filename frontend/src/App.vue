@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useAuthSession } from "./modules/auth/session-store";
+import { useAuthSession } from "@/modules/auth/session-store";
 
 const auth = useAuthSession();
 const showOverlay = computed(

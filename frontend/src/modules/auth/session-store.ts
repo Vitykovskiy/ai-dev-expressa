@@ -1,7 +1,10 @@
 import { reactive, readonly } from "vue";
-import { bootstrapSession, SessionApiError } from "./session-api";
-import { prepareTelegramWebApp, getTelegramInitData } from "./telegram";
-import type { AuthenticatedActor, SessionState } from "./types";
+import { bootstrapSession, SessionApiError } from "@/modules/auth/session-api";
+import {
+  prepareTelegramWebApp,
+  getTelegramInitData,
+} from "@/modules/auth/telegram";
+import type { AuthenticatedActor, SessionState } from "@/modules/auth/types";
 
 const state = reactive<SessionState>({
   status: "idle",

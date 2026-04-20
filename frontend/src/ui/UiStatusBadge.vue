@@ -9,7 +9,7 @@ import { computed } from "vue";
 import {
   resolveStatusBadgeVariant,
   type AppStatusBadgeVariant,
-} from "./contracts";
+} from "@/ui/contracts";
 
 const props = defineProps<{
   value: AppStatusBadgeVariant;

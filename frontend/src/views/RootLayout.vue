@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import UiSideNav from "../ui/UiSideNav.vue";
-import UiTabBar from "../ui/UiTabBar.vue";
-import { useAuthSession } from "../modules/auth/session-store";
-import { getVisibleTabs } from "../modules/navigation/tabs";
+import UiSideNav from "@/ui/UiSideNav.vue";
+import UiTabBar from "@/ui/UiTabBar.vue";
+import { useAuthSession } from "@/modules/auth/session-store";
+import { getVisibleTabs } from "@/modules/navigation/tabs";
 
 const auth = useAuthSession();
 const route = useRoute();

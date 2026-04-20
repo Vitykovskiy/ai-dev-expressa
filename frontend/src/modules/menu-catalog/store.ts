@@ -3,14 +3,14 @@ import {
   createMenuCatalogApi,
   MenuCatalogApiError,
   type MenuCatalogClient,
-} from "./api";
+} from "@/modules/menu-catalog/api";
 import type {
   MenuCatalogSnapshot,
   MenuCatalogState,
   MenuCategoryPayload,
   MenuItemPayload,
   OptionGroupPayload,
-} from "./types";
+} from "@/modules/menu-catalog/types";
 
 const emptySnapshot: MenuCatalogSnapshot = {
   categories: [],

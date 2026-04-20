@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import UiSectionCard from "../ui/UiSectionCard.vue";
-import UiTopBar from "../ui/UiTopBar.vue";
+import UiSectionCard from "@/ui/UiSectionCard.vue";
+import UiTopBar from "@/ui/UiTopBar.vue";
 
 defineProps<{
   title: string;

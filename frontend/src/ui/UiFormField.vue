@@ -1,6 +1,12 @@
 <template>
   <label class="app-form-field">
-    <span v-if="label" class="app-form-field__label">{{ label }}</span>
+    <span
+      v-if="label"
+      :id="inputId ? `${inputId}-label` : undefined"
+      class="app-form-field__label"
+    >
+      {{ label }}
+    </span>
     <slot />
     <span v-if="hint && !error" class="app-form-field__hint">{{ hint }}</span>
     <span v-if="error" class="app-form-field__error">{{ error }}</span>
@@ -11,11 +17,13 @@
 withDefaults(
   defineProps<{
     label?: string;
+    inputId?: string;
     hint?: string;
     error?: string | null;
   }>(),
   {
     label: undefined,
+    inputId: undefined,
     hint: undefined,
     error: null,
   },

@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import UiSectionCard from "./UiSectionCard.vue";
+import UiSectionCard from "@/ui/UiSectionCard.vue";
 
 withDefaults(
   defineProps<{
