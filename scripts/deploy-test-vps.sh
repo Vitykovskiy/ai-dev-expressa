@@ -6,6 +6,15 @@ APP_DIR="${APP_DIR:-$(pwd)}"
 RESTART_COMMAND="${DEPLOY_RESTART_COMMAND:-}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
 
+require_env() {
+  local name="$1"
+
+  if [[ -z "${!name:-}" ]]; then
+    echo "$name is required in $ENV_FILE."
+    exit 1
+  fi
+}
+
 if [[ -z "$RESTART_COMMAND" ]]; then
   echo "DEPLOY_RESTART_COMMAND is required."
   exit 1
@@ -28,10 +37,8 @@ set -a
 source "$ENV_FILE"
 set +a
 
-if [[ -z "${ADMIN_TELEGRAM_ID:-}" ]]; then
-  echo "ADMIN_TELEGRAM_ID is required in $ENV_FILE."
-  exit 1
-fi
+require_env "ADMIN_TELEGRAM_ID"
+require_env "BACKOFFICE_CORS_ORIGINS"
 
 if [[ "${NODE_ENV:-}" != "test" ]]; then
   echo "NODE_ENV must be set to test on the test VPS."
