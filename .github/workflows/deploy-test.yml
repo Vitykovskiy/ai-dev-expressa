@@ -17,7 +17,7 @@ jobs:
     environment: test
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Deploy to test VPS and run smoke-check
         uses: appleboy/ssh-action@v1.2.0
