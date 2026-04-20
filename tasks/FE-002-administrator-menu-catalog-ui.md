@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Фронтенд`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -27,3 +27,11 @@
 - Проверки: `Frontend unit/component tests для menu state, form validation и error mapping; integration test с contract/mock adapter для catalog API; frontend build/test; ручная проверка desktop/mobile поведения по React-референсу.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/frontend-backoffice.md, если появляются новые routes, frontend modules, client API boundary, guard states или menu UI handoff rules.`
 - Критерии готовности: `FE-задача завершена, когда клиентский сценарий Меню работает на server-driven actor/capabilities и backend catalog contract, не хардкодит роль administrator и не смешивает структурное управление каталогом с оперативной доступностью barista.`
+
+## Результат выполнения
+
+- Реализован клиентский сценарий вкладки `Меню` для administrator: категории, товары, цены, размерная модель напитков `S/M/L`, группы дополнительных опций через флаг группы и назначение группы опций на категорию.
+- Клиентский контур использует backend contract `/backoffice/menu/*`, существующую backoffice session и capability `menu` из server-driven actor/capabilities.
+- Добавлены и актуализированы frontend modules/components для menu catalog: API boundary, store, presentation/validation helpers, route-level `MenuCatalogView` и диалоги управления каталогом.
+- Покрыты frontend проверки для API/store/presentation/validation и сохранена route guard модель отказа пользователю без capability `menu`.
+- Оперативная доступность barista, обработка заказов и клиентский заказ не включались в FE-002.
