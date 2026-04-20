@@ -8,6 +8,7 @@
     <template #headerActions>
       <ui-icon-button
         v-if="editingItem"
+        class="delete-item-button"
         title="Удалить товар"
         @click="$emit('delete')"
       >
@@ -51,33 +52,33 @@
           @update:model-value="updateItemType"
         />
 
-        <ui-section-card
-          v-if="form.itemType === 'drink'"
-          title="Цены по размерам, ₽"
-          body-class="size-price-list"
-        >
-          <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
-            <strong>{{ size }}</strong>
-            <span
-              :id="`menu-item-size-price-${size.toLowerCase()}-label`"
-              class="size-field__label"
-            >
-              Цена размера {{ size }}
-            </span>
-            <v-text-field
-              :id="`menu-item-size-price-${size.toLowerCase()}`"
-              v-model="form.sizePrices[size]"
-              :name="`menuItemSizePrice${size}`"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Введите цену"
-              variant="outlined"
-              density="comfortable"
-              hide-details
-            />
+        <div v-if="form.itemType === 'drink'" class="size-price-group">
+          <span class="size-price-group__label">Цены по размерам, ₽</span>
+
+          <div class="size-price-list">
+            <div v-for="size in DRINK_SIZES" :key="size" class="size-field">
+              <strong>{{ size }}</strong>
+              <span
+                :id="`menu-item-size-price-${size.toLowerCase()}-label`"
+                class="size-field__label"
+              >
+                Цена размера {{ size }}
+              </span>
+              <v-text-field
+                :id="`menu-item-size-price-${size.toLowerCase()}`"
+                v-model="form.sizePrices[size]"
+                :name="`menuItemSizePrice${size}`"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+              />
+            </div>
           </div>
-        </ui-section-card>
+        </div>
 
         <ui-form-field v-else label="Цена, ₽" input-id="menu-item-base-price">
           <v-text-field
@@ -120,7 +121,6 @@ import UiButton from "@/ui/UiButton.vue";
 import UiDialogShell from "@/ui/UiDialogShell.vue";
 import UiFormField from "@/ui/UiFormField.vue";
 import UiIconButton from "@/ui/UiIconButton.vue";
-import UiSectionCard from "@/ui/UiSectionCard.vue";
 import UiToggleRow from "@/ui/UiToggleRow.vue";
 import {
   DRINK_SIZES,
@@ -266,25 +266,57 @@ function hasNonNegativeMoneyInput(value: string): boolean {
 .dialog-card__body {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
-.dialog-card__body :deep(.size-price-list) {
+.delete-item-button {
+  color: var(--app-color-destructive) !important;
+}
+
+.delete-item-button:hover {
+  background: var(--app-color-destructive-light) !important;
+}
+
+.delete-item-button :deep(svg) {
+  stroke: currentcolor;
+}
+
+.size-price-group {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+}
+
+.size-price-group__label {
+  color: var(--app-color-text-secondary);
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.size-price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .size-field {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.size-field :deep(.v-input) {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .size-field strong {
   display: inline-flex;
-  width: 42px;
-  height: 42px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   align-items: center;
   justify-content: center;
   border-radius: var(--app-radius-md);

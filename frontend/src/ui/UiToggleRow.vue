@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="app-toggle-row" rounded="lg" border>
+  <div class="app-toggle-row">
     <span class="app-toggle-row__copy">
       <strong>{{ label }}</strong>
       <small v-if="description">{{ description }}</small>
@@ -12,7 +12,7 @@
       inset
       @update:model-value="emit('update:modelValue', Boolean($event))"
     />
-  </v-sheet>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -35,7 +35,12 @@ void props;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--app-color-border);
+}
+
+.app-toggle-row:last-child {
+  border-bottom: 0;
 }
 
 .app-toggle-row__copy {
