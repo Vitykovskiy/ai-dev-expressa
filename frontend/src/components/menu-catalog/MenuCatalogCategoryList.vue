@@ -43,7 +43,7 @@
             </span>
           </ui-button>
           <ui-icon-button
-            class="icon-button"
+            class="category-row__edit"
             title="Редактировать группу"
             @click="$emit('edit-category', category)"
           >
@@ -153,12 +153,13 @@ function toggleCategory(menuCategoryId: string): void {
 
 .category-row__main,
 .product-row {
-  width: 100%;
   justify-content: flex-start;
   border-radius: 0;
 }
 
 .category-row__main {
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: 56px;
   padding: 0 16px;
 }
@@ -222,12 +223,25 @@ function toggleCategory(menuCategoryId: string): void {
 }
 
 .product-row {
+  display: flex;
+  width: 100%;
+  flex: 1 1 auto;
   min-height: 56px;
   padding: 0 16px 0 48px;
   border-top: 1px solid var(--app-color-border);
 }
 
-.icon-button {
+.product-row :deep(.v-btn__content) {
+  width: 100%;
+}
+
+.category-row__edit {
   align-self: center;
+  flex: 0 0 auto;
+  color: var(--app-color-accent) !important;
+}
+
+.category-row__edit:hover {
+  background: var(--app-color-accent-light) !important;
 }
 </style>

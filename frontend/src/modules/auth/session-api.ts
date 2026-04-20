@@ -1,12 +1,13 @@
-import type { AuthenticatedActor, SessionPayload } from "./types";
+import {
+  isErrorResponseBody,
+  readJson,
+  resolveApiUrl,
+} from "@/modules/shared/http";
+import type { AuthenticatedActor, SessionPayload } from "@/modules/auth/types";
 
 export interface SessionApiOptions {
   readonly apiBaseUrl?: string;
   readonly fetchImpl?: typeof fetch;
-}
-
-interface ErrorResponseBody {
-  readonly message?: string;
 }
 
 export class SessionApiError extends Error {
@@ -25,7 +26,7 @@ export async function bootstrapSession(
   options: SessionApiOptions = {},
 ): Promise<AuthenticatedActor> {
   const response = await (options.fetchImpl ?? fetch)(
-    resolveUrl(options.apiBaseUrl),
+    resolveApiUrl(options.apiBaseUrl, "/backoffice/auth/session"),
     {
       method: "POST",
       headers: {
@@ -45,26 +46,4 @@ export async function bootstrapSession(
   }
 
   return body as AuthenticatedActor;
-}
-
-function resolveUrl(apiBaseUrl?: string): string {
-  const base = apiBaseUrl?.trim();
-  return `${base ? base.replace(/\/$/, "") : ""}/backoffice/auth/session`;
-}
-
-function isErrorResponseBody(value: unknown): value is ErrorResponseBody {
-  return typeof value === "object" && value !== null && "message" in value;
-}
-
-async function readJson(response: Response): Promise<unknown> {
-  const text = await response.text();
-  if (!text) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
 }

@@ -1,21 +1,23 @@
-import { getTelegramInitData } from "../auth/telegram";
+import { getTelegramInitData } from "@/modules/auth/telegram";
+import {
+  isErrorResponseBody,
+  readJson,
+  resolveApiUrl,
+} from "@/modules/shared/http";
+import { isRecord } from "@/modules/shared/type-guards";
 import type {
   MenuCatalogErrorCode,
   MenuCatalogSnapshot,
   MenuCategoryPayload,
   MenuItemPayload,
   OptionGroupPayload,
-} from "./types";
+} from "@/modules/menu-catalog/types";
 
 export interface MenuCatalogApiOptions {
   readonly apiBaseUrl?: string;
   readonly testTelegramId?: string;
   readonly initData?: string;
   readonly fetchImpl?: typeof fetch;
-}
-
-interface ErrorResponseBody {
-  readonly message?: string;
 }
 
 export class MenuCatalogApiError extends Error {
@@ -61,7 +63,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
   async createCategory(
     payload: MenuCategoryPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>("/backoffice/menu/categories", {
+    return this.mutateAndReadCatalog("/backoffice/menu/categories", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -71,7 +73,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
     menuCategoryId: string,
     payload: MenuCategoryPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
+    return this.mutateAndReadCatalog(
       `/backoffice/menu/categories/${menuCategoryId}`,
       {
         method: "PATCH",
@@ -81,7 +83,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
   }
 
   async deleteCategory(menuCategoryId: string): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
+    return this.mutateAndReadCatalog(
       `/backoffice/menu/categories/${menuCategoryId}`,
       {
         method: "DELETE",
@@ -90,7 +92,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
   }
 
   async createItem(payload: MenuItemPayload): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>("/backoffice/menu/items", {
+    return this.mutateAndReadCatalog("/backoffice/menu/items", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -100,28 +102,22 @@ export class MenuCatalogApi implements MenuCatalogClient {
     menuItemId: string,
     payload: MenuItemPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
-      `/backoffice/menu/items/${menuItemId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      },
-    );
+    return this.mutateAndReadCatalog(`/backoffice/menu/items/${menuItemId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
   }
 
   async deleteItem(menuItemId: string): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
-      `/backoffice/menu/items/${menuItemId}`,
-      {
-        method: "DELETE",
-      },
-    );
+    return this.mutateAndReadCatalog(`/backoffice/menu/items/${menuItemId}`, {
+      method: "DELETE",
+    });
   }
 
   async createOptionGroup(
     payload: OptionGroupPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>("/backoffice/menu/option-groups", {
+    return this.mutateAndReadCatalog("/backoffice/menu/option-groups", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -131,7 +127,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
     optionGroupId: string,
     payload: OptionGroupPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
+    return this.mutateAndReadCatalog(
       `/backoffice/menu/option-groups/${optionGroupId}`,
       {
         method: "PATCH",
@@ -141,12 +137,24 @@ export class MenuCatalogApi implements MenuCatalogClient {
   }
 
   async deleteOptionGroup(optionGroupId: string): Promise<MenuCatalogSnapshot> {
-    return this.request<MenuCatalogSnapshot>(
+    return this.mutateAndReadCatalog(
       `/backoffice/menu/option-groups/${optionGroupId}`,
       {
         method: "DELETE",
       },
     );
+  }
+
+  private async mutateAndReadCatalog(
+    path: string,
+    init: RequestInit,
+  ): Promise<MenuCatalogSnapshot> {
+    const body = await this.request<unknown>(path, init);
+    if (isMenuCatalogSnapshot(body)) {
+      return body;
+    }
+
+    return this.getCatalog();
   }
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -172,8 +180,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
   }
 
   private resolveUrl(path: string): string {
-    const base = this.options.apiBaseUrl?.trim();
-    return `${base ? base.replace(/\/$/, "") : ""}${path}`;
+    return resolveApiUrl(this.options.apiBaseUrl, path);
   }
 
   private authHeaders(): Record<string, string> {
@@ -207,19 +214,17 @@ function readErrorCode(body: unknown): MenuCatalogErrorCode {
   return "menu-catalog-request-failed";
 }
 
-function isErrorResponseBody(value: unknown): value is ErrorResponseBody {
-  return typeof value === "object" && value !== null && "message" in value;
-}
-
-async function readJson(response: Response): Promise<unknown> {
-  const text = await response.text();
-  if (!text) {
-    return null;
+function isMenuCatalogSnapshot(value: unknown): value is MenuCatalogSnapshot {
+  if (!isRecord(value)) {
+    return false;
   }
 
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
+  const candidate = value as Partial<
+    Record<keyof MenuCatalogSnapshot, unknown>
+  >;
+  return (
+    Array.isArray(candidate.categories) &&
+    Array.isArray(candidate.items) &&
+    Array.isArray(candidate.optionGroups)
+  );
 }

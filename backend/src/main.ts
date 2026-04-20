@@ -14,7 +14,7 @@ async function bootstrap(): Promise<void> {
 
   app.enableCors({
     origin: runtimeConfig.backofficeCorsOrigins,
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "content-type",
       "x-telegram-init-data",
