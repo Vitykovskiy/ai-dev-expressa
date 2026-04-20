@@ -20,8 +20,9 @@
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Backend на `test` запускается в `NODE_ENV=test`.
 - `DISABLE_TG_AUTH=true` допустим только для `test` и не переносится в `production`.
+- Env-файл стенда обязан содержать все runtime vars backend до рестарта: `NODE_ENV=test`, `PORT`, `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH=true`, `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice.
 - GitHub Actions хранит только инфраструктурные секреты: `TEST_VPS_HOST`, `TEST_VPS_USER`, `TEST_VPS_SSH_KEY`, `TEST_VPS_PORT`, `TEST_VPS_HOST_FINGERPRINT`, `TEST_VPS_APP_DIR`, `TEST_DEPLOY_RESTART_COMMAND`, опционально `TEST_VPS_ENV_FILE` и `TEST_SMOKE_BACKEND_BASE_URL`.
-- Deploy workflow обновляет checkout на VPS, запускает `scripts/deploy-test-vps.sh`, затем выполняет smoke-check по локальному адресу `http://127.0.0.1:${PORT:-3000}` или по `TEST_SMOKE_BACKEND_BASE_URL`.
+- Deploy workflow обновляет checkout на VPS, запускает `scripts/deploy-test-vps.sh`, валидирует runtime env до рестарта, затем выполняет smoke-check по локальному адресу `http://127.0.0.1:${PORT:-3000}` или по `TEST_SMOKE_BACKEND_BASE_URL`.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
 ## Required GitHub checks
