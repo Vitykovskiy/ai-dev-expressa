@@ -26,10 +26,10 @@
 - Ожидаемый результат для ревью: `Архитектурные карты FEATURE-002 обновлены, а FE/BE/QA задачи имеют достаточный read set для выполнения управления каталогом без чтения production-кода соседнего контура.`
 - Проверки: `Проверить наличие backend-menu-catalog и qa-menu-catalog карт; проверить, что FE/BE/QA карточки содержат consumer-facing contract, профильную карту и не требуют бизнес-артефактов.`
 - Обновление карты приложения: `Выполнено: обновлены docs/architecture/application-map.md, docs/architecture/README.md, docs/architecture/frontend-architecture.md, docs/architecture/backend-architecture.md, docs/architecture/qa-standards.md, docs/architecture/application-map/frontend-backoffice.md; созданы docs/architecture/application-map/backend-menu-catalog.md и docs/architecture/application-map/qa-menu-catalog.md.`
-- Критерии готовности: `Задача завершена, когда архитектурный handoff покрывает frontend, backend и QA контуры FEATURE-002, а DO-контур признан не требующим отдельной задачи.`
+- Критерии готовности: `Задача завершена, когда архитектурный handoff покрывает frontend, backend и QA контуры FEATURE-002; поздняя актуализация test VPS e2e run path вынесена в DO-003.`
 
 ## Результат выполнения
 
 - Созданы контурные карты `backend-menu-catalog.md` и `qa-menu-catalog.md`.
 - Обновлены архитектурная навигация и frontend/backend/QA стандарты под `FEATURE-002`.
-- `DO-*` задача не создана, потому что feature не меняет env vars, GitHub Actions, deployment path, VPS runtime или smoke-check route.
+- После решения о финальном e2e evidence на задеплоенном test VPS добавлена отдельная DevOps-задача `DO-003` для инфраструктурного run path без переноса e2e-сценариев из QA.

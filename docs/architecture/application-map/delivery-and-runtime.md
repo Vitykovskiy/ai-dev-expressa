@@ -47,6 +47,19 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
 - Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
 
+## Test VPS e2e route
+
+- Финальный feature-level e2e-прогон выполняется против задеплоенного `test` VPS после успешного `Deploy Test` и smoke-check; локальный e2e используется только для разработки или debug.
+- DevOps-owned route для `DO-003` предоставляет `scripts/run-test-vps-e2e.sh` и root wrappers `npm run test:vps:e2e:preflight` / `npm run test:vps:e2e` с режимом preflight и запуском QA-owned e2e command against deployed `test`.
+- GitHub entrypoint для QA — ручной workflow `Test VPS E2E`, который использует `environment: test`, существующие secrets/vars, SSH на VPS и запускает wrapper в `TEST_VPS_APP_DIR`; он не является `PR Checks` или `Deploy Test` gate.
+- Входные параметры route можно задать явно: `TEST_E2E_BACKEND_BASE_URL` для backend base URL `test`, `TEST_E2E_BACKOFFICE_ORIGIN` для опубликованного backoffice origin, `TEST_E2E_TELEGRAM_ID` для test-mode Telegram id.
+- При запуске на VPS wrapper также использует существующие deploy/runtime names: `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT` для backend target, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS` для frontend origin, `ADMIN_TELEGRAM_ID` для test-mode id.
+- `TEST_E2E_COMMAND` обязателен только для полного запуска QA-owned e2e command.
+- Опциональные входные параметры route: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
+- Preflight должен подтвердить `GET /health`, test-mode доступ к backoffice API и доступность опубликованного frontend origin до запуска QA-сценариев.
+- Pass/fail output должен содержать commit/версию стенда, backend/frontend targets, результат preflight, результат e2e run и пути к `.log` и `.summary.md` артефактам для QA evidence.
+- Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
+
 ## Env vars
 
 - `ADMIN_TELEGRAM_ID` должен быть задан до запуска backend.
@@ -58,6 +71,13 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
+- `TEST_E2E_BACKEND_BASE_URL` задаёт backend target для DevOps-owned test VPS e2e route.
+- `TEST_E2E_BACKOFFICE_ORIGIN` задаёт опубликованный frontend origin для DevOps-owned test VPS e2e route.
+- `TEST_E2E_TELEGRAM_ID` задаёт test-mode Telegram id для preflight и QA-owned e2e command на `test`.
+- `TEST_E2E_COMMAND` задаёт QA-owned e2e command; не требуется в `--preflight-only`.
+- `TEST_E2E_ENV_FILE` или `ENV_FILE` может указывать на env-файл стенда; wrapper source-ит его до вычисления fallback-переменных e2e route.
+- `TEST_E2E_ARTIFACT_DIR` задаёт каталог `.log` и `.summary.md` артефактов; по умолчанию `artifacts/test-vps-e2e`.
+- `TEST_E2E_STAND_COMMIT` может явно зафиксировать commit/версию стенда для evidence; если не задан, wrapper пробует SSH lookup через `TEST_E2E_REMOTE_SSH_TARGET` и `TEST_E2E_REMOTE_APP_DIR`, затем локальный `git rev-parse HEAD`.
 
 ## Backend commands
 
@@ -100,4 +120,4 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Обновлять эту карту
 
-Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions или smoke-check.
+Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check или test VPS e2e route.
