@@ -13,7 +13,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
+- Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Архитектурные артефакты: `docs/architecture/application-map/qa-menu-catalog.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
 - Контурная карта: `docs/architecture/application-map/qa-menu-catalog.md`
 - Бизнес-артефакты: `не требуются`
@@ -22,8 +22,8 @@
 ## Примечания
 
 - Зависимости: `BE-002`, `FE-002`
-- Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
-- Ожидаемый результат для ревью: `Есть воспроизводимый e2e-сценарий создания категории, товара-напитка с ценами S/M/L, группы дополнительных опций, опций и назначения группы на категорию; есть negative evidence для неполной размерной модели, неверного правила группы опций и доступа без capability menu.`
-- Проверки: `E2E administrator manages menu catalog; backend integration Manage menu catalog; frontend component/route checks; unit evidence доменных правил; smoke build/start affected backend/frontend contours.`
+- Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
+- Ожидаемый результат для ревью: `Есть воспроизводимый e2e-сценарий создания категории, товара-напитка с ценами S/M/L, группы дополнительных опций, опций и назначения группы на категорию; есть negative evidence для неполной размерной модели, неверного правила группы опций и доступа без capability menu; зафиксирован результат desktop/mobile сравнения вкладки Меню с backoffice UI contract и .references/Expressa_admin.`
+- Проверки: `E2E administrator manages menu catalog; backend integration Manage menu catalog; frontend component/route checks; desktop/mobile UI parity against .references/Expressa_admin по экрану Меню и диалогам категорий/товаров; unit evidence доменных правил; smoke build/start affected backend/frontend contours.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/qa-menu-catalog.md, если появляются новые e2e маршруты, fixtures, contract mocks, smoke-check или acceptance path.`
-- Критерии готовности: `QA-задача завершена, когда FEATURE-002 может быть закрыта на основании e2e, integration, unit и smoke evidence без открытых product defects.`
+- Критерии готовности: `QA-задача завершена, когда FEATURE-002 может быть закрыта на основании e2e, integration, unit, smoke и UI parity evidence без открытых product defects или UI mismatch, не разрешенных системными артефактами.`

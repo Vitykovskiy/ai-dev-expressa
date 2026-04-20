@@ -7,7 +7,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 ## Input route
 
 - Use the assigned `QA-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Минимальный read set` as the task-specific source of truth.
-- Use `docs/architecture/qa-standards.md` and `docs/architecture/application-map/quality-and-delivery.md` as the default QA profile sources.
+- Use `docs/architecture/qa-standards.md` and `docs/architecture/application-map/delivery-and-runtime.md` as the default QA profile sources.
 - If the feature changes a user interface, use the UI contract and reference source named by the task.
 - Read `docs/architecture/deployment-map.md` when the task changes or validates an environment, pipeline, deployment path, smoke-check, rollback, or restore path, and always when e2e are expected to run on the deployed `test` environment.
 - After the required documents are read, search code only inside paths named by the task and the contour map.
@@ -25,7 +25,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 ## Validation rules
 
 - Mandatory checks are e2e-tests for the assigned feature and explicit confirmation that they pass on the assembled result, preferably on the deployed `test` environment when that route is available.
-- For UI features, mandatory checks include visual parity with the relevant `.references` source. Any deviation in layout, screen composition, visual states, texts, spacing, colors, responsive behavior, or component patterns is a defect unless the deviation is explicitly required by system artifacts.
+- For UI features, mandatory checks include visual parity with the relevant UI contract from `docs/system/ui-contracts/*` and its `.references` source. Any deviation in layout, screen composition, visual states, texts, spacing, colors, responsive behavior, or component patterns is a defect unless the deviation is explicitly required by system artifacts.
 - Record any uncovered scenario, blocker, inconsistency, or defect directly in the task or handoff with enough detail to reproduce it.
-- Update `docs/architecture/application-map/quality-and-delivery.md` if the testing path or test location becomes stale.
+- Update `docs/architecture/application-map/delivery-and-runtime.md` if the testing path or test location becomes stale.
 - Update `docs/architecture/application-map.md` only when index navigation or the contour list changes.
