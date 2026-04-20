@@ -41,6 +41,20 @@ export function itemCountLabel(count: number): string {
   return `${count} ${count === 1 ? "товар" : "товаров"}`;
 }
 
+export function optionGroupCategoryIds(
+  categories: readonly MenuCategory[],
+  optionGroups: readonly OptionGroup[],
+  ownedOptionGroupMap: Readonly<Record<string, string>>,
+): string[] {
+  return categories
+    .filter(
+      (category) =>
+        Boolean(ownedOptionGroupMap[category.menuCategoryId]) ||
+        Boolean(findCategoryOwnedOptionGroup(category, optionGroups)),
+    )
+    .map((category) => category.menuCategoryId);
+}
+
 export function findCategoryOwnedOptionGroup(
   category: Pick<MenuCategory, "name" | "optionGroupRefs"> | null,
   optionGroups: readonly OptionGroup[],

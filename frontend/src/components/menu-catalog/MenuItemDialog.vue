@@ -46,13 +46,14 @@
         </ui-form-field>
 
         <ui-toggle-row
-          :model-value="form.itemType === 'drink'"
+          :model-value="sizePricesEnabled"
           label="Размеры S / M / L"
           description="Включить разные размеры с отдельными ценами"
+          :disabled="isSelectedCategoryOptionGroup"
           @update:model-value="updateItemType"
         />
 
-        <div v-if="form.itemType === 'drink'" class="size-price-group">
+        <div v-if="sizePricesEnabled" class="size-price-group">
           <span class="size-price-group__label">Цены по размерам, ₽</span>
 
           <div class="size-price-list">
@@ -141,6 +142,7 @@ const props = defineProps<{
   isBusy: boolean;
   editingItem: MenuItem | null;
   categories: readonly MenuCategory[];
+  optionGroupCategoryIds: readonly string[];
   defaultCategoryId: string;
 }>();
 
@@ -164,8 +166,14 @@ const editingCategoryName = computed(
         category.menuCategoryId === props.editingItem?.menuCategoryId,
     )?.name ?? "",
 );
+const isSelectedCategoryOptionGroup = computed(() =>
+  props.optionGroupCategoryIds.includes(form.menuCategoryId),
+);
+const sizePricesEnabled = computed(
+  () => !isSelectedCategoryOptionGroup.value && form.itemType === "drink",
+);
 const hasValidPrice = computed(() => {
-  if (form.itemType === "regular") {
+  if (!sizePricesEnabled.value) {
     return hasNonNegativeMoneyInput(form.basePrice);
   }
 
@@ -207,19 +215,31 @@ watch(
   { immediate: true },
 );
 
+watch(isSelectedCategoryOptionGroup, (selectedCategoryIsOptionGroup) => {
+  if (selectedCategoryIsOptionGroup) {
+    resetDrinkSizeModel();
+  }
+});
+
 function updateItemType(value: boolean | null): void {
-  form.itemType = value ? "drink" : "regular";
+  if (isSelectedCategoryOptionGroup.value || !value) {
+    resetDrinkSizeModel();
+    return;
+  }
+
+  form.itemType = "drink";
 }
 
 function submit(): void {
+  const itemType = sizePricesEnabled.value ? "drink" : "regular";
+
   emit("submit", {
     menuCategoryId: form.menuCategoryId,
     name: form.name.trim(),
-    itemType: form.itemType,
-    basePrice:
-      form.itemType === "regular" ? parseMoney(form.basePrice) : undefined,
+    itemType,
+    basePrice: itemType === "regular" ? parseMoney(form.basePrice) : undefined,
     drinkSizePrices:
-      form.itemType === "drink"
+      itemType === "drink"
         ? normalizeDrinkSizePrices(form.sizePrices)
         : undefined,
   });
@@ -249,6 +269,11 @@ function createEmptySizePrices(): Record<DrinkSize, string> {
     M: "",
     L: "",
   };
+}
+
+function resetDrinkSizeModel(): void {
+  form.itemType = "regular";
+  form.sizePrices = createEmptySizePrices();
 }
 
 function hasNonNegativeMoneyInput(value: string): boolean {

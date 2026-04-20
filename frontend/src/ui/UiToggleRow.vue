@@ -1,5 +1,5 @@
 <template>
-  <div class="app-toggle-row">
+  <div class="app-toggle-row" :class="{ 'app-toggle-row--disabled': disabled }">
     <span class="app-toggle-row__copy">
       <strong>{{ label }}</strong>
       <small v-if="description">{{ description }}</small>
@@ -8,6 +8,7 @@
       :model-value="modelValue"
       color="primary"
       density="comfortable"
+      :disabled="disabled"
       hide-details
       inset
       @update:model-value="emit('update:modelValue', Boolean($event))"
@@ -20,6 +21,7 @@ const props = defineProps<{
   modelValue: boolean;
   label: string;
   description?: string;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -41,6 +43,10 @@ void props;
 
 .app-toggle-row:last-child {
   border-bottom: 0;
+}
+
+.app-toggle-row--disabled {
+  opacity: 0.72;
 }
 
 .app-toggle-row__copy {

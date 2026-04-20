@@ -3,6 +3,7 @@ import {
   categoryCountLabel,
   findCategoryOwnedOptionGroup,
   itemPriceLabel,
+  optionGroupCategoryIds,
   selectionModeLabel,
 } from "@/modules/menu-catalog/presentation";
 import type {
@@ -76,5 +77,39 @@ describe("menu catalog presentation", () => {
     ];
 
     expect(findCategoryOwnedOptionGroup(category, optionGroups)).toBeNull();
+  });
+
+  it("collects option group category ids from explicit ownership and fallback detection", () => {
+    const categories: MenuCategory[] = [
+      {
+        menuCategoryId: "cat-owned",
+        name: "Сиропы",
+        optionGroupRefs: [],
+      },
+      {
+        menuCategoryId: "cat-fallback",
+        name: "Молоко",
+        optionGroupRefs: [],
+      },
+      {
+        menuCategoryId: "cat-regular",
+        name: "Кофе",
+        optionGroupRefs: ["group-fallback"],
+      },
+    ];
+    const optionGroups: OptionGroup[] = [
+      {
+        optionGroupId: "group-fallback",
+        name: "Молоко",
+        selectionMode: "multiple",
+        options: [],
+      },
+    ];
+
+    expect(
+      optionGroupCategoryIds(categories, optionGroups, {
+        "cat-owned": "group-owned",
+      }),
+    ).toEqual(["cat-owned", "cat-fallback"]);
   });
 });
