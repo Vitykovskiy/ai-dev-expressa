@@ -23,13 +23,10 @@
     <form id="menu-category-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
         <ui-form-field label="Название группы">
-          <v-text-field
+          <ui-text-field
             v-model="name"
             placeholder="Например: Кофе, Чай, Десерты"
-            variant="outlined"
-            density="comfortable"
             autofocus
-            hide-details
           />
         </ui-form-field>
 
@@ -41,15 +38,12 @@
         />
 
         <ui-form-field label="Выбрать группу опций">
-          <v-select
+          <ui-select
             v-model="selectedOptionGroupId"
             :items="optionGroupItems"
             item-title="title"
             item-value="value"
             placeholder="Не выбрано"
-            variant="outlined"
-            density="comfortable"
-            hide-details
             :disabled="isOptionGroup"
           />
           <p
@@ -86,6 +80,8 @@ import UiButton from "@/ui/UiButton.vue";
 import UiDialogShell from "@/ui/UiDialogShell.vue";
 import UiFormField from "@/ui/UiFormField.vue";
 import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSelect from "@/ui/UiSelect.vue";
+import UiTextField from "@/ui/UiTextField.vue";
 import UiToggleRow from "@/ui/UiToggleRow.vue";
 import type {
   CategoryDialogSubmitPayload,

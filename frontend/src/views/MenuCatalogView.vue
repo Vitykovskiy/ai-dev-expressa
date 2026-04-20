@@ -80,6 +80,7 @@
       :is-busy="isBusy"
       :editing-item="editingItem"
       :categories="categories"
+      :option-group-category-ids="optionGroupCategoryIds"
       :default-category-id="defaultItemCategoryId"
       @close="closeItemDialog"
       @submit="submitItem"
@@ -107,6 +108,7 @@ import UiTopBar from "@/ui/UiTopBar.vue";
 import {
   categoryCountLabel,
   findCategoryOwnedOptionGroup,
+  optionGroupCategoryIds as resolveOptionGroupCategoryIds,
 } from "@/modules/menu-catalog/presentation";
 import { useMenuCatalogStore } from "@/modules/menu-catalog/store";
 import type {
@@ -151,6 +153,13 @@ const categoryItemsMap = computed<Record<string, MenuItem[]>>(() =>
     acc[item.menuCategoryId] = list;
     return acc;
   }, {}),
+);
+const optionGroupCategoryIds = computed(() =>
+  resolveOptionGroupCategoryIds(
+    categories.value,
+    optionGroups.value,
+    ownedOptionGroupMap,
+  ),
 );
 const isBusy = computed(
   () => store.state.status === "loading" || store.state.status === "saving",

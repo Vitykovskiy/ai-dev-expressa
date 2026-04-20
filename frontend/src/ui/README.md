@@ -19,7 +19,9 @@
 - `ui-empty-state`: иконка, заголовок, подзаголовок и опциональный слот `actions`.
 - `ui-section-card`: контейнер секции с `title`, `subtitle`, слотом `actions`.
 - `ui-section-list`: вариант секции со flush-body для списков и row-based layout.
-- `ui-form-field`: label/hint/error shell для `v-text-field`, `v-select` и других input controls.
+- `ui-form-field`: label/hint/error shell для input controls.
+- `ui-text-field`: текстовый/числовой input на Vuetify с каноническими radius, border и focus styles.
+- `ui-select`: select control на Vuetify с каноническими radius, border и focus styles.
 - `ui-status-badge`: канонические badge variants из референса.
 - `ui-toggle-row`: reusable toggle row с `modelValue`, `label`, `description`.
 - `ui-dialog-shell`: общий layout диалогов с `title`, `description`, `headerActions`, `actions`.
