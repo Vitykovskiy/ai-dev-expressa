@@ -57,8 +57,4 @@ withDefaults(
 .app-form-field__error {
   color: var(--app-color-destructive);
 }
-
-:deep(.v-field) {
-  border-radius: var(--app-radius-md);
-}
 </style>

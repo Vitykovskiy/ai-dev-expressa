@@ -1,0 +1,25 @@
+.app-input-control .v-field {
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-text-primary);
+}
+
+.app-input-control .v-field__outline {
+  --v-field-border-opacity: 1;
+
+  color: var(--app-color-border);
+}
+
+.app-input-control .v-field.v-field--focused .v-field__outline {
+  color: var(--app-color-accent);
+}
+
+.app-input-control input,
+.app-input-control .v-select__selection-text {
+  color: var(--app-color-text-primary);
+  font-size: 14px;
+}
+
+.app-input-control input::placeholder {
+  color: var(--app-color-text-muted);
+  opacity: 1;
+}

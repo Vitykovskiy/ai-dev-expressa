@@ -12,6 +12,7 @@ export default {
   ],
   rules: {
     "alpha-value-notation": null,
+    "at-rule-no-unknown": null,
     "color-function-alias-notation": null,
     "color-function-notation": null,
     "color-hex-length": null,

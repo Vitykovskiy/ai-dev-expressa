@@ -19,7 +19,7 @@
     <form id="menu-item-dialog-form" @submit.prevent="submit">
       <div class="dialog-card__body">
         <ui-form-field label="Категория" input-id="menu-item-category">
-          <v-select
+          <ui-select
             id="menu-item-category"
             v-model="form.menuCategoryId"
             :items="categoryItems"
@@ -27,21 +27,15 @@
             item-value="value"
             name="menuItemCategory"
             placeholder="Выберите категорию"
-            variant="outlined"
-            density="comfortable"
-            hide-details
           />
         </ui-form-field>
 
         <ui-form-field label="Название товара" input-id="menu-item-name">
-          <v-text-field
+          <ui-text-field
             id="menu-item-name"
             v-model="form.name"
             name="menuItemName"
             placeholder="Например: Капучино, Латте"
-            variant="outlined"
-            density="comfortable"
-            hide-details
           />
         </ui-form-field>
 
@@ -65,7 +59,7 @@
               >
                 Цена размера {{ size }}
               </span>
-              <v-text-field
+              <ui-text-field
                 :id="`menu-item-size-price-${size.toLowerCase()}`"
                 v-model="form.sizePrices[size]"
                 :name="`menuItemSizePrice${size}`"
@@ -73,26 +67,20 @@
                 min="0"
                 step="0.01"
                 placeholder="0"
-                variant="outlined"
-                density="comfortable"
-                hide-details
               />
             </div>
           </div>
         </div>
 
         <ui-form-field v-else label="Цена, ₽" input-id="menu-item-base-price">
-          <v-text-field
+          <ui-text-field
             id="menu-item-base-price"
             v-model="form.basePrice"
             name="menuItemBasePrice"
             type="number"
             min="0"
             step="0.01"
-            placeholder="Введите цену"
-            variant="outlined"
-            density="comfortable"
-            hide-details
+            placeholder="0"
           />
         </ui-form-field>
       </div>
@@ -122,6 +110,8 @@ import UiButton from "@/ui/UiButton.vue";
 import UiDialogShell from "@/ui/UiDialogShell.vue";
 import UiFormField from "@/ui/UiFormField.vue";
 import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSelect from "@/ui/UiSelect.vue";
+import UiTextField from "@/ui/UiTextField.vue";
 import UiToggleRow from "@/ui/UiToggleRow.vue";
 import {
   DRINK_SIZES,
