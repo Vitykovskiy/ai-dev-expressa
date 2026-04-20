@@ -34,4 +34,7 @@
 - Локальная проверка QA-owned VPS spec против HTTP backend: `passed` — `npm run test:e2e:menu-catalog:vps --workspace @expressa/backend`; 3 теста passed, 2 skipped без deployed `E2E_NON_MENU_TELEGRAM_ID`.
 - Deployed `test` VPS e2e команда: `TEST_E2E_COMMAND="npm run test:e2e:menu-catalog:vps --workspace @expressa/backend" npm run test:vps:e2e`.
 - Для полного deployed negative check `backoffice-capability-forbidden` требуется `E2E_NON_MENU_TELEGRAM_ID` — Telegram id заранее заведённого пользователя без capability `menu` на `test` стенде.
-- Финальный deployed pass/fail evidence: `ожидает прогона после main -> test deploy и smoke-check`.
+- Deploy Test после merge PR #67: `passed` — GitHub Actions run `24692166511`, stand commit `147eeca345c401f40d82e76bd735025c0ff4c627`.
+- Deployed `test` VPS e2e: `failed before QA-owned e2e command` — GitHub Actions run `24692194679`.
+- Диагностический Test VPS E2E preflight: `failed` — GitHub Actions run `24692219066`; backend health `200`, test-mode API probe `/backoffice/orders` `200`, published backoffice origin `HTTP 000`.
+- Blocking defect: `BUG-003` с меткой контура причины `devops`; QA-005 остаётся открытой до исправления Test VPS E2E preflight и повторного deployed e2e run.
