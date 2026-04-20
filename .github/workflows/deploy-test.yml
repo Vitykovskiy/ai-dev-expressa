@@ -24,8 +24,11 @@ jobs:
         env:
           APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
           DEPLOY_RESTART_COMMAND: ${{ secrets.TEST_DEPLOY_RESTART_COMMAND }}
+          DEPLOY_FRONTEND_RESTART_COMMAND: ${{ secrets.TEST_DEPLOY_FRONTEND_RESTART_COMMAND }}
           ENV_FILE: ${{ secrets.TEST_VPS_ENV_FILE }}
           SMOKE_BACKEND_BASE_URL: ${{ secrets.TEST_SMOKE_BACKEND_BASE_URL }}
+          BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
+          FRONTEND_PUBLISH_DIR: ${{ vars.FRONTEND_PUBLISH_DIR }}
         with:
           host: ${{ secrets.TEST_VPS_HOST }}
           username: ${{ secrets.TEST_VPS_USER }}
@@ -33,7 +36,7 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,DEPLOY_RESTART_COMMAND,ENV_FILE,SMOKE_BACKEND_BASE_URL
+          envs: APP_DIR,DEPLOY_RESTART_COMMAND,DEPLOY_FRONTEND_RESTART_COMMAND,ENV_FILE,SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,FRONTEND_PUBLISH_DIR
           script: |
             set -euo pipefail
             if [ -z "${APP_DIR}" ] || [ -z "${DEPLOY_RESTART_COMMAND}" ]; then

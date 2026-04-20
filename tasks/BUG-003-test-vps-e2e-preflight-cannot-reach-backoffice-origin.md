@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Девопс`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -36,3 +36,12 @@
 - Диагностический `Test VPS E2E` mode `preflight`: `failed`, run `24692219066`.
 - Preflight evidence: backend health passed with HTTP `200`; test-mode backoffice API `/backoffice/orders` passed with HTTP `200`; published backoffice origin from `BACKOFFICE_PUBLIC_URL` failed with HTTP `000`.
 - Wrapper artifact path from failed preflight: `artifacts/test-vps-e2e/test-vps-e2e-20260420T215106Z.summary.md` and `artifacts/test-vps-e2e/test-vps-e2e-20260420T215106Z.log`.
+
+## Результат выполнения
+
+- `Deploy Test` теперь передаёт `BACKOFFICE_PUBLIC_URL`, опциональный `FRONTEND_PUBLISH_DIR` и опциональную команду `TEST_DEPLOY_FRONTEND_RESTART_COMMAND` в VPS deploy route.
+- `scripts/deploy-test-vps.sh` требует `BACKOFFICE_PUBLIC_URL`, при заданном `FRONTEND_PUBLISH_DIR` копирует `frontend/dist` в опубликованный каталог и выполняет smoke-check опубликованного frontend origin после рестарта.
+- `scripts/run-test-vps-e2e.sh` нормализует пробельные значения route env и пишет stderr curl в workflow log, чтобы `HTTP 000` сопровождался причиной подключения.
+- Обновлены `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/devops-standards.md`.
+- Локальная проверка wrapper: `passed` — временные HTTP-серверы, `bash scripts/run-test-vps-e2e.sh --preflight-only`, backend/API/frontend probes вернули `HTTP 200`.
+- Внешний VPS evidence нужно собрать повторным `Deploy Test`, затем `Test VPS E2E` mode `preflight` и mode `run` с командой QA-005.
