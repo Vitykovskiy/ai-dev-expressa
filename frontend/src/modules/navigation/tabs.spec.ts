@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getVisibleTabs } from "./tabs";
+import { getVisibleTabs } from "@/modules/navigation/tabs";
 
 describe("getVisibleTabs", () => {
   it("returns only barista tabs for barista capabilities", () => {

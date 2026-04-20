@@ -4,7 +4,7 @@ import {
   APP_STATUS_BADGE_VARIANTS,
   resolveButtonVariant,
   resolveStatusBadgeVariant,
-} from "./contracts";
+} from "@/ui/contracts";
 
 describe("ui contracts", () => {
   it("exposes stable app button variants", () => {

@@ -4,7 +4,7 @@ import {
   normalizeDrinkSizePrices,
   validateMenuItemPayload,
   validateOptionGroupPayload,
-} from "./validation";
+} from "@/modules/menu-catalog/validation";
 
 describe("menu catalog validation", () => {
   it("requires all drink size prices", () => {

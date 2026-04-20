@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import AccessDeniedView from "../views/AccessDeniedView.vue";
-import FeatureStubView from "../views/FeatureStubView.vue";
-import ForbiddenView from "../views/ForbiddenView.vue";
-import MenuCatalogView from "../views/MenuCatalogView.vue";
-import RootLayout from "../views/RootLayout.vue";
-import { ensureSession, useAuthSession } from "../modules/auth/session-store";
-import { SessionApiError } from "../modules/auth/session-api";
-import { resolveGuardDecision } from "./guards";
+import AccessDeniedView from "@/views/AccessDeniedView.vue";
+import FeatureStubView from "@/views/FeatureStubView.vue";
+import ForbiddenView from "@/views/ForbiddenView.vue";
+import MenuCatalogView from "@/views/MenuCatalogView.vue";
+import RootLayout from "@/views/RootLayout.vue";
+import { ensureSession, useAuthSession } from "@/modules/auth/session-store";
+import { SessionApiError } from "@/modules/auth/session-api";
+import { resolveGuardDecision } from "@/router/guards";
 
 export const router = createRouter({
   history: createWebHistory(),

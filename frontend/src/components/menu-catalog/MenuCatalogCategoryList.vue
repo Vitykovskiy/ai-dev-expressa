@@ -95,15 +95,15 @@ import {
   Edit3,
 } from "lucide-vue-next";
 import { ref } from "vue";
-import UiButton from "../../ui/UiButton.vue";
-import UiEmptyState from "../../ui/UiEmptyState.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionList from "../../ui/UiSectionList.vue";
+import UiButton from "@/ui/UiButton.vue";
+import UiEmptyState from "@/ui/UiEmptyState.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSectionList from "@/ui/UiSectionList.vue";
 import {
   itemCountLabel,
   itemPriceLabel,
-} from "../../modules/menu-catalog/presentation";
-import type { MenuCategory, MenuItem } from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/presentation";
+import type { MenuCategory, MenuItem } from "@/modules/menu-catalog/types";
 
 defineProps<{
   categories: readonly MenuCategory[];

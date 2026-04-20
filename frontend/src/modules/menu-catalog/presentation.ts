@@ -3,7 +3,7 @@ import {
   type MenuItem,
   type OptionGroup,
   type SelectionMode,
-} from "./types";
+} from "@/modules/menu-catalog/types";
 
 export function itemPriceLabel(item: MenuItem): string {
   if (item.itemType === "drink") {

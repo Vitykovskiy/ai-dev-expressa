@@ -5,7 +5,7 @@ import {
   ToggleRight,
   Users,
 } from "lucide-vue-next";
-import type { BackofficeCapability } from "../auth/types";
+import type { BackofficeCapability } from "@/modules/auth/types";
 
 export interface BackofficeTab {
   readonly id: BackofficeCapability;

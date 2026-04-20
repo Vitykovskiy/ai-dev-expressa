@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { resolveButtonVariant, type AppButtonVariant } from "./contracts";
+import { resolveButtonVariant, type AppButtonVariant } from "@/ui/contracts";
 
 const props = withDefaults(
   defineProps<{

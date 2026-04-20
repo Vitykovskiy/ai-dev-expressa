@@ -37,11 +37,11 @@
 
 <script setup lang="ts">
 import { ChevronRight, Plus } from "lucide-vue-next";
-import UiButton from "../../ui/UiButton.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionList from "../../ui/UiSectionList.vue";
-import { selectionModeLabel } from "../../modules/menu-catalog/presentation";
-import type { OptionGroup } from "../../modules/menu-catalog/types";
+import UiButton from "@/ui/UiButton.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSectionList from "@/ui/UiSectionList.vue";
+import { selectionModeLabel } from "@/modules/menu-catalog/presentation";
+import type { OptionGroup } from "@/modules/menu-catalog/types";
 
 defineProps<{
   optionGroups: readonly OptionGroup[];

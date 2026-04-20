@@ -117,13 +117,13 @@
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { reactive, watch } from "vue";
-import UiButton from "../../ui/UiButton.vue";
-import UiDialogShell from "../../ui/UiDialogShell.vue";
-import UiFormField from "../../ui/UiFormField.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiInlineAction from "../../ui/UiInlineAction.vue";
-import UiSectionCard from "../../ui/UiSectionCard.vue";
-import { formatMoney, parseMoney } from "../../modules/menu-catalog/validation";
+import UiButton from "@/ui/UiButton.vue";
+import UiDialogShell from "@/ui/UiDialogShell.vue";
+import UiFormField from "@/ui/UiFormField.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiInlineAction from "@/ui/UiInlineAction.vue";
+import UiSectionCard from "@/ui/UiSectionCard.vue";
+import { formatMoney, parseMoney } from "@/modules/menu-catalog/validation";
 import type {
   EditableOption,
   OptionGroup,
@@ -131,7 +131,7 @@ import type {
   OptionGroupPayload,
   OptionPayload,
   SelectionMode,
-} from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/types";
 
 const selectionModeItems: Array<{ title: string; value: SelectionMode }> = [
   { title: "Несколько вариантов", value: "multiple" },

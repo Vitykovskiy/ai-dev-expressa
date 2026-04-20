@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MenuCatalogApiError, type MenuCatalogClient } from "./api";
+import {
+  MenuCatalogApiError,
+  type MenuCatalogClient,
+} from "@/modules/menu-catalog/api";
 import {
   resetMenuCatalogStore,
   setMenuCatalogApiForTests,
   useMenuCatalogStore,
-} from "./store";
-import type { MenuCatalogSnapshot } from "./types";
+} from "@/modules/menu-catalog/store";
+import type { MenuCatalogSnapshot } from "@/modules/menu-catalog/types";
 
 const emptySnapshot: MenuCatalogSnapshot = {
   categories: [],

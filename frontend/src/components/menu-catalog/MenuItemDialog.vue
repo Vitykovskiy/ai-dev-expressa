@@ -104,12 +104,11 @@
 <script setup lang="ts">
 import { Trash2 } from "lucide-vue-next";
 import { computed, reactive, watch } from "vue";
-import UiButton from "../../ui/UiButton.vue";
-import UiDialogShell from "../../ui/UiDialogShell.vue";
-import UiFormField from "../../ui/UiFormField.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiSectionCard from "../../ui/UiSectionCard.vue";
-import UiToggleRow from "../../ui/UiToggleRow.vue";
+import UiDialogShell from "@/ui/UiDialogShell.vue";
+import UiFormField from "@/ui/UiFormField.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiSectionCard from "@/ui/UiSectionCard.vue";
+import UiToggleRow from "@/ui/UiToggleRow.vue";
 import {
   DRINK_SIZES,
   type DrinkSize,
@@ -117,12 +116,12 @@ import {
   type MenuItem,
   type MenuItemFormState,
   type MenuItemPayload,
-} from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/types";
 import {
   formatMoney,
   normalizeDrinkSizePrices,
   parseMoney,
-} from "../../modules/menu-catalog/validation";
+} from "@/modules/menu-catalog/validation";
 
 const props = defineProps<{
   open: boolean;

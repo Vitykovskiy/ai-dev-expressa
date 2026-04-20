@@ -1,4 +1,4 @@
-import type { BackofficeCapability } from "../modules/auth/types";
+import type { BackofficeCapability } from "@/modules/auth/types";
 
 export const APP_BREAKPOINTS = {
   tablet: 960,

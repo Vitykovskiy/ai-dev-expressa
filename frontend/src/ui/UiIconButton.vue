@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from "./UiButton.vue";
-import type { AppButtonVariant } from "./contracts";
+import UiButton from "@/ui/UiButton.vue";
+import type { AppButtonVariant } from "@/ui/contracts";
 
 withDefaults(
   defineProps<{

@@ -4,7 +4,7 @@ import {
   type MenuCatalogErrorCode,
   type MenuItemPayload,
   type OptionGroupPayload,
-} from "./types";
+} from "@/modules/menu-catalog/types";
 
 export interface ValidationResult {
   readonly valid: boolean;

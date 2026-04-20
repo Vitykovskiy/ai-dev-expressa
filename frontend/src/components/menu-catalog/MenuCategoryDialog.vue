@@ -82,16 +82,16 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { Trash2 } from "lucide-vue-next";
-import UiButton from "../../ui/UiButton.vue";
-import UiDialogShell from "../../ui/UiDialogShell.vue";
-import UiFormField from "../../ui/UiFormField.vue";
-import UiIconButton from "../../ui/UiIconButton.vue";
-import UiToggleRow from "../../ui/UiToggleRow.vue";
+import UiButton from "@/ui/UiButton.vue";
+import UiDialogShell from "@/ui/UiDialogShell.vue";
+import UiFormField from "@/ui/UiFormField.vue";
+import UiIconButton from "@/ui/UiIconButton.vue";
+import UiToggleRow from "@/ui/UiToggleRow.vue";
 import type {
   CategoryDialogSubmitPayload,
   MenuCategory,
   OptionGroup,
-} from "../../modules/menu-catalog/types";
+} from "@/modules/menu-catalog/types";
 
 const props = defineProps<{
   open: boolean;

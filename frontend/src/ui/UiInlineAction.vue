@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from "./UiButton.vue";
+import UiButton from "@/ui/UiButton.vue";
 
 withDefaults(
   defineProps<{
