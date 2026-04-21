@@ -15,7 +15,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Branch policy and pipeline
 
 - Pull request в `main` запускает только обязательные проверки `quality` и `build`; PR workflow не выполняет deploy.
-- Job `quality` обязан после `npm ci` в корне репозитория проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки через root workspace-команды; для `frontend` дополнительно обязателен stylelint.
+- Job `quality` обязан после `npm ci` в корне репозитория, `npm ci --prefix backend` и `npm ci --prefix frontend` проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки через root `--prefix`-команды; для `frontend` дополнительно обязателен stylelint.
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
@@ -24,7 +24,9 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Local dev contract
 
-- `npm install` в корне репозитория устанавливает root tooling и зависимости `backend/frontend` через `npm workspaces`.
+- `npm install` в корне репозитория устанавливает root tooling `husky` и `lint-staged`.
+- `npm install --prefix backend` устанавливает зависимости серверного контура по `backend/package-lock.json`.
+- `npm install --prefix frontend` устанавливает зависимости клиентского контура по `frontend/package-lock.json`.
 - Backend запускается из корня через `npm run dev:backend` и читает `backend/.env.local`.
 - Frontend запускается из корня через `npm run dev:frontend` и читает `frontend/.env.local`.
 - Для локального test-mode используются `NODE_ENV=test`, `PORT=3000`, `ADMIN_TELEGRAM_ID=123456789`, `DISABLE_TG_AUTH=true`, `BACKOFFICE_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173`, `VITE_BACKOFFICE_API_BASE_URL=http://127.0.0.1:3000`, `VITE_BACKOFFICE_TEST_TELEGRAM_ID=123456789`.
@@ -33,7 +35,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Local quality hooks
 
 - Pre-commit hook из `.husky/pre-commit` запускает root-команду `npm run lint-staged` на изменённых файлах.
-- `lint-staged` применяет `prettier --write` к staged text-файлам, `eslint --fix` к staged backend/frontend TypeScript/Vue файлам и `stylelint --fix` к staged frontend style blocks или style files, где применимо.
+- `lint-staged` делегирует `prettier --write`, `eslint --fix` и `stylelint --fix` в локальные binaries `backend/` и `frontend/` для staged файлов, где применимо.
 - Hooks являются быстрым локальным gate и не заменяют полные `test`, `typecheck` и `build` перед ревью.
 - Изменение hooks, lint-staged или npm scripts должно обновлять эту карту и `docs/architecture/devops-standards.md`.
 
@@ -81,7 +83,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Backend commands
 
-- Root workspace install: `npm install` в корне репозитория.
+- Установка root tooling: `npm install` в корне репозитория.
+- Установка backend dependencies: `npm install --prefix backend`.
 - Локальный dev из корня: `npm run dev:backend`.
 - Lint: `cd backend && npm run lint`.
 - Format: `cd backend && npm run format`.
@@ -94,7 +97,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Frontend commands
 
-- Root workspace install: `npm install` в корне репозитория.
+- Установка root tooling: `npm install` в корне репозитория.
+- Установка frontend dependencies: `npm install --prefix frontend`.
 - Локальный dev из корня: `npm run dev:frontend`.
 - Lint: `cd frontend && npm run lint`.
 - Stylelint: `cd frontend && npm run stylelint`.

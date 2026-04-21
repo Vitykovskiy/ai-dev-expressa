@@ -14,6 +14,12 @@
 | `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён. |
 | `push`/merge -> `main`   | `test`             | Выполняется автодеплой на VPS test-окружения и post-deploy smoke-check.                                |
 
+## PR Checks install contract
+
+- Workflow `PR Checks` устанавливает root tooling через `npm ci`, backend через `npm ci --prefix backend` и frontend через `npm ci --prefix frontend`.
+- Workflow `PR Checks` использует `package-lock.json`, `backend/package-lock.json` и `frontend/package-lock.json` как воспроизводимые источники npm cache и install state.
+- Check-run names для merge admission остаются `quality` и `build`.
+
 ## Test deployment contract
 
 - VPS `test` получает код только из `main`.
