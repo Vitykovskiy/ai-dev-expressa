@@ -11,10 +11,13 @@ on:
         options:
           - preflight
           - run
-      e2e_command:
-        description: "QA-owned e2e command. Required when mode is run."
-        required: false
-        type: string
+      scenario:
+        description: "Allowlisted QA-owned e2e scenario."
+        required: true
+        default: "menu-catalog-vps"
+        type: choice
+        options:
+          - menu-catalog-vps
 
 concurrency:
   group: test-vps-e2e
@@ -30,19 +33,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ inputs.mode }}" = "run" ] && [ -z "${{ inputs.e2e_command }}" ]; then
-            echo "e2e_command is required when mode is run."
-            exit 1
-          fi
-
-      - name: Encode QA-owned command
-        if: ${{ inputs.mode == 'run' }}
-        id: encode-command
-        env:
-          E2E_COMMAND_INPUT: ${{ inputs.e2e_command }}
-        run: |
-          set -euo pipefail
-          echo "e2e_command_b64=$(printf '%s' "$E2E_COMMAND_INPUT" | base64 -w0)" >> "$GITHUB_OUTPUT"
+          case "${{ inputs.scenario }}" in
+            menu-catalog-vps)
+              ;;
+            *)
+              echo "Unsupported Test VPS E2E scenario: ${{ inputs.scenario }}"
+              exit 1
+              ;;
+          esac
 
       - name: Run Test VPS e2e route
         uses: appleboy/ssh-action@v1.2.0
@@ -53,7 +51,7 @@ jobs:
           BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
           SERVER_PORT: ${{ vars.SERVER_PORT }}
           TEST_E2E_MODE: ${{ inputs.mode }}
-          TEST_E2E_COMMAND_B64: ${{ steps.encode-command.outputs.e2e_command_b64 }}
+          TEST_E2E_SCENARIO: ${{ inputs.scenario }}
         with:
           host: ${{ secrets.TEST_VPS_HOST }}
           username: ${{ secrets.TEST_VPS_USER }}
@@ -61,16 +59,38 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,ENV_FILE,TEST_SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,SERVER_PORT,TEST_E2E_MODE,TEST_E2E_COMMAND_B64
+          envs: APP_DIR,ENV_FILE,TEST_SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,SERVER_PORT,TEST_E2E_MODE,TEST_E2E_SCENARIO
           script: |
             set -euo pipefail
 
-            if [ -z "${APP_DIR}" ]; then
+            echo "entered ssh route"
+            echo "APP_DIR present: $([ -n "${APP_DIR:-}" ] && echo yes || echo no)"
+            echo "TEST_E2E_MODE: ${TEST_E2E_MODE:-unset}"
+            echo "TEST_E2E_SCENARIO: ${TEST_E2E_SCENARIO:-unset}"
+            echo "TEST_E2E_COMMAND_B64 present: $([ -n "${TEST_E2E_COMMAND_B64:-}" ] && echo yes || echo no)"
+
+            command_payload_length="$(printf '%s' "${TEST_E2E_COMMAND_B64:-}" | wc -c | tr -d ' ')"
+            if [ -n "${TEST_E2E_COMMAND_B64:-}" ]; then
+              if command -v sha256sum >/dev/null 2>&1; then
+                command_payload_hash="$(printf '%s' "${TEST_E2E_COMMAND_B64}" | sha256sum | awk '{print $1}')"
+              else
+                command_payload_hash="unavailable"
+              fi
+            else
+              command_payload_hash="n/a"
+            fi
+            echo "TEST_E2E_COMMAND_B64 length: ${command_payload_length}"
+            echo "TEST_E2E_COMMAND_B64 sha256: ${command_payload_hash}"
+
+            if [ -z "${APP_DIR:-}" ]; then
               echo "TEST_VPS_APP_DIR is required."
               exit 1
             fi
 
             cd "${APP_DIR}"
+            echo "pwd: $(pwd)"
+            echo "stand HEAD: $(git rev-parse HEAD 2>/dev/null || echo unknown)"
+            echo "wrapper present: $([ -f scripts/run-test-vps-e2e.sh ] && echo yes || echo no)"
 
             if [ ! -x scripts/run-test-vps-e2e.sh ]; then
               chmod +x scripts/run-test-vps-e2e.sh

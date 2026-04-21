@@ -31,9 +31,12 @@ Required environment:
                                   Falls back to BACKOFFICE_PUBLIC_URL or first BACKOFFICE_CORS_ORIGINS value.
   TEST_E2E_TELEGRAM_ID            Test-mode Telegram id allowed on the test backend.
                                   Falls back to ADMIN_TELEGRAM_ID.
-  TEST_E2E_COMMAND                QA-owned e2e command. Required unless --preflight-only is used.
-  TEST_E2E_COMMAND_B64            Base64-encoded QA-owned e2e command.
-                                  Used when the workflow needs a shell-safe transport for commands with spaces.
+  TEST_E2E_SCENARIO               Allowlisted QA-owned e2e scenario.
+                                  Supported value: menu-catalog-vps.
+  TEST_E2E_COMMAND                QA-owned e2e command. Required unless TEST_E2E_SCENARIO
+                                  maps to a command or --preflight-only is used.
+  TEST_E2E_COMMAND_B64            Base64-encoded QA-owned e2e command. Kept for local
+                                  debug/backward compatibility.
 
 Optional environment:
   TEST_E2E_ENV_FILE               Optional env file to source before resolving route variables.
@@ -122,6 +125,18 @@ resolve_route_env() {
 }
 
 resolve_command_env() {
+  log "Command resolver: TEST_E2E_SCENARIO=${TEST_E2E_SCENARIO:-unset}"
+  log "Command resolver: TEST_E2E_COMMAND present: $(present_value "${TEST_E2E_COMMAND:-}")"
+  log "Command resolver: TEST_E2E_COMMAND_B64 present: $(present_value "${TEST_E2E_COMMAND_B64:-}")"
+
+  if [[ -n "${TEST_E2E_COMMAND_B64:-}" ]]; then
+    log "Command resolver: TEST_E2E_COMMAND_B64 length $(value_length "$TEST_E2E_COMMAND_B64"), sha256 $(value_sha256 "$TEST_E2E_COMMAND_B64")"
+  fi
+
+  if [[ "$MODE" == "preflight" ]]; then
+    return 0
+  fi
+
   if [[ -n "${TEST_E2E_COMMAND:-}" ]]; then
     TEST_E2E_COMMAND="$(trim_whitespace "$TEST_E2E_COMMAND")"
     return 0
@@ -132,7 +147,45 @@ resolve_command_env() {
       fail "TEST_E2E_COMMAND_B64 is invalid base64."
     fi
     TEST_E2E_COMMAND="$(trim_whitespace "$TEST_E2E_COMMAND")"
+    return 0
   fi
+
+  if [[ -n "${TEST_E2E_SCENARIO:-}" ]]; then
+    case "$TEST_E2E_SCENARIO" in
+      menu-catalog-vps)
+        TEST_E2E_COMMAND="npm run test:e2e:menu-catalog:vps --workspace @expressa/backend"
+        ;;
+      *)
+        fail "Unsupported TEST_E2E_SCENARIO: $TEST_E2E_SCENARIO"
+        ;;
+    esac
+  fi
+}
+
+present_value() {
+  if [[ -n "$1" ]]; then
+    printf "yes"
+  else
+    printf "no"
+  fi
+}
+
+value_length() {
+  printf "%s" "$1" | wc -c | tr -d '[:space:]'
+}
+
+value_sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf "%s" "$1" | sha256sum | awk '{print $1}'
+    return 0
+  fi
+
+  if command -v shasum >/dev/null 2>&1; then
+    printf "%s" "$1" | shasum -a 256 | awk '{print $1}'
+    return 0
+  fi
+
+  printf "unavailable"
 }
 
 trim_whitespace() {
@@ -248,6 +301,7 @@ write_summary() {
 - Backoffice origin: \`${TEST_E2E_BACKOFFICE_ORIGIN:-unset}\`
 - Test Telegram id: \`${TEST_E2E_TELEGRAM_ID:-unset}\`
 - Mode: \`$MODE\`
+- E2E scenario: \`${TEST_E2E_SCENARIO:-unset}\`
 - E2E command: \`${TEST_E2E_COMMAND:-not-run}\`
 - Log: \`$LOG_FILE\`
 SUMMARY
@@ -257,6 +311,12 @@ CURL_TIMEOUT="${TEST_E2E_CURL_TIMEOUT:-10}"
 HEALTH_PATH="${TEST_E2E_HEALTH_PATH:-/health}"
 API_PROBE_PATH="${TEST_E2E_API_PROBE_PATH:-/backoffice/orders}"
 FRONTEND_PATH="${TEST_E2E_FRONTEND_PATH:-/}"
+
+log "Test VPS e2e wrapper entered."
+log "Mode requested: $MODE"
+log "Artifact directory: $ARTIFACT_DIR"
+log "Summary path: $SUMMARY_FILE"
+log "Log path: $LOG_FILE"
 
 source_env_file
 resolve_route_env

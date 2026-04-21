@@ -33,5 +33,5 @@
 - Добавлен DevOps-owned wrapper `scripts/run-test-vps-e2e.sh` и root-команды `npm run test:vps:e2e:preflight` / `npm run test:vps:e2e`.
 - Добавлен ручной non-gate workflow `Test VPS E2E`, который использует существующие GitHub environment `test` secrets/vars и запускает wrapper на VPS без новых secret names.
 - Preflight отделен от QA-сценариев: режим `--preflight-only` проверяет обязательные env, `GET /health`, test-mode API probe и опубликованный backoffice origin без запуска e2e.
-- Полный запуск требует `TEST_E2E_COMMAND`, использует явные `TEST_E2E_*` или существующие deploy/runtime names из `test` VPS, передает QA-owned команде `E2E_BACKEND_BASE_URL`, `E2E_BACKOFFICE_ORIGIN`, `E2E_TEST_TELEGRAM_ID`, `E2E_STAND_COMMIT` и пишет `.log` / `.summary.md` артефакты.
+- Полный запуск через GitHub workflow использует allowlisted `scenario=menu-catalog-vps`; wrapper мапит его на QA-owned команду, использует явные `TEST_E2E_*` или существующие deploy/runtime names из `test` VPS, передает QA-owned команде `E2E_BACKEND_BASE_URL`, `E2E_BACKOFFICE_ORIGIN`, `E2E_TEST_TELEGRAM_ID`, `E2E_STAND_COMMIT` и пишет `.log` / `.summary.md` артефакты.
 - `PR Checks` и `Deploy Test` не изменены и не запускают e2e как обязательный gate.

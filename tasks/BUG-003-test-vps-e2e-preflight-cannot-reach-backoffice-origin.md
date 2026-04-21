@@ -25,7 +25,7 @@
 - Зависимости: `DO-003`, `QA-005`
 - Минимальный read set: `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/devops-standards.md`, `.github/workflows/test-vps-e2e.yml`, `scripts/run-test-vps-e2e.sh`, `tasks/QA-005-e2e-administrator-menu-catalog-management.md`
 - Ожидаемый результат для ревью: `Ручной workflow Test VPS E2E в режиме preflight проходит проверку backend health, test-mode API probe и опубликованного backoffice origin; после этого QA может запустить mode=run с QA-owned e2e command.`
-- Проверки: `Запустить GitHub Actions workflow Test VPS E2E с mode=preflight. Ожидаемо: все preflight checks passed, summary artifact содержит Status passed. Затем запустить mode=run с e2e_command npm run test:e2e:menu-catalog:vps --workspace @expressa/backend.`
+- Проверки: `Запустить GitHub Actions workflow Test VPS E2E с mode=preflight. Ожидаемо: все preflight checks passed, summary artifact содержит Status passed. Затем запустить mode=run, scenario=menu-catalog-vps.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/delivery-and-runtime.md и docs/architecture/deployment-map.md, если меняются BACKOFFICE_PUBLIC_URL, frontend publish path, preflight path или Test VPS E2E route.`
 - Критерии готовности: `BUG закрыт, когда Test VPS E2E preflight воспроизводимо проходит на test VPS, а QA-005 может собрать deployed e2e evidence без обхода проверки опубликованного frontend origin.`
 
