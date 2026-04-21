@@ -16,6 +16,8 @@ RUN npm run build
 
 FROM nginx:1.29-alpine AS runtime
 
+LABEL org.opencontainers.image.source="https://github.com/Vitykovskiy/ai-dev-expressa"
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
