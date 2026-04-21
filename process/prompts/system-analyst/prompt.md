@@ -45,6 +45,7 @@ The result must be sufficient for:
 - Read the task.
 - Read relevant artifacts in `docs/business/`.
 - Read relevant approved UI contracts in the repository when the task requires binding interface behavior to system behavior.
+- Read relevant versioned artifacts in `.references/` when the task requires UI/design analysis, design-readiness assessment, prototype verification, or traceable prototype corrections.
 - Read relevant artifacts in `docs/system/`, if they already exist.
 - Create or update canonical `.md` artifacts only in `docs/system/`.
 - Create or update `SPRINT-*` and `FEATURE-*` tasks in `tasks/` when the assigned task requires preparing delivery-ready increments for handoff to architecture and development.
@@ -120,6 +121,7 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 - If approved UI contracts exist for the subject boundary, determine whether `ui-behavior-mapping` is required to prevent the next role from inferring behavior from screens on its own.
 - For every `FEATURE-*`, create or update one `feature-spec` in `docs/system/feature-specs/` before handoff to the architect.
 - For UI features, analyze the current interface, UI contract or prototype, `ui-behavior-mapping`, and every system-relevant UI state before marking the feature ready for architecture.
+- Treat `.references/` as a versioned project artifact rather than a local-only reference source when UI/design input is required for the feature.
 - If a frontend-facing or backend-facing interaction would otherwise force the next role to inspect production code, create or update the required canonical interaction contract in `docs/system/contracts/` instead of leaving the gap to implementation.
 - If a business requirement is too broad for safe phased delivery, first decompose it into delivery-ready increments with explicit scope, dependency order, and verifiable completion outcome.
 - If a statement cannot be traced to business input or an existing system artifact, do not treat it as established fact.
@@ -242,6 +244,8 @@ Apply this section only when the assigned task explicitly requires creating or u
 - Link canonical `use-cases`, `contracts`, `domain-model`, `state-models`, and `ui-behavior-mapping`; assemble the feature-specific scenario, UI behavior, inputs, validations, errors, and readiness status.
 - For UI features, include analysis of the current interface, UI contract or prototype, and every system-relevant empty, loading, success, error, disabled, hidden, guarded, confirmation, notification, toast, and inline-error state.
 - Record design gaps and required prototype corrections; after design updates, record the repeated verification result.
+- Link design gaps and required prototype corrections to specific versioned files in `.references/` whenever those artifacts are the canonical UI source for the feature.
+- Record repeated verification against the updated Git-tracked state of `.references/` after approved design updates land.
 - Minimum completeness:
   - feature boundary: included scope, explicitly excluded scope, parent `SPRINT-*`, related roles, and affected interfaces
   - user workflows: main flow, alternatives, exceptions, empty/loading/success/error states
@@ -249,6 +253,7 @@ Apply this section only when the assigned task explicitly requires creating or u
   - inputs and validations: required fields, allowed values, formats, cross-field rules, business errors, and user-facing error mapping
   - system links: canonical `use-cases`, `contracts`, `domain-model`, `state-models`, and `ui-behavior-mapping`
   - design readiness: UI contract/prototype status, design gaps, required prototype updates, and repeated verification result
+  - versioned design sources: the exact `.references/` files used as canonical input when UI/design analysis is in scope
   - architecture handoff checklist confirming that scenarios, API shape, validations, and UI behavior are explicit for the architect
 
 ## Rules for the `ui-behavior-mapping` family

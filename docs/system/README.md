@@ -23,7 +23,7 @@
 - Один файл = одна `FEATURE-*`.
 - Путь: `feature-specs/<feature-id>-<slug>.md`.
 - Использовать как первый маршрут чтения для архитектурной декомпозиции конкретной фичи.
-- Feature spec собирает в разрезе одной фичи границу, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design-readiness status и ссылки на canonical system sources.
+- Feature spec собирает в разрезе одной фичи границу, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design-readiness status и ссылки на canonical system sources и versioned `.references` sources.
 - Canonical источниками остаются `use-cases`, `contracts`, `domain-model`, `state-models` и `ui-behavior-mapping`; feature spec ссылается на них и фиксирует сценарный handoff для архитектора.
 - Для UI-фич feature spec подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
 - Архитектор начинает с feature spec, затем точечно читает связанные contracts/use-cases/domain/state/ui mapping. При gap в сценариях, inputs, validations, errors, UI states или design readiness фича возвращается системному аналитику.
@@ -139,12 +139,12 @@
 - `Expressa Customer UI Contract`
   - Файл: [ui-contracts/expressa-customer-ui-contract.md](./ui-contracts/expressa-customer-ui-contract.md)
   - Использовать как входной UI-указатель клиентского веб-интерфейса перед формализацией системного поведения.
-  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в `.references/Expressa_customer`.
+  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в versioned `Git`-tracked `.references/Expressa_customer`.
 
 - `Expressa Backoffice UI Contract`
   - Файл: [ui-contracts/expressa-backoffice-ui-contract.md](./ui-contracts/expressa-backoffice-ui-contract.md)
-  - Использовать как входной UI-указатель внутреннего административного контура: он фиксирует канонический референс в `.references/Expressa_admin`, строгие ограничения parity и допустимые исключения только из системных артефактов.
-  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в `.references/Expressa_admin`.
+  - Использовать как входной UI-указатель внутреннего административного контура: он фиксирует канонический референс в versioned `Git`-tracked `.references/Expressa_admin`, строгие ограничения parity и допустимые исключения только из системных артефактов.
+  - Визуальный канон не хранится в `docs/system`: единственный источник истины для макета, экранной композиции и визуальных состояний находится в versioned `Git`-tracked `.references/Expressa_admin`.
 
 ### `ui-behavior-mapping`
 
@@ -165,9 +165,10 @@
 - Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про вход во внутренний backoffice, session bootstrap, capability guard или test-mode ограничения: читать `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
-- Если задача приходит из UI-контракта или экранного флоу на этапе подготовки `FEATURE-*`: читать соответствующий файл в `ui-contracts/`, затем нужные файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`; перед передачей архитектору создать feature spec.
-- Если задача про UI внутреннего административного контура: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-backoffice-ui-contract.md`, нужные файлы в `.references/Expressa_admin`, `ui-behavior-mapping/backoffice-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
-- Если задача про UI клиентского веб-интерфейса: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-customer-ui-contract.md`, нужные файлы в `.references/Expressa_customer`, `ui-behavior-mapping/customer-ordering-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача приходит из UI-контракта или экранного флоу на этапе подготовки `FEATURE-*`: читать соответствующий файл в `ui-contracts/`, затем нужные versioned-файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`; перед передачей архитектору создать feature spec.
+- Если задача про UI внутреннего административного контура: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-backoffice-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_admin`, `ui-behavior-mapping/backoffice-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача про UI клиентского веб-интерфейса: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-customer-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_customer`, `ui-behavior-mapping/customer-ordering-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если в ходе системного анализа выявлены design gaps или required prototype updates, системный аналитик должен ссылаться на конкретные versioned-файлы в `.references/`, зафиксировать требования к изменениям и выполнить повторную верификацию по обновленному Git-tracked состоянию этих файлов.
 
 ## Зафиксированные blockers и вопросы
 

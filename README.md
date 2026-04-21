@@ -90,7 +90,7 @@
 - `docs/system/` — системные артефакты: system-context, feature-specs, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
 - `tasks/` — project-specific task-артефакты.
-- `.references/` — локальные визуальные или входные референсы; каталог исключен из Git через `.gitignore`.
+- `.references/` — версионируемые визуальные и входные референсы проекта; каталог является каноническим источником для UI/design workflow
 
 ## Tooling
 
