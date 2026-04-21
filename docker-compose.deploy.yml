@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: ${DEPLOY_BACKEND_IMAGE:?DEPLOY_BACKEND_IMAGE is required}
+    restart: unless-stopped
+    env_file:
+      - ${ENV_FILE:?ENV_FILE is required}
+    ports:
+      - 127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT:-3000}:3000
+
+  frontend:
+    image: ${DEPLOY_FRONTEND_IMAGE:?DEPLOY_FRONTEND_IMAGE is required}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - ${TEST_DEPLOY_HOST_FRONTEND_PORT:-8080}:8080

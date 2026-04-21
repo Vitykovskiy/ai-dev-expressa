@@ -3,20 +3,110 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$(pwd)}"
-RESTART_COMMAND="${DEPLOY_RESTART_COMMAND:-}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
+COMPOSE_FILE_INPUT="${DEPLOY_COMPOSE_FILE:-docker-compose.deploy.yml}"
+ARTIFACT_DIR_INPUT="${DEPLOY_ARTIFACT_DIR:-artifacts/deploy-test}"
+TIMESTAMP="$(date -u +"%Y%m%dT%H%M%SZ")"
+
+show_help() {
+  cat <<'USAGE'
+Usage:
+  scripts/deploy-test-vps.sh
+
+Required environment:
+  APP_DIR                 Repo root on VPS. Defaults to current directory.
+  ENV_FILE                Runtime env file for the deployed test stand.
+  DEPLOY_BACKEND_IMAGE    Versioned backend image ref for Deploy Test.
+  DEPLOY_FRONTEND_IMAGE   Versioned frontend image ref for Deploy Test.
+
+Optional environment:
+  DEPLOY_COMPOSE_FILE     Compose file for merge-driven deploy. Defaults to docker-compose.deploy.yml.
+  DEPLOY_ARTIFACT_DIR     Artifact directory for deploy summaries and rollback files.
+                          Defaults to artifacts/deploy-test.
+  DEPLOY_PROJECT_NAME     Docker compose project name. Defaults to expressa-test.
+  DEPLOY_REGISTRY         Registry hostname used for docker login when credentials are provided.
+  DEPLOY_REGISTRY_USERNAME
+  DEPLOY_REGISTRY_PASSWORD
+                          Optional registry pull credentials for VPS rollout.
+  TEST_DEPLOY_HOST_BACKEND_PORT
+                          Host loopback port for backend container. Defaults to PORT or 3000.
+  TEST_DEPLOY_HOST_FRONTEND_PORT
+                          Host port for frontend container. Defaults to 8080.
+  SMOKE_BACKEND_BASE_URL  Optional backend smoke base URL override.
+  SMOKE_FRONTEND_BASE_URL Optional frontend smoke base URL override.
+  SKIP_GIT_PULL           Skip git fetch/pull when repository is already synced.
+USAGE
+}
+
+if [[ "${1:-}" == "--help" ]]; then
+  show_help
+  exit 0
+fi
 
 require_env() {
   local name="$1"
 
   if [[ -z "${!name:-}" ]]; then
-    echo "$name is required in $ENV_FILE."
+    echo "$name is required."
     exit 1
   fi
 }
 
-if [[ -z "$RESTART_COMMAND" ]]; then
-  echo "DEPLOY_RESTART_COMMAND is required."
+require_command() {
+  local name="$1"
+
+  if ! command -v "$name" >/dev/null 2>&1; then
+    echo "Required command is not available: $name"
+    exit 1
+  fi
+}
+
+make_absolute_path() {
+  local path="$1"
+
+  if [[ "$path" = /* ]]; then
+    printf "%s" "$path"
+    return 0
+  fi
+
+  printf "%s/%s" "$APP_DIR" "$path"
+}
+
+docker_compose() {
+  docker compose -f "$COMPOSE_FILE_PATH" -p "$COMPOSE_PROJECT_NAME" "$@"
+}
+
+inspect_running_image() {
+  local service="$1"
+  local container_id
+
+  container_id="$(docker_compose ps -q "$service" 2>/dev/null || true)"
+
+  if [[ -z "$container_id" ]]; then
+    return 0
+  fi
+
+  docker inspect --format '{{.Config.Image}}' "$container_id" 2>/dev/null || true
+}
+
+docker_registry_login() {
+  if [[ -z "${DEPLOY_REGISTRY_USERNAME:-}" || -z "${DEPLOY_REGISTRY_PASSWORD:-}" ]]; then
+    return 0
+  fi
+
+  require_env "DEPLOY_REGISTRY"
+  printf "%s" "$DEPLOY_REGISTRY_PASSWORD" | docker login "$DEPLOY_REGISTRY" --username "$DEPLOY_REGISTRY_USERNAME" --password-stdin
+}
+
+COMPOSE_PROJECT_NAME_INPUT="${DEPLOY_PROJECT_NAME:-expressa-test}"
+COMPOSE_PROJECT_NAME="$(printf "%s" "$COMPOSE_PROJECT_NAME_INPUT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+COMPOSE_FILE_PATH="$(make_absolute_path "$COMPOSE_FILE_INPUT")"
+ARTIFACT_DIR="$(make_absolute_path "$ARTIFACT_DIR_INPUT")"
+ROLLBACK_FILE="$ARTIFACT_DIR/rollback-$TIMESTAMP.env"
+SUMMARY_FILE="$ARTIFACT_DIR/deploy-test-$TIMESTAMP.summary.md"
+
+if [[ -z "${DEPLOY_BACKEND_IMAGE:-}" || -z "${DEPLOY_FRONTEND_IMAGE:-}" ]]; then
+  echo "DEPLOY_BACKEND_IMAGE and DEPLOY_FRONTEND_IMAGE are required."
   exit 1
 fi
 
@@ -31,6 +121,21 @@ if [[ "${SKIP_GIT_PULL:-false}" != "true" ]]; then
   git fetch --prune origin
   git pull --ff-only origin main
 fi
+
+require_command "docker"
+require_command "curl"
+
+if ! docker compose version >/dev/null 2>&1; then
+  echo "docker compose plugin is required."
+  exit 1
+fi
+
+if [[ ! -f "$COMPOSE_FILE_PATH" ]]; then
+  echo "Compose file not found: $COMPOSE_FILE_PATH"
+  exit 1
+fi
+
+mkdir -p "$ARTIFACT_DIR"
 
 set -a
 # shellcheck disable=SC1090
@@ -50,14 +155,33 @@ if [[ "${DISABLE_TG_AUTH:-}" != "true" ]]; then
   exit 1
 fi
 
-npm ci --prefix backend
-npm ci --prefix frontend
-npm run build --prefix backend
-npm run build --prefix frontend
+export ENV_FILE
+export DEPLOY_BACKEND_IMAGE
+export DEPLOY_FRONTEND_IMAGE
+export TEST_DEPLOY_HOST_BACKEND_PORT="${TEST_DEPLOY_HOST_BACKEND_PORT:-${PORT:-3000}}"
+export TEST_DEPLOY_HOST_FRONTEND_PORT="${TEST_DEPLOY_HOST_FRONTEND_PORT:-8080}"
 
-eval "$RESTART_COMMAND"
+docker_registry_login
+
+PREVIOUS_BACKEND_IMAGE="$(inspect_running_image backend)"
+PREVIOUS_FRONTEND_IMAGE="$(inspect_running_image frontend)"
+
+cat >"$ROLLBACK_FILE" <<ROLLBACK
+DEPLOY_BACKEND_IMAGE=${PREVIOUS_BACKEND_IMAGE}
+DEPLOY_FRONTEND_IMAGE=${PREVIOUS_FRONTEND_IMAGE}
+DEPLOY_COMPOSE_FILE=${COMPOSE_FILE_PATH}
+ENV_FILE=${ENV_FILE}
+DEPLOY_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+TEST_DEPLOY_HOST_BACKEND_PORT=${TEST_DEPLOY_HOST_BACKEND_PORT}
+TEST_DEPLOY_HOST_FRONTEND_PORT=${TEST_DEPLOY_HOST_FRONTEND_PORT}
+ROLLBACK
+
+docker_compose config >/dev/null
+docker_compose pull backend frontend
+docker_compose up -d backend frontend
 
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${PORT:-3000}}"
+FRONTEND_BASE_URL="${SMOKE_FRONTEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}}"
 
 for attempt in {1..30}; do
   if curl --fail --silent "$BACKEND_BASE_URL/health" >/dev/null; then
@@ -71,6 +195,8 @@ for attempt in {1..30}; do
   sleep 2
 done
 
+curl --fail --silent --show-error "$FRONTEND_BASE_URL/" >/dev/null
+
 curl \
   --fail \
   --silent \
@@ -78,10 +204,8 @@ curl \
   --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
   "$BACKEND_BASE_URL/backoffice/orders" >/dev/null
 
-node <<'NODE'
-const path = require("node:path");
-const runtimeModulePath = path.join(process.cwd(), "backend", "dist", "identity-access", "config", "access-config.js");
-const { ConfigValidationError, loadAccessConfig } = require(runtimeModulePath);
+docker_compose exec -T backend node <<'NODE'
+const { ConfigValidationError, loadAccessConfig } = require("./dist/identity-access/config/access-config.js");
 
 try {
   loadAccessConfig({
@@ -97,3 +221,16 @@ try {
   }
 }
 NODE
+
+cat >"$SUMMARY_FILE" <<SUMMARY
+# Deploy Test Summary
+
+- Timestamp UTC: \`$TIMESTAMP\`
+- Compose project: \`$COMPOSE_PROJECT_NAME\`
+- Compose file: \`$COMPOSE_FILE_PATH\`
+- Backend image: \`$DEPLOY_BACKEND_IMAGE\`
+- Frontend image: \`$DEPLOY_FRONTEND_IMAGE\`
+- Backend URL: \`$BACKEND_BASE_URL\`
+- Frontend URL: \`$FRONTEND_BASE_URL\`
+- Rollback file: \`$ROLLBACK_FILE\`
+SUMMARY

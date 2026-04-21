@@ -6,26 +6,83 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: deploy-test
   cancel-in-progress: true
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
-  deploy-test:
-    name: deploy-test
+  build-images:
+    name: build-images
     runs-on: ubuntu-latest
     environment: test
+    outputs:
+      backend_image: ${{ steps.image-names.outputs.backend_image }}
+      frontend_image: ${{ steps.image-names.outputs.frontend_image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
+      - name: Prepare image names
+        id: image-names
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "backend_image=${{ env.REGISTRY }}/${owner}/expressa-backend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "frontend_image=${{ env.REGISTRY }}/${owner}/expressa-frontend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.image-names.outputs.backend_image }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ steps.image-names.outputs.frontend_image }}
+
+  deploy-test:
+    name: deploy-test
+    runs-on: ubuntu-latest
+    environment: test
+    needs:
+      - build-images
+    steps:
       - name: Deploy to test VPS and run smoke-check
         uses: appleboy/ssh-action@v1.2.0
         env:
           APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
-          DEPLOY_RESTART_COMMAND: ${{ secrets.TEST_DEPLOY_RESTART_COMMAND }}
           ENV_FILE: ${{ secrets.TEST_VPS_ENV_FILE }}
+          DEPLOY_COMPOSE_FILE: docker-compose.deploy.yml
+          DEPLOY_BACKEND_IMAGE: ${{ needs.build-images.outputs.backend_image }}
+          DEPLOY_FRONTEND_IMAGE: ${{ needs.build-images.outputs.frontend_image }}
+          DEPLOY_REGISTRY: ${{ env.REGISTRY }}
+          DEPLOY_REGISTRY_USERNAME: ${{ secrets.TEST_DEPLOY_REGISTRY_USERNAME }}
+          DEPLOY_REGISTRY_PASSWORD: ${{ secrets.TEST_DEPLOY_REGISTRY_PASSWORD }}
           SMOKE_BACKEND_BASE_URL: ${{ secrets.TEST_SMOKE_BACKEND_BASE_URL }}
+          SMOKE_FRONTEND_BASE_URL: ${{ secrets.TEST_SMOKE_FRONTEND_BASE_URL }}
         with:
           host: ${{ secrets.TEST_VPS_HOST }}
           username: ${{ secrets.TEST_VPS_USER }}
@@ -33,10 +90,10 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,DEPLOY_RESTART_COMMAND,ENV_FILE,SMOKE_BACKEND_BASE_URL
+          envs: APP_DIR,ENV_FILE,DEPLOY_COMPOSE_FILE,DEPLOY_BACKEND_IMAGE,DEPLOY_FRONTEND_IMAGE,DEPLOY_REGISTRY,DEPLOY_REGISTRY_USERNAME,DEPLOY_REGISTRY_PASSWORD,SMOKE_BACKEND_BASE_URL,SMOKE_FRONTEND_BASE_URL
           script: |
             set -euo pipefail
-            if [ -z "${APP_DIR}" ] || [ -z "${DEPLOY_RESTART_COMMAND}" ]; then
+            if [ -z "${APP_DIR}" ] || [ -z "${DEPLOY_BACKEND_IMAGE}" ] || [ -z "${DEPLOY_FRONTEND_IMAGE}" ]; then
               echo "Required deploy secrets are missing."
               exit 1
             fi
