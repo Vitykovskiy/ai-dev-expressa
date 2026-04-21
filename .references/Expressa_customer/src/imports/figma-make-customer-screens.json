@@ -1,0 +1,394 @@
+{
+  "project": {
+    "name": "Ex-pressa Customer",
+    "frame": {
+      "widthPx": 700,
+      "height": "100dvh",
+      "mode": "mobile-first"
+    }
+  },
+  "shell": {
+    "source": "ex-pressa-front/src/App.vue:1-197",
+    "header": [
+      {
+        "id": "back",
+        "type": "icon_button",
+        "icon": "mdi-arrow-left",
+        "text": null,
+        "position": "top-left",
+        "function": "Вернуться на предыдущий экран",
+        "visibleWhen": "не корневое меню"
+      },
+      {
+        "id": "orders",
+        "type": "icon_button",
+        "icon": "mdi-history",
+        "text": null,
+        "position": "top-right",
+        "function": "Открыть историю заказов"
+      },
+      {
+        "id": "cart",
+        "type": "icon_button_with_badge",
+        "icon": "mdi-cart-variant",
+        "text": null,
+        "position": "top-right",
+        "badge": "количество товаров в корзине",
+        "function": "Открыть корзину"
+      }
+    ]
+  },
+  "screens": [
+    {
+      "id": "menu_root",
+      "name": "Меню: категории",
+      "route": "/",
+      "source": "ex-pressa-front/src/views/menu/index.vue:1-220",
+      "layout": [
+        "hero сверху",
+        "список карточек категорий ниже"
+      ],
+      "elements": [
+        {
+          "id": "hero",
+          "type": "panel",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "Daily menu" },
+            { "type": "heading", "text": "Меню кофейни" },
+            {
+              "type": "body",
+              "text": "Категории напитков и еды в компактной mobile-first витрине."
+            }
+          ]
+        },
+        {
+          "id": "category_card",
+          "type": "repeating_card",
+          "position": "content",
+          "items": [
+            { "type": "text", "text": "Category" },
+            { "type": "heading", "text": "{group.name}" },
+            { "type": "icon", "icon": "mdi-arrow-top-right" },
+            {
+              "type": "body",
+              "text": "{group.products.length} позиций доступно для заказа."
+            }
+          ],
+          "function": "Открыть выбранную категорию меню"
+        }
+      ]
+    },
+    {
+      "id": "menu_group",
+      "name": "Меню: товары категории",
+      "route": "/:group",
+      "source": "ex-pressa-front/src/views/menu/index.vue:42-220",
+      "layout": [
+        "hero сверху",
+        "вертикальный список карточек товаров"
+      ],
+      "elements": [
+        {
+          "id": "hero",
+          "type": "panel",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "Selected collection" },
+            { "type": "heading", "text": "{activeGroup.name}" },
+            {
+              "type": "body",
+              "text": "Собранный список позиций для быстрого выбора и перехода в карточку товара."
+            }
+          ]
+        },
+        {
+          "id": "product_card",
+          "type": "repeating_card",
+          "position": "content",
+          "items": [
+            { "type": "heading", "text": "{item.name}" },
+            { "type": "body", "text": "{тип товара: напиток/еда/доп. позиция}" },
+            { "type": "chip", "text": "{цена или минимальная цена}" },
+            {
+              "type": "chip_group",
+              "text": "{sizeCode} · {price} ₽",
+              "visibleWhen": "товар-напиток"
+            }
+          ],
+          "function": "Открыть карточку выбранного товара"
+        }
+      ]
+    },
+    {
+      "id": "product_detail",
+      "name": "Карточка товара",
+      "route": "/:group/item/:item",
+      "source": "ex-pressa-front/src/views/menuItem/index.vue:1-260",
+      "layout": [
+        "одна большая карточка",
+        "нижняя строка действий"
+      ],
+      "elements": [
+        {
+          "id": "header",
+          "type": "content_block",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "Menu item" },
+            { "type": "heading", "text": "{item.name}" },
+            {
+              "type": "body",
+              "text": "{item.description или 'Выберите размер, добавки и количество.'}"
+            },
+            { "type": "price", "text": "{basePrice * quantity} ₽" }
+          ]
+        },
+        {
+          "id": "size_buttons",
+          "type": "button_group",
+          "position": "middle",
+          "visibleWhen": "есть размеры",
+          "buttons": [
+            {
+              "icon": null,
+              "text": "{size} · {price} ₽",
+              "function": "Выбрать размер напитка"
+            }
+          ]
+        },
+        {
+          "id": "addon_buttons",
+          "type": "button_group_wrap",
+          "position": "middle",
+          "visibleWhen": "есть допы",
+          "buttons": [
+            {
+              "icon": null,
+              "text": "{addon.name} · {addon.priceRub} ₽",
+              "function": "Добавить или убрать доп"
+            }
+          ]
+        },
+        {
+          "id": "quantity_minus",
+          "type": "icon_button",
+          "icon": "mdi-minus",
+          "text": null,
+          "position": "bottom-left",
+          "function": "Уменьшить количество"
+        },
+        {
+          "id": "quantity_value",
+          "type": "value",
+          "text": "{quantity}",
+          "position": "bottom-center-left"
+        },
+        {
+          "id": "quantity_plus",
+          "type": "icon_button",
+          "icon": "mdi-plus",
+          "text": null,
+          "position": "bottom-center",
+          "function": "Увеличить количество"
+        },
+        {
+          "id": "submit",
+          "type": "primary_button",
+          "icon": null,
+          "text": "{isEditForm ? 'Изменить' : 'Добавить'}",
+          "position": "bottom-right",
+          "function": "Добавить товар в корзину или обновить уже добавленный товар"
+        }
+      ]
+    },
+    {
+      "id": "cart",
+      "name": "Корзина",
+      "route": "/cart",
+      "source": "ex-pressa-front/src/views/cart/index.vue:1-150",
+      "layout": [
+        "hero сверху",
+        "список позиций",
+        "sticky CTA снизу"
+      ],
+      "elements": [
+        {
+          "id": "hero",
+          "type": "panel",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "Checkout" },
+            { "type": "heading", "text": "Корзина" },
+            {
+              "type": "body",
+              "text": "Проверьте состав заказа перед выбором временного слота."
+            },
+            { "type": "chip", "text": "{cart.length} поз." }
+          ]
+        },
+        {
+          "id": "cart_list",
+          "type": "table_or_list",
+          "position": "content",
+          "items": [
+            { "type": "heading_small", "text": "Состав заказа" },
+            {
+              "type": "row",
+              "text": "{товар, размер, допы, количество, цена}",
+              "function": "Открыть редактирование позиции"
+            },
+            {
+              "type": "row_action",
+              "icon": "delete/remove inside CartRow",
+              "text": null,
+              "function": "Удалить позицию из корзины"
+            }
+          ],
+          "emptyText": "Пока ничего не добавлено"
+        },
+        {
+          "id": "checkout",
+          "type": "primary_button",
+          "position": "bottom-sticky",
+          "icon": null,
+          "text": "Оформить заказ · {totalPrice} ₽",
+          "function": "Перейти к выбору временного слота"
+        }
+      ]
+    },
+    {
+      "id": "slot_picker",
+      "name": "Выбор временного слота",
+      "route": "/order/slot",
+      "source": "ex-pressa-front/src/views/orderSlot/index.vue:1-239",
+      "layout": [
+        "hero сверху",
+        "alert/loading/list в центре",
+        "sticky CTA снизу"
+      ],
+      "elements": [
+        {
+          "id": "hero",
+          "type": "panel",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "Pickup" },
+            { "type": "heading", "text": "Выбор времени" },
+            {
+              "type": "body",
+              "text": "Выберите ближайший доступный слот для приготовления и выдачи заказа."
+            }
+          ]
+        },
+        {
+          "id": "error",
+          "type": "alert",
+          "position": "content-top",
+          "text": "{errorMessage}",
+          "function": "Показать ошибку загрузки или оформления"
+        },
+        {
+          "id": "loading",
+          "type": "progress",
+          "position": "content-top",
+          "function": "Показать загрузку временных слотов"
+        },
+        {
+          "id": "slot_card",
+          "type": "radio_card",
+          "position": "content",
+          "items": [
+            { "type": "heading_small", "text": "{date} · {timeFrom}-{timeTo}" },
+            { "type": "body_small", "text": "Свободно: {available} из {capacity}" }
+          ],
+          "function": "Выбрать временной слот",
+          "disabledWhen": "слот полностью занят"
+        },
+        {
+          "id": "confirm",
+          "type": "primary_button",
+          "position": "bottom-sticky",
+          "icon": null,
+          "text": "Подтвердить заказ",
+          "function": "Создать заказ из текущей корзины"
+        }
+      ]
+    },
+    {
+      "id": "orders_history",
+      "name": "История заказов",
+      "route": "/orders",
+      "source": "ex-pressa-front/src/views/orders/index.vue:1-240",
+      "layout": [
+        "hero сверху",
+        "state block",
+        "accordion список заказов"
+      ],
+      "elements": [
+        {
+          "id": "hero",
+          "type": "panel",
+          "position": "top",
+          "items": [
+            { "type": "text", "text": "History" },
+            { "type": "heading", "text": "История заказов" },
+            {
+              "type": "body",
+              "text": "Статусы, состав и стоимость последних заказов в одном списке."
+            },
+            {
+              "type": "icon_button",
+              "icon": "mdi-refresh",
+              "text": null,
+              "function": "Обновить историю заказов"
+            }
+          ]
+        },
+        {
+          "id": "accordion_item",
+          "type": "accordion",
+          "position": "content",
+          "header": [
+            { "type": "text", "text": "Заказ #{order.id}" },
+            { "type": "text", "text": "{createdAt} · {items.length} поз." },
+            { "type": "chip", "text": "{status}" },
+            { "type": "price", "text": "{order.totalRub} ₽" }
+          ],
+          "body": [
+            { "type": "body_small", "text": "Слот: {date} {slotTimeFrom}-{slotTimeTo}" },
+            { "type": "row", "text": "{productName} ({size optional}) x{quantity} | {lineTotalRub} ₽" },
+            { "type": "subrow", "text": "+ {addonName} x{quantity}" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth",
+      "name": "Авторизация Telegram",
+      "route": "/auth",
+      "source": "ex-pressa-front/src/views/auth/index.vue:1-157",
+      "layout": [
+        "центрированная карточка"
+      ],
+      "elements": [
+        { "type": "text", "position": "center", "text": "Telegram Access" },
+        { "type": "heading", "position": "center", "text": "{title by status}" },
+        { "type": "body", "position": "center", "text": "{detail by status}" },
+        {
+          "type": "alert",
+          "position": "center",
+          "text": "Функционал заказа доступен после авторизации через Telegram.",
+          "visibleWhen": "unauthorized"
+        },
+        {
+          "type": "primary_button",
+          "position": "center",
+          "icon": null,
+          "text": "{status !== authorized ? 'Попробовать снова' : 'Продолжить'}",
+          "function": "Повторить авторизацию или перейти в приложение"
+        }
+      ]
+    }
+  ]
+}
