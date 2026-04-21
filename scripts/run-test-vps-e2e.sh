@@ -32,6 +32,8 @@ Required environment:
   TEST_E2E_TELEGRAM_ID            Test-mode Telegram id allowed on the test backend.
                                   Falls back to ADMIN_TELEGRAM_ID.
   TEST_E2E_COMMAND                QA-owned e2e command. Required unless --preflight-only is used.
+  TEST_E2E_COMMAND_B64            Base64-encoded QA-owned e2e command.
+                                  Used when the workflow needs a shell-safe transport for commands with spaces.
 
 Optional environment:
   TEST_E2E_ENV_FILE               Optional env file to source before resolving route variables.
@@ -117,6 +119,20 @@ resolve_route_env() {
   fi
 
   TEST_E2E_TELEGRAM_ID="$(trim_whitespace "${TEST_E2E_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-}}")"
+}
+
+resolve_command_env() {
+  if [[ -n "${TEST_E2E_COMMAND:-}" ]]; then
+    TEST_E2E_COMMAND="$(trim_whitespace "$TEST_E2E_COMMAND")"
+    return 0
+  fi
+
+  if [[ -n "${TEST_E2E_COMMAND_B64:-}" ]]; then
+    if ! TEST_E2E_COMMAND="$(printf "%s" "$TEST_E2E_COMMAND_B64" | base64 --decode 2>/dev/null)"; then
+      fail "TEST_E2E_COMMAND_B64 is invalid base64."
+    fi
+    TEST_E2E_COMMAND="$(trim_whitespace "$TEST_E2E_COMMAND")"
+  fi
 }
 
 trim_whitespace() {
@@ -244,6 +260,7 @@ FRONTEND_PATH="${TEST_E2E_FRONTEND_PATH:-/}"
 
 source_env_file
 resolve_route_env
+resolve_command_env
 
 require_env "TEST_E2E_BACKEND_BASE_URL"
 require_env "TEST_E2E_BACKOFFICE_ORIGIN"
@@ -280,6 +297,7 @@ if [[ "$MODE" == "preflight" ]]; then
 fi
 
 log "Running QA-owned e2e command."
+log "QA-owned e2e command: $TEST_E2E_COMMAND"
 
 export E2E_BACKEND_BASE_URL="$BACKEND_BASE_URL"
 export E2E_BACKOFFICE_ORIGIN="$BACKOFFICE_ORIGIN"

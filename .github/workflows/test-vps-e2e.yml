@@ -35,6 +35,15 @@ jobs:
             exit 1
           fi
 
+      - name: Encode QA-owned command
+        if: ${{ inputs.mode == 'run' }}
+        id: encode-command
+        env:
+          E2E_COMMAND_INPUT: ${{ inputs.e2e_command }}
+        run: |
+          set -euo pipefail
+          echo "e2e_command_b64=$(printf '%s' "$E2E_COMMAND_INPUT" | base64 -w0)" >> "$GITHUB_OUTPUT"
+
       - name: Run Test VPS e2e route
         uses: appleboy/ssh-action@v1.2.0
         env:
@@ -44,7 +53,7 @@ jobs:
           BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
           SERVER_PORT: ${{ vars.SERVER_PORT }}
           TEST_E2E_MODE: ${{ inputs.mode }}
-          TEST_E2E_COMMAND: ${{ inputs.e2e_command }}
+          TEST_E2E_COMMAND_B64: ${{ steps.encode-command.outputs.e2e_command_b64 }}
         with:
           host: ${{ secrets.TEST_VPS_HOST }}
           username: ${{ secrets.TEST_VPS_USER }}
@@ -52,7 +61,7 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,ENV_FILE,TEST_SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,SERVER_PORT,TEST_E2E_MODE,TEST_E2E_COMMAND
+          envs: APP_DIR,ENV_FILE,TEST_SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,SERVER_PORT,TEST_E2E_MODE,TEST_E2E_COMMAND_B64
           script: |
             set -euo pipefail
 
