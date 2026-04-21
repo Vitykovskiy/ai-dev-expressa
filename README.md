@@ -95,7 +95,7 @@
 - `package.json` — tooling-слой монорепозитория: `npm workspaces`, `husky`, `lint-staged`, `prettier`, `eslint`, `stylelint`, `quality`, `build`, а также корневые команды запуска отдельных контуров.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
-- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, forbidden screen и тесты.
+- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа и тесты.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — итоговые карточки задач `SPRINT-*`, `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*`, `BUG-*`, `BA-*`, `SA-*`.
 - `prompts/` — ролевые промпты для участников рабочего процесса.
@@ -126,7 +126,7 @@
 Эти каталоги могут отсутствовать в свежем или очищенном состоянии репозитория. Их создают профильные роли только при наличии соответствующей задачи.
 
 - `docs/business/` — бизнес-артефакты: vision, glossary, business-rules, scenarios.
-- `docs/system/` — системные артефакты: system-context, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
+- `docs/system/` — системные артефакты: system-context, feature-specs, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
 - `tasks/` — итоговые карточки задач `SPRINT-*`, `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*`, `BUG-*`, `BA-*`, `SA-*`.
 - `.references/` — локальные визуальные или входные референсы; каталог исключен из Git через `.gitignore`.
@@ -177,8 +177,10 @@
 - Новые задачи оформляются по `templates/task-template.md` с учетом `templates/task-template-instruction.md`.
 - `SPRINT-*` — координационная карточка спринта. Она не является единицей поставки.
 - `FEATURE-*` — карточка одной завершенной, тестируемой и демонстрируемой фичи. Именно `FEATURE-*` является единицей поставки.
-- Системный аналитик по умолчанию создает или обновляет только родительскую `SPRINT-*` карточку.
-- Архитектор сначала декомпозирует один `SPRINT-*` в набор `FEATURE-*`, затем одну выбранную `FEATURE-*` в дочерние `AR/FE/BE/DO/QA-*` задачи.
+- Системный аналитик создает или обновляет `SPRINT-*` и `FEATURE-*` карточки.
+- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый feature spec в `docs/system/feature-specs/<feature-id>-<slug>.md`.
+- Feature spec является первым маршрутом чтения для архитектора по конкретной фиче и фиксирует feature boundary, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design readiness и ссылки на canonical system sources.
+- Архитектор принимает одну аналитически готовую `FEATURE-*` и декомпозирует ее в дочерние `AR/FE/BE/DO/QA-*` задачи. При gap в feature spec по сценариям, inputs, validations, errors, UI states или design readiness задача возвращается системному аналитику.
 - Для каждой последующей фичи обязательны две QA-задачи: manual QA для ручного тестирования, пользовательских сценариев, UI parity и дефектов; e2e QA для создания, поддержки и прогона e2e-проверок этой фичи. Если для фичи задокументирован `test` VPS route, e2e QA закрывается по evidence с задеплоенного `test`-окружения; локальный e2e используется только как вспомогательный debug/development путь.
 - Воспроизводимые дефекты оформляются как `BUG-*` задачи под той же `FEATURE-*` с явной меткой контура причины: `frontend`, `backend` или `devops`.
 - `DO-*` создается только если фича меняет VPS-окружение, `test` или `production` развёртывание, GitHub Actions, переменные окружения, секреты, дымовые проверки, порядок восстановления или обязательный VPS test/e2e run path для QA acceptance.
@@ -205,7 +207,7 @@
 
 ## Файловая политика
 
-- Текстовые файлы репозитория хранятся в `UTF-8` без BOM и с окончанием строк `LF`.
+- Текстовые файлы репозитория хранятся в `UTF-8` (BOM-free) и с окончанием строк `LF`.
 - `.gitattributes` и `.editorconfig` являются источниками правил для Git, редакторов и агентов.
 - В Windows PowerShell 5.1 русскоязычные UTF-8 файлы читайте через `Get-Content -Raw -Encoding UTF8 <file>` или используйте PowerShell 7+, иначе терминал может показать mojibake.
 
