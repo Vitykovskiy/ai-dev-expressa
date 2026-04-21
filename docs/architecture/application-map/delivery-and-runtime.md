@@ -19,7 +19,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
-- Secrets для SSH-доступа к VPS и удалённой restart-команды хранятся в GitHub Secrets.
+- Secrets для SSH-доступа к VPS, registry credentials и smoke-check overrides хранятся в GitHub Secrets.
 - Runtime переменные приложения на VPS передаются через окружение процесса или внешний env-файл стенда и не коммитятся в репозиторий.
 
 ## Local dev contract
@@ -42,12 +42,22 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Test VPS deployment contract
 
 - Ветка `main` является источником автодеплоя на VPS `test`-окружения.
-- Перед запуском deploy workflow выполняет `git pull --ff-only origin main` на VPS и вызывает версионированный скрипт `scripts/deploy-test-vps.sh`.
+- Workflow `Deploy Test` собирает и публикует versioned backend/frontend runtime images в `ghcr.io` с tag, равным `github.sha`.
+- Перед запуском rollout workflow синхронизирует checkout на VPS с `origin/main`, затем вызывает версионированный скрипт `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
-- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до рестарта backend.
+- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до container rollout.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
-- Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
+- Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`, а launcher использует `docker-compose.deploy.yml` для frontend и backend сервисов.
+- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull backend frontend` и `docker compose up -d backend frontend`.
+- Порт backend на host loopback берётся из `TEST_DEPLOY_HOST_BACKEND_PORT` или `PORT`; frontend публикуется на `TEST_DEPLOY_HOST_FRONTEND_PORT` и по умолчанию использует `8080`.
+- Post-deploy smoke-check подтверждает `GET /health`, доступность frontend root, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
+
+## Restore path
+
+- Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/rollback-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
+- Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
+- После restore выполняется тот же smoke-check, что и после штатного rollout.
 
 ## Test VPS e2e route
 
@@ -73,6 +83,12 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
+- `ENV_FILE` указывает deploy/e2e launcher на env-файл test-стенда на VPS.
+- `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE` задают versioned image refs для container rollout.
+- `DEPLOY_REGISTRY`, `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD` задают registry login для `docker pull`, если стенд не имеет преднастроенного доступа.
+- `TEST_DEPLOY_HOST_BACKEND_PORT` задаёт host loopback port для backend container; по умолчанию используется значение `PORT` или `3000`.
+- `TEST_DEPLOY_HOST_FRONTEND_PORT` задаёт host port для frontend container; по умолчанию используется `8080`.
+- `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL` могут переопределить базовые URL post-deploy smoke-check.
 - `TEST_E2E_BACKEND_BASE_URL` задаёт backend target для DevOps-owned test VPS e2e route.
 - `TEST_E2E_BACKOFFICE_ORIGIN` задаёт опубликованный frontend origin для DevOps-owned test VPS e2e route.
 - `TEST_E2E_TELEGRAM_ID` задаёт test-mode Telegram id для preflight и QA-owned e2e command на `test`.
@@ -120,7 +136,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Test environment с `DISABLE_TG_AUTH=true` позволяет выполнить проверку role guard без Telegram.
 - PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
-- Deploy workflow для `main` после выкладки проверяет `GET /health`, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
+- Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
 
 ## Обновлять эту карту
 

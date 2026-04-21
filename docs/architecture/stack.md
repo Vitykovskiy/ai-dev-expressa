@@ -5,6 +5,7 @@
 - Server-side: `NestJS`.
 - Client-side: `Vue 3`.
 - UI kit для клиентского backoffice: `Vuetify`.
+- Merge-driven delivery path `main -> test VPS` использует versioned runtime images в `ghcr.io` и `Docker Compose` на VPS.
 - Backoffice открывается как Telegram Web App через отдельного служебного Telegram-бота.
 - React-референс `.references/Expressa_admin` является визуальным и поведенческим ориентиром, но не задаёт технологический стек реализации.
 - Сервисы должны оставаться независимыми по границам ответственности; общая авторизация не должна смешиваться с управлением меню, слотами, ролями или блокировкой.

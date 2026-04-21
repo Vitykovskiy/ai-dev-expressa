@@ -17,6 +17,7 @@
 |-- AGENTS.md
 |-- README.md
 |-- WORKFLOW.md
+|-- docker-compose.deploy.yml
 |-- process/
 |   |-- README.md
 |   |-- workflow.md
@@ -25,13 +26,18 @@
 |-- package.json
 |-- terms-map.md
 |-- backend/
+|   |-- .dockerignore
+|   |-- Dockerfile
 |   |-- .env.example
 |   |-- src/
 |   |   `-- identity-access/
 |   `-- test/
 |-- frontend/
+|   |-- .dockerignore
+|   |-- Dockerfile
 |   |-- .env.example
 |   |-- index.html
+|   |-- nginx.conf
 |   `-- src/
 |       |-- components/
 |       |-- modules/
@@ -67,14 +73,15 @@
 - `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
-- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команда `deploy:test:vps`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
-- `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
-- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа и тесты.
+- `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
+- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify`, а также Docker/Nginx-артефакты client runtime для `test` VPS: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа, тесты, `Dockerfile` и `nginx.conf`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — task-артефакты проекта.
-- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
-- `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS, `run-test-vps-e2e.sh` — отдельный QA e2e route.
+- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в `test`-окружение на VPS.
 
 ## Process и project
 
