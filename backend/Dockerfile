@@ -20,6 +20,8 @@ ARG APP_NODE_ENV=production
 ENV NODE_ENV=${APP_NODE_ENV}
 ENV PORT=3000
 
+LABEL org.opencontainers.image.source="https://github.com/Vitykovskiy/ai-dev-expressa"
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
