@@ -33,8 +33,8 @@
 - DevOps предоставляет `scripts/run-test-vps-e2e.sh` и root wrappers `npm run test:vps:e2e:preflight` / `npm run test:vps:e2e` для preflight и запуска QA-owned e2e command against deployed `test`; QA предоставляет сами сценарии и фиксирует pass/fail evidence.
 - Ручной workflow `Test VPS E2E` запускается только через `workflow_dispatch`, подключается к GitHub environment `test`, использует уже заведенные secrets/vars для SSH и runtime route, выполняет wrapper на VPS и не входит в обязательные `PR Checks` / `Deploy Test`.
 - Runtime inputs для QA можно задать явно через `TEST_E2E_BACKEND_BASE_URL`, `TEST_E2E_BACKOFFICE_ORIGIN`, `TEST_E2E_TELEGRAM_ID`; при запуске на VPS wrapper также принимает существующие имена `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT`, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS`, `ADMIN_TELEGRAM_ID`.
-- Для полного запуска также нужен `TEST_E2E_COMMAND`; preflight-only режим его не требует.
-- Опциональные inputs: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
+- Для полного запуска также нужен `TEST_E2E_COMMAND`; при передаче через SSH workflow использует shell-safe payload `TEST_E2E_COMMAND_B64`, чтобы не ломать run command пробелами в `envs`.
+- Опциональные inputs: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_COMMAND_B64`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
 - Минимальный output e2e route: commit/версия стенда, целевые backend/frontend URL, результат preflight, результат e2e run и путь к `.log` и `.summary.md` артефактам.
 - Smoke-check и restore path остаются отдельными delivery/runtime проверками и не заменяют e2e acceptance.
 
