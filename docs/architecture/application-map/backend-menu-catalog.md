@@ -8,29 +8,29 @@
 
 ## Модули
 
-| Модуль | Ответственность |
-|---|---|
-| `MenuCatalogModule` или локальный эквивалент | Публичная backend boundary для чтения и изменения каталога из backoffice. |
-| `MenuCatalogService` | Доменная оркестрация категорий, товаров, цен, групп опций и назначений. |
-| `MenuCatalogRepository` | Хранение текущего каталога; начальный in-memory адаптер допустим, если постоянное хранилище не вводится отдельной задачей. |
-| `MenuCatalogValidator` | Проверка доменных инвариантов `invalid-drink-size-model`, `invalid-option-group-rule` и ссылочной целостности. |
+| Модуль                                       | Ответственность                                                                                                            |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `MenuCatalogModule` или локальный эквивалент | Публичная backend boundary для чтения и изменения каталога из backoffice.                                                  |
+| `MenuCatalogService`                         | Доменная оркестрация категорий, товаров, цен, групп опций и назначений.                                                    |
+| `MenuCatalogRepository`                      | Хранение текущего каталога; начальный in-memory адаптер допустим, если постоянное хранилище не вводится отдельной задачей. |
+| `MenuCatalogValidator`                       | Проверка доменных инвариантов `invalid-drink-size-model`, `invalid-option-group-rule` и ссылочной целостности.             |
 
 ## Реализация
 
-| Путь | Назначение |
-|---|---|
-| `backend/src/menu-catalog/menu-catalog.module.ts` | NestJS-модуль server-side boundary каталога меню. |
-| `backend/src/menu-catalog/menu-catalog.controller.ts` | Backoffice endpoints `/backoffice/menu/*`, защищённые capability `menu`. |
-| `backend/src/menu-catalog/menu-catalog.commands.ts` | Application command/input types для controller boundary и service orchestration без смешения с domain rules. |
-| `backend/src/menu-catalog/menu-catalog.service.ts` | Оркестрация операций над категориями, товарами, ценами, группами опций и назначениями. |
-| `backend/src/menu-catalog/domain/menu-catalog.types.ts` | Shared backend DTO/domain shape для snapshot и сущностей каталога. |
-| `backend/src/menu-catalog/domain/menu-catalog.validator.ts` | Проверка размерной модели напитков, правил групп опций и ссылочной целостности. |
-| `backend/src/menu-catalog/domain/menu-catalog.errors.ts` | Канонические доменные ошибки каталога. |
-| `backend/src/menu-catalog/domain/menu-catalog.mutations.ts` | Доменная сборка и изменение категорий, товаров и групп опций без transport-логики. |
-| `backend/src/menu-catalog/repository/in-memory-menu-catalog.repository.ts` | Текущий in-memory адаптер хранения каталога. |
-| `backend/test/menu-catalog-mutations.spec.ts` | Unit-проверки доменных mutations для поведенчески нейтрального рефакторинга `FEATURE-006`. |
-| `backend/test/menu-catalog-domain.spec.ts` | Модульные тесты доменных правил каталога. |
-| `backend/test/menu-catalog.e2e.spec.ts` | Integration/e2e проверки backoffice menu endpoints и доступа. |
+| Путь                                                                       | Назначение                                                                                                   |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `backend/src/menu-catalog/menu-catalog.module.ts`                          | NestJS-модуль server-side boundary каталога меню.                                                            |
+| `backend/src/menu-catalog/menu-catalog.controller.ts`                      | Backoffice endpoints `/backoffice/menu/*`, защищённые capability `menu`.                                     |
+| `backend/src/menu-catalog/menu-catalog.commands.ts`                        | Application command/input types для controller boundary и service orchestration без смешения с domain rules. |
+| `backend/src/menu-catalog/menu-catalog.service.ts`                         | Оркестрация операций над категориями, товарами, ценами, группами опций и назначениями.                       |
+| `backend/src/menu-catalog/domain/menu-catalog.types.ts`                    | Shared backend DTO/domain shape для snapshot и сущностей каталога.                                           |
+| `backend/src/menu-catalog/domain/menu-catalog.validator.ts`                | Проверка размерной модели напитков, правил групп опций и ссылочной целостности.                              |
+| `backend/src/menu-catalog/domain/menu-catalog.errors.ts`                   | Канонические доменные ошибки каталога.                                                                       |
+| `backend/src/menu-catalog/domain/menu-catalog.mutations.ts`                | Доменная сборка и изменение категорий, товаров и групп опций без transport-логики.                           |
+| `backend/src/menu-catalog/repository/in-memory-menu-catalog.repository.ts` | Текущий in-memory адаптер хранения каталога.                                                                 |
+| `backend/test/menu-catalog-mutations.spec.ts`                              | Unit-проверки доменных mutations для поведенчески нейтрального рефакторинга `FEATURE-006`.                   |
+| `backend/test/menu-catalog-domain.spec.ts`                                 | Модульные тесты доменных правил каталога.                                                                    |
+| `backend/test/menu-catalog.integration.spec.ts`                            | Integration-проверки backoffice menu endpoints и доступа.                                                    |
 
 ## Code architecture standard for FEATURE-006
 
@@ -47,18 +47,18 @@
 
 Все endpoints относятся к backoffice boundary и требуют capability `menu` для роли `administrator`.
 
-| Method | Path | Назначение |
-|---|---|---|
-| `GET` | `/backoffice/menu/catalog` | Вернуть полный каталог: категории, товары, цены размеров, группы опций, опции и назначения групп на категории. |
-| `POST` | `/backoffice/menu/categories` | Создать категорию меню. |
-| `PATCH` | `/backoffice/menu/categories/:menuCategoryId` | Изменить название категории и назначенные группы опций. |
-| `DELETE` | `/backoffice/menu/categories/:menuCategoryId` | Удалить категорию, если удаление не нарушает целостность каталога. |
-| `POST` | `/backoffice/menu/items` | Создать товар в категории. |
-| `PATCH` | `/backoffice/menu/items/:menuItemId` | Изменить товар, категорию, тип товара и ценовую схему. |
-| `DELETE` | `/backoffice/menu/items/:menuItemId` | Удалить товар из каталога. |
-| `POST` | `/backoffice/menu/option-groups` | Создать группу дополнительных опций. |
-| `PATCH` | `/backoffice/menu/option-groups/:optionGroupId` | Изменить группу, режим выбора и состав опций. |
-| `DELETE` | `/backoffice/menu/option-groups/:optionGroupId` | Удалить группу, если она не назначена на категорию или удаление явно обработано. |
+| Method   | Path                                            | Назначение                                                                                                     |
+| -------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/backoffice/menu/catalog`                      | Вернуть полный каталог: категории, товары, цены размеров, группы опций, опции и назначения групп на категории. |
+| `POST`   | `/backoffice/menu/categories`                   | Создать категорию меню.                                                                                        |
+| `PATCH`  | `/backoffice/menu/categories/:menuCategoryId`   | Изменить название категории и назначенные группы опций.                                                        |
+| `DELETE` | `/backoffice/menu/categories/:menuCategoryId`   | Удалить категорию, если удаление не нарушает целостность каталога.                                             |
+| `POST`   | `/backoffice/menu/items`                        | Создать товар в категории.                                                                                     |
+| `PATCH`  | `/backoffice/menu/items/:menuItemId`            | Изменить товар, категорию, тип товара и ценовую схему.                                                         |
+| `DELETE` | `/backoffice/menu/items/:menuItemId`            | Удалить товар из каталога.                                                                                     |
+| `POST`   | `/backoffice/menu/option-groups`                | Создать группу дополнительных опций.                                                                           |
+| `PATCH`  | `/backoffice/menu/option-groups/:optionGroupId` | Изменить группу, режим выбора и состав опций.                                                                  |
+| `DELETE` | `/backoffice/menu/option-groups/:optionGroupId` | Удалить группу, если она не назначена на категорию или удаление явно обработано.                               |
 
 ## DTO boundary
 
