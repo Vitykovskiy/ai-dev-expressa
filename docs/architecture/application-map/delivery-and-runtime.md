@@ -61,15 +61,18 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Test VPS e2e route
 
-- Финальный feature-level e2e-прогон выполняется против задеплоенного `test` VPS после успешного `Deploy Test` и smoke-check; локальный e2e используется только для разработки или debug.
+- Финальный feature-level e2e-прогон выполняется как browser suite против задеплоенного `test` VPS после успешного `Deploy Test` и smoke-check; локальный browser e2e используется только для разработки или debug.
+- Backend endpoint suites относятся к integration evidence и не закрывают feature-level e2e acceptance.
 - DevOps-owned route для `DO-003` предоставляет `scripts/run-test-vps-e2e.sh` и root wrappers `npm run test:vps:e2e:preflight` / `npm run test:vps:e2e` с режимом preflight и запуском QA-owned e2e command against deployed `test`.
+- `DO-003` сохраняется как historical baseline для non-gate wrapper route.
+- `DO-009` должен расширить route до isolated VPS browser acceptance path для `FEATURE-002`: отдельный compose project или эквивалентная изоляция, полные browser artifacts и cleanup после pass/fail.
 - GitHub entrypoint для QA — ручной workflow `Test VPS E2E`, который использует `environment: test`, существующие secrets/vars, SSH на VPS и запускает wrapper в `TEST_VPS_APP_DIR`; он не является `PR Checks` или `Deploy Test` gate.
 - Входные параметры route можно задать явно: `TEST_E2E_BACKEND_BASE_URL` для backend base URL `test`, `TEST_E2E_BACKOFFICE_ORIGIN` для опубликованного backoffice origin, `TEST_E2E_TELEGRAM_ID` для test-mode Telegram id.
 - При запуске на VPS wrapper также использует существующие deploy/runtime names: `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT` для backend target, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS` для frontend origin, `ADMIN_TELEGRAM_ID` для test-mode id.
 - `TEST_E2E_COMMAND` обязателен только для полного запуска QA-owned e2e command.
 - Опциональные входные параметры route: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
 - Preflight должен подтвердить `GET /health`, test-mode доступ к backoffice API и доступность опубликованного frontend origin до запуска QA-сценариев.
-- Pass/fail output должен содержать commit/версию стенда, backend/frontend targets, результат preflight, результат e2e run и пути к `.log` и `.summary.md` артефактам для QA evidence.
+- Pass/fail output должен содержать commit/версию стенда, backend/frontend targets, идентификатор isolated route, результат preflight, результат browser e2e run и пути к `.log`, `.summary.md` и browser report артефактам для QA evidence.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
 
 ## Env vars

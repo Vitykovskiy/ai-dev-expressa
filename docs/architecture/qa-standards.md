@@ -5,6 +5,8 @@
 - Каждая последующая `FEATURE-*` должна иметь две `QA-*` задачи: manual lane для ручной проверки собранной feature и e2e lane для e2e-покрытия этой feature.
 - Идентификаторы QA-задач сохраняют общий формат `QA-<NNN>`; lane фиксируется в заголовке задачи как `Ручное тестирование ...` или `E2E ...`.
 - Существующие `QA-*` карточки не переписываются массово; новый стандарт применяется к новым feature, а также к существующим feature при новой декомпозиции или переоткрытии.
+- Feature-level e2e означает browser suite, который проходит пользовательские сценарии через опубликованный frontend и backend.
+- Backend endpoint tests, включая HTTP endpoint suites в `backend/test/*`, относятся к integration evidence даже если legacy filename содержит `.e2e.spec.ts`.
 - E2e-проверки строятся на основании пользовательских сценариев из `docs/system/use-cases/*`, `docs/system/ui-behavior-mapping/*`, релевантных contracts и профильных QA-карт в `docs/architecture/application-map/*`.
 - Unit/integration evidence собирается из соответствующих FE/BE задач и используется QA как входное подтверждение, но не заменяет ручную проверку и e2e.
 - Negative paths доступа обязательны для features, связанных с авторизацией и ролями.
@@ -17,10 +19,12 @@
 ## Разделение QA-задач
 
 - Manual QA-задача покрывает ручной проход пользовательских сценариев, exploratory checks в границах feature, UI parity для UI-фич и defect triage.
-- E2e QA-задача покрывает создание или обновление e2e-тестов, прогон e2e на документированном окружении и evidence результата.
-- Если feature поставляется через `main -> test` и для нее задокументирован test VPS e2e route, финальное acceptance evidence e2e lane собирается на задеплоенном `test` VPS после успешного deploy и smoke-check.
-- Локальный e2e или in-process backend e2e допустим для разработки, отладки и быстрого contract feedback, но не закрывает feature-level e2e QA, когда карточка требует deployed test VPS evidence.
-- QA владеет e2e-сценариями, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным run path, preflight, env/secrets и диагностикой доступности стенда.
+- E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite на документированном окружении и evidence результата.
+- Если feature поставляется через `main -> test` и для нее задокументирован test VPS e2e route, финальное acceptance evidence e2e lane собирается на isolated route того же `test` VPS после успешного deploy и smoke-check.
+- Локальный browser e2e используется для разработки и debug; backend endpoint integration используется для contract feedback.
+- Feature-level e2e QA закрывается полным browser suite на isolated test VPS route, когда карточка требует deployed test VPS evidence.
+- QA flow для e2e lane: написать или обновить browser tests, выполнить полный suite через `npm run test:vps:e2e`, приложить wrapper summary и browser report, оформить воспроизводимые defects через `BUG-*`.
+- QA владеет browser e2e-сценариями, fixtures, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным isolated run path, preflight, env/secrets, cleanup и диагностикой доступности стенда.
 - `FEATURE-*` может быть закрыта только после завершения manual QA, e2e QA и закрытия блокирующих `BUG-*` задач.
 
 ## Defect handoff
