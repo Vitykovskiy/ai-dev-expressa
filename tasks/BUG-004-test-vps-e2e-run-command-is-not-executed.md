@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Девопс`
 - Приоритет: `Критический`
-- Статус: `В тестировании`
+- Статус: `Готова к работе`
 
 ## Ссылки на документы
 
@@ -43,4 +43,8 @@
 - `scripts/run-test-vps-e2e.sh` поддерживает `TEST_E2E_COMMAND_B64`, декодирует его в `TEST_E2E_COMMAND` на VPS, валидирует base64 payload и логирует фактическую QA-owned command перед запуском.
 - Обновлены `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/devops-standards.md` для shell-safe command transport.
 - Локальные проверки: `passed` — `bash -n scripts/run-test-vps-e2e.sh`; `passed` — `git diff --check`; `passed` — `npm run test --workspace @expressa/backend -- menu-catalog.e2e.spec.ts`.
-- Внешний evidence для закрытия BUG требует попадания патча в remote branch, повторного `Test VPS E2E` mode `run` и подтверждения, что wrapper доходит до `Running QA-owned e2e command`.
+- PR `#70` смержен в `main` squash commit `33de12f8f8a3f9d66b47dd867e3c3258ca4063f7`; `PR Checks` run `24709144118`: `build` passed, `quality` passed.
+- `Deploy Test` после merge PR `#70`: `success`, GitHub Actions run `24709188255`, stand commit `33de12f8f8a3f9d66b47dd867e3c3258ca4063f7`.
+- `Test VPS E2E` mode `preflight` после merge PR `#70`: `success`, GitHub Actions run `24709198119`, stand commit `33de12f8f8a3f9d66b47dd867e3c3258ca4063f7`; backend health `200`, test-mode API probe `/backoffice/orders` `200`, published backoffice origin `200`.
+- `Test VPS E2E` mode `run` после merge PR `#70`: `failed before wrapper start log`, GitHub Actions run `24709212245`, input command `npm run test:e2e:menu-catalog:vps --workspace @expressa/backend`; workflow encoded command to `TEST_E2E_COMMAND_B64`, SSH action received `TEST_E2E_COMMAND_B64`, but job exited with `Process exited with status 1` before `Test VPS e2e route started`.
+- Текущая классификация: `devops/runtime route`; исходная гипотеза про raw `TEST_E2E_COMMAND` со spaces через `appleboy/ssh-action envs` не закрывает дефект полностью. Следующая проверка должна диагностировать участок wrapper до стартового лога: наличие `TEST_E2E_COMMAND_B64` внутри remote shell, декодирование base64, `require_env "TEST_E2E_COMMAND"` и ранний fail/log output.
