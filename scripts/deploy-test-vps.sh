@@ -112,6 +112,48 @@ run_optional_command() {
   bash -lc "$command"
 }
 
+stop_docker_containers_by_port() {
+  local port="$1"
+  local container_ids
+
+  container_ids="$(docker ps -q --filter "publish=${port}" 2>/dev/null || true)"
+
+  if [[ -n "$container_ids" ]]; then
+    docker stop $container_ids >/dev/null
+  fi
+}
+
+kill_processes_by_port() {
+  local port="$1"
+  local pids=""
+
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${port}/tcp" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  if command -v lsof >/dev/null 2>&1; then
+    pids="$(lsof -ti "tcp:${port}" 2>/dev/null || true)"
+  elif command -v ss >/dev/null 2>&1; then
+    pids="$(
+      ss -ltnp "( sport = :${port} )" 2>/dev/null \
+        | sed -nE 's/.*pid=([0-9]+).*/\1/p' \
+        | sort -u
+    )"
+  fi
+
+  if [[ -n "$pids" ]]; then
+    kill $pids >/dev/null 2>&1 || true
+  fi
+}
+
+free_host_port() {
+  local port="$1"
+
+  stop_docker_containers_by_port "$port"
+  kill_processes_by_port "$port"
+}
+
 COMPOSE_PROJECT_NAME_INPUT="${DEPLOY_PROJECT_NAME:-expressa-test}"
 COMPOSE_PROJECT_NAME="$(printf "%s" "$COMPOSE_PROJECT_NAME_INPUT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
 COMPOSE_FILE_PATH="$(make_absolute_path "$COMPOSE_FILE_INPUT")"
@@ -178,6 +220,8 @@ export TEST_DEPLOY_HOST_FRONTEND_PORT="${TEST_DEPLOY_HOST_FRONTEND_PORT:-8080}"
 docker_registry_login
 run_optional_command "${LEGACY_BACKEND_STOP_COMMAND:-}"
 run_optional_command "${LEGACY_FRONTEND_STOP_COMMAND:-}"
+free_host_port "$TEST_DEPLOY_HOST_BACKEND_PORT"
+free_host_port "$TEST_DEPLOY_HOST_FRONTEND_PORT"
 
 PREVIOUS_BACKEND_IMAGE="$(inspect_running_image backend)"
 PREVIOUS_FRONTEND_IMAGE="$(inspect_running_image frontend)"
