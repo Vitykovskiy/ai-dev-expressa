@@ -92,7 +92,7 @@
 
 - `AGENTS.md` — обязательная инструкция для агентов: перед анализом, изменением файлов или постановкой задач нужно сначала прочитать `README.md`.
 - `README.md` — корневая навигация по репозиторию и общий процессный слой.
-- `package.json` — tooling-слой монорепозитория: `npm workspaces`, `husky`, `lint-staged`, `prettier`, `eslint`, `stylelint`, `quality`, `build`, а также корневые команды запуска отдельных контуров.
+- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, а также команды запуска и проверки отдельных контуров через `--prefix`.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа и тесты.
@@ -133,8 +133,8 @@
 
 ## Tooling
 
-- Перед локальной работой выполните `npm install` в корне репозитория. Это устанавливает root tooling, зависимости `backend/frontend` через `npm workspaces` и подготавливает `husky` hook через `prepare`.
-- Корневой pre-commit hook запускает `lint-staged`: `prettier` для staged text-файлов, `eslint` для staged backend/frontend TypeScript/Vue и `stylelint` для staged frontend style-файлов и Vue style blocks.
+- Перед локальной работой выполните `npm install` в корне репозитория для установки `husky` и `lint-staged`, затем `npm install --prefix backend` и `npm install --prefix frontend` для автономной установки контуров.
+- Корневой pre-commit hook запускает `lint-staged`: форматирование и линтинг делегируются в локальные binaries `backend` и `frontend`.
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.
@@ -142,7 +142,7 @@
 ## Backend
 
 - Контур находится в `backend/`.
-- Установка зависимостей: `npm install` в корне репозитория.
+- Установка зависимостей: `npm install --prefix backend`.
 - Lint: `npm run lint`.
 - Format: `npm run format`.
 - Format check: `npm run format:check`.
@@ -158,7 +158,7 @@
 ## Frontend
 
 - Контур находится в `frontend/`.
-- Установка зависимостей: `npm install` в корне репозитория.
+- Установка зависимостей: `npm install --prefix frontend`.
 - Dev server из корня: `npm run dev:frontend`.
 - Dev server из каталога контура: `npm run dev`.
 - Lint: `npm run lint`.

@@ -26,10 +26,10 @@
 ## PR gates для качества кода
 
 - Каждый запрос на слияние в `main` должен запускать обязательные jobs для статических проверок, тестов и сборки затронутых контуров.
-- Workflow `PR Checks` использует `npm ci` в корне репозитория как единый источник установки `npm workspaces`, чтобы `eslint`, `prettier`, `stylelint`, `husky`, `lint-staged` и зависимости `backend/frontend` были версионированы и воспроизводимы.
+- Workflow `PR Checks` использует `npm ci` в корне репозитория для `husky` и `lint-staged`, `npm ci --prefix backend` для серверного контура и `npm ci --prefix frontend` для клиентского контура.
 - Обязательные backend gates: `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.
 - Обязательные frontend gates: `npm run lint`, `npm run stylelint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.
-- Корневые orchestration-команды `npm run quality` и `npm run build` обязаны воспроизводить тот же набор проверок и сборок через workspace-скрипты без отдельного ручного `npm ci` в контурах.
+- Корневые orchestration-команды `npm run quality` и `npm run build` обязаны воспроизводить тот же набор проверок и сборок через `--prefix`-делегирование в `backend/` и `frontend/`.
 - CI workflow должен завершаться ошибкой при любом нарушении lint, formatting, stylelint, typecheck, tests или build. Warning-only режим для обязательного gate запрещён.
 - PR считается готовым к ревью только если локальный исполнитель может воспроизвести те же команды в соответствующих каталогах `backend/` и `frontend/`.
 - Если задача затрагивает только один контур, CI может оптимизировать запуск по paths, но обязательные gates для затронутого контура не должны пропадать.
@@ -39,7 +39,7 @@
 
 - Pre-commit hook должен запускать `lint-staged` на изменённых файлах и блокировать commit при ошибке formatting, lint или stylelint для файлов, к которым применимы эти проверки.
 - Установка hooks выполняется через root `package.json` lifecycle `prepare`; ручной запуск shell-команд для локального связывания hook не является стандартным путём.
-- `lint-staged` должен как минимум запускать `prettier --write` для staged text-файлов, `eslint --fix` для staged backend/frontend TypeScript/Vue файлов и `stylelint --fix` для staged frontend style-файлов и Vue style blocks.
+- `lint-staged` должен как минимум запускать `prettier --write` через локальные binaries контуров для staged text-файлов, `eslint --fix` внутри `backend/` и `frontend/` для TypeScript/Vue файлов и `stylelint --fix` внутри `frontend/` для style-файлов и Vue style blocks.
 - Hook не заменяет полные `test`, `typecheck` и `build`; эти команды остаются обязательными перед передачей задачи на ревью.
 - Конфигурация hooks должна быть версионирована в репозитории. Установка hooks должна быть описана через npm scripts или стандартный lifecycle, а не через ручные локальные инструкции.
 - Отключение hook допустимо только как аварийное действие исполнителя и не является evidence для ревью.

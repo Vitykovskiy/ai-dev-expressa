@@ -5,9 +5,9 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "npx eslint . --config eslint.config.mjs",
-    "format": "npx prettier --ignore-path ../.prettierignore --write .",
-    "format:check": "npx prettier --ignore-path ../.prettierignore --check .",
+    "lint": "eslint . --config eslint.config.mjs",
+    "format": "prettier --ignore-path ../.prettierignore --write .",
+    "format:check": "prettier --ignore-path ../.prettierignore --check .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/main.js",
     "start:dev": "tsx watch src/main.ts",
@@ -22,13 +22,19 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@nestjs/testing": "^11.1.19",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.2",
     "@types/supertest": "^6.0.2",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.5.0",
+    "prettier": "^3.8.3",
     "supertest": "^7.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.58.2",
     "vitest": "^4.1.4"
   }
 }

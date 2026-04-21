@@ -24,9 +24,17 @@ jobs:
           cache: npm
           cache-dependency-path: |
             package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
 
-      - name: Install workspace dependencies
+      - name: Install root tooling
         run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
 
       - name: Quality checks
         run: npm run quality
@@ -45,9 +53,17 @@ jobs:
           cache: npm
           cache-dependency-path: |
             package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
 
-      - name: Install workspace dependencies
+      - name: Install root tooling
         run: npm ci
 
-      - name: Build workspaces
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+
+      - name: Build contours
         run: npm run build
