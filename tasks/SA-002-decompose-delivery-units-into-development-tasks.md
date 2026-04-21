@@ -16,7 +16,7 @@
 - Vision: `docs/business/vision/expressa-v1-telegram-ordering.md`
 - Сценарии: `docs/business/scenarios/customer-place-pickup-order.md`, `docs/business/scenarios/customer-view-order-history.md`, `docs/business/scenarios/barista-confirm-order.md`, `docs/business/scenarios/barista-reject-order.md`, `docs/business/scenarios/barista-mark-order-ready.md`, `docs/business/scenarios/barista-close-order.md`, `docs/business/scenarios/barista-manage-menu-availability.md`, `docs/business/scenarios/barista-receive-order-reminder.md`, `docs/business/scenarios/administrator-manage-menu.md`, `docs/business/scenarios/administrator-manage-slot-settings.md`, `docs/business/scenarios/administrator-manage-users-and-roles.md`, `docs/business/scenarios/administrator-block-user.md`
 - Требования / правила: `docs/business/business-rules/access-and-roles.md`, `docs/business/business-rules/menu-catalog-and-options.md`, `docs/business/business-rules/pickup-slots-and-capacity.md`, `docs/business/business-rules/order-lifecycle-and-history.md`, `docs/business/business-rules/backoffice-operations.md`
-- Дополнительные материалы: `docs/system/README.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `templates/task-template.md`, `templates/task-template-instruction.md`
+- Дополнительные материалы: `docs/system/README.md`, `docs/system/system-context/expressa-v1-telegram-ordering.md`, `process/templates/task-template.md`, `process/templates/task-template-instruction.md`
 
 ## Примечания
 

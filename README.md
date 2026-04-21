@@ -4,6 +4,8 @@
 
 В текущем состоянии это каркас проекта с документацией, task-артефактами, инфраструктурными скриптами и двумя прикладными контурами: серверным контуром идентификации и доступа и клиентским backoffice-контуром.
 
+`README.md` является project-specific навигационной точкой входа. Переносимый процесс вынесен в `process/`.
+
 ## Текущая структура
 
 В дереве ниже показаны только значимые точки навигации. Служебные конфиги форматирования, линтинга, Git, редактора и lock-файлы намеренно не перечисляются.
@@ -15,6 +17,11 @@
 |-- AGENTS.md
 |-- README.md
 |-- WORKFLOW.md
+|-- process/
+|   |-- README.md
+|   |-- workflow.md
+|   |-- prompts/
+|   `-- templates/
 |-- package.json
 |-- terms-map.md
 |-- backend/
@@ -50,47 +57,30 @@
 |   |-- business/
 |   `-- system/
 |-- tasks/
-|-- prompts/
-|   |-- architect/
-|   |   `-- prompt.md
-|   |-- backend/
-|   |   `-- prompt.md
-|   |-- business-analyst/
-|   |   `-- prompt.md
-|   |-- context-collector/
-|   |   `-- prompt.md
-|   |-- devops/
-|   |   `-- prompt.md
-|   |-- frontend/
-|   |   `-- prompt.md
-|   |-- qa/
-|   |   `-- prompt.md
-|   `-- system-analyst/
-|       |-- prompt.md
-|       `-- task-tree-rules.md
 |-- scripts/
 |   |-- deploy-test-vps.sh
 |   `-- run-test-vps-e2e.sh
-`-- templates/
-    |-- context-package-template.md
-    |-- task-template-instruction.md
-    `-- task-template.md
 ```
 
 ## Что где находится
 
-- `AGENTS.md` — корневая инструкция для агентской работы в этом репозитории.
-- `WORKFLOW.md` — отдельный документ с описанием процесса работы агентов.
+- `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
+- `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
+- `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
 - `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, а также команды запуска и проверки отдельных контуров через `--prefix`.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа и тесты.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — task-артефакты проекта.
-- `prompts/` — ролевые промпты, используемые в процессе работы над проектом.
-- `templates/` — шаблоны task-артефактов и контекстных пакетов.
 - `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
 - `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
+
+## Process и project
+
+- `process/` определяет переносимый workflow, ролевые инструкции и шаблоны без project-specific фактов.
+- `docs/`, `tasks/`, `README.md` и `terms-map.md` остаются project-specific слоем.
+- `WORKFLOW.md` сохранен только как compatibility-shim и перенаправляет в `process/workflow.md`.
 
 ## Рабочие каталоги
 
@@ -99,7 +89,7 @@
 - `docs/business/` — бизнес-артефакты: vision, glossary, business-rules, scenarios.
 - `docs/system/` — системные артефакты: system-context, feature-specs, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
-- `tasks/` — task-артефакты проекта.
+- `tasks/` — project-specific task-артефакты.
 - `.references/` — локальные визуальные или входные референсы; каталог исключен из Git через `.gitignore`.
 
 ## Tooling

@@ -48,7 +48,7 @@ The result must be sufficient for:
 - Read relevant artifacts in `docs/system/`, if they already exist.
 - Create or update canonical `.md` artifacts only in `docs/system/`.
 - Create or update `SPRINT-*` and `FEATURE-*` tasks in `tasks/` when the assigned task requires preparing delivery-ready increments for handoff to architecture and development.
-- Create or update implementation task cards in `tasks/` only when the assigned task explicitly requires decomposition into delivery-ready development tasks and only within the task types allowed by `prompts/system-analyst/task-tree-rules.md`.
+- Create or update implementation task cards in `tasks/` only when the assigned task explicitly requires decomposition into delivery-ready development tasks and only within the task types allowed by `process/prompts/system-analyst/task-tree-rules.md`.
 - Create or update the system documentation map in `docs/system/README.md` when system artifacts are created, renamed, split, merged, or materially changed.
 - Normalize artifact structure when an existing file violates the canonical boundary.
 - Ask one clarifying question at a time only for ambiguity that remains open after reading existing artifacts.
@@ -108,7 +108,7 @@ Additional required file:
 
 The common description of business analysis documents is in `docs/business/README.md`
 
-When the task requires creating or updating development task cards, additionally apply `prompts/system-analyst/task-tree-rules.md` as the source of truth for the task-tree structure around one sprint and its feature tasks.
+When the task requires creating or updating development task cards, additionally apply `process/prompts/system-analyst/task-tree-rules.md` as the source of truth for the task-tree structure around one sprint and its feature tasks.
 
 Approved UI contracts may exist in `docs/system/ui-contracts/` or in another explicitly assigned repository path. When they exist, treat them as implementation-relevant behavioral input, not as optional design references.
 
@@ -134,8 +134,8 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 
 Apply this section only when the assigned task explicitly requires creating or updating cards in `tasks/`.
 
-- Use `templates/task-template.md` and `templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
-- Use `prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how `SPRINT-*` and `FEATURE-*` tasks must be represented before architectural decomposition.
+- Use `process/templates/task-template.md` and `process/templates/task-template-instruction.md` as the mandatory shape for every created or updated task card.
+- Use `process/prompts/system-analyst/task-tree-rules.md` as the mandatory instruction for how `SPRINT-*` and `FEATURE-*` tasks must be represented before architectural decomposition.
 - One implementation task card created by the system analyst must correspond to exactly one sprint.
 - In this workflow, the finished, working, testable, and demonstrable delivery increment for customer or stakeholder is `FEATURE-*`, not `SPRINT-*`.
 - Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate features unless they can be accepted as standalone finished results.

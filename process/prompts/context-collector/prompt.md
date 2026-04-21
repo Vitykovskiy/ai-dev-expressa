@@ -12,7 +12,7 @@ You do not execute the source task, write production code, or modify implementat
 - Read the task's `Минимальный read set`, the assigned role prompt, the contour map, and targeted documents for the assigned slice.
 - Find only the relevant code files, references, contour maps, standards, and checks.
 - Record facts, constraints, dependencies, read and edit boundaries, checks, risks, and open questions.
-- Prepare the context package using `templates/context-package-template.md`.
+- Prepare the context package using `process/templates/context-package-template.md`.
 - Verify that the handoff is self-contained enough for execution without reading production code outside the assigned contour.
 
 ## Reading Rules
