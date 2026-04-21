@@ -28,6 +28,10 @@ Optional environment:
   DEPLOY_REGISTRY_USERNAME
   DEPLOY_REGISTRY_PASSWORD
                           Optional registry pull credentials for VPS rollout.
+  LEGACY_BACKEND_STOP_COMMAND
+  LEGACY_FRONTEND_STOP_COMMAND
+                          Optional host-level stop commands used once during container rollout
+                          to free ports from the legacy non-container runtime.
   TEST_DEPLOY_HOST_BACKEND_PORT
                           Host loopback port for backend container. Defaults to PORT or 3000.
   TEST_DEPLOY_HOST_FRONTEND_PORT
@@ -98,6 +102,16 @@ docker_registry_login() {
   printf "%s" "$DEPLOY_REGISTRY_PASSWORD" | docker login "$DEPLOY_REGISTRY" --username "$DEPLOY_REGISTRY_USERNAME" --password-stdin
 }
 
+run_optional_command() {
+  local command="$1"
+
+  if [[ -z "$command" ]]; then
+    return 0
+  fi
+
+  bash -lc "$command"
+}
+
 COMPOSE_PROJECT_NAME_INPUT="${DEPLOY_PROJECT_NAME:-expressa-test}"
 COMPOSE_PROJECT_NAME="$(printf "%s" "$COMPOSE_PROJECT_NAME_INPUT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
 COMPOSE_FILE_PATH="$(make_absolute_path "$COMPOSE_FILE_INPUT")"
@@ -162,6 +176,8 @@ export TEST_DEPLOY_HOST_BACKEND_PORT="${TEST_DEPLOY_HOST_BACKEND_PORT:-${PORT:-3
 export TEST_DEPLOY_HOST_FRONTEND_PORT="${TEST_DEPLOY_HOST_FRONTEND_PORT:-8080}"
 
 docker_registry_login
+run_optional_command "${LEGACY_BACKEND_STOP_COMMAND:-}"
+run_optional_command "${LEGACY_FRONTEND_STOP_COMMAND:-}"
 
 PREVIOUS_BACKEND_IMAGE="$(inspect_running_image backend)"
 PREVIOUS_FRONTEND_IMAGE="$(inspect_running_image frontend)"
