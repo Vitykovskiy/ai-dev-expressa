@@ -11,8 +11,24 @@
 1. Прочитать локальный project entrypoint.
 2. Найти или создать карточку задачи по шаблону из `process/templates/`.
 3. Прочитать профильный промпт роли из `process/prompts/`.
-4. Использовать документы из поля `Минимальный read set` в карточке задачи.
-5. Обновить навигационные документы, если структура process-layer или проектная навигация изменились.
+4. Для `FEATURE-*` открыть `process/templates/feature-spec-template.md` и `process/templates/feature-test-scenarios-template.md`.
+5. Использовать документы из поля `Минимальный read set` в карточке задачи.
+6. Обновить навигационные документы, если структура process-layer или проектная навигация изменились.
+
+### Feature workflow
+
+Для `FEATURE-*` системный аналитик формирует feature package в следующем порядке:
+
+1. Источники и границы задачи.
+2. Пользовательский сценарий.
+3. Сущности и связи между ними.
+4. Последовательность действий пользователя, привязанная к UI-элементам.
+5. Ограничения инпутов, validations, errors и крайние случаи.
+6. Design readiness и оценка полноты прототипа.
+7. Feature spec.
+8. Документ сценариев тестирования фичи.
+
+Передача архитектору выполняется после того, как feature package полный и прототип готов к работе. Если прототип неполный, системный аналитик фиксирует blocker в task-card и удерживает `FEATURE-*` в ожидании завершения подготовки.
 
 Для UI-ориентированных `FEATURE-*` обязательный маршрут чтения включает релевантные versioned-артефакты из `.references/`, если они указаны в карточке задачи, UI contract или feature spec.
 
@@ -32,6 +48,7 @@
 
 - `process/templates/task-template.md` — форма карточки задачи.
 - `process/templates/task-template-instruction.md` — инструкция по заполнению карточки, допустимые роли, статусы, приоритеты и правила ссылок.
+- `process/templates/feature-spec-template.md` — форма feature spec для `FEATURE-*`.
 - `process/templates/context-package-template.md` — форма контекстного пакета подзадачи для передачи исполнителю.
 - `process/templates/feature-test-scenarios-template.md` — форма сценариев тестирования фичи рядом с feature spec.
 
