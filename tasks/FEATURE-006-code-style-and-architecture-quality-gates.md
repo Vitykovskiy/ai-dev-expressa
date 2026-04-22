@@ -17,7 +17,7 @@
 - Архитектурные артефакты: `docs/architecture/README.md`, `docs/architecture/stack.md`, `docs/architecture/frontend-architecture.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/devops-standards.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/qa-menu-catalog.md`
 - Бизнес-артефакты: `не требуются`
-- Дополнительные материалы: `templates/task-template.md`, `templates/task-template-instruction.md`
+- Дополнительные материалы: `process/templates/task-template.md`, `process/templates/task-template-instruction.md`
 
 ## Примечания
 
