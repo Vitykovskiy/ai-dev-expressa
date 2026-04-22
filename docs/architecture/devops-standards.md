@@ -23,6 +23,7 @@
 
 - DevOps готовит e2e run path только по назначенной `DO-*` задаче.
 - Для `QA-005` DevOps-owned run path должен включать локальный containerized runner, который собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime, выполняет preflight, сохраняет pass/fail артефакты и возвращает воспроизводимый код завершения.
+- Локальная команда запуска QA-005 e2e runner: `npm run test:e2e:local`.
 - DevOps-owned runner должен иметь одну локальную команду запуска для QA и документированный формат evidence: runner summary, browser report, путь к логам и явный pass/fail status.
 - DevOps-owned runner должен иметь минимальную smoke e2e-проверку маршрута запуска без владения feature assertions `QA-005`.
 - `DO-003` и `scripts/run-test-vps-e2e.sh` являются historical/deprecated baseline для запуска QA-owned команды против уже опубликованного `test` стенда и не являются acceptance path для `QA-005`.

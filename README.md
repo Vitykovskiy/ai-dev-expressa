@@ -73,7 +73,7 @@
 - `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
-- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команда `deploy:test:vps`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команды `deploy:test:vps` и `test:e2e:local`, а также команды запуска и проверки отдельных контуров через `--prefix`.
 - `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
@@ -105,6 +105,7 @@
 - Корневой pre-commit hook запускает `lint-staged`: форматирование и линтинг делегируются в локальные binaries `backend` и `frontend`.
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
+- Локальный containerized e2e runner для `QA-005` запускается из корня через `npm run test:e2e:local`; команда собирает Docker-контейнер, стартует backend/frontend/browser e2e внутри контейнера и сохраняет evidence в `artifacts/qa-005-local-e2e`.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.
 
 ## Backend

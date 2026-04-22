@@ -39,6 +39,7 @@
 - Локальный containerized route должен собирать Docker-контейнер со всем приложением перед e2e-прогоном.
 - Локальный containerized route должен запускать backend, frontend и browser e2e внутри локального Docker runtime.
 - Локальный containerized route должен выполнять preflight запуска, сохранять pass/fail evidence и возвращать воспроизводимый код завершения.
+- Локальная команда запуска `QA-005`: `npm run test:e2e:local`.
 - DevOps предоставляет runner и smoke e2e-проверку маршрута запуска по отдельной подзадаче QA-005/02; QA предоставляет feature scenarios, fixtures, assertions и defect handoff.
 - `DO-003`, `scripts/run-test-vps-e2e.sh`, `npm run test:vps:e2e:preflight`, `npm run test:vps:e2e` и workflow `Test VPS E2E` являются historical/deprecated baseline для запуска QA-owned команды против опубликованного `test` стенда и не являются acceptance path для `QA-005`.
 - Минимальный output e2e route: commit/версия проверяемого кода, локальные backend/frontend targets внутри runner, результат preflight, результат browser e2e run, путь к runner summary, логам и browser report артефактам.

@@ -26,6 +26,7 @@
 - Administrator назначает группу дополнительных опций на категорию, и товары категории наследуют эту группу.
 - Пользователь без capability `menu` не может выполнить операции управления каталогом по прямому route/API.
 - Финальный e2e acceptance для `QA-005` подтверждается полным browser suite через локальный containerized route: runner собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime и сохраняет pass/fail evidence.
+- Команда финального локального e2e-прогона для `QA-005`: `npm run test:e2e:local`.
 - Backend endpoint coverage используется как integration evidence для входного подтверждения и debug, но не является feature-level e2e.
 - QA создает `BUG-*` задачи для воспроизводимых product failures с меткой `frontend` или `backend`, если контур причины ясен.
 - QA создает `BUG-*` задачи для воспроизводимых launch failures runner, Docker runtime, env/config или test path с меткой `devops`, если контур причины ясен.

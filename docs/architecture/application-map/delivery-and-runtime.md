@@ -66,6 +66,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - DevOps-owned route должен собирать Docker-контейнер со всем приложением перед e2e-прогоном.
 - DevOps-owned route должен запускать backend, frontend и browser e2e внутри локального Docker runtime.
 - DevOps-owned route должен иметь одну локальную команду запуска для QA, preflight запуска, runner summary, browser report, логи и явный pass/fail status.
+- Локальная команда запуска `QA-005`: `npm run test:e2e:local`.
 - DevOps-owned route должен включать минимальную smoke e2e-проверку запуска runner без владения feature assertions `QA-005`.
 - QA-owned часть route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
 - `DO-003`, `scripts/run-test-vps-e2e.sh`, `npm run test:vps:e2e:preflight`, `npm run test:vps:e2e` и workflow `Test VPS E2E` сохраняются только как historical/deprecated baseline для non-gate wrapper route против опубликованного `test` стенда.
@@ -96,6 +97,13 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `TEST_E2E_ENV_FILE` или `ENV_FILE` может указывать на env-файл стенда; wrapper source-ит его до вычисления fallback-переменных e2e route.
 - `TEST_E2E_ARTIFACT_DIR` задаёт каталог `.log` и `.summary.md` артефактов; по умолчанию `artifacts/test-vps-e2e`.
 - `TEST_E2E_STAND_COMMIT` может явно зафиксировать commit/версию стенда для evidence; если не задан, wrapper пробует SSH lookup через `TEST_E2E_REMOTE_SSH_TARGET` и `TEST_E2E_REMOTE_APP_DIR`, затем локальный `git rev-parse HEAD`.
+- `LOCAL_E2E_ARTIFACT_DIR` задаёт каталог evidence для локального containerized e2e runner; по умолчанию `artifacts/qa-005-local-e2e`.
+- `LOCAL_E2E_IMAGE_TAG` задаёт Docker image tag локального e2e runner; по умолчанию `expressa-local-e2e:qa-005`.
+- `LOCAL_E2E_BASE_IMAGE` задаёт Docker base image локального e2e runner; по умолчанию используется актуальный Playwright image, а runner может выбрать локально закэшированный compatible image для обхода повторного registry pull.
+- `LOCAL_E2E_TEST_COMMAND` задаёт команду browser e2e внутри контейнера; по умолчанию `npm --prefix e2e test`.
+- `LOCAL_E2E_RUN_ID` задаёт идентификатор локального e2e-прогона; по умолчанию используется UTC timestamp.
+- `E2E_BASE_URL` задаёт frontend target внутри контейнера; по умолчанию `http://127.0.0.1:4173`.
+- `E2E_BACKEND_BASE_URL` задаёт backend target внутри контейнера; по умолчанию `http://127.0.0.1:3000`.
 
 ## Backend commands
 
