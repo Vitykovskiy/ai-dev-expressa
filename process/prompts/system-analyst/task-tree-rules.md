@@ -10,8 +10,10 @@ This instruction defines how the system analyst must form the task tree for one 
 - `FEATURE-*` is the only delivery-unit coordination card: one feature is one finished, working, testable, and demonstrable outcome for a customer or stakeholder.
 - `FEATURE-*` is not an implementation task.
 - A `FEATURE-*` with missing or outdated feature spec, feature test scenarios, design readiness, validations, errors, edge cases, or QA coverage mapping must be owned by the system analyst.
+- A `FEATURE-*` remains in analytical preparation until its feature spec and sibling feature test scenarios document are ready for architecture handoff.
 - An analytically ready `FEATURE-*` must be handed to the architect for decomposition before implementation starts.
 - Production code, tests, runtime configuration, and `.references/` changes are made only under child `AR/FE/BE/DO/QA-*` tasks or `BUG-*` tasks with explicit edit boundaries.
+- The system analyst does not create `AR/FE/BE/DO/QA-*` child tasks by default.
 - An internal technical prerequisite, analytical system slice, or isolated capability qualifies as a standalone feature only when it can be accepted as a separate finished outcome.
 - The system analyst creates or updates `SPRINT-*` and `FEATURE-*` cards.
 - A `FEATURE-*` card uses `Роль: Системный аналитик` during feature-level system documentation preparation.
@@ -25,6 +27,7 @@ This instruction defines how the system analyst must form the task tree for one 
 - The feature test scenarios document must cover stable scenario IDs, manual QA route, required e2e coverage, expected results, required assertions, and coverage mapping placeholders.
 - The system analyst must not create architect, backend, frontend, DevOps, or QA child tasks in advance.
 - The architect accepts one analytically ready `FEATURE-*` at a time and decomposes it into `AR/FE/BE/DO/QA-*` tasks.
+- If a UI feature has approved contracts or prototypes, the system analyst records the feature-spec trace, the UI behavior mapping, and the exact versioned design sources needed for handoff.
 - For every subsequent feature decomposition, two QA tasks are mandatory: one manual QA task and one e2e QA task.
 - The manual QA task must cover user scenario acceptance, manual exploratory checks, UI parity for UI features, and defect triage.
 - The e2e QA task must include e2e tests for that feature based on user scenarios.
