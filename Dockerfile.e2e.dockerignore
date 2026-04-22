@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+**/coverage
+artifacts
+playwright-report
+**/playwright-report
+test-results
+**/test-results
+.git
+.env
+**/.env.local
+.references

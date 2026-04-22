@@ -17,6 +17,8 @@
 |-- AGENTS.md
 |-- README.md
 |-- WORKFLOW.md
+|-- docker-compose.deploy.yml
+|-- Dockerfile.e2e
 |-- process/
 |   |-- README.md
 |   |-- workflow.md
@@ -25,18 +27,28 @@
 |-- package.json
 |-- terms-map.md
 |-- backend/
+|   |-- .dockerignore
+|   |-- Dockerfile
 |   |-- .env.example
 |   |-- src/
 |   |   `-- identity-access/
 |   `-- test/
 |-- frontend/
+|   |-- .dockerignore
+|   |-- Dockerfile
 |   |-- .env.example
 |   |-- index.html
+|   |-- nginx.conf
 |   `-- src/
 |       |-- components/
 |       |-- modules/
 |       |-- router/
 |       `-- views/
+|-- e2e/
+|   |-- menu-catalog/
+|   |-- smoke/
+|   |-- package.json
+|   `-- playwright.config.ts
 |-- docs/
 |   |-- architecture/
 |   |   |-- README.md
@@ -59,6 +71,8 @@
 |-- tasks/
 |-- scripts/
 |   |-- deploy-test-vps.sh
+|   |-- local-e2e-container-entrypoint.sh
+|   |-- run-local-container-e2e.sh
 |   `-- run-test-vps-e2e.sh
 ```
 
@@ -67,14 +81,17 @@
 - `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
-- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команды `deploy:test:vps` и `test:e2e:local`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов.
+- `Dockerfile.e2e` — локальный containerized runner для browser e2e `QA-005`.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
-- `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard и тесты.
-- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify` для `FEATURE-001`: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа и тесты.
+- `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
+- `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify`, а также Docker/Nginx-артефакты client runtime для `test` VPS: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа, тесты, `Dockerfile` и `nginx.conf`.
+- `e2e/` — Playwright e2e-контур для локального containerized runner `QA-005`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — task-артефакты проекта.
-- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS.
-- `.github/workflows/` — GitHub Actions для обязательных PR-проверок и автодеплоя `main` в `test`-окружение на VPS.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS, `run-local-container-e2e.sh` обслуживает локальный acceptance path для `QA-005`, `run-test-vps-e2e.sh` сохраняется как historical/deprecated QA e2e route.
+- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в `test`-окружение на VPS.
 
 ## Process и project
 
@@ -90,7 +107,7 @@
 - `docs/system/` — системные артефакты: system-context, feature-specs, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
 - `tasks/` — project-specific task-артефакты.
-- `.references/` — версионируемые визуальные и входные референсы проекта; каталог является каноническим источником для UI/design workflow
+- `.references/` — версионируемые визуальные и входные референсы проекта; каталог является каноническим источником для UI/design workflow.
 
 ## Tooling
 
@@ -98,6 +115,7 @@
 - Корневой pre-commit hook запускает `lint-staged`: форматирование и линтинг делегируются в локальные binaries `backend` и `frontend`.
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
+- Локальный containerized e2e runner для `QA-005` запускается из корня через `npm run test:e2e:local`; команда собирает Docker-контейнер, стартует backend/frontend/browser e2e внутри контейнера и сохраняет evidence в `artifacts/qa-005-local-e2e`.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.
 
 ## Backend

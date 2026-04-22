@@ -20,7 +20,7 @@ import { MenuCatalogService } from "../src/menu-catalog/menu-catalog.service";
 import { InMemoryMenuCatalogRepository } from "../src/menu-catalog/repository/in-memory-menu-catalog.repository";
 import { MENU_CATALOG_REPOSITORY } from "../src/menu-catalog/repository/menu-catalog.repository";
 
-describe("Menu catalog e2e", () => {
+describe("Menu catalog integration", () => {
   let app: INestApplication | undefined;
 
   afterEach(async () => {

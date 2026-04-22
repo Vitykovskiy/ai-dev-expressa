@@ -35,5 +35,5 @@
 - Расширен `BackofficeAuthGuard`: статические backoffice endpoints могут задавать capability через metadata decorator, а `/backoffice/:capability` продолжает работать по path parameter.
 - Runtime-конфигурация backend переведена на `@nestjs/config`: прямой `dotenv` bootstrap и direct dependency `dotenv` удалены.
 - Зафиксированы доменные проверки `invalid-drink-size-model` и `invalid-option-group-rule`, а также отказ `backoffice-capability-forbidden` для пользователя без capability `menu`.
-- Добавлены тесты `backend/test/menu-catalog-domain.spec.ts` и `backend/test/menu-catalog.e2e.spec.ts`.
+- Добавлены тесты `backend/test/menu-catalog-domain.spec.ts` и `backend/test/menu-catalog.integration.spec.ts`.
 - Обновлены `docs/system/contracts/menu-and-availability-management.md`, `docs/architecture/application-map/backend-menu-catalog.md` и `docs/architecture/application-map/backend-access.md`.

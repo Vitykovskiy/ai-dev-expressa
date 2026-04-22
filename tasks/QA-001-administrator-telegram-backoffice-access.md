@@ -30,7 +30,7 @@
 
 ## Результат выполнения
 
-- Добавлен endpoint-level regression/e2e сценарий `backend/test/backoffice-entry.e2e.spec.ts` для цепочки `Telegram entry -> session -> capability access`, production-like отказа без Telegram и разрешённого test-mode входа.
+- Добавлен endpoint-level integration/regression сценарий `backend/test/backoffice-entry.integration.spec.ts` для цепочки `Telegram entry -> session -> capability access`, production-like отказа без Telegram и разрешённого test-mode входа.
 - Подтверждено unit/integration evidence: `backend/test/bootstrap-administrator.spec.ts`, `backend/test/access-config.spec.ts`, `backend/test/backoffice-auth.spec.ts`, `backend/test/backoffice-role-guard.spec.ts`, `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts`.
 - Подтверждён smoke affected contours: `cd backend && npm test && npm run build`, `cd frontend && npm test && npm run build`.
 - Подтверждён runtime smoke backend:

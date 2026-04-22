@@ -19,7 +19,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
-- Secrets для SSH-доступа к VPS и удалённой restart-команды хранятся в GitHub Secrets.
+- Secrets для SSH-доступа к VPS, registry credentials и smoke-check overrides хранятся в GitHub Secrets.
 - Runtime переменные приложения на VPS передаются через окружение процесса или внешний env-файл стенда и не коммитятся в репозиторий.
 
 ## Local dev contract
@@ -42,24 +42,35 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## Test VPS deployment contract
 
 - Ветка `main` является источником автодеплоя на VPS `test`-окружения.
-- Перед запуском deploy workflow выполняет `git pull --ff-only origin main` на VPS и вызывает версионированный скрипт `scripts/deploy-test-vps.sh`.
+- Workflow `Deploy Test` собирает и публикует versioned backend/frontend runtime images в `ghcr.io` с tag, равным `github.sha`.
+- Перед запуском rollout workflow синхронизирует checkout на VPS с `origin/main`, затем вызывает версионированный скрипт `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
-- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до рестарта backend.
+- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до container rollout.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
-- Workflow deploy должен уметь выполнить удалённую команду рестарта приложения без предположений о конкретном process manager; конкретная команда хранится в `TEST_DEPLOY_RESTART_COMMAND`.
+- Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`, а launcher использует `docker-compose.deploy.yml` для frontend и backend сервисов.
+- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull backend frontend` и `docker compose up -d backend frontend`.
+- Порт backend на host loopback берётся из `TEST_DEPLOY_HOST_BACKEND_PORT` или `PORT`; frontend публикуется на `TEST_DEPLOY_HOST_FRONTEND_PORT` и по умолчанию использует `8080`.
+- Post-deploy smoke-check подтверждает `GET /health`, доступность frontend root, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
 
-## Test VPS e2e route
+## Restore path
 
-- Финальный feature-level e2e-прогон выполняется против задеплоенного `test` VPS после успешного `Deploy Test` и smoke-check; локальный e2e используется только для разработки или debug.
-- DevOps-owned route для `DO-003` предоставляет `scripts/run-test-vps-e2e.sh` и root wrappers `npm run test:vps:e2e:preflight` / `npm run test:vps:e2e` с режимом preflight и запуском QA-owned e2e command against deployed `test`.
-- GitHub entrypoint для QA — ручной workflow `Test VPS E2E`, который использует `environment: test`, существующие secrets/vars, SSH на VPS и запускает wrapper в `TEST_VPS_APP_DIR`; он не является `PR Checks` или `Deploy Test` gate.
-- Входные параметры route можно задать явно: `TEST_E2E_BACKEND_BASE_URL` для backend base URL `test`, `TEST_E2E_BACKOFFICE_ORIGIN` для опубликованного backoffice origin, `TEST_E2E_TELEGRAM_ID` для test-mode Telegram id.
-- При запуске на VPS wrapper также использует существующие deploy/runtime names: `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT` для backend target, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS` для frontend origin, `ADMIN_TELEGRAM_ID` для test-mode id.
-- `TEST_E2E_COMMAND` обязателен только для полного запуска QA-owned e2e command.
-- Опциональные входные параметры route: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
-- Preflight должен подтвердить `GET /health`, test-mode доступ к backoffice API и доступность опубликованного frontend origin до запуска QA-сценариев.
-- Pass/fail output должен содержать commit/версию стенда, backend/frontend targets, результат preflight, результат e2e run и пути к `.log` и `.summary.md` артефактам для QA evidence.
+- Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/rollback-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
+- Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
+- После restore выполняется тот же smoke-check, что и после штатного rollout.
+
+## Local containerized e2e route
+
+- Финальный feature-level e2e-прогон для `QA-005` выполняется локально как browser suite внутри containerized runtime.
+- Backend endpoint suites относятся к integration evidence и не закрывают feature-level e2e acceptance.
+- DevOps-owned route должен собирать Docker-контейнер со всем приложением перед e2e-прогоном.
+- DevOps-owned route должен запускать backend, frontend и browser e2e внутри локального Docker runtime.
+- DevOps-owned route должен иметь одну локальную команду запуска для QA, preflight запуска, runner summary, browser report, логи и явный pass/fail status.
+- Локальная команда запуска `QA-005`: `npm run test:e2e:local`.
+- DevOps-owned route должен включать минимальную smoke e2e-проверку запуска runner без владения feature assertions `QA-005`.
+- QA-owned часть route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
+- `DO-003`, `scripts/run-test-vps-e2e.sh`, `npm run test:vps:e2e:preflight`, `npm run test:vps:e2e` и workflow `Test VPS E2E` сохраняются только как historical/deprecated baseline для non-gate wrapper route против опубликованного `test` стенда.
+- Historical/deprecated test VPS e2e route не является acceptance path для `QA-005`.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
 
 ## Env vars
@@ -73,13 +84,26 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
-- `TEST_E2E_BACKEND_BASE_URL` задаёт backend target для DevOps-owned test VPS e2e route.
-- `TEST_E2E_BACKOFFICE_ORIGIN` задаёт опубликованный frontend origin для DevOps-owned test VPS e2e route.
+- `ENV_FILE` указывает deploy/e2e launcher на env-файл test-стенда на VPS.
+- `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE` задают versioned image refs для container rollout.
+- `DEPLOY_REGISTRY`, `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD` задают registry login для `docker pull`, если стенд не имеет преднастроенного доступа.
+- `TEST_DEPLOY_HOST_BACKEND_PORT` задаёт host loopback port для backend container; по умолчанию используется значение `PORT` или `3000`.
+- `TEST_DEPLOY_HOST_FRONTEND_PORT` задаёт host port для frontend container; по умолчанию используется `8080`.
+- `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL` могут переопределить базовые URL post-deploy smoke-check.
+- `TEST_E2E_BACKEND_BASE_URL` задаёт backend target для historical/deprecated DevOps-owned test VPS e2e route.
+- `TEST_E2E_BACKOFFICE_ORIGIN` задаёт опубликованный frontend origin для historical/deprecated DevOps-owned test VPS e2e route.
 - `TEST_E2E_TELEGRAM_ID` задаёт test-mode Telegram id для preflight и QA-owned e2e command на `test`.
 - `TEST_E2E_COMMAND` задаёт QA-owned e2e command; не требуется в `--preflight-only`.
 - `TEST_E2E_ENV_FILE` или `ENV_FILE` может указывать на env-файл стенда; wrapper source-ит его до вычисления fallback-переменных e2e route.
 - `TEST_E2E_ARTIFACT_DIR` задаёт каталог `.log` и `.summary.md` артефактов; по умолчанию `artifacts/test-vps-e2e`.
 - `TEST_E2E_STAND_COMMIT` может явно зафиксировать commit/версию стенда для evidence; если не задан, wrapper пробует SSH lookup через `TEST_E2E_REMOTE_SSH_TARGET` и `TEST_E2E_REMOTE_APP_DIR`, затем локальный `git rev-parse HEAD`.
+- `LOCAL_E2E_ARTIFACT_DIR` задаёт каталог evidence для локального containerized e2e runner; по умолчанию `artifacts/qa-005-local-e2e`.
+- `LOCAL_E2E_IMAGE_TAG` задаёт Docker image tag локального e2e runner; по умолчанию `expressa-local-e2e:qa-005`.
+- `LOCAL_E2E_BASE_IMAGE` задаёт Docker base image локального e2e runner; по умолчанию используется актуальный Playwright image, а runner может выбрать локально закэшированный compatible image для обхода повторного registry pull.
+- `LOCAL_E2E_TEST_COMMAND` задаёт команду browser e2e внутри контейнера; по умолчанию `npm --prefix e2e test`.
+- `LOCAL_E2E_RUN_ID` задаёт идентификатор локального e2e-прогона; по умолчанию используется UTC timestamp.
+- `E2E_BASE_URL` задаёт frontend target внутри контейнера; по умолчанию `http://127.0.0.1:4173`.
+- `E2E_BACKEND_BASE_URL` задаёт backend target внутри контейнера; по умолчанию `http://127.0.0.1:3000`.
 
 ## Backend commands
 
@@ -120,8 +144,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Test environment с `DISABLE_TG_AUTH=true` позволяет выполнить проверку role guard без Telegram.
 - PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
-- Deploy workflow для `main` после выкладки проверяет `GET /health`, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
+- Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
 
 ## Обновлять эту карту
 
-Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check или test VPS e2e route.
+Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check, local containerized e2e route или historical/deprecated test VPS e2e route.

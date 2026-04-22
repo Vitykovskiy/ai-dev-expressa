@@ -15,7 +15,7 @@ import { InMemoryUserRepository } from "../src/identity-access/users/in-memory-u
 import { IdentityAccessService } from "../src/identity-access/users/identity-access.service";
 import { USER_REPOSITORY } from "../src/identity-access/users/user.repository";
 
-describe("Backoffice entry e2e", () => {
+describe("Backoffice entry integration", () => {
   let app: INestApplication | undefined;
 
   afterEach(async () => {
