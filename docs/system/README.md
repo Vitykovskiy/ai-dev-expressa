@@ -28,6 +28,11 @@
 - Для UI-фич feature spec подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
 - Архитектор начинает с feature spec, затем точечно читает связанные contracts/use-cases/domain/state/ui mapping. При gap в сценариях, inputs, validations, errors, UI states или design readiness фича возвращается системному аналитику.
 
+- `FEATURE-003 Administrator Slot Settings Management`
+  - Файл: [feature-specs/feature-003-administrator-slot-settings-management.md](./feature-specs/feature-003-administrator-slot-settings-management.md)
+  - Сценарии тестирования: [feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md](./feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md)
+  - Использовать для архитектурной декомпозиции административного сценария изменения рабочих часов и вместимости слотов, а также для handoff QA-сценариев по применению настроек к дальнейшей генерации customer-слотов.
+
 ### `system-context`
 
 - `Expressa v1 Telegram Ordering`
