@@ -61,6 +61,7 @@
 ### 03. Move QA browser suite to local container acceptance
 
 - Context package: `QA-005-context-03-qa-browser-suite-local-container.md`.
+- Status: completed in this workspace.
 - Role: `Тестирование`.
 - Goal: create or adapt browser e2e scenarios for `FEATURE-002` so they run through the local containerized command.
 - Key result: e2e coverage validates the menu catalog scenarios from `QA-005` and produces local evidence artifacts.

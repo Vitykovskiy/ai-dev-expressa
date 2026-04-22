@@ -30,8 +30,11 @@
 
 ## Результаты выполнения
 
-- Добавлен QA-owned Playwright package `e2e/` с конфигурацией browser report и сценарием `e2e/menu-catalog/admin-menu-catalog.spec.ts`.
-- Сценарий `administrator manages menu catalog through backoffice` покрывает открытие `/menu`, создание категории, создание напитка с ценами `S/M/L`, создание группы опций через toggle `Группа опций`, создание платной и бесплатной опции как товаров внутри группы опций, назначение группы опций на категорию, отказ для неполной размерной модели, отказ для неверного правила группы опций и отказ прямого доступа без menu-capability.
-- Локальный debug-прогон через раздельно запущенные backend/frontend контуры завершился успешно командой `npm --prefix e2e run test:menu-catalog`; browser report сохранен в `artifacts/qa-005-local-debug/playwright-report/index.html`.
+- Подзадача `QA-005/03` выполнена: добавлен QA-owned Playwright feature suite `e2e/menu-catalog/admin-menu-catalog.spec.ts`, который запускается через локальный containerized runner.
+- Сценарий `administrator manages menu catalog through backoffice` покрывает UI-flow: открытие `/menu`, создание обычной группы меню, создание напитка с ценами `S/M/L`, создание группы опций через toggle `Группа опций`, создание бесплатной и платной опции как товаров внутри группы опций, назначение группы опций на категорию и проверку сохраненного snapshot через backend contract.
+- Negative coverage в `e2e/menu-catalog/admin-menu-catalog.spec.ts` покрывает отказ для неполной размерной модели напитка, отказ `invalid-option-group-rule` для неверного правила группы опций и отказ прямого API-доступа к меню для test actor без доступного `menu` access в локальном test-mode.
+- Финальный локальный containerized e2e-прогон выполнен командой `npm run test:e2e:local`: `5 passed`.
+- Evidence финального прогона: host summary `artifacts/qa-005-local-e2e/local-e2e-20260422T171028Z.host.summary.md`, container summary `artifacts/qa-005-local-e2e/local-e2e-20260422T171028Z.container.summary.md`, browser report `artifacts/qa-005-local-e2e/playwright-report/index.html`, test results `artifacts/qa-005-local-e2e/test-results`.
+- В финальном прогоне `QA-005/03` воспроизводимых product failures или launch failures не обнаружено; создание `BUG-*` по результатам этой подзадачи не требуется.
 - Добавлен DevOps-owned local containerized runner `npm run test:e2e:local`: команда собирает `Dockerfile.e2e`, стартует backend, frontend preview и browser e2e внутри контейнера, сохраняет host/container logs, summary и browser report в `artifacts/qa-005-local-e2e`.
 - Добавлен minimal smoke e2e `e2e/smoke/local-container-runner-smoke.spec.ts`, который подтверждает route запуска runner через backend health и backoffice `/menu`.
