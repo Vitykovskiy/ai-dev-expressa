@@ -19,19 +19,19 @@
 ## Разделение QA-задач
 
 - Manual QA-задача покрывает ручной проход пользовательских сценариев, exploratory checks в границах feature, UI parity для UI-фич и defect triage.
-- E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite на документированном окружении и evidence результата.
-- Если feature поставляется через `main -> test` и для нее задокументирован test VPS e2e route, финальное acceptance evidence e2e lane собирается на isolated route того же `test` VPS после успешного deploy и smoke-check.
-- Локальный browser e2e используется для разработки и debug; backend endpoint integration используется для contract feedback.
-- Feature-level e2e QA закрывается полным browser suite на isolated test VPS route, когда карточка требует deployed test VPS evidence.
-- QA flow для e2e lane: написать или обновить browser tests, выполнить полный suite через `npm run test:vps:e2e`, приложить wrapper summary и browser report, оформить воспроизводимые defects через `BUG-*`.
-- QA владеет browser e2e-сценариями, fixtures, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным isolated run path, preflight, env/secrets, cleanup и диагностикой доступности стенда.
+- E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite через документированный route и evidence результата.
+- Для `QA-005` финальное acceptance evidence e2e lane собирается локальным containerized route: runner собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime и сохраняет pass/fail evidence.
+- Backend endpoint integration используется для contract feedback и не закрывает feature-level e2e.
+- Feature-level e2e QA закрывается полным browser suite через route, прямо указанный в карточке задачи и профильной QA-карте.
+- QA flow для e2e lane: написать или обновить browser tests, выполнить полный suite через документированную команду runner, приложить runner summary и browser report, оформить воспроизводимые defects через `BUG-*`.
+- QA владеет browser e2e-сценариями, fixtures, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным runner, preflight, env/config, cleanup и диагностикой запуска, если это назначено отдельной DevOps-подзадачей.
 - `FEATURE-*` может быть закрыта только после завершения manual QA, e2e QA и закрытия блокирующих `BUG-*` задач.
 
 ## Defect handoff
 
 - Frontend-дефект оформляется как `BUG-*` с меткой `frontend`, описанием расхождения, шагами воспроизведения, expected/actual, ссылкой на QA evidence и затронутыми UI/system артефактами.
 - Backend-дефект оформляется как `BUG-*` с меткой `backend`, API/contract mismatch, request/response evidence, expected/actual и ссылкой на contract.
-- DevOps/runtime-дефект оформляется как `BUG-*` с меткой `devops` только если проблема относится к окружению, deployment, env/config, smoke-check или pipeline path.
+- DevOps/runtime-дефект оформляется как `BUG-*` с меткой `devops` только если проблема относится к окружению, deployment, env/config, smoke-check, pipeline path, local container runner, Docker runtime или test runner launch.
 
 ## Для FEATURE-001
 

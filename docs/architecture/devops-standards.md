@@ -19,20 +19,16 @@
 - Restore path использует rollback-файл из `artifacts/deploy-test/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
 - Изменение compose-манифеста, Dockerfile, registry route, deploy secrets, smoke-check или rollback contract требует обновления `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/deployment-map.md` и `README.md`.
 
-## E2E run path для test VPS
+## Local containerized e2e runner
 
-- DevOps готовит e2e run path только по назначенной `DO-*` задаче, когда feature-level QA требует финальный browser e2e-прогон на задеплоенном `test` VPS.
-- DevOps-owned run path должен включать isolated compose project или эквивалентную изоляцию маршрута, воспроизводимый скрипт или documented command wrapper, список обязательных env/secrets, preflight backend health, проверку опубликованного backoffice origin, cleanup после pass/fail и формат pass/fail артефакта для QA.
-- Воспроизводимый entrypoint для `DO-003`: `npm run test:vps:e2e:preflight` для диагностики без запуска сценариев и `npm run test:vps:e2e` для запуска QA-owned команды через `scripts/run-test-vps-e2e.sh`.
-- `DO-003` является historical baseline для запуска QA-owned команды против уже опубликованного `test` стенда.
-- `DO-009` должен расширить baseline до isolated VPS browser acceptance route для `FEATURE-002`: отдельный compose project, артефакты browser run, cleanup после pass/fail и сохранение non-gate policy.
-- GitHub entrypoint для QA: ручной workflow `Test VPS E2E` (`workflow_dispatch`, `environment: test`) использует существующие GitHub Secrets/Variables окружения `test` и запускает `scripts/run-test-vps-e2e.sh` на VPS; workflow не является обязательным gate.
-- Обязательные env для entrypoint могут задаваться явно через `TEST_E2E_BACKEND_BASE_URL`, `TEST_E2E_BACKOFFICE_ORIGIN`, `TEST_E2E_TELEGRAM_ID`; при запуске на VPS wrapper также использует уже существующие runtime/deploy names: `TEST_SMOKE_BACKEND_BASE_URL` или `PORT`/`SERVER_PORT`, `BACKOFFICE_PUBLIC_URL` или первый `BACKOFFICE_CORS_ORIGINS`, `ADMIN_TELEGRAM_ID`.
-- `TEST_E2E_COMMAND` обязателен только для полного запуска и должен указывать на QA-owned e2e command.
-- Опциональные env для evidence и диагностики: `TEST_E2E_ENV_FILE`, `ENV_FILE`, `TEST_E2E_ARTIFACT_DIR`, `TEST_E2E_HEALTH_PATH`, `TEST_E2E_API_PROBE_PATH`, `TEST_E2E_FRONTEND_PATH`, `TEST_E2E_CURL_TIMEOUT`, `TEST_E2E_STAND_COMMIT`, `TEST_E2E_REMOTE_SSH_TARGET`, `TEST_E2E_REMOTE_SSH_PORT`, `TEST_E2E_REMOTE_APP_DIR`.
+- DevOps готовит e2e run path только по назначенной `DO-*` задаче.
+- Для `QA-005` DevOps-owned run path должен включать локальный containerized runner, который собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime, выполняет preflight, сохраняет pass/fail артефакты и возвращает воспроизводимый код завершения.
+- DevOps-owned runner должен иметь одну локальную команду запуска для QA и документированный формат evidence: runner summary, browser report, путь к логам и явный pass/fail status.
+- DevOps-owned runner должен иметь минимальную smoke e2e-проверку маршрута запуска без владения feature assertions `QA-005`.
+- `DO-003` и `scripts/run-test-vps-e2e.sh` являются historical/deprecated baseline для запуска QA-owned команды против уже опубликованного `test` стенда и не являются acceptance path для `QA-005`.
 - DevOps не создает, не адаптирует и не поддерживает feature e2e assertions; browser сценарии, fixtures, expected behavior и defect handoff остаются ответственностью `QA-*`.
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
-- Изменение e2e run path, связанных env vars, secrets, diagnostic checks или скриптов считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
+- Изменение e2e run path, связанных env vars, secrets, diagnostic checks, container runner или скриптов считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
 
 ## PR gates для качества кода
 
