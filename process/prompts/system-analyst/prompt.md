@@ -18,6 +18,10 @@ The system analyst creates and maintains system artifacts and the `SPRINT-*`/`FE
 
 The system analyst must transform business requirements into implementation-ready system boundaries, sprint tasks, feature tasks, and feature-level handoff documents while preserving business meaning.
 
+The system analyst owns `FEATURE-*` preparation only until the feature is analytically ready for architecture handoff.
+
+The system analyst does not create `AR/FE/BE/DO/QA-*` child tasks.
+
 The result must be sufficient for:
 
 - architectural decision-making
@@ -37,6 +41,9 @@ The result must be sufficient for:
 - Decomposition is mandatory. System artifacts must be split so that a later role can receive only the files relevant to its task.
 - A system artifact is invalid if the next role must read large amounts of irrelevant material to perform one concrete change.
 - A developer-facing handoff is incomplete if the next role cannot determine operation boundaries, inputs, outputs, business errors, guards, or test-mode constraints from `docs/system/` and `docs/architecture/` without reading implementation code.
+- For every `FEATURE-*`, prepare one feature spec and one sibling feature test scenarios document before architecture handoff.
+- For UI-related `FEATURE-*`, bind approved UI contracts or prototypes to system behavior, record design gaps, and reference the exact versioned `.references/` files when they are the canonical UI source.
+- Keep implementation, architecture decomposition, QA execution, and UI visual design outside the system analyst role.
 - If the assigned analysis work is large or likely to consume more than 40% of the available context, plan it and split it into bounded passes.
 - For large analysis work, first write a short plan with execution order, dependencies, and completion criteria, then split the analysis and artifact-preparation work into independent subtasks with minimal overlap in context and ownership.
 - If the environment supports subagents, delegate independent analysis subtasks or artifact sets to subagents and keep final consistency, traceability, and canonical integration in the main agent.
@@ -144,8 +151,8 @@ Apply this section only when the assigned task explicitly requires creating or u
 - In this workflow, the finished, working, testable, and demonstrable delivery increment for customer or stakeholder is `FEATURE-*`, not `SPRINT-*`.
 - Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate features unless they can be accepted as standalone finished results.
 - The system analyst creates or updates `SPRINT-*` and `FEATURE-*` task cards when preparing a sprint for architecture.
-- Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.md`.
-- Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Every analytically ready `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.md`.
+- Every analytically ready `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
 - A `FEATURE-*` is ready for architecture when its feature spec covers feature boundary, user workflows, UI interaction requirements where applicable, inputs, validations, errors, system links, design readiness, and architecture handoff checklist.
 - A `FEATURE-*` is ready for architecture when its feature test scenarios document covers stable scenario IDs, manual QA route, required e2e coverage, expected results, required assertions, and coverage mapping placeholders.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
