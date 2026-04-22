@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Тестирование`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -34,7 +34,11 @@
 - Сценарий `administrator manages menu catalog through backoffice` покрывает UI-flow: открытие `/menu`, создание обычной группы меню, создание напитка с ценами `S/M/L`, создание группы опций через toggle `Группа опций`, создание бесплатной и платной опции как товаров внутри группы опций, назначение группы опций на категорию и проверку сохраненного snapshot через backend contract.
 - Negative coverage в `e2e/menu-catalog/admin-menu-catalog.spec.ts` покрывает отказ для неполной размерной модели напитка, отказ `invalid-option-group-rule` для неверного правила группы опций и отказ прямого API-доступа к меню для test actor без доступного `menu` access в локальном test-mode.
 - Финальный локальный containerized e2e-прогон выполнен командой `npm run test:e2e:local`: `5 passed`.
-- Evidence финального прогона: host summary `artifacts/qa-005-local-e2e/local-e2e-20260422T171028Z.host.summary.md`, container summary `artifacts/qa-005-local-e2e/local-e2e-20260422T171028Z.container.summary.md`, browser report `artifacts/qa-005-local-e2e/playwright-report/index.html`, test results `artifacts/qa-005-local-e2e/test-results`.
+- Evidence финального прогона: host summary `artifacts/qa-005-local-e2e/local-e2e-20260422T180443Z.host.summary.md`, container summary `artifacts/qa-005-local-e2e/local-e2e-20260422T180443Z.container.summary.md`, browser report `artifacts/qa-005-local-e2e/playwright-report/index.html`, test results `artifacts/qa-005-local-e2e/test-results`.
 - В финальном прогоне `QA-005/03` воспроизводимых product failures или launch failures не обнаружено; создание `BUG-*` по результатам этой подзадачи не требуется.
 - Добавлен DevOps-owned local containerized runner `npm run test:e2e:local`: команда собирает `Dockerfile.e2e`, стартует backend, frontend preview и browser e2e внутри контейнера, сохраняет host/container logs, summary и browser report в `artifacts/qa-005-local-e2e`.
 - Добавлен minimal smoke e2e `e2e/smoke/local-container-runner-smoke.spec.ts`, который подтверждает route запуска runner через backend health и backoffice `/menu`.
+- Подзадача `QA-005/04` выполнена: defect handoff проведен по финальному local containerized evidence `20260422T180443Z`.
+- Последний runner summary: `passed`; browser e2e: `5 passed`; failed tests: `[]`.
+- Новые `BUG-*` задачи по результатам `QA-005/04` не создавались, потому что воспроизводимые product failures и launch failures отсутствуют.
+- Блокеры с неясным контуром причины по результатам `QA-005/04` отсутствуют.

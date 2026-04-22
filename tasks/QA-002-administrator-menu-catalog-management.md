@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-002`
 - Роль: `Тестирование`
 - Приоритет: `Критический`
-- Статус: `В тестировании`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -34,41 +34,45 @@
 
 - Предыдущий процессный блокер снят: на момент продолжения `FEATURE-002` имеет статус `Ожидает тестирования`, `FE-002` и `BE-002` имеют статус `Выполнена`.
 - `QA-002` переведена в `В тестировании`; обязательный read set прочитан: `process/prompts/qa/prompt.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/qa-menu-catalog.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md` и указанные `.references/Expressa_admin` материалы.
+- После закрытия `BUG-001` и `BUG-002` выполнен повторный manual QA-pass; `QA-002` переведена в `Выполнена`.
 
 ### Окружение и метод
 
 - Окружение: local test-mode, backend `http://127.0.0.1:3000`, frontend `http://localhost:5173/menu`.
 - Env route: `backend/.env.local` с `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID=123456789`; `frontend/.env.local` с `VITE_BACKOFFICE_API_BASE_URL=http://127.0.0.1:3000`, `VITE_BACKOFFICE_TEST_TELEGRAM_ID=123456789`.
-- Smoke перед ручной проверкой: `GET /health` вернул `{"status":"ok"}`; `POST /backoffice/auth/session` для `123456789` вернул `administrator` с capabilities `orders`, `availability`, `menu`, `users`, `settings`; начальный `GET /backoffice/menu/catalog` вернул пустой snapshot.
-- UI evidence снимался через live frontend в desktop и mobile viewport; текстовые browser snapshots зафиксировали доступные элементы экрана и модалок.
+- Smoke перед повторной ручной проверкой: `GET /health` вернул `{"status":"ok"}`; `POST /backoffice/auth/session` для `123456789` вернул `administrator` с capabilities `orders`, `availability`, `menu`, `users`, `settings`; начальный `GET /backoffice/menu/catalog` вернул пустой snapshot.
+- UI evidence снимался через live frontend в desktop viewport `1440x900` и mobile viewport `390x844`; browser snapshots зафиксировали доступные элементы экрана и модалок.
+- Визуальные screenshots сохранены локально в ignored `artifacts/`: `artifacts/qa-002-desktop-menu.png`, `artifacts/qa-002-mobile-menu.png`.
 
 ### Manual scenario evidence
 
 - Открытие вкладки `Меню` после backoffice session: `PASS`. `/menu` открылся под `Администратор`, видны административные вкладки и действия `Добавить группу` / `Добавить товар`.
 - Empty state: `PASS`. При пустом каталоге показано `Меню пусто` / `Добавьте первую группу для начала работы`; `Добавить товар` disabled.
-- Создание категории: `FAIL/BLOCKED BY BUG-001`. `POST /backoffice/menu/categories` вернул `201`, backend snapshot содержит категорию `Кофе`, но UI после сохранения завис в модалке `Новая группа` с busy/disabled state. После reload категория отображается.
-- Создание товара в категории: `FAIL/BLOCKED BY BUG-001`. Товар `Брауни` с `basePrice=250` сохраняется в backend snapshot, но UI после `Добавить товар` зависает в busy/disabled state. После reload товар отображается в категории.
-- Напиток с ценами `S/M/L`: `FAIL/BLOCKED BY BUG-001`. Напиток `Капучино` сохраняется в backend snapshot с `drinkSizePrices`: `S=180`, `M=220`, `L=260`, но UI после сохранения зависает до reload.
-- Создание группы дополнительных опций: `FAIL/BLOCKED BY BUG-001`; `BUG-002` закрыт как ошибка документации. Канонический UI-flow: открыть `Добавить группу`, включить toggle `Группа опций`, сохранить группу. На проверенном проходе сохранение было заблокировано зависанием после save из `BUG-001`.
-- Создание платных и бесплатных опций: `BLOCKED BY BUG-001 / RETEST REQUIRED`. После сохранения группы с флагом `Группа опций` нужно добавить товары в эту группу: товар с ценой `0` считается бесплатной опцией, товар с ценой `>0` считается платной опцией.
-- Назначение группы дополнительных опций на категорию: `BLOCKED BY BUG-001 / RETEST REQUIRED`. После успешного создания группы опций через toggle обычная группа назначает ее через select `Выбрать группу опций`.
-- Negative access evidence: `PARTIAL`. Direct API request `GET /backoffice/menu/catalog` с `x-test-telegram-id=2002` получил `403 Forbidden`, то есть пользователь без текущего administrator test id не может выполнить операцию. Capability-specific `barista without menu` не изолирован в local runtime, потому что подготовленный non-menu user не доступен через live session bootstrap.
+- Создание категории: `PASS`. Через `Добавить группу` создана категория `Кофе`; `POST /backoffice/menu/categories` вернул `201`, модалка закрылась, список обновился без reload.
+- Создание товара в категории: `PASS`. Через `Добавить товар` создан товар `Брауни` в категории `Кофе` с `basePrice=250`; `POST /backoffice/menu/items` вернул `201`, UI показал `Кофе 1 товар` и строку `Брауни 250 ₽`.
+- Напиток с ценами `S/M/L`: `PASS`. Создан `Капучино` с включенным `Размеры S / M / L` и ценами `S=180`, `M=220`, `L=260`; UI показал `Капучино от 180 ₽`, backend snapshot содержит полный `drinkSizePrices`.
+- Создание группы дополнительных опций: `PASS`. Через `Добавить группу` создана группа `Сиропы` с включенным toggle `Группа опций`; `POST /backoffice/menu/categories` и `POST /backoffice/menu/option-groups` вернули успешные ответы, отдельной route-level кнопки или панели `Добавить группу опций` на экране нет.
+- Создание платных и бесплатных опций: `PASS`. В группе `Сиропы` добавлены товары `Без сиропа` с ценой `0` и `Ваниль` с ценой `40`; UI показал `Без сиропа 0 ₽` и `Ваниль 40 ₽`.
+- Назначение группы дополнительных опций на категорию: `PASS`. В форме редактирования группы `Кофе` выбран option group `Сиропы` через `Выбрать группу опций`; `PATCH /backoffice/menu/categories/:menuCategoryId` вернул `200`, backend snapshot содержит `Кофе.optionGroupRefs = [Сиропы.optionGroupId]`.
+- Negative access evidence: `PASS`. Direct API request `GET /backoffice/menu/catalog` с `x-test-telegram-id=2002` получил `403 Forbidden`, то есть пользователь без administrator capability `menu` не может выполнить операцию управления каталогом в local test-mode.
 
 ### UI parity и exploratory findings
 
-- Desktop/mobile shell, navigation, empty state, category row и product rows визуально соответствуют основному reference-flow на проверенных состояниях, но полная parity не подтверждена из-за blocking UI behavior.
-- Category/item dialogs открываются и содержат reference-поля для category, regular item и drink size prices, но успешный save ломает interactive state.
-- Option group parity требует ретеста после `BUG-001`: отдельная кнопка/панель групп опций не должна появляться, а сценарий должен проходить через `Добавить группу` -> `Группа опций` -> добавление товаров в эту группу.
-- Console evidence для зависания: `Vue warn: Unhandled error during execution of render function`, затем `Uncaught (in promise)` со stack trace `MenuCatalogView.vue:8:29`, `store.ts:147:9`, `submitCategory` или `submitItem`.
+- Desktop/mobile shell, navigation, empty state, category row, product rows, category dialog, item dialog and mobile bottom navigation соответствуют `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` и `.references/Expressa_admin` на проверенных состояниях.
+- Category/item dialogs содержат reference-поля для названия группы, toggle `Группа опций`, select `Выбрать группу опций`, выбора категории товара, названия товара, базовой цены и цен `S/M/L`.
+- Option group parity подтверждена по каноническому flow: `Добавить группу` -> `Группа опций` -> товары внутри этой группы -> назначение через `Выбрать группу опций`; отдельной постоянной панели групп опций нет.
+- Empty, disabled и validation-adjacent состояния проверены: в пустом каталоге `Добавить товар` disabled; для option group disabled toggle `Размеры S / M / L`; кнопка сохранения товара disabled до заполнения обязательных полей; select option group disabled при создании самой option group.
+- Console evidence после повторного pass: отсутствуют Vue render/update errors и unhandled promise errors. Зафиксированы только dev-server сообщения Vite, `favicon.ico` `404`, browser accessibility issues по `aria-labelledby`/field `id or name` и autofocus info; они не блокируют product acceptance `FEATURE-002`.
 
 ### Defect handoff
 
 - Создан `BUG-001` с меткой контура `frontend`: `tasks/BUG-001-menu-ui-freezes-after-successful-save.md`.
-- `BUG-002` переклассифицирован с `frontend` на `documentation`: отдельный UI-flow групп опций не нужен, QA acceptance path обновлен под текущий дизайн.
-- Новые `backend` или `devops` BUG не создавались: проверенные API-вызовы сохраняют category, regular item, drink item и option group snapshot; runtime health/session доступны.
+- `BUG-001` имеет статус `Выполнена`; повторный pass подтвердил закрытие: модалки закрываются, busy/disabled state снимается, snapshot обновляется без reload.
+- `BUG-002` имеет статус `Выполнена` и закрыт как documentation mismatch; QA acceptance path подтвержден под текущий дизайн.
+- Новые `frontend`, `backend` или `devops` BUG не создавались: проверенные API-вызовы сохраняют category, regular item, drink item, option group category, paid/free option items и category assignment; runtime health/session доступны.
 
 ### Итог QA-002
 
-- `QA-002` не может быть закрыта как выполненная: обязательные сценарии manual QA и UI parity `FEATURE-002` не подтверждены из-за `BUG-001`.
-- Закрытие `FEATURE-002` заблокировано открытым blocking defect `BUG-001`, а также остается зависимость от `QA-005` по e2e lane.
-- После исправления `BUG-001` требуется повторный полный manual pass по сценариям этой карточки: category CRUD, regular item, drink S/M/L, option group через toggle, paid/free options как товары внутри option-group, category assignment, negative capability evidence и desktop/mobile UI parity.
+- `QA-002` закрыта как `Выполнена`: обязательные ручные сценарии и UI parity `FEATURE-002` подтверждены в local test-mode.
+- Blocking manual QA defects по `FEATURE-002` отсутствуют: `BUG-001` и `BUG-002` закрыты, новых воспроизводимых product defects по manual lane не обнаружено.
+- Закрытие `FEATURE-002` по-прежнему зависит от отдельной e2e lane `QA-005`, потому что `QA-002` закрывает только manual QA.
