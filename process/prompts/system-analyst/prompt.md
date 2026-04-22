@@ -144,8 +144,8 @@ Apply this section only when the assigned task explicitly requires creating or u
 - In this workflow, the finished, working, testable, and demonstrable delivery increment for customer or stakeholder is `FEATURE-*`, not `SPRINT-*`.
 - Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate features unless they can be accepted as standalone finished results.
 - The system analyst creates or updates `SPRINT-*` and `FEATURE-*` task cards when preparing a sprint for architecture.
-- Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.md`.
-- Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Every analytically ready `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.md`.
+- Every analytically ready `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
 - A `FEATURE-*` is ready for architecture when its feature spec covers feature boundary, user workflows, UI interaction requirements where applicable, inputs, validations, errors, system links, design readiness, and architecture handoff checklist.
 - A `FEATURE-*` is ready for architecture when its feature test scenarios document covers stable scenario IDs, manual QA route, required e2e coverage, expected results, required assertions, and coverage mapping placeholders.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.

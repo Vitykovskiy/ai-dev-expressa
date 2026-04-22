@@ -7,7 +7,7 @@
 - Заголовок: `Administrator назначает роли пользователям`
 - Описание: `Нужно дать administrator законченный сценарий просмотра пользователей и назначения ролей barista или administrator с пересчётом доступа к вкладкам внутреннего административного контура. Фича не включает блокировку пользователя, разблокировку пользователя или изменение ролей customer.`
 - Единица поставки: `FEATURE-004`
-- Роль: `Архитектор`
+- Роль: `Системный аналитик`
 - Приоритет: `Критический`
 - Статус: `Готова к работе`
 
@@ -23,8 +23,8 @@
 
 - Зависимости: `FEATURE-001`
 - Минимальный read set: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`
-- Ожидаемый результат для ревью: `Administrator через вкладку Пользователи может назначить разрешённую роль пользователю, система сохраняет обновлённый набор ролей и применяет доступ к вкладкам согласно роли.`
-- Проверки: `Модульные тесты назначаемых ролей и role guard; интеграционные проверки контракта Assign user role; e2e-сценарий назначения роли и проверки доступа к вкладкам; дымовая проверка сборки и запуска затронутых контуров.`
+- Ожидаемый результат для ревью: `Подготовлены feature spec и документ сценариев тестирования FEATURE-004: зафиксированы граница фичи, пользовательские сценарии, UI-взаимодействия, validations, errors, design readiness, крайние случаи и handoff для архитектурной декомпозиции.`
+- Проверки: `Feature spec и .test-scenarios документ созданы в docs/system/feature-specs, карточка FEATURE-004 ссылается на оба документа, сценарии содержат stable scenario IDs, manual QA route, e2e coverage expectation и required assertions; design readiness сверен с .references/Expressa_admin/src/app/screens/UsersScreen.tsx и .references/Expressa_admin/src/app/components/AddUserDialog.tsx.`
 - Обновление карты приложения: `Обязательно в дочерних задачах, если меняются модули пользователей, клиентские маршруты, серверные API, схемы хранения, общие типы или тестовый маршрут.`
 - Критерии готовности: `Фича закрыта, когда назначение ролей работает по согласованным правилам доступа и дочерние AR/FE/BE/QA-* задачи завершены и проверены.`
 - Блокер: `Не согласовано, может ли любой administrator назначать других administrator, или это право ограничено только главным administrator. До снятия блокера нельзя финализировать поведение назначения роли administrator.`
