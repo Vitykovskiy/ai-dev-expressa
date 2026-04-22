@@ -23,6 +23,7 @@ The result must be sufficient for:
 - architectural decision-making
 - decomposition of business requirements into delivery-ready increments aligned with system boundaries and dependencies
 - handoff of each `FEATURE-*` to the architect with explicitly documented scenarios, inputs, validations, errors, UI behavior, and design-readiness status
+- handoff of each `FEATURE-*` to QA lanes with explicitly documented feature test scenarios, stable scenario IDs, manual route, e2e coverage expectation, and required assertions
 - handoff to frontend, backend, QA, or other implementation roles with canonical interaction behavior documented in system artifacts
 
 ## Governance / Validation
@@ -120,6 +121,7 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 - Determine which system artifact family is actually needed for the current task before writing.
 - If approved UI contracts exist for the subject boundary, determine whether `ui-behavior-mapping` is required to prevent the next role from inferring behavior from screens on its own.
 - For every `FEATURE-*`, create or update one `feature-spec` in `docs/system/feature-specs/` before handoff to the architect.
+- For every `FEATURE-*`, create or update one feature test scenarios document in `docs/system/feature-specs/` before handoff to the architect.
 - For UI features, analyze the current interface, UI contract or prototype, `ui-behavior-mapping`, and every system-relevant UI state before marking the feature ready for architecture.
 - Treat `.references/` as a versioned project artifact rather than a local-only reference source when UI/design input is required for the feature.
 - If a frontend-facing or backend-facing interaction would otherwise force the next role to inspect production code, create or update the required canonical interaction contract in `docs/system/contracts/` instead of leaving the gap to implementation.
@@ -143,7 +145,9 @@ Apply this section only when the assigned task explicitly requires creating or u
 - Internal prerequisites, analytical system slices, and isolated technical capabilities are not separate features unless they can be accepted as standalone finished results.
 - The system analyst creates or updates `SPRINT-*` and `FEATURE-*` task cards when preparing a sprint for architecture.
 - Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.md`.
+- Every `FEATURE-*` created or updated by the system analyst must link to its own `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
 - A `FEATURE-*` is ready for architecture when its feature spec covers feature boundary, user workflows, UI interaction requirements where applicable, inputs, validations, errors, system links, design readiness, and architecture handoff checklist.
+- A `FEATURE-*` is ready for architecture when its feature test scenarios document covers stable scenario IDs, manual QA route, required e2e coverage, expected results, required assertions, and coverage mapping placeholders.
 - A task card is invalid if completion of the task cannot produce one verifiable delivery result without depending on unrelated changes.
 - Each `SPRINT-*` task card must make explicit:
   - the sprint identifier
@@ -168,6 +172,7 @@ Apply this section only when the assigned task explicitly requires creating or u
 - Use `contracts` when an interaction already has a stable operation boundary and needs explicit inputs, outputs, validations, errors, and side effects.
 - Use `state-models` when an entity has a non-trivial lifecycle and transition rules must be fixed explicitly.
 - Use `feature-specs` when a concrete `FEATURE-*` needs one scenario-level handoff document that assembles canonical use cases, contracts, domain model, state models, UI contracts, and UI behavior mapping for architecture.
+- Use `feature-specs` with `.test-scenarios.md` suffix when a concrete `FEATURE-*` needs one QA-facing scenario document that maps canonical behavior to manual QA and e2e QA coverage.
 - Use `ui-behavior-mapping` when approved UI contracts exist and the next role must know which screen, action, UI state, or role guard binds to which use case, contract, state transition, validation, or business rule.
 
 ## Rules for the `system-context` family
@@ -241,7 +246,9 @@ Apply this section only when the assigned task explicitly requires creating or u
 - Purpose: provide the primary feature-level handoff for one `FEATURE-*` before architecture.
 - Unit of decomposition: one file equals one `FEATURE-*`.
 - Path format: `docs/system/feature-specs/<feature-id>-<slug>.md`.
+- Test scenarios path format: `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
 - Link canonical `use-cases`, `contracts`, `domain-model`, `state-models`, and `ui-behavior-mapping`; assemble the feature-specific scenario, UI behavior, inputs, validations, errors, and readiness status.
+- Create the sibling test scenarios document from `process/templates/feature-test-scenarios-template.md`; use stable scenario IDs, manual/e2e lane flags, steps, expected results, required assertions, and coverage mapping placeholders.
 - For UI features, include analysis of the current interface, UI contract or prototype, and every system-relevant empty, loading, success, error, disabled, hidden, guarded, confirmation, notification, toast, and inline-error state.
 - Record design gaps and required prototype corrections; after design updates, record the repeated verification result.
 - Link design gaps and required prototype corrections to specific versioned files in `.references/` whenever those artifacts are the canonical UI source for the feature.
@@ -254,6 +261,7 @@ Apply this section only when the assigned task explicitly requires creating or u
   - system links: canonical `use-cases`, `contracts`, `domain-model`, `state-models`, and `ui-behavior-mapping`
   - design readiness: UI contract/prototype status, design gaps, required prototype updates, and repeated verification result
   - versioned design sources: the exact `.references/` files used as canonical input when UI/design analysis is in scope
+  - feature test scenarios: sibling `.test-scenarios.md` document exists and matches the feature behavior
   - architecture handoff checklist confirming that scenarios, API shape, validations, and UI behavior are explicit for the architect
 
 ## Rules for the `ui-behavior-mapping` family

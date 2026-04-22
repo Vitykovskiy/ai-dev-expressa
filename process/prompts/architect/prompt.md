@@ -14,6 +14,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Use analytically ready `FEATURE-*` cards prepared by the system analyst as feature-level architecture input.
 - If assigned a feature-level architecture task, decompose one `FEATURE-*` into review-ready `AR/FE/BE/DO/QA-*` tasks, including separate manual QA and e2e QA tasks.
 - Require the assigned `FEATURE-*` to link a feature spec covering scenarios, inputs, validations, errors, UI states where applicable, and design readiness; route feature-spec gaps to system analysis before decomposition.
+- Require the assigned `FEATURE-*` to link a feature test scenarios document covering stable scenario IDs, manual route, e2e coverage expectation and required assertions; route scenario gaps to system analysis before decomposition.
 - Hand off implementation through `docs/system/` and `docs/architecture/`; do not expand executor read sets with business artifacts unless a required fact is still missing from system artifacts.
 - Do not hand off a child task whose executor would need to read production code in another contour to recover a missing contract or rule; return that gap to system analysis or architecture first.
 
@@ -60,12 +61,17 @@ Every architecture artifact must be usable by the next roles and tasks. It must 
 
 - Decompose only one selected, analytically ready `FEATURE-*` at a time into contour tasks.
 - Before decomposition, verify that the `FEATURE-*` links to `docs/system/feature-specs/<feature-id>-<slug>.md` and that this feature spec is included in the task `Ссылки на документы` and `Минимальный read set`.
+- Before decomposition, verify that the `FEATURE-*` links to `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md` and that this scenarios document is included in the task `Ссылки на документы` and `Минимальный read set`.
 - Treat the feature spec as the first document in the architecture read route, then read linked contracts, use cases, domain model, state models, UI contracts, and `ui-behavior-mapping` only as needed.
+- Treat the feature test scenarios document as the shared QA source for both manual QA and e2e QA child tasks.
 - Return feature-spec gaps in scenarios, inputs, validations, errors, UI states, design-readiness status, API shape, guards, or user-facing error behavior to the system analyst.
+- Return gaps in scenario IDs, expected results, manual route, e2e coverage expectation, or required assertions to the system analyst.
 - One child task equals one reviewable outcome in one contour.
 - `FE` and `BE` must be split by default.
 - `DO` is created when the feature changes VPS runtime, environment/configuration, GitHub Actions, test or production deployment path, smoke-check, or introduces a mandatory VPS test/e2e run path needed for QA acceptance.
 - Two `QA` tasks are mandatory for every subsequent feature decomposition: manual QA owns user scenario acceptance, manual checks, UI parity and defect triage; e2e QA owns e2e tests for that feature.
+- Both QA tasks must include the feature test scenarios document in `Системные артефакты` and `Минимальный read set`.
+- The e2e QA task must require coverage mapping between scenario IDs, test files, test titles and required assertions.
 - Both QA tasks depend on completion of the mandatory `FE/BE/DO-*` tasks for the feature.
 - A `FEATURE-*` can move to `Выполнена` only after manual QA is complete, e2e QA is complete, and blocking `BUG-*` tasks are closed.
 - Every child task must include parent link, minimal read set, checks, and application-map update requirement.
