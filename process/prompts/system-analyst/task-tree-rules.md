@@ -7,7 +7,10 @@ This instruction defines how the system analyst must form the task tree for one 
 ## Rules
 
 - One top-level `SPRINT-*` task must represent exactly one sprint and nothing outside it.
-- `FEATURE-*` is the only delivery-unit card: one feature is one finished, working, testable, and demonstrable outcome for a customer or stakeholder.
+- `FEATURE-*` is the only delivery-unit coordination card: one feature is one finished, working, testable, and demonstrable outcome for a customer or stakeholder.
+- `FEATURE-*` is not an implementation task.
+- A ready `FEATURE-*` must be handed to the architect for decomposition before implementation starts.
+- Production code, tests, runtime configuration, and `.references/` changes are made only under child `AR/FE/BE/DO/QA-*` tasks or `BUG-*` tasks with explicit edit boundaries.
 - An internal technical prerequisite, analytical system slice, or isolated capability qualifies as a standalone feature only when it can be accepted as a separate finished outcome.
 - The system analyst creates or updates `SPRINT-*` and `FEATURE-*` cards.
 - Each `FEATURE-*` card must link to exactly one feature spec in `docs/system/feature-specs/<feature-id>-<slug>.md`.
