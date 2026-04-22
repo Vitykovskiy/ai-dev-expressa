@@ -40,7 +40,7 @@
 1. [x] Обновить process workflow и process navigation.
 2. [x] Добавить шаблон `feature-spec-template.md`.
 3. [x] Уточнить правила роли системного аналитика.
-4. Синхронизировать QA/test scenario/task templates.
+4. [x] Синхронизировать QA/test scenario/task templates.
 5. Проверить согласованность ссылок, терминов и Markdown-таблиц.
 
 ## Контекстные пакеты

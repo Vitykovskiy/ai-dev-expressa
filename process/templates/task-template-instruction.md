@@ -13,8 +13,7 @@
 - Карточка `FEATURE-*` со статусом `Готова к работе` и ролью `Системный аналитик` берется в аналитическую подготовку feature spec, сценариев тестирования, design readiness и handoff.
 - Карточка `FEATURE-*` со статусом `Готова к работе` и ролью `Архитектор` передается архитектору только после аналитической готовности.
 - Прямое изменение production-кода, тестов, runtime-конфигурации или `.references/` выполняется только по дочерней `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*` или `BUG-*` карточке.
-- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на свой feature spec: `docs/system/feature-specs/<feature-id>-<slug>.md`.
-- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на свои сценарии тестирования: `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на sibling feature spec `docs/system/feature-specs/<feature-id>-<slug>.md` и sibling test scenarios document `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`, а документ сценариев должен содержать stable Scenario ID и coverage mapping для manual QA и e2e QA.
 - `Родительская задача` обязательна для дочерних задач и содержит идентификатор родительской `SPRINT-*` или `FEATURE-*` карточки. Для верхнеуровневой карточки спринта и аналитических задач используется значение `нет`.
 - `Заголовок` формулируется кратко и в терминах ожидаемого результата.
 - Для QA-задач заголовок должен явно фиксировать lane: `Ручное тестирование ...` для manual QA или `E2E ...` для e2e QA.
@@ -36,6 +35,7 @@
 - `Системные артефакты` содержат только релевантные файлы из `docs/system/`, если они нужны исполнителю.
 - Для `FEATURE-*` с ролью `Архитектор` или `Тестирование` в `Системных артефактах` обязательна ссылка на `docs/system/feature-specs/<feature-id>-<slug>.md`.
 - Для `FEATURE-*` с ролью `Архитектор` или `Тестирование` в `Системных артефактах` обязательна ссылка на `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Для `FEATURE-*` с ролью `Тестирование` блок `Проверки` опирается на stable Scenario ID из `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
 - Для UI-фич с ролью `Архитектор` или `Тестирование` в `Системных артефактах` обязательны ссылки на feature spec, соответствующий UI contract или prototype, и соответствующий `ui-behavior-mapping`.
 - Для UI-фич, QA/FE/AR handoff и задач с UI parity, design gap или prototype-update scope релевантные versioned-файлы из `.references/` должны быть явно указаны в `Дополнительных материалах`.
 - `Архитектурные артефакты` содержат только релевантные файлы из `docs/architecture/`.
