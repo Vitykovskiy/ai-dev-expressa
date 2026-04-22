@@ -69,6 +69,7 @@
 |   |-- business/
 |   `-- system/
 |-- tasks/
+|   `-- archive/
 |-- scripts/
 |   |-- deploy-test-vps.sh
 |   |-- local-e2e-container-entrypoint.sh
@@ -89,7 +90,7 @@
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify`, а также Docker/Nginx-артефакты client runtime для `test` VPS: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа, тесты, `Dockerfile` и `nginx.conf`.
 - `e2e/` — Playwright e2e-контур для локального containerized runner `QA-005`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
-- `tasks/` — task-артефакты проекта.
+- `tasks/` — активные task-артефакты проекта; выполненные task-артефакты могут храниться в `tasks/archive/`.
 - `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS, `run-local-container-e2e.sh` обслуживает локальный acceptance path для `QA-005`, `run-test-vps-e2e.sh` сохраняется как historical/deprecated QA e2e route.
 - `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в `test`-окружение на VPS.
 
@@ -107,6 +108,7 @@
 - `docs/system/` — системные артефакты: system-context, feature-specs, domain-model, use-cases, contracts, state-models, ui-behavior-mapping.
 - `docs/architecture/` — архитектурные артефакты: карта архитектурной навигации, стек, карты приложения, стандарты клиентской части, серверной части, тестирования и DevOps, карта развёртывания.
 - `tasks/` — project-specific task-артефакты.
+- `tasks/archive/` — архив task-артефактов со статусом `Выполнена`.
 - `.references/` — версионируемые визуальные и входные референсы проекта; каталог является каноническим источником для UI/design workflow.
 
 ## Tooling
