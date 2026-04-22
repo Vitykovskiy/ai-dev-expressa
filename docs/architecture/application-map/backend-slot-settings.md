@@ -20,12 +20,13 @@
 | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `backend/src/slot-settings/slot-settings.module.ts`                          | NestJS-модуль контура настроек слотов.                                                                                     |
 | `backend/src/slot-settings/slot-settings.controller.ts`                      | HTTP boundary для чтения и сохранения настроек слотов; использует capability `settings` через общий `BackofficeAuthGuard`. |
+| `backend/src/slot-settings/customer-slots.controller.ts`                     | HTTP boundary для чтения доступных customer-слотов текущего дня по действующим настройкам.                                 |
 | `backend/src/slot-settings/slot-settings.service.ts`                         | Application orchestration чтения/сохранения настроек и подготовки данных для генерации слотов.                             |
 | `backend/src/slot-settings/domain/slot-settings.types.ts`                    | Канонический shape рабочих часов, вместимости слота и snapshot действующих настроек.                                       |
 | `backend/src/slot-settings/domain/slot-settings.validator.ts`                | Доменные проверки времени открытия/закрытия и допустимости вместимости.                                                    |
 | `backend/src/slot-settings/domain/slot-settings.errors.ts`                   | Канонические ошибки `invalid-working-hours` и `invalid-slot-capacity`.                                                     |
 | `backend/src/slot-settings/repository/in-memory-slot-settings.repository.ts` | Текущий in-memory adapter хранения настроек слотов; не содержит auth checks или UI-specific logic.                         |
-| `backend/src/ordering/available-slots.service.ts` или локальный эквивалент   | Генерация customer-слотов текущего дня по 10-минутным интервалам с учетом активных заказов и действующих slot settings.    |
+| `backend/src/slot-settings/available-slots.service.ts`                       | Генерация customer-слотов текущего дня по 10-минутным интервалам с учетом действующих slot settings и занятой вместимости. |
 
 ## Endpoints and capability boundary
 
@@ -44,6 +45,7 @@
 - Backend отклоняет вместимость, не принятую доменной операцией, с ошибкой `invalid-slot-capacity`.
 - Backend применяет последнее успешно сохранённое сочетание настроек к дальнейшему формированию доступных слотов текущего дня.
 - Генерация слотов остаётся ограниченной текущим днём и шагом `10` минут.
+- Backend допускает partial update payload только как merge с текущим действующим snapshot; источник истины после сохранения остаётся единым полным сочетанием рабочих часов и вместимости.
 - Заказы в статусах `Создан`, `Подтвержден`, `Готов к выдаче` занимают вместимость; `Отклонен` и `Закрыт` не занимают вместимость.
 - Верхняя граница `slotCapacity` не должна канонизироваться как `50` только на основании UI reference; если реализация требует дополнительного numeric bound сверх уже подтверждённых правил, это считается upstream gap.
 
