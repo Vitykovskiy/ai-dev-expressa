@@ -15,6 +15,10 @@
 
 Экран управления меню реализуется внутри существующего backoffice route `/menu` по карте `docs/architecture/application-map/frontend-backoffice.md` и системной привязке `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`. Клиентский контур не является источником истины по правилам каталога и использует backend contract управления меню.
 
+## Для FEATURE-003
+
+Экран управления рабочими часами и вместимостью слотов реализуется внутри существующего backoffice route `/settings` по карте `docs/architecture/application-map/frontend-backoffice.md` и contract `docs/system/contracts/slot-settings-management.md`. Клиентский контур не канонизирует верхнюю границу `slotCapacity=50` только на основании UI reference и использует backend response/error mapping как источник истины для сохранения настроек и отображения validation state.
+
 ## Стандарт Vue SFC и декомпозиции
 
 - Все новые и рефакторимые `.vue` файлы используют порядок секций `template` -> `script` -> `style`.

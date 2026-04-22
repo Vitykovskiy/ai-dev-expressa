@@ -19,9 +19,11 @@
 - `application-map/frontend-backoffice.md` — клиентский backoffice-контур.
 - `application-map/backend-access.md` — серверный контур идентификации, ролей и Telegram-доступа.
 - `application-map/backend-menu-catalog.md` — серверный контур управления каталогом меню.
+- `application-map/backend-slot-settings.md` — серверный контур управления рабочими часами, вместимостью слотов и генерацией доступных слотов.
 - `application-map/delivery-and-runtime.md` — env/config, запуск, развёртывание и smoke-check для затронутого контура.
 - `application-map/qa-access.md` — тестовый контур для проверки входа administrator.
 - `application-map/qa-menu-catalog.md` — тестовый контур для проверки управления каталогом меню.
+- `application-map/qa-slot-settings.md` — тестовый контур для проверки управления рабочими часами, вместимостью слотов и влияния настроек на генерацию слотов.
 
 ## Правило использования
 

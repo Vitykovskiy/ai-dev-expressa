@@ -95,6 +95,23 @@
 - Клиентская валидация не заменяет backend validation: неполная размерная модель напитка и неверное правило группы опций должны обрабатываться через contract `Manage menu catalog`.
 - Оперативная доступность barista не входит в экран структурного управления каталогом этой feature.
 
+## FEATURE-003 frontend implementation map
+
+| Путь                                                                              | Назначение                                                                                                                       |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/views/SettingsView.vue`                                             | Экран `/settings`: route-level orchestration чтения и сохранения рабочих часов и вместимости слотов для `administrator`.         |
+| `frontend/src/components/slot-settings/*.vue`                                     | Feature-specific компоненты формы настроек слотов, validation state и success/error feedback без transport logic.                |
+| `frontend/src/modules/slot-settings/api.ts`                                       | Client API boundary для чтения/сохранения настроек слотов и получения связанных данных по consumer-facing contract.              |
+| `frontend/src/modules/slot-settings/store.ts`                                     | Локальное состояние текущих настроек, busy/error state и повторное чтение snapshot после сохранения.                             |
+| `frontend/src/modules/slot-settings/types.ts`, `validation.ts`, `presentation.ts` | Клиентские типы, UI-валидация и mapping ошибок `invalid-working-hours` / `invalid-slot-capacity` без подмены backend validation. |
+
+## Handoff route for FEATURE-003
+
+- Для управления настройками слотов исполнитель читает `docs/system/feature-specs/feature-003-administrator-slot-settings-management.md`, затем `docs/system/contracts/slot-settings-management.md`, `docs/system/use-cases/administrator-manage-slot-settings.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем эту карту и `docs/architecture/application-map/backend-slot-settings.md`.
+- Frontend использует существующий administrator-only route `/settings` и не добавляет новые top-level routes или альтернативные settings flow без обновления этой карты.
+- Экран `Настройки` должен показывать текущие либо дефолтные значения, поддерживать loading/success/error/inline-validation states и сохранять administrator в контексте редактирования при ошибке сохранения.
+- Клиентская форма не должна фиксировать `max=50` как каноническое системное правило только на основании `.references/Expressa_admin`; визуальный reference используется для parity, а контрактная валидация и результат сохранения приходят из backend.
+
 ## Запрещено в FEATURE-001
 
 - Добавлять формы управления меню, слотами, ролями или блокировкой сверх заглушек/маршрутов, необходимых для role guard.

@@ -14,6 +14,10 @@
 
 Подробная карта server-side boundary управления каталогом меню находится в `docs/architecture/application-map/backend-menu-catalog.md`. Контур каталога использует access guard из `backend-access.md`, но не смешивается с identity/access модулем.
 
+## Для FEATURE-003
+
+Подробная карта server-side boundary управления рабочими часами, вместимостью слотов и генерацией доступных слотов находится в `docs/architecture/application-map/backend-slot-settings.md`. Контур настроек слотов использует access guard из `backend-access.md`, но не смешивается с identity/access модулем, обработкой заказов или каталогом меню.
+
 ## Стандарт NestJS boundaries
 
 - `module.ts` фиксирует границу NestJS-контура и подключает controller/provider/repository зависимости только своего контура или явно разрешённые внешние guards/adapters.
