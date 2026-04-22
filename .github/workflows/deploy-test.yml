@@ -34,8 +34,9 @@ jobs:
         run: |
           set -euo pipefail
           owner="$(printf '%s' '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-          echo "backend_image=${{ env.REGISTRY }}/${owner}/expressa-backend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=${{ env.REGISTRY }}/${owner}/expressa-frontend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          repository="$(printf '%s' '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
+          echo "backend_image=${{ env.REGISTRY }}/${owner}/${repository}-backend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "frontend_image=${{ env.REGISTRY }}/${owner}/${repository}-frontend:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
