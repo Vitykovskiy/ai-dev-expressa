@@ -7,7 +7,10 @@
 - Существующие `QA-*` карточки не переписываются массово; новый стандарт применяется к новым feature, а также к существующим feature при новой декомпозиции или переоткрытии.
 - Feature-level e2e означает browser suite, который проходит пользовательские сценарии через опубликованный frontend и backend.
 - Backend endpoint tests, включая HTTP endpoint suites в `backend/test/*`, относятся к integration evidence даже если legacy filename содержит `.e2e.spec.ts`.
-- E2e-проверки строятся на основании пользовательских сценариев из `docs/system/use-cases/*`, `docs/system/ui-behavior-mapping/*`, релевантных contracts и профильных QA-карт в `docs/architecture/application-map/*`.
+- Для каждой новой или переоткрытой `FEATURE-*` канонический маршрут проверки фиксируется в `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Документ сценариев тестирования фичи находится рядом с feature spec и содержит stable scenario IDs, ручной маршрут проверки, required e2e coverage, expected results, required assertions и coverage mapping.
+- E2e-проверки строятся на основании документа сценариев тестирования фичи; `docs/system/use-cases/*`, `docs/system/ui-behavior-mapping/*`, релевантные contracts и профильные QA-карты используются как supporting sources.
+- Ручная QA-проверка и e2e QA используют один общий документ сценариев тестирования фичи; разделение lane фиксируется в QA-задачах и coverage matrix.
 - Unit/integration evidence собирается из соответствующих FE/BE задач и используется QA как входное подтверждение, но не заменяет ручную проверку и e2e.
 - Negative paths доступа обязательны для features, связанных с авторизацией и ролями.
 - Для любой `FEATURE-*`, меняющей пользовательский интерфейс, manual QA обязан проверить идентичность live-интерфейса с UI-контрактом из `docs/system/ui-contracts/*` и соответствующим `.references` источником.
@@ -20,6 +23,8 @@
 
 - Manual QA-задача покрывает ручной проход пользовательских сценариев, exploratory checks в границах feature, UI parity для UI-фич и defect triage.
 - E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite через документированный route и evidence результата.
+- Manual QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи.
+- E2e QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи и фиксирует mapping между scenario IDs, test files, test titles и required assertions.
 - Для `QA-005` финальное acceptance evidence e2e lane собирается локальным containerized route: runner собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime и сохраняет pass/fail evidence.
 - Backend endpoint integration используется для contract feedback и не закрывает feature-level e2e.
 - Feature-level e2e QA закрывается полным browser suite через route, прямо указанный в карточке задачи и профильной QA-карте.

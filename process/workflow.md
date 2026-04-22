@@ -33,6 +33,7 @@
 - `process/templates/task-template.md` — форма карточки задачи.
 - `process/templates/task-template-instruction.md` — инструкция по заполнению карточки, допустимые роли, статусы, приоритеты и правила ссылок.
 - `process/templates/context-package-template.md` — форма контекстного пакета подзадачи для передачи исполнителю.
+- `process/templates/feature-test-scenarios-template.md` — форма сценариев тестирования фичи рядом с feature spec.
 
 ## Работа с задачами
 
@@ -42,9 +43,13 @@
 - Системный аналитик создает или обновляет `SPRINT-*` и `FEATURE-*` карточки.
 - Для UI-ориентированной `FEATURE-*` системный аналитик анализирует design readiness, оценивает необходимость изменений в `.references/` и при необходимости формирует требования к этим изменениям до передачи фичи архитектору.
 - Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый feature spec проекта.
+- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый документ сценариев тестирования фичи: `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
+- Документ сценариев тестирования фичи должен находиться рядом с feature spec и содержать stable scenario IDs, ручной маршрут проверки, e2e coverage mapping и обязательные assertions для сценариев с e2e-покрытием.
 - Если approved UI contract, prototype или канонический визуальный референс меняется в рамках фичи, соответствующие изменения в `.references/` фиксируются через Git в рамках той же `FEATURE-*` или связанной аналитической задачи.
 - Архитектор принимает одну аналитически готовую `FEATURE-*` и декомпозирует ее в дочерние `AR/FE/BE/DO/QA-*` задачи.
 - Для каждой последующей фичи обязательны две QA-задачи: manual QA и e2e QA.
+- Manual QA и e2e QA используют один документ сценариев тестирования фичи как общий источник проверки; lane разделяется в QA-задачах и coverage matrix.
+- E2E QA подтверждает соответствие автоматизированных тестов documented scenarios через stable scenario IDs, test file mapping, test title mapping и required assertions.
 - Воспроизводимые дефекты оформляются как `BUG-*` задачи под той же `FEATURE-*` с явной меткой контура причины: `frontend`, `backend` или `devops`.
 
 ## Подготовка контекста
@@ -86,3 +91,4 @@
 - Шаблон задачи: `process/templates/task-template.md`.
 - Инструкция к шаблону задачи: `process/templates/task-template-instruction.md`.
 - Шаблон контекстного пакета: `process/templates/context-package-template.md`.
+- Шаблон сценариев тестирования фичи: `process/templates/feature-test-scenarios-template.md`.
