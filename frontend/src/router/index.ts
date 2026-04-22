@@ -4,6 +4,7 @@ import FeatureStubView from "@/views/FeatureStubView.vue";
 import ForbiddenView from "@/views/ForbiddenView.vue";
 import MenuCatalogView from "@/views/MenuCatalogView.vue";
 import RootLayout from "@/views/RootLayout.vue";
+import SettingsView from "@/views/SettingsView.vue";
 import { ensureSession, useAuthSession } from "@/modules/auth/session-store";
 import { SessionApiError } from "@/modules/auth/session-api";
 import { resolveGuardDecision } from "@/router/guards";
@@ -63,12 +64,7 @@ export const router = createRouter({
         {
           path: "settings",
           name: "settings",
-          component: FeatureStubView,
-          props: {
-            title: "Настройки",
-            description:
-              "Вкладка видна только administrator. Управление слотами будет добавлено отдельной задачей.",
-          },
+          component: SettingsView,
           meta: { capability: "settings" },
         },
         {
