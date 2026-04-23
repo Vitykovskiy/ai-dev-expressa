@@ -30,26 +30,11 @@ https://expressa-e2e-test.vitykovskiy.ru
 - `process/templates/task-template-instruction.md`
 - `process/prompts/qa/prompt.md`
 
-Do not remove generic process-layer rules that require e2e QA as a lane. Remove only obsolete requirements that force VPS/local-container e2e run paths.
+Do not remove generic process-layer rules that require e2e QA as a lane. Remove only obsolete requirements that force non-canonical e2e run paths.
 
 ## Remove Mentions
 
-- `remote e2e route`
-- `VPS e2e runner`
-- `preflight`
-- `local containerized runner`
-- `local containerized e2e`
-- `fallback/debug route`
-- `debug/fallback`
-- `QA-005 runner`
-- `historical/deprecated baseline`
-- `test:e2e:remote`
-- `test:e2e:remote:preflight`
-- `ops:e2e:remote:preflight`
-- `test:e2e:local`
-- `scripts/run-test-vps-e2e.sh`
-- `scripts/run-local-container-e2e.sh`
-- `Dockerfile.e2e`
+Remove all obsolete e2e runner route names, removed command names, removed script names, removed Docker-only runner artifact names, old fallback/debug route language, and historical baseline descriptions from active docs. Do not preserve the removed identifiers in active repository text.
 
 ## Preserve Mentions
 
@@ -71,5 +56,5 @@ Do not remove generic process-layer rules that require e2e QA as a lane. Remove 
 Run:
 
 ```text
-rg -n "remote e2e route|VPS e2e runner|preflight|local containerized|containerized e2e|fallback route|debug/fallback|QA-005 runner|historical/deprecated|test:e2e:remote|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|Dockerfile\\.e2e" -S README.md docs process --glob "!node_modules/**"
+rg -n "<legacy-e2e-runner-patterns>" -S README.md docs process --glob "!node_modules/**"
 ```

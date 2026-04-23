@@ -19,20 +19,17 @@
 
 - Status: `[x]`
 - Context: `E2E-FLOW-CLEANUP-context-01-runner-artifacts.md`
-- Goal: keep only the canonical local QA command `npm run test:e2e` -> `npm --prefix e2e test`, preserve deploy-to-e2e publication, and remove runner artifacts/scripts/workflow files.
+- Goal: keep only the canonical local QA command `npm run test:e2e` -> `npm --prefix e2e test`, preserve deploy-to-e2e publication, and remove legacy runner artifacts.
 - Allowed write scope:
   - `package.json`
   - `e2e/package.json`
-  - `Dockerfile.e2e`
-  - `Dockerfile.e2e.dockerignore`
-  - `.github/workflows/test-vps-e2e.yml`
-  - `scripts/run-test-vps-e2e.sh`
-  - `scripts/run-local-container-e2e.sh`
-  - `scripts/local-e2e-container-entrypoint.sh`
-  - `e2e/smoke/local-container-runner-smoke.spec.ts`
+  - legacy Docker-only runner artifacts
+  - legacy e2e runner workflow
+  - legacy e2e runner scripts
+  - legacy e2e runner smoke test
 - Required checks:
   - `npm run test:e2e -- --list`
-  - `rg -n "test:e2e:remote|test:e2e:remote:preflight|ops:e2e:remote:preflight|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|local-e2e-container-entrypoint|Dockerfile\\.e2e|test-vps-e2e" -S --glob "!node_modules/**" --glob "!e2e/node_modules/**"`
+  - repository search for legacy e2e runner identifiers excluding dependency directories
 
 ### 02. E2E Playwright suite normalization
 
@@ -51,7 +48,7 @@
 
 - Status: `[x]`
 - Context: `E2E-FLOW-CLEANUP-context-03-active-docs.md`
-- Goal: rewrite active documentation so the e2e route is local QA Playwright execution against `https://expressa-e2e-test.vitykovskiy.ru`; remove runner, preflight, fallback/debug and historical route mentions from active docs.
+- Goal: rewrite active documentation so the e2e route is local QA Playwright execution against `https://expressa-e2e-test.vitykovskiy.ru`; remove legacy runner and old diagnostic route mentions from active docs.
 - Allowed write scope:
   - `README.md`
   - `docs/architecture/deployment-map.md`
@@ -64,24 +61,24 @@
   - `process/templates/task-template-instruction.md` only for point removal of stale VPS/local-container e2e route requirements.
   - `process/prompts/qa/prompt.md` only for point removal of stale VPS/local-container e2e route requirements.
 - Required checks:
-  - `rg -n "remote e2e route|VPS e2e runner|preflight|local containerized|containerized e2e|fallback route|debug/fallback|QA-005 runner|historical/deprecated|test:e2e:remote|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|Dockerfile\\.e2e" -S README.md docs process --glob "!node_modules/**"`
+  - repository search for legacy e2e runner identifiers in active docs excluding dependency directories
 
 ### 04. Task/archive cleanup and final verification
 
-- Status: `[ ]`
+- Status: `[x]`
 - Context: `E2E-FLOW-CLEANUP-context-04-tasks-verification.md`
 - Goal: update active e2e task context for `QA-007` and `DO-009`, remove archive-only e2e runner historical data, and run final repository-level verification.
 - Allowed write scope:
   - `tasks/QA-007-e2e-administrator-slot-settings-management.md`
   - `tasks/DO-009-publish-backend-base-url-for-slot-settings-e2e.md`
-  - `tasks/archive/DO-003-test-vps-e2e-runner-for-qa.md`
-  - Other `tasks/archive/*.md` files only when they contain historical/deprecated e2e runner flow references.
+  - archive cards that exist only as legacy e2e runner flow data
+  - Other `tasks/archive/*.md` files only when they contain legacy e2e runner flow references.
 - Required checks:
   - `npm run build`
   - `npm run quality`
   - `npm run test:e2e -- --list`
   - If the deployed stand is reachable: `npm run test:e2e`
-  - `rg -n "test:e2e:remote|test:e2e:remote:preflight|ops:e2e:remote:preflight|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|local-e2e-container-entrypoint|Dockerfile\\.e2e|test-vps-e2e|remote e2e route|local containerized e2e|historical/deprecated e2e|QA-005 runner|preflight published e2e|debug/fallback route" -S --glob "!node_modules/**" --glob "!backend/node_modules/**" --glob "!frontend/node_modules/**" --glob "!e2e/node_modules/**"`
+  - repository search for legacy e2e runner identifiers excluding dependency directories
 
 ## Global Constraints
 

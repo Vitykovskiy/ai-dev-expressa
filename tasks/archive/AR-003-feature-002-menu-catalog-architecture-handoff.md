@@ -26,10 +26,10 @@
 - Ожидаемый результат для ревью: `Архитектурные карты FEATURE-002 обновлены, а FE/BE/QA задачи имеют достаточный read set для выполнения управления каталогом без чтения production-кода соседнего контура.`
 - Проверки: `Проверить наличие backend-menu-catalog и qa-menu-catalog карт; проверить, что FE/BE/QA карточки содержат consumer-facing contract, профильную карту и не требуют бизнес-артефактов.`
 - Обновление карты приложения: `Выполнено: обновлены docs/architecture/application-map.md, docs/architecture/README.md, docs/architecture/frontend-architecture.md, docs/architecture/backend-architecture.md, docs/architecture/qa-standards.md, docs/architecture/application-map/frontend-backoffice.md; созданы docs/architecture/application-map/backend-menu-catalog.md и docs/architecture/application-map/qa-menu-catalog.md.`
-- Критерии готовности: `Задача завершена, когда архитектурный handoff покрывает frontend, backend и QA контуры FEATURE-002; historical test VPS e2e baseline вынесен в DO-003 и не является acceptance path для QA-005.`
+- Критерии готовности: `Задача завершена, когда архитектурный handoff покрывает frontend, backend и QA контуры FEATURE-002.`
 
 ## Результат выполнения
 
 - Созданы контурные карты `backend-menu-catalog.md` и `qa-menu-catalog.md`.
 - Обновлены архитектурная навигация и frontend/backend/QA стандарты под `FEATURE-002`.
-- После пересмотра QA-005 финальный e2e evidence перенесен на локальный containerized route; `DO-003` сохраняется как historical/deprecated infrastructure baseline без переноса e2e-сценариев из QA.
+- После пересмотра QA-005 финальный e2e evidence закреплен за QA-owned Playwright suite без переноса e2e-сценариев из QA.

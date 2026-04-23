@@ -5,12 +5,12 @@
 - Исходная задача: `tasks/QA-007-e2e-administrator-slot-settings-management.md`
 - Подзадача: `03 — Coverage Mapping, Evidence, Acceptance Run`
 - Роль исполнителя: `Тестирование`
-- Зона ответственности: `QA-007 task evidence, coverage mapping, final runner status`
+- Зона ответственности: `QA-007 task evidence, coverage mapping, final Playwright status`
 - Связанный план: `QA-007-execution-plan.md`
 
 ## Цель подзадачи
 
-Зафиксировать результат e2e QA lane для `FEATURE-003`: scenario mapping, runner summary, browser report, pass/fail локального контейнерного прогона и BUG/blocker status.
+Зафиксировать результат e2e QA lane для `FEATURE-003`: scenario mapping, Playwright summary, browser report, pass/fail status и BUG/blocker status.
 
 ## Поведенческий промпт исполнителя
 
@@ -39,8 +39,6 @@ Before making changes, read the mandatory read set. After making changes, run th
 - `docs/architecture/application-map/qa-slot-settings.md`
 - `docs/architecture/application-map/delivery-and-runtime.md`
 - `e2e/slot-settings/admin-slot-settings.spec.ts`
-- `scripts/run-local-container-e2e.sh`
-- `Dockerfile.e2e`
 - `package.json`
 - `e2e/package.json`
 
@@ -48,7 +46,7 @@ Before making changes, read the mandatory read set. After making changes, run th
 
 - QA-007 expected result requires browser e2e evidence for `FTS-003-001`, `FTS-003-003`, `FTS-003-004`, `FTS-003-005`, `FTS-003-006`.
 - Coverage mapping must include scenario ID, test file, test title, and required assertions.
-- QA-007 says final acceptance run is local containerized command through the current QA runner.
+- QA-007 says final acceptance run uses the canonical local QA Playwright command.
 - `docs/architecture/application-map/qa-slot-settings.md` must be updated if e2e scenarios, fixtures, contract mocks, test route, or acceptance path changed.
 
 ## Разрешенная зона правок
@@ -66,17 +64,17 @@ Before making changes, read the mandatory read set. After making changes, run th
 
 ## Ожидаемый результат
 
-`tasks/QA-007-e2e-administrator-slot-settings-management.md` records final evidence and status for the e2e QA lane, including coverage mapping and the local containerized runner result.
+`tasks/QA-007-e2e-administrator-slot-settings-management.md` records final evidence and status for the e2e QA lane, including coverage mapping and the Playwright result.
 
 ## Проверки
 
-- `npm run test:e2e:local`
+- `npm run test:e2e -- slot-settings`
 - If unavailable, record exact attempted command, failure class, available artifact path, and whether the issue is product, devops/runtime, or local environment blocker.
 
 ## Критерии готовности
 
 - QA-007 has coverage mapping for all required scenario IDs.
-- QA-007 has runner summary, browser report path, pass/fail status or exact blocker.
+- QA-007 has Playwright summary, browser report path, pass/fail status or exact blocker.
 - QA-007 lists created BUG tasks or explicitly says blocking product/launch failures are absent.
 - `QA-007-execution-plan.md` marks subtask 03 completed.
 

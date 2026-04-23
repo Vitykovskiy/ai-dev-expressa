@@ -7,7 +7,7 @@
 - QA lane: `E2E`
 - Required scenario IDs: `FTS-003-001`, `FTS-003-003`, `FTS-003-004`, `FTS-003-005`, `FTS-003-006`
 - Canonical feature scenarios: `docs/system/feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md`
-- Final documented runner: local containerized QA runner from `npm run test:e2e:local`
+- Final documented command: `npm run test:e2e -- slot-settings`
 
 ## Work Rules
 
@@ -45,14 +45,14 @@
 - Status: `completed`
 - Context package: `QA-007-context-03-coverage-mapping-and-evidence.md`
 - Role: `Тестирование`
-- Scope: record scenario mapping, runner evidence, browser report path, pass/fail status, and update QA navigation only if the slot settings e2e route or fixtures changed.
-- Expected result: `QA-007` contains explicit mapping from each required scenario ID to test file, test title, required assertions and final runner evidence, with any blocking failures captured as BUG tasks or explicitly absent.
+- Scope: record scenario mapping, Playwright evidence, browser report path, pass/fail status, and update QA navigation only if the slot settings e2e route or fixtures changed.
+- Expected result: `QA-007` contains explicit mapping from each required scenario ID to test file, test title, required assertions and final Playwright evidence, with any blocking failures captured as BUG tasks or explicitly absent.
 - Allowed edit area: `tasks/QA-007-e2e-administrator-slot-settings-management.md`, `docs/architecture/application-map/qa-slot-settings.md` only if test route, fixtures, coverage mapping, or acceptance path changed.
-- Checks: `npm run test:e2e:local`; if Docker or published dependencies are unavailable, record exact attempted command and blocker/evidence status in `QA-007`.
+- Checks: `npm run test:e2e -- slot-settings`; if the published stand is unavailable, record exact attempted command and blocker/evidence status in `QA-007`.
 
 ## Completion Criteria
 
 - All subtasks have status `completed`.
 - Required e2e scenarios `FTS-003-001`, `FTS-003-003`, `FTS-003-004`, `FTS-003-005`, `FTS-003-006` have mapped browser tests.
-- `QA-007` records runner summary, browser report, pass/fail status, and BUG task links or explicit absence of blocking failures.
-- The last subtask confirms whether `npm run test:e2e:local` completed successfully or records why it could not be completed.
+- `QA-007` records Playwright summary, browser report, pass/fail status, and BUG task links or explicit absence of blocking failures.
+- The last subtask confirms whether `npm run test:e2e -- slot-settings` completed successfully or records why it could not be completed.
