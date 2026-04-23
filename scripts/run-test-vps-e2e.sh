@@ -35,6 +35,7 @@ Optional environment:
                                   Falls back to ENV_FILE when present.
   TEST_E2E_ARTIFACT_DIR           Artifact directory. Defaults to artifacts/remote-e2e.
   TEST_E2E_COMMAND                Local Playwright command. Defaults to npm --prefix e2e test.
+                                  Workflow Test E2E Stand Preflight uses only --preflight-only.
   TEST_E2E_API_PROBE_PATH         Test-mode API probe path. Defaults to /backoffice/orders.
   TEST_E2E_FRONTEND_PATH          Frontend path to check. Defaults to /menu.
   TEST_E2E_CURL_TIMEOUT           Curl timeout in seconds. Defaults to 10.
@@ -51,8 +52,8 @@ done
 
 TIMESTAMP="$(date -u +"%Y%m%dT%H%M%SZ")"
 mkdir -p "$ARTIFACT_DIR"
-LOG_FILE="$ARTIFACT_DIR/test-vps-e2e-$TIMESTAMP.log"
-SUMMARY_FILE="$ARTIFACT_DIR/test-vps-e2e-$TIMESTAMP.summary.md"
+LOG_FILE="$ARTIFACT_DIR/remote-e2e-$TIMESTAMP.log"
+SUMMARY_FILE="$ARTIFACT_DIR/remote-e2e-$TIMESTAMP.summary.md"
 
 log() {
   printf "%s %s\n" "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$*" | tee -a "$LOG_FILE"
@@ -164,7 +165,7 @@ write_summary() {
   local reason="${2:-}"
 
   cat >"$SUMMARY_FILE" <<SUMMARY
-# Test VPS E2E Evidence
+# Remote E2E Evidence
 
 - Status: \`$status\`
 - Reason: \`$reason\`

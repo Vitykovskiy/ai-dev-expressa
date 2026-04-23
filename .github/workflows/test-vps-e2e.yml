@@ -1,50 +1,24 @@
-name: Test VPS E2E
+name: Test E2E Stand Preflight
 
 on:
   workflow_dispatch:
-    inputs:
-      mode:
-        description: "Run preflight only or preflight plus QA-owned e2e command."
-        required: true
-        default: "preflight"
-        type: choice
-        options:
-          - preflight
-          - run
-      e2e_command:
-        description: "QA-owned e2e command. Required when mode is run."
-        required: false
-        type: string
 
 concurrency:
-  group: test-vps-e2e
+  group: test-e2e-stand-preflight
   cancel-in-progress: false
 
 jobs:
-  test-vps-e2e:
-    name: test-vps-e2e
+  test-e2e-stand-preflight:
+    name: test-e2e-stand-preflight
     runs-on: ubuntu-latest
     environment: test
     steps:
-      - name: Validate inputs
-        run: |
-          set -euo pipefail
-
-          if [ "${{ inputs.mode }}" = "run" ] && [ -z "${{ inputs.e2e_command }}" ]; then
-            echo "e2e_command is required when mode is run."
-            exit 1
-          fi
-
-      - name: Run Test VPS e2e route
+      - name: Run non-canonical e2e stand preflight on VPS
         uses: appleboy/ssh-action@v1.2.0
         env:
           APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
-          ENV_FILE: ${{ secrets.TEST_VPS_ENV_FILE }}
-          TEST_SMOKE_BACKEND_BASE_URL: ${{ secrets.TEST_SMOKE_BACKEND_BASE_URL }}
-          BACKOFFICE_PUBLIC_URL: ${{ vars.BACKOFFICE_PUBLIC_URL }}
-          SERVER_PORT: ${{ vars.SERVER_PORT }}
-          TEST_E2E_MODE: ${{ inputs.mode }}
-          TEST_E2E_COMMAND: ${{ inputs.e2e_command }}
+          ENV_FILE: ${{ secrets.TEST_E2E_VPS_ENV_FILE }}
+          TEST_E2E_BASE_URL: https://${{ vars.TEST_E2E_PUBLIC_HOSTNAME }}
         with:
           host: ${{ secrets.TEST_VPS_HOST }}
           username: ${{ secrets.TEST_VPS_USER }}
@@ -52,12 +26,12 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,ENV_FILE,TEST_SMOKE_BACKEND_BASE_URL,BACKOFFICE_PUBLIC_URL,SERVER_PORT,TEST_E2E_MODE,TEST_E2E_COMMAND
+          envs: APP_DIR,ENV_FILE,TEST_E2E_BASE_URL
           script: |
             set -euo pipefail
 
-            if [ -z "${APP_DIR}" ]; then
-              echo "TEST_VPS_APP_DIR is required."
+            if [ -z "${APP_DIR}" ] || [ -z "${ENV_FILE}" ] || [ -z "${TEST_E2E_BASE_URL}" ]; then
+              echo "Required test-e2e preflight contract values are missing."
               exit 1
             fi
 
@@ -67,8 +41,4 @@ jobs:
               chmod +x scripts/run-test-vps-e2e.sh
             fi
 
-            if [ "${TEST_E2E_MODE}" = "preflight" ]; then
-              ./scripts/run-test-vps-e2e.sh --preflight-only
-            else
-              ./scripts/run-test-vps-e2e.sh
-            fi
+            ./scripts/run-test-vps-e2e.sh --preflight-only
