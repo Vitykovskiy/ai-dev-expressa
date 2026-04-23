@@ -8,11 +8,10 @@
 
 - `docs/system/domain-model/identity-and-access.md`
 - `docs/system/system-context/expressa-v1-telegram-ordering.md`
+- `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.md`
+- `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md`
 - `docs/architecture/application-map/frontend-backoffice.md`
 - `docs/architecture/application-map/backend-access.md`
-- `tasks/FEATURE-001-administrator-telegram-backoffice-access.md`
-- `tasks/FE-001-administrator-backoffice-telegram-entry.md`
-- `tasks/BE-001-administrator-telegram-access-and-bootstrap.md`
 
 ## Contract `Create backoffice session`
 
@@ -28,15 +27,15 @@
 
 #### Request body in Telegram mode
 
-| Поле | Обязательность | Описание |
-|---|---|---|
+| Поле       | Обязательность                   | Описание                                                             |
+| ---------- | -------------------------------- | -------------------------------------------------------------------- |
 | `initData` | Да, когда Telegram auth включена | Telegram Web App `initData`, полученный из служебного Telegram-бота. |
 
 #### Request body in test-mode
 
-| Поле | Обязательность | Описание |
-|---|---|---|
-| `testTelegramId` | Нет | Явный тестовый Telegram identifier. |
+| Поле             | Обязательность | Описание                            |
+| ---------------- | -------------- | ----------------------------------- |
+| `testTelegramId` | Нет            | Явный тестовый Telegram identifier. |
 
 ### Validations and constraints
 
@@ -51,31 +50,31 @@
 
 #### Success response body
 
-| Поле | Тип семантики | Описание |
-|---|---|---|
-| `userId` | Идентификатор пользователя | Внутренний идентификатор пользователя. |
-| `telegramId` | Внешний идентификатор | Telegram identifier аутентифицированного пользователя. |
-| `roles` | Набор ролей | Подтверждённые backend роли пользователя. |
-| `capabilities` | Набор capabilities | Разрешённые вкладки backoffice: `orders`, `availability`, `menu`, `users`, `settings`. |
+| Поле           | Тип семантики              | Описание                                                                               |
+| -------------- | -------------------------- | -------------------------------------------------------------------------------------- |
+| `userId`       | Идентификатор пользователя | Внутренний идентификатор пользователя.                                                 |
+| `telegramId`   | Внешний идентификатор      | Telegram identifier аутентифицированного пользователя.                                 |
+| `roles`        | Набор ролей                | Подтверждённые backend роли пользователя.                                              |
+| `capabilities` | Набор capabilities         | Разрешённые вкладки backoffice: `orders`, `availability`, `menu`, `users`, `settings`. |
 
 ### Capability mapping
 
-| Роль | Разрешённые capabilities |
-|---|---|
-| `barista` | `orders`, `availability` |
+| Роль            | Разрешённые capabilities                              |
+| --------------- | ----------------------------------------------------- |
+| `barista`       | `orders`, `availability`                              |
 | `administrator` | `orders`, `availability`, `menu`, `users`, `settings` |
-| `customer` | отсутствуют |
+| `customer`      | отсутствуют                                           |
 
 ### Business errors
 
-| Условие | Ошибка | HTTP outcome |
-|---|---|---|
-| Telegram auth включена, но `initData` не передан | `telegram-init-data-required` | `401 Unauthorized` |
+| Условие                                             | Ошибка                        | HTTP outcome       |
+| --------------------------------------------------- | ----------------------------- | ------------------ |
+| Telegram auth включена, но `initData` не передан    | `telegram-init-data-required` | `401 Unauthorized` |
 | Telegram auth включена, но server secret недоступен | `telegram-bot-token-required` | `401 Unauthorized` |
-| `initData` не проходит проверку подписи | `telegram-hash-invalid` | `401 Unauthorized` |
-| Telegram user не найден в системе | `backoffice-user-not-found` | `403 Forbidden` |
-| Пользователь заблокирован | `user-blocked` | `403 Forbidden` |
-| У пользователя нет ни одной backoffice capability | `backoffice-role-required` | `403 Forbidden` |
+| `initData` не проходит проверку подписи             | `telegram-hash-invalid`       | `401 Unauthorized` |
+| Telegram user не найден в системе                   | `backoffice-user-not-found`   | `403 Forbidden`    |
+| Пользователь заблокирован                           | `user-blocked`                | `403 Forbidden`    |
+| У пользователя нет ни одной backoffice capability   | `backoffice-role-required`    | `403 Forbidden`    |
 
 ### Side effects
 
@@ -96,21 +95,21 @@
 
 #### Path parameter
 
-| Параметр | Описание |
-|---|---|
+| Параметр     | Описание                                                                              |
+| ------------ | ------------------------------------------------------------------------------------- |
 | `capability` | Одна из допустимых capability: `orders`, `availability`, `menu`, `users`, `settings`. |
 
 #### Headers in Telegram mode
 
-| Header | Обязательность | Описание |
-|---|---|---|
+| Header                 | Обязательность                   | Описание                                                    |
+| ---------------------- | -------------------------------- | ----------------------------------------------------------- |
 | `x-telegram-init-data` | Да, когда Telegram auth включена | То же `initData`, что использовалось для session bootstrap. |
 
 #### Headers in test-mode
 
-| Header | Обязательность | Описание |
-|---|---|---|
-| `x-test-telegram-id` | Нет | Явный test Telegram identifier; при отсутствии используется `ADMIN_TELEGRAM_ID`. |
+| Header               | Обязательность | Описание                                                                         |
+| -------------------- | -------------- | -------------------------------------------------------------------------------- |
+| `x-test-telegram-id` | Нет            | Явный test Telegram identifier; при отсутствии используется `ADMIN_TELEGRAM_ID`. |
 
 ### Validations and constraints
 
@@ -124,11 +123,11 @@
 
 ### Business errors
 
-| Условие | Ошибка | HTTP outcome |
-|---|---|---|
-| `capability` отсутствует в каноническом списке | `backoffice-capability-not-found` | `404 Not Found` |
-| Пользователь аутентифицирован, но capability не разрешена его ролями | `backoffice-capability-forbidden` | `403 Forbidden` |
-| Ошибки аутентификации и blocked/no-role условия | те же, что в `Create backoffice session` | `401` или `403` |
+| Условие                                                              | Ошибка                                   | HTTP outcome    |
+| -------------------------------------------------------------------- | ---------------------------------------- | --------------- |
+| `capability` отсутствует в каноническом списке                       | `backoffice-capability-not-found`        | `404 Not Found` |
+| Пользователь аутентифицирован, но capability не разрешена его ролями | `backoffice-capability-forbidden`        | `403 Forbidden` |
+| Ошибки аутентификации и blocked/no-role условия                      | те же, что в `Create backoffice session` | `401` или `403` |
 
 ### Side effects
 

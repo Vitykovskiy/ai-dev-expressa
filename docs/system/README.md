@@ -28,6 +28,11 @@
 - Для UI-фич feature spec подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
 - Архитектор начинает с feature spec, затем точечно читает связанные contracts/use-cases/domain/state/ui mapping. При gap в сценариях, inputs, validations, errors, UI states или design readiness фича возвращается системному аналитику.
 
+- `FEATURE-001 Administrator Telegram Backoffice Access`
+  - Файл: [feature-specs/feature-001-administrator-telegram-backoffice-access.md](./feature-specs/feature-001-administrator-telegram-backoffice-access.md)
+  - Сценарии тестирования: [feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md](./feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md)
+  - Использовать для архитектурной декомпозиции backoffice entry, Telegram bootstrap, role-aware navigation и direct-route guard `FEATURE-001`, а также для handoff QA-сценариев по session bootstrap и capability access.
+
 - `FEATURE-003 Administrator Slot Settings Management`
   - Файл: [feature-specs/feature-003-administrator-slot-settings-management.md](./feature-specs/feature-003-administrator-slot-settings-management.md)
   - Сценарии тестирования: [feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md](./feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md)
