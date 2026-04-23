@@ -24,7 +24,7 @@ Subtasks are executed sequentially. Each subtask uses exactly one context packag
 ### FE-002-02 Menu UI Components And View Orchestration
 
 - Context package: `FE-002-context-02-menu-ui.md`
-- Status: `Ожидает FE-002-01`
+- Status: `Выполнена`
 - Goal: verify and complete `/menu` view orchestration and feature-specific menu catalog components.
 - Allowed area: `frontend/src/views/MenuCatalogView.vue`, `frontend/src/components/menu-catalog/*.vue`, `frontend/src/ui/*` only if an existing primitive blocks the task.
 - Required checks: `npm run typecheck`, targeted component/unit tests if changed, or record why unavailable.

@@ -6,7 +6,7 @@
       <div>
         <h1 class="menu-view__title">Меню</h1>
         <p v-if="categories.length > 0" class="menu-view__subtitle">
-          {{ categoryCountLabel(categories.length) }}
+          {{ categorySummaryLabel }}
         </p>
       </div>
     </div>
@@ -57,6 +57,7 @@
       <MenuCatalogCategoryList
         :categories="categories"
         :category-items-map="categoryItemsMap"
+        :option-group-category-ids="optionGroupCategoryIds"
         @edit-category="openEditCategoryDialog"
         @create-item="openCreateItemDialog"
         @edit-item="openEditItemDialog"
@@ -106,7 +107,6 @@ import MenuItemDialog from "@/components/menu-catalog/MenuItemDialog.vue";
 import UiButton from "@/ui/UiButton.vue";
 import UiTopBar from "@/ui/UiTopBar.vue";
 import {
-  categoryCountLabel,
   findCategoryOwnedOptionGroup,
   optionGroupCategoryIds as resolveOptionGroupCategoryIds,
 } from "@/modules/menu-catalog/presentation";
@@ -161,6 +161,33 @@ const optionGroupCategoryIds = computed(() =>
     ownedOptionGroupMap,
   ),
 );
+const optionGroupCategoryIdSet = computed(
+  () => new Set(optionGroupCategoryIds.value),
+);
+const regularCategoryCount = computed(
+  () =>
+    categories.value.filter(
+      (category) =>
+        !optionGroupCategoryIdSet.value.has(category.menuCategoryId),
+    ).length,
+);
+const optionCategoryCount = computed(
+  () =>
+    categories.value.filter((category) =>
+      optionGroupCategoryIdSet.value.has(category.menuCategoryId),
+    ).length,
+);
+const categorySummaryLabel = computed(() => {
+  const parts: string[] = [];
+  if (regularCategoryCount.value > 0) {
+    parts.push(categoryGroupLabel(regularCategoryCount.value));
+  }
+  if (optionCategoryCount.value > 0) {
+    parts.push(optionGroupLabel(optionCategoryCount.value));
+  }
+
+  return parts.join(" · ");
+});
 const isBusy = computed(
   () => store.state.status === "loading" || store.state.status === "saving",
 );
@@ -356,6 +383,14 @@ async function deleteCurrentItem(): Promise<void> {
 function clearError(): void {
   localError.value = null;
   errorToastOpen.value = false;
+}
+
+function categoryGroupLabel(count: number): string {
+  return `${count} ${count === 1 ? "группа" : "групп"}`;
+}
+
+function optionGroupLabel(count: number): string {
+  return `${count} ${count === 1 ? "группа опций" : "групп опций"}`;
 }
 
 async function ensureOwnedOptionGroup(

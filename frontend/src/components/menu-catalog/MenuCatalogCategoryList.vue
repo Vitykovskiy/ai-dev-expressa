@@ -1,5 +1,5 @@
 <template>
-  <ui-section-list class="catalog-panel">
+  <div class="catalog-panel">
     <div v-if="categories.length === 0" class="empty-state">
       <ui-empty-state
         :icon="BookOpen"
@@ -11,79 +11,91 @@
 
     <div v-else class="category-list">
       <div
-        v-for="category in categories"
-        :key="category.menuCategoryId"
-        class="category-block"
+        v-for="section in visibleSections"
+        :key="section.title"
+        class="category-section"
       >
-        <div class="category-row">
-          <ui-button
-            class="category-row__main"
-            variant="ghost"
-            @click="toggleCategory(category.menuCategoryId)"
-          >
-            <span class="category-row__content">
-              <span class="category-row__label">
-                <component
-                  :is="
-                    expandedCategoryIds.has(category.menuCategoryId)
-                      ? ChevronDown
-                      : ChevronRight
-                  "
-                  :size="20"
-                />
-                <span>
-                  <strong>{{ category.name }}</strong>
-                  <small>{{
-                    itemCountLabel(
-                      categoryItemsMap[category.menuCategoryId]?.length ?? 0,
-                    )
-                  }}</small>
-                </span>
-              </span>
-            </span>
-          </ui-button>
-          <ui-icon-button
-            class="category-row__edit"
-            title="Редактировать группу"
-            @click="$emit('edit-category', category)"
-          >
-            <Edit3 :size="18" />
-          </ui-icon-button>
-        </div>
+        <h2 class="category-section__title">{{ section.title }}</h2>
 
-        <div
-          v-if="expandedCategoryIds.has(category.menuCategoryId)"
-          class="category-detail"
-        >
+        <ui-section-list class="category-section__panel">
           <div
-            v-if="
-              (categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0
-            "
-            class="category-empty"
+            v-for="(category, categoryIndex) in section.categories"
+            :key="category.menuCategoryId"
+            class="category-block"
+            :class="{ 'category-block--divided': categoryIndex > 0 }"
           >
-            <Coffee :size="32" class="category-empty__icon" />
-            <p class="category-empty__text">Товаров в этой группе пока нет</p>
-          </div>
+            <div class="category-row">
+              <ui-button
+                class="category-row__main"
+                variant="ghost"
+                @click="toggleCategory(category.menuCategoryId)"
+              >
+                <span class="category-row__content">
+                  <span class="category-row__label">
+                    <component
+                      :is="
+                        expandedCategoryIds.has(category.menuCategoryId)
+                          ? ChevronDown
+                          : ChevronRight
+                      "
+                      :size="20"
+                    />
+                    <span>
+                      <strong>{{ category.name }}</strong>
+                      <small>{{
+                        section.countLabel(
+                          categoryItemsMap[category.menuCategoryId]?.length ??
+                            0,
+                        )
+                      }}</small>
+                    </span>
+                  </span>
+                </span>
+              </ui-button>
+              <ui-icon-button
+                class="category-row__edit"
+                title="Редактировать группу"
+                @click="$emit('edit-category', category)"
+              >
+                <Edit3 :size="18" />
+              </ui-icon-button>
+            </div>
 
-          <ui-button
-            v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
-            :key="item.menuItemId"
-            class="product-row"
-            variant="ghost"
-            @click="$emit('edit-item', item)"
-          >
-            <span class="product-row__content">
-              <span>
-                <strong>{{ item.name }}</strong>
-                <small>{{ itemPriceLabel(item) }}</small>
-              </span>
-              <ChevronRight :size="18" />
-            </span>
-          </ui-button>
-        </div>
+            <div
+              v-if="expandedCategoryIds.has(category.menuCategoryId)"
+              class="category-detail"
+            >
+              <div
+                v-if="
+                  (categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0
+                "
+                class="category-empty"
+              >
+                <Coffee :size="32" class="category-empty__icon" />
+                <p class="category-empty__text">{{ section.emptyText }}</p>
+              </div>
+
+              <ui-button
+                v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
+                :key="item.menuItemId"
+                class="product-row"
+                variant="ghost"
+                @click="$emit('edit-item', item)"
+              >
+                <span class="product-row__content">
+                  <span>
+                    <strong>{{ item.name }}</strong>
+                    <small>{{ itemPriceLabel(item) }}</small>
+                  </span>
+                  <ChevronRight :size="18" />
+                </span>
+              </ui-button>
+            </div>
+          </div>
+        </ui-section-list>
       </div>
     </div>
-  </ui-section-list>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -94,7 +106,7 @@ import {
   Coffee,
   Edit3,
 } from "lucide-vue-next";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import UiButton from "@/ui/UiButton.vue";
 import UiEmptyState from "@/ui/UiEmptyState.vue";
 import UiIconButton from "@/ui/UiIconButton.vue";
@@ -105,9 +117,10 @@ import {
 } from "@/modules/menu-catalog/presentation";
 import type { MenuCategory, MenuItem } from "@/modules/menu-catalog/types";
 
-defineProps<{
+const props = defineProps<{
   categories: readonly MenuCategory[];
   categoryItemsMap: Record<string, MenuItem[]>;
+  optionGroupCategoryIds: readonly string[];
 }>();
 
 defineEmits<{
@@ -118,6 +131,35 @@ defineEmits<{
 }>();
 
 const expandedCategoryIds = ref<Set<string>>(new Set());
+const optionGroupCategoryIdSet = computed(
+  () => new Set(props.optionGroupCategoryIds),
+);
+const regularCategories = computed(() =>
+  props.categories.filter(
+    (category) => !optionGroupCategoryIdSet.value.has(category.menuCategoryId),
+  ),
+);
+const optionCategories = computed(() =>
+  props.categories.filter((category) =>
+    optionGroupCategoryIdSet.value.has(category.menuCategoryId),
+  ),
+);
+const visibleSections = computed(() =>
+  [
+    {
+      title: "Основное меню",
+      categories: regularCategories.value,
+      emptyText: "Товаров в этой группе пока нет",
+      countLabel: itemCountLabel,
+    },
+    {
+      title: "Группы опций",
+      categories: optionCategories.value,
+      emptyText: "Опций в этой группе пока нет",
+      countLabel: optionCountLabel,
+    },
+  ].filter((section) => section.categories.length > 0),
+);
 
 function toggleCategory(menuCategoryId: string): void {
   const next = new Set(expandedCategoryIds.value);
@@ -129,11 +171,15 @@ function toggleCategory(menuCategoryId: string): void {
 
   expandedCategoryIds.value = next;
 }
+
+function optionCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "опция" : "опций"}`;
+}
 </script>
 
 <style scoped lang="scss">
 .catalog-panel {
-  overflow: hidden;
+  display: block;
 }
 
 .empty-state,
@@ -141,7 +187,31 @@ function toggleCategory(menuCategoryId: string): void {
   padding: 0;
 }
 
-.category-block + .category-block {
+.category-list,
+.category-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-section + .category-section {
+  margin-top: 12px;
+}
+
+.category-section__title {
+  margin: 0 4px;
+  color: var(--app-color-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.category-section__panel {
+  overflow: hidden;
+}
+
+.category-block--divided {
   border-top: 1px solid var(--app-color-border);
 }
 
