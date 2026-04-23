@@ -27,7 +27,18 @@ export function MenuScreen({ menuItems }: MenuScreenProps) {
   // Временный список групп опций для демонстрации
   const [optionGroupsSet, setOptionGroupsSet] = useState<Set<string>>(new Set());
 
-  const categories = Array.from(new Set(menuItems.map(item => item.category)));
+  // Разделяем категории на обычные и группы опций
+  const allCategories = Array.from(new Set(menuItems.map(item => item.category)));
+  const regularCategories = allCategories.filter(category => {
+    const items = menuItems.filter(item => item.category === category);
+    return !items.some(item => item.isOptionGroup);
+  });
+  const optionCategories = allCategories.filter(category => {
+    const items = menuItems.filter(item => item.category === category);
+    return items.some(item => item.isOptionGroup);
+  });
+
+  const categories = allCategories;
   const optionGroups = Array.from(optionGroupsSet);
 
   const getCategoryCount = (category: string) => {
@@ -123,7 +134,9 @@ export function MenuScreen({ menuItems }: MenuScreenProps) {
           <h1 className="text-2xl font-bold text-[#111111]">Меню</h1>
           {categories.length > 0 && (
             <span className="text-sm text-[#999999]">
-              {categories.length} {categories.length === 1 ? 'категория' : 'категорий'}
+              {regularCategories.length > 0 && `${regularCategories.length} ${regularCategories.length === 1 ? 'группа' : 'групп'}`}
+              {regularCategories.length > 0 && optionCategories.length > 0 && ' · '}
+              {optionCategories.length > 0 && `${optionCategories.length} ${optionCategories.length === 1 ? 'группа опций' : 'групп опций'}`}
             </span>
           )}
         </div>
@@ -156,7 +169,7 @@ export function MenuScreen({ menuItems }: MenuScreenProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6 md:pb-6 pb-20 md:pb-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6 md:pb-6 pb-20 md:pb-6 space-y-6">
         {categories.length === 0 ? (
           <EmptyState
             icon={BookOpen}
@@ -164,80 +177,173 @@ export function MenuScreen({ menuItems }: MenuScreenProps) {
             subtitle="Добавьте первую группу для начала работы"
           />
         ) : (
-          <div className="bg-white border border-[#E0E0E0] rounded-[16px] overflow-hidden">
-            {categories.map((category, categoryIndex) => {
-              const products = getCategoryProducts(category);
-              const isExpanded = expandedCategories.has(category);
+          <>
+            {/* Regular Categories Table */}
+            {regularCategories.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-[#999999] uppercase tracking-wider mb-3 px-1">
+                  Основное меню
+                </h2>
+                <div className="bg-white border border-[#E0E0E0] rounded-[16px] overflow-hidden">
+                  {regularCategories.map((category, categoryIndex) => {
+                    const products = getCategoryProducts(category);
+                    const isExpanded = expandedCategories.has(category);
 
-              return (
-                <div
-                  key={category}
-                  className={categoryIndex !== categories.length - 1 ? 'border-b border-[#E0E0E0]' : ''}
-                >
-                  {/* Category Header */}
-                  <div className="flex items-center bg-[#F5F5F7] hover:bg-[#ECECEC] transition-colors">
-                    <button
-                      onClick={() => toggleCategory(category)}
-                      className="flex-1 flex items-center gap-3 px-4 py-3.5"
-                    >
-                      <div className="text-[#555555]">
-                        {isExpanded ? (
-                          <ChevronDown size={20} />
-                        ) : (
-                          <ChevronRight size={20} />
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="text-[15px] font-semibold text-[#111111]">{category}</div>
-                        <div className="text-xs text-[#999999] mt-0.5">
-                          {getCategoryCount(category)} {getCategoryCount(category) === 1 ? 'товар' : 'товаров'}
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => handleEditCategory(category)}
-                      className="px-4 py-3.5 hover:bg-[#E8E8FF] transition-colors"
-                      title="Редактировать группу"
-                    >
-                      <Edit3 size={18} className="text-[#1A1AFF]" />
-                    </button>
-                  </div>
-
-                  {/* Products List */}
-                  {isExpanded && (
-                    <div className="bg-white animate-in slide-in-from-top-2 duration-200">
-                      {products.length === 0 ? (
-                        <div className="px-4 py-8 text-center border-t border-[#E0E0E0]">
-                          <Coffee size={32} className="mx-auto text-[#999999] mb-2" />
-                          <p className="text-sm text-[#999999]">Товаров в этой группе пока нет</p>
-                        </div>
-                      ) : (
-                        products.map((product, productIndex) => (
+                    return (
+                      <div
+                        key={category}
+                        className={categoryIndex !== regularCategories.length - 1 ? 'border-b border-[#E0E0E0]' : ''}
+                      >
+                        {/* Category Header */}
+                        <div className="flex items-center bg-[#F5F5F7] hover:bg-[#ECECEC] transition-colors">
                           <button
-                            key={product.id}
-                            onClick={() => handleEditProduct(product)}
-                            className="w-full flex items-center gap-3 px-4 pl-12 py-3 hover:bg-[#F5F5F7] transition-colors border-t border-[#E0E0E0]"
+                            onClick={() => toggleCategory(category)}
+                            className="flex-1 flex items-center gap-3 px-4 py-3.5"
                           >
+                            <div className="text-[#555555]">
+                              {isExpanded ? (
+                                <ChevronDown size={20} />
+                              ) : (
+                                <ChevronRight size={20} />
+                              )}
+                            </div>
                             <div className="flex-1 text-left">
-                              <div className="text-sm font-semibold text-[#111111]">{product.name}</div>
+                              <div className="text-[15px] font-semibold text-[#111111]">{category}</div>
                               <div className="text-xs text-[#999999] mt-0.5">
-                                {product.price
-                                  ? `${product.price} ₽`
-                                  : product.sizes
-                                  ? `от ${Math.min(...product.sizes.map(s => s.price))} ₽`
-                                  : 'Нет цены'}
+                                {getCategoryCount(category)} {getCategoryCount(category) === 1 ? 'товар' : 'товаров'}
                               </div>
                             </div>
-                            <ChevronRight size={18} className="text-[#999999]" />
                           </button>
-                        ))
-                      )}
-                    </div>
-                  )}
+                          <button
+                            onClick={() => handleEditCategory(category)}
+                            className="px-4 py-3.5 hover:bg-[#E8E8FF] transition-colors"
+                            title="Редактировать группу"
+                          >
+                            <Edit3 size={18} className="text-[#1A1AFF]" />
+                          </button>
+                        </div>
+
+                        {/* Products List */}
+                        {isExpanded && (
+                          <div className="bg-white animate-in slide-in-from-top-2 duration-200">
+                            {products.length === 0 ? (
+                              <div className="px-4 py-8 text-center border-t border-[#E0E0E0]">
+                                <Coffee size={32} className="mx-auto text-[#999999] mb-2" />
+                                <p className="text-sm text-[#999999]">Товаров в этой группе пока нет</p>
+                              </div>
+                            ) : (
+                              products.map((product, productIndex) => (
+                                <button
+                                  key={product.id}
+                                  onClick={() => handleEditProduct(product)}
+                                  className="w-full flex items-center gap-3 px-4 pl-12 py-3 hover:bg-[#F5F5F7] transition-colors border-t border-[#E0E0E0]"
+                                >
+                                  <div className="flex-1 text-left">
+                                    <div className="text-sm font-semibold text-[#111111]">{product.name}</div>
+                                    <div className="text-xs text-[#999999] mt-0.5">
+                                      {product.sizes && product.sizes.length > 0
+                                        ? product.sizes.map(s => `${s.size}: ${s.price} ₽`).join(' · ')
+                                        : product.price !== undefined
+                                        ? `${product.price} ₽`
+                                        : 'Нет цены'}
+                                    </div>
+                                  </div>
+                                  <ChevronRight size={18} className="text-[#999999]" />
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            )}
+
+            {/* Option Groups Table */}
+            {optionCategories.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-[#999999] uppercase tracking-wider mb-3 px-1">
+                  Группы опций
+                </h2>
+                <div className="bg-white border border-[#E0E0E0] rounded-[16px] overflow-hidden">
+                  {optionCategories.map((category, categoryIndex) => {
+                    const products = getCategoryProducts(category);
+                    const isExpanded = expandedCategories.has(category);
+
+                    return (
+                      <div
+                        key={category}
+                        className={categoryIndex !== optionCategories.length - 1 ? 'border-b border-[#E0E0E0]' : ''}
+                      >
+                        {/* Category Header */}
+                        <div className="flex items-center bg-[#F5F5F7] hover:bg-[#ECECEC] transition-colors">
+                          <button
+                            onClick={() => toggleCategory(category)}
+                            className="flex-1 flex items-center gap-3 px-4 py-3.5"
+                          >
+                            <div className="text-[#555555]">
+                              {isExpanded ? (
+                                <ChevronDown size={20} />
+                              ) : (
+                                <ChevronRight size={20} />
+                              )}
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="text-[15px] font-semibold text-[#111111]">{category}</div>
+                              <div className="text-xs text-[#999999] mt-0.5">
+                                {getCategoryCount(category)} {getCategoryCount(category) === 1 ? 'опция' : 'опций'}
+                              </div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => handleEditCategory(category)}
+                            className="px-4 py-3.5 hover:bg-[#E8E8FF] transition-colors"
+                            title="Редактировать группу"
+                          >
+                            <Edit3 size={18} className="text-[#1A1AFF]" />
+                          </button>
+                        </div>
+
+                        {/* Products List */}
+                        {isExpanded && (
+                          <div className="bg-white animate-in slide-in-from-top-2 duration-200">
+                            {products.length === 0 ? (
+                              <div className="px-4 py-8 text-center border-t border-[#E0E0E0]">
+                                <Coffee size={32} className="mx-auto text-[#999999] mb-2" />
+                                <p className="text-sm text-[#999999]">Опций в этой группе пока нет</p>
+                              </div>
+                            ) : (
+                              products.map((product, productIndex) => (
+                                <button
+                                  key={product.id}
+                                  onClick={() => handleEditProduct(product)}
+                                  className="w-full flex items-center gap-3 px-4 pl-12 py-3 hover:bg-[#F5F5F7] transition-colors border-t border-[#E0E0E0]"
+                                >
+                                  <div className="flex-1 text-left">
+                                    <div className="text-sm font-semibold text-[#111111]">{product.name}</div>
+                                    <div className="text-xs text-[#999999] mt-0.5">
+                                      {product.sizes && product.sizes.length > 0
+                                        ? product.sizes.map(s => `${s.size}: ${s.price} ₽`).join(' · ')
+                                        : product.price !== undefined
+                                        ? product.price === 0 ? 'Бесплатно' : `${product.price} ₽`
+                                        : 'Нет цены'}
+                                    </div>
+                                  </div>
+                                  <ChevronRight size={18} className="text-[#999999]" />
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

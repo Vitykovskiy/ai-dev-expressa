@@ -193,7 +193,7 @@ export function EditProductDialog({
                     </div>
                     <input
                       type="number"
-                      placeholder="0"
+                      placeholder="Введите цену"
                       value={sizeData.price}
                       onChange={(e) => handleSizeChange(index, e.target.value)}
                       min="0"
@@ -210,7 +210,7 @@ export function EditProductDialog({
                 </label>
                 <input
                   type="number"
-                  placeholder="0"
+                  placeholder="Введите цену"
                   value={basePrice}
                   onChange={(e) => setBasePrice(e.target.value)}
                   min="0"
