@@ -49,12 +49,13 @@ Backend must provide a protected administrator-only menu catalog API for categor
 
 ### BE-002-03 Backend Quality Gate And Documentation Reconciliation
 
-- Status: `pending`
+- Status: `completed`
 - Context: `BE-002-context-03-quality-and-documentation.md`
 - Objective: run the backend quality gate, reconcile backend menu-catalog application map/task evidence if the implementation changed, and leave BE-002 ready for review.
 - Allowed edit area: `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`, `tasks/archive/BE-002-administrator-menu-catalog-backend.md`, backend files only if required by failed checks from this subtask.
 - Required checks: `npm run lint --prefix backend`, `npm run format:check --prefix backend`, `npm run typecheck --prefix backend`, `npm test --prefix backend`, `npm run build --prefix backend`.
 - Dependency: BE-002-02 completed or explicitly marked as no-op with evidence.
+- Completion evidence: all required backend checks passed; no backend code or documentation changes were needed during reconciliation.
 
 ## Completion Rules
 
