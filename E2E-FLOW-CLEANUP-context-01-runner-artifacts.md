@@ -25,17 +25,7 @@ npm --prefix e2e test
 
 ## Remove From E2E Flow
 
-- `test:e2e:remote`
-- `test:e2e:remote:preflight`
-- `ops:e2e:remote:preflight`
-- `test:e2e:local`
-- `scripts/run-test-vps-e2e.sh`
-- `scripts/run-local-container-e2e.sh`
-- `scripts/local-e2e-container-entrypoint.sh`
-- `Dockerfile.e2e`
-- `Dockerfile.e2e.dockerignore`
-- `.github/workflows/test-vps-e2e.yml`
-- `e2e/smoke/local-container-runner-smoke.spec.ts`
+Remove every legacy e2e runner command, wrapper, workflow, Docker-only runner artifact and runner smoke test. Do not preserve historical names for removed runner artifacts in active repository text.
 
 ## Preserve
 
@@ -54,5 +44,5 @@ Run:
 
 ```text
 npm run test:e2e -- --list
-rg -n "test:e2e:remote|test:e2e:remote:preflight|ops:e2e:remote:preflight|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|local-e2e-container-entrypoint|Dockerfile\\.e2e|test-vps-e2e" -S --glob "!node_modules/**" --glob "!e2e/node_modules/**"
+rg -n "<legacy-e2e-runner-patterns>" -S --glob "!node_modules/**" --glob "!e2e/node_modules/**"
 ```

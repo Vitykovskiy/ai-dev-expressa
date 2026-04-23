@@ -21,23 +21,13 @@ or:
 npm --prefix e2e test -- <scope>
 ```
 
-They must not require runner scripts, preflight workflows or local containerized e2e runners.
+They must not require legacy runner scripts, old runner workflows or non-canonical e2e runners.
 
 ## Archive Cleanup
 
-Delete archive cards/descriptions that exist only as historical e2e runner flow data, including:
+Delete archive cards/descriptions that exist only as historical e2e runner flow data.
 
-```text
-tasks/archive/DO-003-test-vps-e2e-runner-for-qa.md
-```
-
-Remove archive references to:
-
-- historical/deprecated e2e baseline
-- local containerized e2e acceptance
-- remote e2e route
-- VPS e2e runner
-- preflight runner flow
+Remove archive references to legacy e2e baselines, non-canonical acceptance routes, VPS-hosted e2e execution and runner diagnostic flows.
 
 ## Preserve
 
@@ -64,5 +54,5 @@ npm run test:e2e
 Then run:
 
 ```text
-rg -n "test:e2e:remote|test:e2e:remote:preflight|ops:e2e:remote:preflight|test:e2e:local|run-test-vps-e2e|run-local-container-e2e|local-e2e-container-entrypoint|Dockerfile\\.e2e|test-vps-e2e|remote e2e route|local containerized e2e|historical/deprecated e2e|QA-005 runner|preflight published e2e|debug/fallback route" -S --glob "!node_modules/**" --glob "!backend/node_modules/**" --glob "!frontend/node_modules/**" --glob "!e2e/node_modules/**"
+rg -n "<legacy-e2e-runner-patterns>" -S --glob "!node_modules/**" --glob "!backend/node_modules/**" --glob "!frontend/node_modules/**" --glob "!e2e/node_modules/**"
 ```
