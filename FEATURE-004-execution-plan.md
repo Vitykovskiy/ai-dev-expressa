@@ -17,7 +17,7 @@
 
 ### `02` — Подготовка сценариев тестирования фичи
 
-- Статус: `pending`
+- Статус: `completed`
 - Контекст: `FEATURE-004-context-02-test-scenarios.md`
 - Зависимости: `01`
 - Результат: создан или обновлен `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md` со stable scenario IDs, manual route, e2e coverage expectation и required assertions.
