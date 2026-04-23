@@ -2,7 +2,7 @@
 
 ## Граница
 
-Один набор контрактов: управление ролями пользователей, блокировкой и bootstrap главного administrator.
+Один набор consumer-facing контрактов: bootstrap главного `administrator`, чтение списка пользователей, назначение роли и блокировка пользователя.
 
 ## Источники
 
@@ -26,31 +26,136 @@
 
 - Пользователь с ролью `administrator`, связанный с `ADMIN_TELEGRAM_ID`.
 
+## Contract `Read users list`
+
+### Consumer
+
+- `administrator`
+
+### Purpose
+
+- Получить наблюдаемый список пользователей для экрана `Пользователи` без восстановления структуры ответа из production-кода.
+
+### Transport boundary
+
+- Method: `GET`
+- Path: `/backoffice/users`
+- Required capability: `users`
+- Auth context: server-side `AuthenticatedActor`, подтвержденный backoffice auth boundary
+
+### Request
+
+#### Query parameters
+
+- `search` — необязательная строка для поиска по имени пользователя или `telegramUsername`.
+- `role` — необязательный фильтр со значениями `barista`, `administrator`.
+- `blocked` — необязательный фильтр со значениями `true`, `false`.
+
+### Validations and constraints
+
+- Операция доступна только пользователю с административными правами и capability `users`.
+- Контракт чтения списка пользователей не изменяет роли, `blocked state` или другие атрибуты пользователя.
+- Контракт чтения списка пользователей должен оставаться в границах сценария выбора цели назначения роли и не смешивать `FEATURE-004` с операцией `Block user`.
+
+### Response `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "userId": "usr_123",
+      "displayName": "Иван Петров",
+      "telegramUsername": "@ivan_petrov",
+      "roles": ["customer", "barista"],
+      "blocked": false,
+      "availableRoleAssignments": ["barista", "administrator"]
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}
+```
+
+### Response semantics
+
+- `items[].roles` отражает фактический набор ролей пользователя на стороне identity-access boundary.
+- `items[].blocked` передается как наблюдаемое состояние пользователя, потому что оно влияет на смежный административный контур, но само по себе не инициирует действие блокировки в рамках этого контракта.
+- `items[].availableRoleAssignments` ограничивается набором `barista`, `administrator` и не снимает blocker по правилу назначения `administrator`.
+
+### Transport errors
+
+- `401 Unauthorized` + `telegram-init-data-required | telegram-bot-token-required | telegram-hash-invalid` — auth context backoffice не подтвержден.
+- `403 Forbidden` + `backoffice-capability-forbidden` — у инициатора нет capability `users`.
+- `500 Internal Server Error` + `identity-access-read-failed` — identity-access boundary не смог прочитать пользователей без частичного результата.
+
 ## Contract `Assign user role`
 
 ### Consumer
 
 - `administrator`
 
+### Purpose
+
+- Изменить набор ролей целевого пользователя в рамках административной операции назначения роли.
+
+### Transport boundary
+
+- Method: `PATCH`
+- Path: `/backoffice/users/{userId}/role`
+- Required capability: `users`
+- Auth context: server-side `AuthenticatedActor`, подтвержденный backoffice auth boundary
+
+### Request
+
+```json
+{
+  "role": "barista"
+}
+```
+
 ### Inputs
 
-- Целевой пользователь.
-- Назначаемая роль `barista` или `administrator`.
+- `userId` в path — идентификатор целевого пользователя.
+- `role` в body — назначаемая роль `barista` или `administrator`.
 
 ### Validations and constraints
 
-- Операция доступна только пользователю с административными правами.
+- Операция доступна только пользователю с административными правами и capability `users`.
 - Допустимые назначаемые роли ограничены `barista` и `administrator`.
+- Контракт изменяет только ролевое назначение пользователя и связанный доступ к вкладкам backoffice.
+- Контракт не изменяет роль `customer`.
+- Контракт не выполняет блокировку или разблокировку пользователя.
+- Контракт не подменяет blocker по праву назначения `administrator` предположением о том, кто имеет это право.
 
-### Outputs
+### Response `200 OK`
 
-- Обновлённый набор ролей пользователя.
-- Обновлённый доступ к вкладкам backoffice.
+```json
+{
+  "userId": "usr_123",
+  "roles": ["customer", "barista"],
+  "backofficeAccess": {
+    "capabilities": ["orders", "availability"]
+  }
+}
+```
 
-### Business errors
+### Response semantics
 
-- `administrator-role-required`
-- `role-not-assignable`
+- `roles` отражает фактически сохраненный набор ролей пользователя после операции.
+- `backofficeAccess.capabilities` отражает пересчитанный доступ пользователя к вкладкам backoffice на основании серверного набора ролей.
+- Для назначения `barista` пересчитанный доступ ограничивается capabilities, соответствующими вкладкам `Заказы` и `Доступность`.
+- Для назначения `administrator` shape успешного ответа остается тем же, но допустимость самой операции остается зависимой от отдельного blocker.
+
+### Transport and business errors
+
+- `401 Unauthorized` + `telegram-init-data-required | telegram-bot-token-required | telegram-hash-invalid` — auth context backoffice не подтвержден.
+- `403 Forbidden` + `backoffice-capability-forbidden` — у инициатора нет capability `users`.
+- `403 Forbidden` + `administrator-role-required` — инициатор не имеет административных прав для операции назначения роли.
+- `404 Not Found` + `user-not-found` — целевой пользователь не найден в identity-access boundary.
+- `409 Conflict` + `administrator-assignment-rule-unresolved` — запрос на назначение роли `administrator` достиг открытого blocker по правилу назначения этой роли.
+- `422 Unprocessable Entity` + `role-not-assignable` — запрошено значение роли вне набора `barista`, `administrator`.
+- `500 Internal Server Error` + `identity-access-write-failed` — identity-access boundary не смог сохранить новое ролевое назначение без частичного результата.
 
 ### Несогласованности
 
@@ -78,4 +183,3 @@
 
 - `administrator-role-required`
 - `user-not-found`
-
