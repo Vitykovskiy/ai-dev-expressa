@@ -122,6 +122,90 @@ test.describe("administrator slot settings management", () => {
       expect(slot.capacityLimit).toBe(settings.slotCapacity);
     }
   });
+
+  test("FTS-003-003 invalid working hours", async ({ page }) => {
+    const saveRequests = trackSlotSettingsSaveRequests(page);
+
+    await page.goto("/settings");
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Настройки" }),
+    ).toBeVisible();
+    const currentSettings = await readSettingsForm(page);
+
+    await page.locator("#slot-settings-open").fill("18:00");
+    await page.locator("#slot-settings-close").fill("18:00");
+
+    await expect(
+      page.getByText("Время закрытия должно быть позже времени открытия."),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Сохранить" }),
+    ).toBeDisabled();
+    await expect(page.getByText("Настройки сохранены")).toBeHidden();
+    expect(saveRequests.count(), "invalid working hours save requests").toBe(0);
+
+    await expect(page.locator("#slot-settings-open")).toHaveValue("18:00");
+    await expect(page.locator("#slot-settings-close")).toHaveValue("18:00");
+    await page.locator("#slot-settings-close").fill("19:00");
+    await expect(
+      page.getByText("Время закрытия должно быть позже времени открытия."),
+    ).toBeHidden();
+    await expect(page.getByRole("button", { name: "Сохранить" })).toBeEnabled();
+
+    await page.reload();
+    await expect(page.locator("#slot-settings-open")).toHaveValue(
+      currentSettings.workingHoursOpen,
+    );
+    await expect(page.locator("#slot-settings-close")).toHaveValue(
+      currentSettings.workingHoursClose,
+    );
+  });
+
+  test("FTS-003-004 invalid slot capacity", async ({ page }) => {
+    const saveRequests = trackSlotSettingsSaveRequests(page);
+
+    await page.goto("/settings");
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Настройки" }),
+    ).toBeVisible();
+    const currentSettings = await readSettingsForm(page);
+
+    await page.locator("#slot-settings-capacity").fill("0");
+
+    await expect(page.getByText("Введите целое число больше 0.")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Сохранить" }),
+    ).toBeDisabled();
+    await expect(page.getByText("Настройки сохранены")).toBeHidden();
+    expect(saveRequests.count(), "invalid slot capacity save requests").toBe(0);
+
+    await page.reload();
+    await expect(page.locator("#slot-settings-capacity")).toHaveValue(
+      String(currentSettings.slotCapacity),
+    );
+  });
+
+  test("FTS-003-005 settings access guard", async ({ page }) => {
+    await mockBaristaSession(page);
+
+    await page.goto("/");
+    await expect(page.getByText("Бариста")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Заказы/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Доступность/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Настройки/ })).toHaveCount(0);
+
+    await page.goto("/settings");
+    await expect(page.getByText("403")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Доступ к этой вкладке запрещён" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Настройки" }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Сохранить" })).toHaveCount(
+      0,
+    );
+  });
 });
 
 async function fillSettingsForm(
@@ -133,6 +217,17 @@ async function fillSettingsForm(
   await page
     .locator("#slot-settings-capacity")
     .fill(String(settings.slotCapacity));
+}
+
+async function readSettingsForm(page: Page): Promise<SlotSettingsSnapshot> {
+  return {
+    workingHoursOpen: await page.locator("#slot-settings-open").inputValue(),
+    workingHoursClose: await page.locator("#slot-settings-close").inputValue(),
+    slotCapacity: Number.parseInt(
+      await page.locator("#slot-settings-capacity").inputValue(),
+      10,
+    ),
+  };
 }
 
 async function saveSettingsViaApi(
@@ -160,6 +255,35 @@ async function getCustomerSlots(
 
   expect(response.ok()).toBe(true);
   return (await response.json()) as readonly AvailableSlot[];
+}
+
+function trackSlotSettingsSaveRequests(page: Page): { count: () => number } {
+  let count = 0;
+  page.on("request", (request) => {
+    if (
+      request.url().includes("/backoffice/settings/slot-settings") &&
+      request.method() === "PUT"
+    ) {
+      count += 1;
+    }
+  });
+
+  return { count: () => count };
+}
+
+async function mockBaristaSession(page: Page): Promise<void> {
+  await page.route("**/backoffice/auth/session", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        userId: "e2e-barista",
+        telegramId: "2002",
+        roles: ["barista"],
+        capabilities: ["orders", "availability"],
+      }),
+    });
+  });
 }
 
 function apiUrl(path: string): string {
