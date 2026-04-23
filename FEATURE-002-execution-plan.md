@@ -12,7 +12,7 @@
 2. `[completed]` `FEATURE-002-context-02-menu-ui-parity.md`
    Привести вкладку `Меню` к актуальному versioned reference после первого добавления `.references`, включая отображение цен напитков по размерам и прочие подтвержденные UI-расхождения.
 
-3. `[pending]` `FEATURE-002-context-03-regression-coverage.md`
+3. `[completed]` `FEATURE-002-context-03-regression-coverage.md`
    Расширить unit/integration/e2e покрытие на исправленные edge cases и UI parity, чтобы фича не регрессировала повторно.
 
 ## Последовательность исполнения

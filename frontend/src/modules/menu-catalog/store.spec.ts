@@ -22,6 +22,21 @@ const categorySnapshot: MenuCatalogSnapshot = {
   optionGroups: [],
 };
 
+const categoryWithItemsSnapshot: MenuCatalogSnapshot = {
+  categories: [{ menuCategoryId: "cat-1", name: "Кофе", optionGroupRefs: [] }],
+  items: [
+    {
+      menuItemId: "item-1",
+      menuCategoryId: "cat-1",
+      name: "Латте",
+      itemType: "regular",
+      basePrice: 190,
+      availability: true,
+    },
+  ],
+  optionGroups: [],
+};
+
 function createApiMock(
   overrides: Partial<MenuCatalogClient> = {},
 ): MenuCatalogClient {
@@ -185,6 +200,27 @@ describe("menu catalog store", () => {
 
     await expect(store.deleteCategory("cat-1")).rejects.toBe(error);
     expect(store.state.status).toBe("error");
+    expect(store.state.errorCode).toBe("menu-category-has-items");
+  });
+
+  it("preserves the current snapshot when category deletion is rejected", async () => {
+    const error = new MenuCatalogApiError(
+      "menu-category-has-items",
+      400,
+      "menu-category-has-items",
+    );
+    setMenuCatalogApiForTests(
+      createApiMock({
+        getCatalog: vi.fn().mockResolvedValue(categoryWithItemsSnapshot),
+        deleteCategory: vi.fn().mockRejectedValue(error),
+      }),
+    );
+    const store = useMenuCatalogStore();
+
+    await store.loadCatalog();
+    await expect(store.deleteCategory("cat-1")).rejects.toBe(error);
+
+    expect(store.state.snapshot).toEqual(categoryWithItemsSnapshot);
     expect(store.state.errorCode).toBe("menu-category-has-items");
   });
 });

@@ -54,7 +54,9 @@ test.describe("administrator menu catalog management", () => {
       page.getByText(regularItemName, { exact: true }),
     ).toBeVisible();
     await expect(page.getByText(drinkName, { exact: true })).toBeVisible();
-    await expect(page.getByText("от 190 ₽")).toBeVisible();
+    await expect(
+      page.getByText("S: 190 ₽ · M: 230 ₽ · L: 270 ₽", { exact: true }),
+    ).toBeVisible();
 
     await createCategory(page, optionGroupName, { isOptionGroup: true });
     await expect(

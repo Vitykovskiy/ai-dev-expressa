@@ -104,6 +104,53 @@ describe("Menu catalog integration", () => {
       });
   });
 
+  it("FTS-002-009 rejects deleting a category that still has items", async () => {
+    app = await createTestApp();
+    const categoryId = await createCategory(app, "Coffee");
+
+    await request(app.getHttpServer())
+      .post("/backoffice/menu/items")
+      .set("x-test-telegram-id", "1001")
+      .send({
+        menuCategoryId: categoryId,
+        name: "Latte",
+        itemType: "regular",
+        basePrice: 190,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .delete(`/backoffice/menu/categories/${categoryId}`)
+      .set("x-test-telegram-id", "1001")
+      .expect(400)
+      .expect(({ body }) => {
+        expect(body.message).toBe("menu-category-has-items");
+      });
+
+    await request(app.getHttpServer())
+      .get("/backoffice/menu/catalog")
+      .set("x-test-telegram-id", "1001")
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body.categories).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              menuCategoryId: categoryId,
+              name: "Coffee",
+            }),
+          ]),
+        );
+        expect(body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              menuCategoryId: categoryId,
+              name: "Latte",
+            }),
+          ]),
+        );
+      });
+  });
+
   it("FTS-002-011 returns invalid-option-group-rule for an unknown selection mode", async () => {
     app = await createTestApp();
 
