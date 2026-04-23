@@ -5,7 +5,7 @@ import {
   test,
 } from "@playwright/test";
 
-const ADMIN_TELEGRAM_ID = "123456789";
+const ADMIN_TELEGRAM_ID = process.env.E2E_TEST_TELEGRAM_ID ?? "123456789";
 const NON_MENU_TELEGRAM_ID = "2002";
 
 test.describe("administrator menu catalog management", () => {
@@ -137,12 +137,9 @@ test.describe("administrator menu catalog management", () => {
   test("direct menu API access is denied when menu access is unavailable", async ({
     request,
   }) => {
-    const response = await request.get(
-      `${backendBaseUrl()}/backoffice/menu/catalog`,
-      {
-        headers: { "x-test-telegram-id": NON_MENU_TELEGRAM_ID },
-      },
-    );
+    const response = await request.get("/backoffice/menu/catalog", {
+      headers: { "x-test-telegram-id": NON_MENU_TELEGRAM_ID },
+    });
 
     expect(response.status()).toBe(403);
     await expectJsonMessage(
@@ -298,12 +295,9 @@ function dialogButton(
 async function getCatalog(
   request: APIRequestContext,
 ): Promise<MenuCatalogSnapshot> {
-  const response = await request.get(
-    `${backendBaseUrl()}/backoffice/menu/catalog`,
-    {
-      headers: authHeaders(),
-    },
-  );
+  const response = await request.get("/backoffice/menu/catalog", {
+    headers: authHeaders(),
+  });
   expect(response.ok()).toBe(true);
   return (await response.json()) as MenuCatalogSnapshot;
 }
@@ -313,7 +307,7 @@ async function apiPost(
   path: string,
   body: unknown,
 ) {
-  return request.post(`${backendBaseUrl()}${path}`, {
+  return request.post(path, {
     headers: {
       ...authHeaders(),
       "content-type": "application/json",
@@ -337,10 +331,6 @@ async function expectJsonMessage(
 
 function authHeaders(): Record<string, string> {
   return { "x-test-telegram-id": ADMIN_TELEGRAM_ID };
-}
-
-function backendBaseUrl(): string {
-  return process.env.E2E_BACKEND_BASE_URL ?? "http://127.0.0.1:3000";
 }
 
 interface MenuCatalogSnapshot {

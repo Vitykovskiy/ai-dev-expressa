@@ -1,14 +1,15 @@
 import { expect, test } from "@playwright/test";
 
-test("local container runner serves backend and backoffice", async ({
+const TEST_TELEGRAM_ID = process.env.E2E_TEST_TELEGRAM_ID ?? "123456789";
+
+test("published backoffice serves menu and test-mode API", async ({
   page,
   request,
 }) => {
-  const backendBaseUrl =
-    process.env.E2E_BACKEND_BASE_URL ?? "http://127.0.0.1:3000";
-
-  const health = await request.get(`${backendBaseUrl}/health`);
-  expect(health.ok()).toBe(true);
+  const orders = await request.get("/backoffice/orders", {
+    headers: { "x-test-telegram-id": TEST_TELEGRAM_ID },
+  });
+  expect(orders.ok()).toBe(true);
 
   await page.goto("/menu");
   await expect(
