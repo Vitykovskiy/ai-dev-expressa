@@ -11,7 +11,7 @@
 | ID   | Статус            | Подзадача                                                                                                                     | Контекст                                                  |
 | ---- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | `01` | `Выполнена`       | Исправить API/auth часть menu catalog e2e, чтобы negative contract test снова получал documented backend behavior.            | `QA-005-remediation-context-01-api-auth.md`               |
-| `02` | `Готова к работе` | Исправить UI flow menu catalog e2e, чтобы сценарии создания regular item и incomplete drink validation снова проходили.       | `QA-005-remediation-context-02-ui-flow.md`                |
+| `02` | `Выполнена`       | Исправить UI flow menu catalog e2e, чтобы сценарии создания regular item и incomplete drink validation снова проходили.       | `QA-005-remediation-context-02-ui-flow.md`                |
 | `03` | `Готова к работе` | Прогнать канонический e2e suite, устранить остаточные падения в разрешенной зоне и синхронизировать task evidence при успехе. | `QA-005-remediation-context-03-final-run-and-evidence.md` |
 
 ## Правила исполнения
@@ -25,5 +25,5 @@
 ## Журнал выполнения
 
 - `01`: `Выполнена`
-- `02`: `Готова к работе`
+- `02`: `Выполнена`
 - `03`: `Готова к работе`

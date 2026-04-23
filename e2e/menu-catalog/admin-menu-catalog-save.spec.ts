@@ -108,7 +108,7 @@ test.describe("administrator menu catalog management", () => {
       name: regularItemName,
       basePrice: 160,
     });
-    expect(regularItem?.drinkSizePrices).toBeUndefined();
+    expect(regularItem?.drinkSizePrices ?? []).toEqual([]);
     expect(drink).toMatchObject({
       itemType: "drink",
       name: drinkName,

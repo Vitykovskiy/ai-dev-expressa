@@ -4,7 +4,6 @@ import {
   categoryBlock,
   createCategory,
   createRegularItem,
-  dialogButton,
   fieldByLabel,
   selectOption,
   toggleRow,
@@ -31,11 +30,17 @@ test.describe("administrator menu catalog validation", () => {
       .fill(`Раф E2E ${suffix}`);
     await toggleRow(page, "Размеры S / M / L");
     await page.locator("#menu-item-size-price-s").fill("210");
-    await dialogButton(page, "Добавить товар").click();
+    const submitButton = page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Добавить товар" });
 
+    await expect(submitButton).toBeDisabled();
     await expect(
-      page.getByText("Укажите цены для размеров S, M и L"),
+      page.getByRole("heading", { name: "Новый товар" }),
     ).toBeVisible();
+    await expect(page.locator("#menu-item-size-price-s")).toHaveValue("210");
+    await expect(page.locator("#menu-item-size-price-m")).toHaveValue("");
+    await expect(page.locator("#menu-item-size-price-l")).toHaveValue("");
   });
 
   test("category with products cannot be deleted", async ({
