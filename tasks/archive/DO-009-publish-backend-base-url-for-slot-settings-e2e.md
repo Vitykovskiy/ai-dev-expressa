@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-003`
 - Роль: `Девопс`
 - Приоритет: `Высокий`
-- Статус: `В работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -32,3 +32,10 @@
 ## Safety Constraints
 
 - Значения `ROOT_PASSWORD` хранятся в локальном окружении исполнителя или в секретном хранилище.
+
+## Результат выполнения
+
+- Published `test-e2e` frontend origin публикует documented proxy route для `GET /customer/slots`.
+- Post-fix verification: `npm run test:e2e -- slot-settings` завершился с результатом `5 passed`, включая `FTS-003-006`.
+- Route verification: `curl -i https://expressa-e2e-test.vitykovskiy.ru/customer/slots` возвращает `HTTP/1.1 200 OK` и `Content-Type: application/json; charset=utf-8`.
+- QA-007 разблокирована и закрыта после успешного acceptance-прогона.

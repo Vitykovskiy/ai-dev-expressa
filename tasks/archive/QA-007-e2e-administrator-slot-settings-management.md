@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-003`
 - Роль: `Тестирование`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -30,32 +30,35 @@
 
 ## E2E evidence
 
-- Test file: `e2e/slot-settings/admin-slot-settings.spec.ts`
+- Test files: `e2e/slot-settings/admin-slot-settings-save.spec.ts`, `e2e/slot-settings/admin-slot-settings-validation.spec.ts`, `e2e/slot-settings/admin-slot-settings-access.spec.ts`
 - Focused browser run: `npm run test:e2e -- slot-settings`
 - Focused browser route: local QA Playwright execution against default `https://expressa-e2e-test.vitykovskiy.ru`, with `E2E_BASE_URL` and `E2E_BACKEND_BASE_URL` available only as local QA overrides.
 
 ## Coverage mapping
 
-| Scenario ID   | Test file                                       | Test title                                      | Required assertions                                                                                                                                                                                                                            |
-| ------------- | ----------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `FTS-003-001` | `e2e/slot-settings/admin-slot-settings.spec.ts` | `FTS-003-001 administrator saves slot settings` | Successful `PUT /backoffice/settings/slot-settings`; success feedback appears after save; reloaded form contains saved `workingHoursOpen`, `workingHoursClose`, and `slotCapacity`.                                                            |
-| `FTS-003-003` | `e2e/slot-settings/admin-slot-settings.spec.ts` | `FTS-003-003 invalid working hours`             | Equal open/close values show user-visible working-hours validation; save button is disabled; no success feedback appears; no save request is sent; editable invalid values remain until correction; reload restores the last persisted values. |
-| `FTS-003-004` | `e2e/slot-settings/admin-slot-settings.spec.ts` | `FTS-003-004 invalid slot capacity`             | Capacity `0` shows inline field error; save button is disabled; no success feedback appears; no save request is sent; reload restores the last persisted capacity.                                                                             |
-| `FTS-003-005` | `e2e/slot-settings/admin-slot-settings.spec.ts` | `FTS-003-005 settings access guard`             | Barista session has no `settings` capability; settings navigation link is absent; direct `/settings` route shows `403` forbidden state; settings heading and save action are absent.                                                           |
-| `FTS-003-006` | `e2e/slot-settings/admin-slot-settings.spec.ts` | `FTS-003-006 settings affect slot generation`   | Saved settings are followed by `/customer/slots` JSON verification; slots are limited to the saved working window; every slot uses 10-minute interval length, current-day date, saved capacity limit, and zero active order count.             |
+| Scenario ID   | Test file                                                  | Test title                                      | Required assertions                                                                                                                                                                                                                            |
+| ------------- | ---------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FTS-003-001` | `e2e/slot-settings/admin-slot-settings-save.spec.ts`       | `FTS-003-001 administrator saves slot settings` | Successful `PUT /backoffice/settings/slot-settings`; success feedback appears after save; reloaded form contains saved `workingHoursOpen`, `workingHoursClose`, and `slotCapacity`.                                                            |
+| `FTS-003-003` | `e2e/slot-settings/admin-slot-settings-validation.spec.ts` | `FTS-003-003 invalid working hours`             | Equal open/close values show user-visible working-hours validation; save button is disabled; no success feedback appears; no save request is sent; editable invalid values remain until correction; reload restores the last persisted values. |
+| `FTS-003-004` | `e2e/slot-settings/admin-slot-settings-validation.spec.ts` | `FTS-003-004 invalid slot capacity`             | Capacity `0` shows inline field error; save button is disabled; no success feedback appears; no save request is sent; reload restores the last persisted capacity.                                                                             |
+| `FTS-003-005` | `e2e/slot-settings/admin-slot-settings-access.spec.ts`     | `FTS-003-005 settings access guard`             | Barista session has no `settings` capability; settings navigation link is absent; direct `/settings` route shows `403` forbidden state; settings heading and save action are absent.                                                           |
+| `FTS-003-006` | `e2e/slot-settings/admin-slot-settings-save.spec.ts`       | `FTS-003-006 settings affect slot generation`   | Saved settings are followed by `/customer/slots` JSON verification; slots are limited to the saved working window; every slot uses 10-minute interval length, current-day date, saved capacity limit, and zero active order count.             |
 
 ## Acceptance evidence
 
 - Required command: `npm run test:e2e -- slot-settings`
 - Required default stand: `https://expressa-e2e-test.vitykovskiy.ru`
 - Required evidence: Playwright summary and browser report from the local QA command.
-- Cleanup verification command: `npm run test:e2e`
-- Cleanup verification result: `6 passed`, `3 failed`
-- Cleanup verification failures: menu catalog API contract received `403` instead of `400`; menu catalog save received non-ok catalog API response; `FTS-003-006` received HTML instead of JSON from `/customer/slots`.
+- Last acceptance run date: `2026-04-23`
+- Last acceptance run result: `5 passed`
+- Last acceptance run summary: `FTS-003-001`, `FTS-003-003`, `FTS-003-004`, `FTS-003-005` и `FTS-003-006` passed в published `test-e2e` route; `npm run test:e2e -- slot-settings` завершился без product failures и launch failures.
+- Additional route verification: `curl -i https://expressa-e2e-test.vitykovskiy.ru/customer/slots` возвращает `HTTP/1.1 200 OK` и `Content-Type: application/json; charset=utf-8`.
+- Browser report: `e2e/playwright-report`
+- Failure artifacts: `не требуются; последний acceptance run завершился без падений`
 
 ## Defect status
 
-- Blocking product failures: `не классифицированы в рамках e2e flow cleanup`
-- Blocking launch failures with clear product/runtime cause contour: `не классифицированы в рамках e2e flow cleanup`
-- BUG tasks created: `не создавались`
-- Blocker recorded in this QA task: `не требуется после нормализации e2e flow на canonical local QA route`
+- Blocking product failures: `не выявлены`
+- Blocking launch failures with clear product/runtime cause contour: `не выявлены`
+- BUG tasks created: `не создавались; acceptance route восстановлен, воспроизводимых product failures и launch failures нет`
+- Blocker recorded in this QA task: `отсутствует`
