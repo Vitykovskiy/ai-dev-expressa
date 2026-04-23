@@ -25,18 +25,18 @@
 - E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite через документированный route и evidence результата.
 - Manual QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи.
 - E2e QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи и фиксирует mapping между scenario IDs, test files, test titles и required assertions.
-- Для `QA-005` финальное acceptance evidence e2e lane собирается локальным containerized route: runner собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime и сохраняет pass/fail evidence.
+- Финальное acceptance evidence e2e lane собирается локальным запуском QA-owned Playwright suite командой `npm run test:e2e` против опубликованного `https://expressa-e2e-test.vitykovskiy.ru`.
 - Backend endpoint integration используется для contract feedback и не закрывает feature-level e2e.
 - Feature-level e2e QA закрывается полным browser suite через route, прямо указанный в карточке задачи и профильной QA-карте.
-- QA flow для e2e lane: написать или обновить browser tests, выполнить полный suite через документированную команду runner, приложить runner summary и browser report, оформить воспроизводимые defects через `BUG-*`.
-- QA владеет browser e2e-сценариями, fixtures, assertions, pass/fail evidence и defect handoff; DevOps владеет только инфраструктурным runner, preflight, env/config, cleanup и диагностикой запуска, если это назначено отдельной DevOps-подзадачей.
+- QA flow для e2e lane: написать или обновить browser tests, выполнить полный suite командой `npm run test:e2e`, приложить browser report и pass/fail evidence, оформить воспроизводимые defects через `BUG-*`.
+- QA владеет browser e2e-сценариями, fixtures, assertions, pass/fail evidence и defect handoff.
 - `FEATURE-*` может быть закрыта только после завершения manual QA, e2e QA и закрытия блокирующих `BUG-*` задач.
 
 ## Defect handoff
 
 - Frontend-дефект оформляется как `BUG-*` с меткой `frontend`, описанием расхождения, шагами воспроизведения, expected/actual, ссылкой на QA evidence и затронутыми UI/system артефактами.
 - Backend-дефект оформляется как `BUG-*` с меткой `backend`, API/contract mismatch, request/response evidence, expected/actual и ссылкой на contract.
-- DevOps/runtime-дефект оформляется как `BUG-*` с меткой `devops` только если проблема относится к окружению, deployment, env/config, smoke-check, pipeline path, local container runner, Docker runtime или test runner launch.
+- DevOps/runtime-дефект оформляется как `BUG-*` с меткой `devops` только если проблема относится к окружению, deployment, env/config, smoke-check или pipeline path.
 
 ## Для FEATURE-001
 

@@ -12,7 +12,7 @@
 | Integration              | Backend contract `Manage working hours and slot capacity`, guard `administrator`, negative checks для `invalid-working-hours` и `invalid-slot-capacity`, влияние на slot generation. |
 | Frontend component/route | Экран `/settings`, form state, success/error feedback и mapping validation ошибок через contract/mock adapter.                                                                       |
 | UI parity                | Desktop/mobile сравнение вкладки `Настройки` с `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` и `.references/Expressa_admin/src/app/screens/SettingsScreen.tsx`.      |
-| E2E                      | Browser suite через backoffice внутри локального containerized runtime: administrator сохраняет настройки и затем подтверждает влияние на получение доступных слотов.                |
+| E2E                      | Browser suite через опубликованный e2e-стенд: administrator сохраняет настройки и затем подтверждает влияние на получение доступных слотов.                                          |
 | Smoke                    | Сборка и запуск затронутых backend/frontend контуров без изменения delivery/runtime path.                                                                                            |
 
 ## Acceptance scenarios
@@ -24,10 +24,10 @@
 - `FTS-003-005`: пользователь без capability `settings` не получает доступ к вкладке `Настройки` и прямому route/API.
 - `FTS-003-006`: сохранённые настройки влияют на последующее формирование доступных слотов текущего дня.
 - `FTS-003-007`: QA фиксирует documented inconsistency по верхней границе `slotCapacity` между UI reference и каноническими system artifacts.
-- Финальный e2e acceptance для lane e2e выполняется тем же локальным containerized route, что уже зафиксирован в `docs/architecture/deployment-map.md`, если для feature не вводится отдельный runner path.
+- Финальный e2e acceptance для lane e2e выполняется локально командой `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
 - Backend integration coverage используется как входное contract evidence и debug, но не заменяет feature-level browser e2e.
 - QA создаёт `BUG-*` задачи для воспроизводимых product failures с меткой `frontend` или `backend`, если контур причины ясен.
-- QA создаёт `BUG-*` задачи с меткой `devops` только если failure относится к runner, Docker runtime, env/config или launch path.
+- QA создаёт `BUG-*` задачи с меткой `devops` только если failure относится к runtime, env/config или pipeline path.
 
 ## Handoff route for FEATURE-003
 

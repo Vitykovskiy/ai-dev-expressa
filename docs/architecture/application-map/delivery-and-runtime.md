@@ -43,7 +43,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 - Ветка `main` является источником автодеплоя на VPS `test`-окружения.
 - Workflow `Deploy Test` собирает и публикует versioned backend/frontend runtime images в `ghcr.io` с tag, равным `github.sha`.
-- Канонический runtime маршрут после merge в `main`: rollout стенда `test`, затем rollout стенда `test-e2e`, затем локальный `npm run test:e2e:remote` против `https://expressa-e2e-test.vitykovskiy.ru`.
+- Канонический runtime маршрут после merge в `main`: rollout стенда `test`, затем rollout стенда `test-e2e`; QA запускает локальный `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
 - Перед запуском rollout workflow синхронизирует checkout на VPS с `origin/main`, затем вызывает версионированный скрипт `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Оба VPS-стенда `test` и `test-e2e` поднимают backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
@@ -59,7 +59,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 | `test`     | `https://expressa.vitykovskiy.ru`          | `/opt/expressa/env/test.env`     | `expressa-test`       | `test`              | `3000`                          | `8080`                           |
 | `test-e2e` | `https://expressa-e2e-test.vitykovskiy.ru` | `/opt/expressa/env/test-e2e.env` | `expressa-test-e2e`   | `test-e2e`          | `3001`                          | `8081`                           |
 
-- `frontend/nginx.conf` публикует только frontend root и `/backoffice/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
+- `frontend/nginx.conf` публикует frontend root, `/backoffice/*` и `/customer/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
 - Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
 
 ## Restore path
@@ -68,24 +68,17 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
 - После restore выполняется тот же smoke-check, что и после штатного rollout.
 
-## Remote e2e route
+## QA e2e route
 
-- Финальный feature-level e2e-прогон для `QA-005` выполняется локально против опубликованного `test-e2e` стенда.
+- Финальный feature-level e2e-прогон выполняется локально против опубликованного `test-e2e` стенда.
 - Backend endpoint suites относятся к integration evidence и не закрывают feature-level e2e acceptance.
-- DevOps-owned route должен использовать `scripts/run-test-vps-e2e.sh`, выполнять preflight published frontend origin и test-mode API probe, затем запускать QA-owned Playwright suite без локальной сборки backend/frontend.
-- Локальная команда запуска `QA-005`: `npm run test:e2e:remote`.
-- Локальная команда operational preflight published e2e-стенда: `npm run test:e2e:remote:preflight`; alias `npm run ops:e2e:remote:preflight` допустим для эксплуатационного запуска.
-- DevOps-owned route должен иметь одну локальную команду запуска для QA, preflight published стенда, runner summary, логи и явный pass/fail status.
-- DevOps-owned route должен включать минимальную smoke e2e-проверку published маршрута без владения feature assertions `QA-005`.
-- QA-owned часть route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
-- Workflow `Test E2E Stand Preflight` сохраняется как non-canonical operational route и использует только `--preflight-only` против опубликованного `test-e2e` стенда.
+- Каноническая команда запуска: `npm run test:e2e`.
+- Playwright по умолчанию использует `https://expressa-e2e-test.vitykovskiy.ru`.
+- `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
+- `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API; canonical значение для `test-e2e` совпадает с published frontend origin, потому что `/customer/*` проксируется через frontend nginx на backend.
+- `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
+- QA-owned route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
-
-## Local containerized e2e fallback route
-
-- `Dockerfile.e2e` и `scripts/run-local-container-e2e.sh` сохраняются как debug/fallback route.
-- Локальная команда fallback-маршрута `QA-005`: `npm run test:e2e:local`.
-- Fallback route собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime, сохраняет host/container summary и артефакты в `artifacts/qa-005-local-e2e`.
 
 ## Env vars
 
@@ -98,7 +91,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
-- `ENV_FILE` указывает deploy/e2e launcher на env-файл test-стенда на VPS.
+- `ENV_FILE` указывает deploy launcher на env-файл test-стенда на VPS.
 - `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE` задают versioned image refs для container rollout.
 - `DEPLOY_PROJECT_NAME` задаёт compose project name и изоляцию контейнеров конкретного стенда.
 - `DEPLOY_STAND_SLUG` задаёт stand-specific каталог для rollback и summary артефактов; по умолчанию используется нормализованный `DEPLOY_PROJECT_NAME`.
@@ -106,24 +99,11 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `TEST_DEPLOY_HOST_BACKEND_PORT` задаёт host loopback port для backend container; по умолчанию используется значение `PORT` или `3000`.
 - `TEST_DEPLOY_HOST_FRONTEND_PORT` задаёт host port для frontend container; по умолчанию используется `8080`.
 - `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL` могут переопределить базовые URL post-deploy smoke-check.
-- `TEST_E2E_BASE_URL` задаёт published frontend origin для основного remote e2e route; по умолчанию launcher использует `E2E_BASE_URL`, затем `https://expressa-e2e-test.vitykovskiy.ru`.
-- `TEST_E2E_TELEGRAM_ID` задаёт test-mode Telegram id для preflight и QA-owned e2e command на `test-e2e`; по умолчанию launcher использует `E2E_TEST_TELEGRAM_ID`, затем `ADMIN_TELEGRAM_ID`.
-- `TEST_E2E_COMMAND` задаёт QA-owned e2e command; не требуется в `--preflight-only`.
-- `TEST_E2E_ENV_FILE` или `ENV_FILE` может указывать на env-файл published стенда; wrapper source-ит его до вычисления fallback-переменных e2e route.
-- `TEST_E2E_ARTIFACT_DIR` задаёт каталог `.log` и `.summary.md` артефактов; по умолчанию `artifacts/remote-e2e`.
-- `TEST_E2E_API_PROBE_PATH` задаёт test-mode API probe path; по умолчанию `/backoffice/orders`.
-- `TEST_E2E_FRONTEND_PATH` задаёт frontend path для published origin preflight; по умолчанию `/menu`.
-- `TEST_E2E_CURL_TIMEOUT` задаёт timeout `curl` в секундах; по умолчанию `10`.
-- `TEST_E2E_STAND_COMMIT` может явно зафиксировать commit/версию стенда для evidence; если не задан, wrapper использует локальный `git rev-parse HEAD`.
-- `LOCAL_E2E_ARTIFACT_DIR` задаёт каталог evidence для локального containerized e2e runner; по умолчанию `artifacts/qa-005-local-e2e`.
-- `LOCAL_E2E_IMAGE_TAG` задаёт Docker image tag локального e2e runner; по умолчанию `expressa-local-e2e:qa-005`.
-- `LOCAL_E2E_BASE_IMAGE` задаёт Docker base image локального e2e runner; по умолчанию используется актуальный Playwright image, а runner может выбрать локально закэшированный compatible image для обхода повторного registry pull.
-- `LOCAL_E2E_TEST_COMMAND` задаёт команду browser e2e внутри контейнера; по умолчанию `npm --prefix e2e test`.
-- `LOCAL_E2E_RUN_ID` задаёт идентификатор локального e2e-прогона; по умолчанию используется UTC timestamp.
-- `E2E_BASE_URL` задаёт fallback frontend origin для remote e2e route и экспортируется launcher в QA-owned Playwright command.
-- `E2E_TEST_TELEGRAM_ID` задаёт fallback test Telegram id для remote e2e route и экспортируется launcher в QA-owned Playwright command.
-- `E2E_STAND_COMMIT` экспортируется launcher в QA-owned Playwright command как commit/версия проверяемого опубликованного стенда.
-- `E2E_BACKEND_BASE_URL` сохраняется только для локального containerized fallback route; по умолчанию target внутри контейнера `http://127.0.0.1:3000`.
+- `E2E_BASE_URL` задаёт локальный override frontend origin для QA-owned Playwright command; по умолчанию используется `https://expressa-e2e-test.vitykovskiy.ru`.
+- `E2E_TEST_TELEGRAM_ID` задаёт test Telegram id для QA-owned Playwright command.
+- `E2E_STAND_COMMIT` задаёт commit/версию проверяемого опубликованного стенда для QA evidence.
+- `E2E_BACKEND_BASE_URL` задаёт backend API base URL для QA-owned Playwright command; для `test-e2e` canonical значение совпадает с `https://expressa-e2e-test.vitykovskiy.ru`.
+- `IP`, `ROOT_USER`, `ROOT_PASSWORD` в корневом `.env` задают параметры подключения к серверу для локальных operational сценариев; `ROOT_PASSWORD` не коммитится и хранится только в локальном окружении исполнителя или секретном хранилище.
 
 ## Backend commands
 
@@ -165,8 +145,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
 - Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
-- `npm run test:e2e:remote` выполняет preflight published стенда `test-e2e`, затем запускает QA-owned Playwright suite без локальной сборки backend/frontend.
+- `npm run test:e2e` запускает QA-owned Playwright suite против `https://expressa-e2e-test.vitykovskiy.ru` без локальной сборки backend/frontend.
 
 ## Обновлять эту карту
 
-Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check, remote e2e route или local containerized fallback route.
+Карту нужно обновить, если реализация добавляет новые env vars, меняет команды запуска, deployment path, GitHub Actions, smoke-check или QA e2e route.

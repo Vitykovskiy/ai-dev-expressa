@@ -9,10 +9,10 @@
 
 ## Branch-to-environment mapping
 
-| Source branch/event      | Target environment | Delivery rule                                                                                                                                |
-| ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён.                                       |
-| `push`/merge -> `main`   | `test`             | Выполняется публикация versioned образов; rollout стендов `test` и `test-e2e` на одном VPS настраивается отдельным deploy workflow contract. |
+| Source branch/event      | Target environment | Delivery rule                                                                                                  |
+| ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён.         |
+| `push`/merge -> `main`   | `test`             | Выполняется публикация versioned образов и rollout стендов `test` и `test-e2e` через deploy workflow contract. |
 
 ## PR Checks install contract
 
@@ -23,8 +23,8 @@
 ## Test deployment contract
 
 - Workflow `Deploy Test` собирает и публикует versioned backend/frontend images в `ghcr.io`; эти же образы должны переиспользоваться для двух изолированных стендов на одном VPS.
-- Канонический delivery path после merge в `main`: rollout стенда `test`, затем rollout стенда `test-e2e`, после чего локальный исполнитель запускает `npm run test:e2e:remote` против опубликованного `test-e2e` стенда.
-- VPS `test` использует checkout из `main` только как источник versioned deploy-артефактов `scripts/deploy-test-vps.sh` и `docker-compose.deploy.yml`.
+- Канонический delivery path после merge в `main`: rollout стенда `test`, затем rollout стенда `test-e2e`; QA запускает browser e2e локально командой `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
+- VPS использует checkout из `main` только как источник versioned deploy-артефактов `scripts/deploy-test-vps.sh` и `docker-compose.deploy.yml`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Backend на `test` запускается в `NODE_ENV=test`.
 - `DISABLE_TG_AUTH=true` допустим только для `test` и не переносится в `production`.
@@ -43,22 +43,16 @@
 - Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и negative path для production-like bypass.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
-## Remote e2e route
+## QA e2e route
 
-- Feature-level e2e acceptance для `QA-005` запускается локально против уже опубликованного `test-e2e` стенда; e2e не является частью обязательного `PR Checks` или `Deploy Test` gate.
-- Локальный remote e2e route использует `scripts/run-test-vps-e2e.sh` и root-команду `npm run test:e2e:remote`.
-- Маршрут должен выполнять preflight published frontend origin и test-mode API probe, затем запускать QA-owned Playwright suite без локальной сборки backend/frontend.
-- Базовый published target маршрута: `https://expressa-e2e-test.vitykovskiy.ru`; `TEST_E2E_BASE_URL` может переопределить его, а при отсутствии значения script fallback использует `E2E_BASE_URL`, затем canonical hostname.
-- Локальный preflight published e2e-стенда запускается через `npm run test:e2e:remote:preflight`; alias `npm run ops:e2e:remote:preflight` сохраняется для operational запуска.
-- Workflow `Test E2E Stand Preflight` сохраняется как non-canonical operational route и выполняет только `--preflight-only` против опубликованного `test-e2e` стенда.
-- DevOps предоставляет launcher и smoke e2e-проверку маршрута запуска по отдельной подзадаче QA-005/02; QA предоставляет feature scenarios, fixtures, assertions и defect handoff.
-- Минимальный output remote e2e route: commit/версия стенда, base URL опубликованного стенда, test Telegram id, результат preflight, результат browser e2e run, путь к summary и логам в `artifacts/remote-e2e`.
-- Smoke-check и restore path остаются отдельными delivery/runtime проверками и не заменяют e2e acceptance.
-
-## Local containerized e2e fallback route
-
-- `Dockerfile.e2e` и `npm run test:e2e:local` сохраняются как debug/fallback route для локального containerized runner и не являются каноническим acceptance path.
-- Локальный containerized fallback route должен собирать Docker-контейнер со всем приложением, запускать backend, frontend и browser e2e внутри локального Docker runtime, выполнять preflight запуска и сохранять evidence в `artifacts/qa-005-local-e2e`.
+- Feature-level e2e acceptance запускается локально из репозитория против опубликованного `test-e2e` стенда.
+- Каноническая команда запуска: `npm run test:e2e`.
+- Playwright по умолчанию использует `https://expressa-e2e-test.vitykovskiy.ru`; QA может переопределить target через `E2E_BASE_URL`.
+- Для browser e2e, которым нужен прямой JSON-доступ к backend API, `E2E_BACKEND_BASE_URL` задаёт backend API base URL; для `test-e2e` canonical значение совпадает с frontend origin, потому что `frontend/nginx.conf` проксирует `/customer/*` на backend container.
+- `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
+- E2E не является частью обязательного `PR Checks` или `Deploy Test` gate.
+- QA владеет feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
+- Smoke-check и restore path остаются delivery/runtime проверками и не заменяют e2e acceptance.
 
 ## Required GitHub checks
 
@@ -66,7 +60,7 @@
 - `quality`
 - `build`
 
-Workflow `Test E2E Stand Preflight` является non-canonical operational route и не должен добавляться в branch protection без отдельного архитектурного решения.
+E2E не добавляется в branch protection без отдельного архитектурного решения.
 
 ## Restore path
 
