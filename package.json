@@ -21,9 +21,8 @@
     "deploy:test:vps": "bash scripts/deploy-test-vps.sh",
     "test:e2e:remote": "bash scripts/run-test-vps-e2e.sh",
     "test:e2e:remote:preflight": "bash scripts/run-test-vps-e2e.sh --preflight-only",
+    "ops:e2e:remote:preflight": "npm run test:e2e:remote:preflight",
     "test:e2e:local": "bash scripts/run-local-container-e2e.sh",
-    "test:vps:e2e": "npm run test:e2e:remote",
-    "test:vps:e2e:preflight": "npm run test:e2e:remote:preflight",
     "quality": "npm run lint:backend && npm run format:check:backend && npm run typecheck:backend && npm run test:backend && npm run lint:frontend && npm run stylelint:frontend && npm run format:check:frontend && npm run typecheck:frontend && npm run test:frontend",
     "build": "npm run build:backend && npm run build:frontend"
   },

@@ -64,19 +64,20 @@ jobs:
           push: true
           tags: ${{ steps.image-names.outputs.frontend_image }}
 
-  deploy-test:
-    name: deploy-test
+  deploy-test-stand:
+    name: deploy-test-stand
     runs-on: ubuntu-latest
     environment: test
     needs:
       - build-images
     steps:
-      - name: Deploy to test VPS and run smoke-check
+      - name: Deploy primary test stand and run smoke-check
         uses: appleboy/ssh-action@v1.2.0
         env:
           APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
           ENV_FILE: ${{ secrets.TEST_VPS_ENV_FILE }}
           DEPLOY_COMPOSE_FILE: docker-compose.deploy.yml
+          DEPLOY_STAND_SLUG: test
           DEPLOY_BACKEND_IMAGE: ${{ needs.build-images.outputs.backend_image }}
           DEPLOY_FRONTEND_IMAGE: ${{ needs.build-images.outputs.frontend_image }}
           DEPLOY_REGISTRY: ${{ env.REGISTRY }}
@@ -91,11 +92,57 @@ jobs:
           port: ${{ secrets.TEST_VPS_PORT }}
           fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
           script_stop: true
-          envs: APP_DIR,ENV_FILE,DEPLOY_COMPOSE_FILE,DEPLOY_BACKEND_IMAGE,DEPLOY_FRONTEND_IMAGE,DEPLOY_REGISTRY,DEPLOY_REGISTRY_USERNAME,DEPLOY_REGISTRY_PASSWORD,SMOKE_BACKEND_BASE_URL,SMOKE_FRONTEND_BASE_URL
+          envs: APP_DIR,ENV_FILE,DEPLOY_COMPOSE_FILE,DEPLOY_STAND_SLUG,DEPLOY_BACKEND_IMAGE,DEPLOY_FRONTEND_IMAGE,DEPLOY_REGISTRY,DEPLOY_REGISTRY_USERNAME,DEPLOY_REGISTRY_PASSWORD,SMOKE_BACKEND_BASE_URL,SMOKE_FRONTEND_BASE_URL
           script: |
             set -euo pipefail
-            if [ -z "${APP_DIR}" ] || [ -z "${DEPLOY_BACKEND_IMAGE}" ] || [ -z "${DEPLOY_FRONTEND_IMAGE}" ]; then
+            if [ -z "${APP_DIR}" ] || [ -z "${ENV_FILE}" ] || [ -z "${DEPLOY_BACKEND_IMAGE}" ] || [ -z "${DEPLOY_FRONTEND_IMAGE}" ]; then
               echo "Required deploy secrets are missing."
+              exit 1
+            fi
+
+            cd "${APP_DIR}"
+            git fetch --prune origin
+            git checkout --force main
+            git reset --hard origin/main
+            chmod +x scripts/deploy-test-vps.sh
+            SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh
+
+  deploy-test-e2e-stand:
+    name: deploy-test-e2e-stand
+    runs-on: ubuntu-latest
+    environment: test
+    needs:
+      - build-images
+      - deploy-test-stand
+    steps:
+      - name: Deploy e2e test stand and run smoke-check
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_DIR: ${{ secrets.TEST_VPS_APP_DIR }}
+          ENV_FILE: ${{ secrets.TEST_E2E_VPS_ENV_FILE }}
+          DEPLOY_COMPOSE_FILE: docker-compose.deploy.yml
+          DEPLOY_PROJECT_NAME: ${{ vars.TEST_E2E_DEPLOY_PROJECT_NAME }}
+          DEPLOY_STAND_SLUG: test-e2e
+          DEPLOY_BACKEND_IMAGE: ${{ needs.build-images.outputs.backend_image }}
+          DEPLOY_FRONTEND_IMAGE: ${{ needs.build-images.outputs.frontend_image }}
+          DEPLOY_REGISTRY: ${{ env.REGISTRY }}
+          DEPLOY_REGISTRY_USERNAME: ${{ secrets.TEST_DEPLOY_REGISTRY_USERNAME }}
+          DEPLOY_REGISTRY_PASSWORD: ${{ secrets.TEST_DEPLOY_REGISTRY_PASSWORD }}
+          TEST_DEPLOY_HOST_BACKEND_PORT: ${{ vars.TEST_E2E_HOST_BACKEND_PORT }}
+          TEST_DEPLOY_HOST_FRONTEND_PORT: ${{ vars.TEST_E2E_HOST_FRONTEND_PORT }}
+          SMOKE_FRONTEND_BASE_URL: https://${{ vars.TEST_E2E_PUBLIC_HOSTNAME }}
+        with:
+          host: ${{ secrets.TEST_VPS_HOST }}
+          username: ${{ secrets.TEST_VPS_USER }}
+          key: ${{ secrets.TEST_VPS_SSH_KEY }}
+          port: ${{ secrets.TEST_VPS_PORT }}
+          fingerprint: ${{ secrets.TEST_VPS_HOST_FINGERPRINT }}
+          script_stop: true
+          envs: APP_DIR,ENV_FILE,DEPLOY_COMPOSE_FILE,DEPLOY_PROJECT_NAME,DEPLOY_STAND_SLUG,DEPLOY_BACKEND_IMAGE,DEPLOY_FRONTEND_IMAGE,DEPLOY_REGISTRY,DEPLOY_REGISTRY_USERNAME,DEPLOY_REGISTRY_PASSWORD,TEST_DEPLOY_HOST_BACKEND_PORT,TEST_DEPLOY_HOST_FRONTEND_PORT,SMOKE_FRONTEND_BASE_URL
+          script: |
+            set -euo pipefail
+            if [ -z "${APP_DIR}" ] || [ -z "${ENV_FILE}" ] || [ -z "${DEPLOY_PROJECT_NAME}" ] || [ -z "${DEPLOY_BACKEND_IMAGE}" ] || [ -z "${DEPLOY_FRONTEND_IMAGE}" ] || [ -z "${TEST_DEPLOY_HOST_BACKEND_PORT}" ] || [ -z "${TEST_DEPLOY_HOST_FRONTEND_PORT}" ] || [ -z "${SMOKE_FRONTEND_BASE_URL}" ]; then
+              echo "Required test-e2e deploy contract values are missing."
               exit 1
             fi
 
