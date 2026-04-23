@@ -39,7 +39,7 @@ export async function createDrink(
   await page.locator("#menu-item-size-price-s").fill(input.prices.S);
   await page.locator("#menu-item-size-price-m").fill(input.prices.M);
   await page.locator("#menu-item-size-price-l").fill(input.prices.L);
-  await dialogButton(page, "Добавить товар").click();
+  await submitDialog(page);
   await expect(page.getByRole("heading", { name: "Новый товар" })).toBeHidden();
 }
 
@@ -58,8 +58,8 @@ export async function createRegularItem(
   await selectOption(page, fieldByLabel(page, "Категория"), input.categoryName);
   await fieldByLabel(page, "Название товара").locator("input").fill(input.name);
   await fieldByLabel(page, "Цена, ₽").locator("input").fill(input.price);
-  await dialogButton(page, "Добавить товар").click();
-  await expect(page.getByRole("heading", { name: "Новый товар" })).toBeHidden();
+  await submitDialog(page);
+  await expect(page.getByRole("dialog")).toBeHidden();
 }
 
 export async function assignOptionGroupToCategory(
@@ -132,4 +132,12 @@ export async function toggleRow(page: Page, label: string): Promise<void> {
 
 export function dialogButton(page: Page, name: string): Locator {
   return page.getByRole("dialog").getByRole("button", { name });
+}
+
+async function submitDialog(page: Page): Promise<void> {
+  await page
+    .getByRole("dialog")
+    .locator('button[type="submit"], button[form="menu-item-dialog-form"]')
+    .first()
+    .click();
 }
