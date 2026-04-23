@@ -224,6 +224,24 @@ describe("MenuCatalogApi", () => {
     );
   });
 
+  it("keeps blocking delete errors visible", async () => {
+    const api = new MenuCatalogApi({
+      fetchImpl: vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ message: "menu-category-has-items" }), {
+          status: 400,
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    });
+
+    await expect(api.deleteCategory("category-1")).rejects.toEqual(
+      expect.objectContaining<Partial<MenuCatalogApiError>>({
+        status: 400,
+        code: "menu-category-has-items",
+      }),
+    );
+  });
+
   it("keeps backoffice capability errors visible", async () => {
     const api = new MenuCatalogApi({
       fetchImpl: vi.fn().mockResolvedValue(

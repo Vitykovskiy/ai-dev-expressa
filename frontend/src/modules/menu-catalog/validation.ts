@@ -114,6 +114,10 @@ export function formatMoney(value: number | undefined): string {
 export function mapMenuCatalogError(code: string | null): string {
   const knownCode = code as MenuCatalogErrorCode | null;
   switch (knownCode) {
+    case "menu-category-has-items":
+      return "Нельзя удалить группу, пока в ней есть товары.";
+    case "option-group-in-use":
+      return "Нельзя удалить группу опций, пока она назначена на категории.";
     case "invalid-drink-size-model":
       return "Для напитка нужны цены S, M и L. Проверьте размерную модель.";
     case "invalid-option-group-rule":

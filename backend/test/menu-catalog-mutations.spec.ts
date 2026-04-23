@@ -9,20 +9,24 @@ import {
   updateItem,
 } from "../src/menu-catalog/domain/menu-catalog.mutations";
 import { MenuCatalogSnapshot } from "../src/menu-catalog/domain/menu-catalog.types";
+import {
+  MenuCategoryHasItemsError,
+  OptionGroupInUseError,
+} from "../src/menu-catalog/domain/menu-catalog.errors";
 
 describe("menu catalog mutations", () => {
   it("rejects deleting a category that still has items", () => {
-    expectBadRequest(
-      () => removeCategory(createSnapshot(), "category-1"),
-      "menu-category-has-items",
-    );
+    expectBadRequest(() => removeCategory(createSnapshot(), "category-1"), {
+      message: "menu-category-has-items",
+      type: MenuCategoryHasItemsError,
+    });
   });
 
   it("rejects deleting an option group that is still assigned to a category", () => {
-    expectBadRequest(
-      () => removeOptionGroup(createSnapshot(), "group-1"),
-      "option-group-in-use",
-    );
+    expectBadRequest(() => removeOptionGroup(createSnapshot(), "group-1"), {
+      message: "option-group-in-use",
+      type: OptionGroupInUseError,
+    });
   });
 
   it("creates and updates item defaults without changing DTO semantics", () => {
@@ -110,14 +114,20 @@ function createSnapshot(): MenuCatalogSnapshot {
   };
 }
 
-function expectBadRequest(action: () => unknown, message: string): void {
+function expectBadRequest(
+  action: () => unknown,
+  expectation: {
+    message: string;
+    type: typeof BadRequestException;
+  },
+): void {
   try {
     action();
     throw new Error("Expected action to throw");
   } catch (error) {
-    expect(error).toBeInstanceOf(BadRequestException);
+    expect(error).toBeInstanceOf(expectation.type);
     expect((error as BadRequestException).getResponse()).toMatchObject({
-      message,
+      message: expectation.message,
     });
   }
 }

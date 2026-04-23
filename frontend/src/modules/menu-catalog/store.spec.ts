@@ -169,4 +169,22 @@ describe("menu catalog store", () => {
 
     resetMenuCatalogStore();
   });
+
+  it("keeps blocking delete error code in state", async () => {
+    const error = new MenuCatalogApiError(
+      "menu-category-has-items",
+      400,
+      "menu-category-has-items",
+    );
+    setMenuCatalogApiForTests(
+      createApiMock({
+        deleteCategory: vi.fn().mockRejectedValue(error),
+      }),
+    );
+    const store = useMenuCatalogStore();
+
+    await expect(store.deleteCategory("cat-1")).rejects.toBe(error);
+    expect(store.state.status).toBe("error");
+    expect(store.state.errorCode).toBe("menu-category-has-items");
+  });
 });

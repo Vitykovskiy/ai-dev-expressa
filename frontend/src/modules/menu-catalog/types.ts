@@ -108,6 +108,8 @@ export type MenuCatalogErrorCode =
   | "administrator-role-required"
   | "invalid-drink-size-model"
   | "invalid-option-group-rule"
+  | "menu-category-has-items"
+  | "option-group-in-use"
   | "telegram-init-data-required"
   | "telegram-bot-token-required"
   | "telegram-hash-invalid"
