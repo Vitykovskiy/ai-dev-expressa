@@ -21,6 +21,7 @@ export interface MenuItem {
   price?: number;
   sizes?: { size: string; price: number }[];
   options?: MenuOption[];
+  isOptionGroup?: boolean;
 }
 
 export interface MenuOption {
