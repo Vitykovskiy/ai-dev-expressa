@@ -63,6 +63,8 @@
 
 ### UI parity и exploratory findings
 
+- `FTS-002-010` `Проверка отсутствия отдельной панели групп опций`: `PASS`. Сверка `MenuScreen`, `AddCategoryDialog` и `EditCategoryDialog` с `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md` и `.references/Expressa_admin` подтвердила canonical path `Добавить группу` -> флаг `Группа опций`; отдельная route-level панель и отдельная кнопка `Добавить группу опций` отсутствуют и не требуются.
+- `FTS-002-011` `Проверка gap по selectionMode групп опций`: `BLOCKER RECORDED`. Сверка `docs/system/contracts/menu-and-availability-management.md` с `.references/Expressa_admin/src/app/components/AddCategoryDialog.tsx` и `.references/Expressa_admin/src/app/components/EditCategoryDialog.tsx` подтвердила, что contract требует `selectionMode=single|multiple`, но reference UI не содержит отдельного control для задания этого режима; manual lane фиксирует документированный gap и не домысливает отсутствующее UI-поведение.
 - Desktop/mobile shell, navigation, empty state, category row, product rows, category dialog, item dialog and mobile bottom navigation соответствуют `docs/system/ui-contracts/expressa-backoffice-ui-contract.md` и `.references/Expressa_admin` на проверенных состояниях.
 - Category/item dialogs содержат reference-поля для названия группы, toggle `Группа опций`, select `Выбрать группу опций`, выбора категории товара, названия товара, базовой цены и цен `S/M/L`.
 - Option group parity подтверждена по каноническому flow: `Добавить группу` -> `Группа опций` -> товары внутри этой группы -> назначение через `Выбрать группу опций`; отдельной постоянной панели групп опций нет.
