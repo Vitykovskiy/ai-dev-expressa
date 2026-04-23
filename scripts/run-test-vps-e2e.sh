@@ -3,7 +3,7 @@
 set -uo pipefail
 
 MODE="run"
-ARTIFACT_DIR="${TEST_E2E_ARTIFACT_DIR:-artifacts/test-vps-e2e}"
+ARTIFACT_DIR="${TEST_E2E_ARTIFACT_DIR:-artifacts/remote-e2e}"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -25,26 +25,20 @@ Usage:
   scripts/run-test-vps-e2e.sh [--preflight-only] [--artifact-dir <dir>]
 
 Required environment:
-  TEST_E2E_BACKEND_BASE_URL       Public or routable backend base URL for test VPS.
-                                  Falls back to TEST_SMOKE_BACKEND_BASE_URL or http://127.0.0.1:${PORT:-3000}.
-  TEST_E2E_BACKOFFICE_ORIGIN      Published backoffice origin for test VPS.
-                                  Falls back to BACKOFFICE_PUBLIC_URL or first BACKOFFICE_CORS_ORIGINS value.
-  TEST_E2E_TELEGRAM_ID            Test-mode Telegram id allowed on the test backend.
-                                  Falls back to ADMIN_TELEGRAM_ID.
-  TEST_E2E_COMMAND                QA-owned e2e command. Required unless --preflight-only is used.
+  TEST_E2E_BASE_URL               Published frontend origin for remote e2e stand.
+                                  Falls back to E2E_BASE_URL or https://expressa-e2e-test.vitykovskiy.ru.
+  TEST_E2E_TELEGRAM_ID            Test-mode Telegram id allowed on the remote stand.
+                                  Falls back to E2E_TEST_TELEGRAM_ID or ADMIN_TELEGRAM_ID.
 
 Optional environment:
   TEST_E2E_ENV_FILE               Optional env file to source before resolving route variables.
                                   Falls back to ENV_FILE when present.
-  TEST_E2E_ARTIFACT_DIR           Artifact directory. Defaults to artifacts/test-vps-e2e.
-  TEST_E2E_HEALTH_PATH            Backend health path. Defaults to /health.
+  TEST_E2E_ARTIFACT_DIR           Artifact directory. Defaults to artifacts/remote-e2e.
+  TEST_E2E_COMMAND                Local Playwright command. Defaults to npm --prefix e2e test.
   TEST_E2E_API_PROBE_PATH         Test-mode API probe path. Defaults to /backoffice/orders.
-  TEST_E2E_FRONTEND_PATH          Frontend path to check. Defaults to /.
+  TEST_E2E_FRONTEND_PATH          Frontend path to check. Defaults to /menu.
   TEST_E2E_CURL_TIMEOUT           Curl timeout in seconds. Defaults to 10.
   TEST_E2E_STAND_COMMIT           Explicit deployed commit/version for evidence.
-  TEST_E2E_REMOTE_SSH_TARGET      Optional user@host for deployed commit lookup.
-  TEST_E2E_REMOTE_SSH_PORT        Optional SSH port for deployed commit lookup.
-  TEST_E2E_REMOTE_APP_DIR         Optional app directory for deployed commit lookup.
 USAGE
       exit 0
       ;;
@@ -97,26 +91,10 @@ source_env_file() {
   set +a
 }
 
-first_csv_value() {
-  local value="$1"
-  value="${value%%,*}"
-  printf "%s" "$value"
-}
-
 resolve_route_env() {
-  TEST_E2E_BACKEND_BASE_URL="${TEST_E2E_BACKEND_BASE_URL:-${TEST_SMOKE_BACKEND_BASE_URL:-}}"
-
-  if [[ -z "$TEST_E2E_BACKEND_BASE_URL" ]]; then
-    TEST_E2E_BACKEND_BASE_URL="http://127.0.0.1:${PORT:-${SERVER_PORT:-3000}}"
-  fi
-
-  TEST_E2E_BACKOFFICE_ORIGIN="${TEST_E2E_BACKOFFICE_ORIGIN:-${BACKOFFICE_PUBLIC_URL:-}}"
-
-  if [[ -z "$TEST_E2E_BACKOFFICE_ORIGIN" && -n "${BACKOFFICE_CORS_ORIGINS:-}" ]]; then
-    TEST_E2E_BACKOFFICE_ORIGIN="$(first_csv_value "$BACKOFFICE_CORS_ORIGINS")"
-  fi
-
-  TEST_E2E_TELEGRAM_ID="${TEST_E2E_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-}}"
+  TEST_E2E_BASE_URL="${TEST_E2E_BASE_URL:-${E2E_BASE_URL:-https://expressa-e2e-test.vitykovskiy.ru}}"
+  TEST_E2E_TELEGRAM_ID="${TEST_E2E_TELEGRAM_ID:-${E2E_TEST_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-123456789}}}"
+  TEST_E2E_COMMAND="${TEST_E2E_COMMAND:-npm --prefix e2e test}"
 }
 
 trim_trailing_slash() {
@@ -173,18 +151,6 @@ lookup_stand_commit() {
     return 0
   fi
 
-  if [[ -n "${TEST_E2E_REMOTE_SSH_TARGET:-}" && -n "${TEST_E2E_REMOTE_APP_DIR:-}" ]]; then
-    local ssh_port_args=()
-
-    if [[ -n "${TEST_E2E_REMOTE_SSH_PORT:-}" ]]; then
-      ssh_port_args=(-p "$TEST_E2E_REMOTE_SSH_PORT")
-    fi
-
-    ssh "${ssh_port_args[@]}" "$TEST_E2E_REMOTE_SSH_TARGET" \
-      "cd '$TEST_E2E_REMOTE_APP_DIR' && git rev-parse HEAD" 2>>"$LOG_FILE" || true
-    return 0
-  fi
-
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     git rev-parse HEAD 2>>"$LOG_FILE" || true
     return 0
@@ -204,8 +170,7 @@ write_summary() {
 - Reason: \`$reason\`
 - Timestamp UTC: \`$TIMESTAMP\`
 - Stand commit/version: \`${STAND_COMMIT:-unknown}\`
-- Backend base URL: \`${TEST_E2E_BACKEND_BASE_URL:-unset}\`
-- Backoffice origin: \`${TEST_E2E_BACKOFFICE_ORIGIN:-unset}\`
+- Base URL: \`${TEST_E2E_BASE_URL:-unset}\`
 - Test Telegram id: \`${TEST_E2E_TELEGRAM_ID:-unset}\`
 - Mode: \`$MODE\`
 - E2E command: \`${TEST_E2E_COMMAND:-not-run}\`
@@ -214,35 +179,24 @@ SUMMARY
 }
 
 CURL_TIMEOUT="${TEST_E2E_CURL_TIMEOUT:-10}"
-HEALTH_PATH="${TEST_E2E_HEALTH_PATH:-/health}"
 API_PROBE_PATH="${TEST_E2E_API_PROBE_PATH:-/backoffice/orders}"
-FRONTEND_PATH="${TEST_E2E_FRONTEND_PATH:-/}"
+FRONTEND_PATH="${TEST_E2E_FRONTEND_PATH:-/menu}"
 
 source_env_file
 resolve_route_env
 
-require_env "TEST_E2E_BACKEND_BASE_URL"
-require_env "TEST_E2E_BACKOFFICE_ORIGIN"
-require_env "TEST_E2E_TELEGRAM_ID"
-
-if [[ "$MODE" != "preflight" ]]; then
-  require_env "TEST_E2E_COMMAND"
-fi
+require_env "TEST_E2E_BASE_URL"
 
 STAND_COMMIT="$(lookup_stand_commit)"
-BACKEND_BASE_URL="$(trim_trailing_slash "$TEST_E2E_BACKEND_BASE_URL")"
-BACKOFFICE_ORIGIN="$(trim_trailing_slash "$TEST_E2E_BACKOFFICE_ORIGIN")"
-HEALTH_URL="$(join_url "$BACKEND_BASE_URL" "$HEALTH_PATH")"
-API_PROBE_URL="$(join_url "$BACKEND_BASE_URL" "$API_PROBE_PATH")"
-FRONTEND_URL="$(join_url "$BACKOFFICE_ORIGIN" "$FRONTEND_PATH")"
+BASE_URL="$(trim_trailing_slash "$TEST_E2E_BASE_URL")"
+API_PROBE_URL="$(join_url "$BASE_URL" "$API_PROBE_PATH")"
+FRONTEND_URL="$(join_url "$BASE_URL" "$FRONTEND_PATH")"
 
-log "Test VPS e2e route started."
+log "Remote e2e route started."
 log "Stand commit/version: ${STAND_COMMIT:-unknown}"
-log "Backend base URL: $BACKEND_BASE_URL"
-log "Backoffice origin: $BACKOFFICE_ORIGIN"
+log "Base URL: $BASE_URL"
 log "Mode: $MODE"
 
-http_probe "backend health" "$HEALTH_URL" || fail "backend health preflight failed."
 http_probe "test-mode backoffice API" "$API_PROBE_URL" \
   --header "x-test-telegram-id: $TEST_E2E_TELEGRAM_ID" || fail "test-mode API preflight failed."
 http_probe "published backoffice origin" "$FRONTEND_URL" || fail "backoffice origin preflight failed."
@@ -257,8 +211,7 @@ fi
 
 log "Running QA-owned e2e command."
 
-export E2E_BACKEND_BASE_URL="$BACKEND_BASE_URL"
-export E2E_BACKOFFICE_ORIGIN="$BACKOFFICE_ORIGIN"
+export E2E_BASE_URL="$BASE_URL"
 export E2E_TEST_TELEGRAM_ID="$TEST_E2E_TELEGRAM_ID"
 export E2E_STAND_COMMIT="${STAND_COMMIT:-unknown}"
 
