@@ -4,13 +4,49 @@ import {
   saveSettingsViaApi,
 } from "./support/slot-settings-api";
 import { expect, test } from "./support/slot-settings-test";
-import { fillSettingsForm } from "./support/slot-settings-ui";
+import { fillSettingsForm, readSettingsForm } from "./support/slot-settings-ui";
 import { minutesBetween } from "./support/slot-settings-utils";
 import type { SlotSettingsSnapshot } from "./support/slot-settings-types";
 
 test.describe("administrator slot settings management", () => {
   test.afterEach(async ({ request }) => {
     await saveSettingsViaApi(request, DEFAULT_SETTINGS);
+  });
+
+  test("FTS-003-002 partial settings update", async ({ page }) => {
+    await page.goto("/settings");
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Настройки" }),
+    ).toBeVisible();
+    const initialSettings = await readSettingsForm(page);
+    const updatedCapacity =
+      initialSettings.slotCapacity >= 9
+        ? initialSettings.slotCapacity - 1
+        : initialSettings.slotCapacity + 1;
+
+    await page.locator("#slot-settings-capacity").fill(String(updatedCapacity));
+
+    const saveResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/backoffice/settings/slot-settings") &&
+        response.request().method() === "PUT",
+    );
+    await page.getByRole("button", { name: "Сохранить" }).click();
+    const saveResponse = await saveResponsePromise;
+
+    expect(saveResponse.ok(), "successful partial save operation").toBe(true);
+    await expect(page.getByText("Настройки сохранены")).toBeVisible();
+
+    await page.reload();
+    await expect(page.locator("#slot-settings-open")).toHaveValue(
+      initialSettings.workingHoursOpen,
+    );
+    await expect(page.locator("#slot-settings-close")).toHaveValue(
+      initialSettings.workingHoursClose,
+    );
+    await expect(page.locator("#slot-settings-capacity")).toHaveValue(
+      String(updatedCapacity),
+    );
   });
 
   test("FTS-003-001 administrator saves slot settings", async ({
