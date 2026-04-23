@@ -38,6 +38,11 @@
   - Сценарии тестирования: [feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md](./feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md)
   - Использовать для архитектурной декомпозиции административного сценария изменения рабочих часов и вместимости слотов, а также для handoff QA-сценариев по применению настроек к дальнейшей генерации customer-слотов.
 
+- `FEATURE-004 Administrator User Role Management`
+  - Файл: [feature-specs/feature-004-administrator-user-role-management.md](./feature-specs/feature-004-administrator-user-role-management.md)
+  - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management.test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management.test-scenarios.md)
+  - Использовать для архитектурной декомпозиции административного сценария просмотра пользователей и назначения ролей `barista` и `administrator`, а также для handoff QA-сценариев по guards, пустому состоянию и открытому blocker по праву назначения роли `administrator`.
+
 ### `system-context`
 
 - `Expressa v1 Telegram Ordering`
