@@ -3,6 +3,8 @@ import {
   categoryCountLabel,
   findCategoryOwnedOptionGroup,
   itemPriceLabel,
+  itemCountLabel,
+  optionCountLabel,
   optionGroupCategoryIds,
   selectionModeLabel,
 } from "@/modules/menu-catalog/presentation";
@@ -39,6 +41,17 @@ describe("menu catalog presentation", () => {
     expect(categoryCountLabel(1)).toBe("1 категория");
     expect(categoryCountLabel(2)).toBe("2 категории");
     expect(categoryCountLabel(5)).toBe("5 категорий");
+    expect(categoryCountLabel(21)).toBe("21 категория");
+    expect(categoryCountLabel(12)).toBe("12 категорий");
+  });
+
+  it("formats item and option counts with Russian plural forms", () => {
+    expect(itemCountLabel(1)).toBe("1 товар");
+    expect(itemCountLabel(2)).toBe("2 товара");
+    expect(itemCountLabel(5)).toBe("5 товаров");
+    expect(optionCountLabel(1)).toBe("1 опция");
+    expect(optionCountLabel(2)).toBe("2 опции");
+    expect(optionCountLabel(5)).toBe("5 опций");
   });
 
   it("detects an owned option group by category name when no assignment exists", () => {

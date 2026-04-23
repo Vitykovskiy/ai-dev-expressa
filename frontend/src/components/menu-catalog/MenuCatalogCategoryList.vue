@@ -114,6 +114,7 @@ import UiSectionList from "@/ui/UiSectionList.vue";
 import {
   itemCountLabel,
   itemPriceLabel,
+  optionCountLabel,
 } from "@/modules/menu-catalog/presentation";
 import type { MenuCategory, MenuItem } from "@/modules/menu-catalog/types";
 
@@ -170,10 +171,6 @@ function toggleCategory(menuCategoryId: string): void {
   }
 
   expandedCategoryIds.value = next;
-}
-
-function optionCountLabel(count: number): string {
-  return `${count} ${count === 1 ? "опция" : "опций"}`;
 }
 </script>
 

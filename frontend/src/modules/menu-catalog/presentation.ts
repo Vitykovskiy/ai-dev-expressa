@@ -22,23 +22,15 @@ export function selectionModeLabel(mode: SelectionMode): string {
 }
 
 export function categoryCountLabel(count: number): string {
-  if (count % 10 === 1 && count % 100 !== 11) {
-    return `${count} категория`;
-  }
-
-  if (
-    count % 10 >= 2 &&
-    count % 10 <= 4 &&
-    (count % 100 < 12 || count % 100 > 14)
-  ) {
-    return `${count} категории`;
-  }
-
-  return `${count} категорий`;
+  return `${count} ${pluralizeRu(count, "категория", "категории", "категорий")}`;
 }
 
 export function itemCountLabel(count: number): string {
-  return `${count} ${count === 1 ? "товар" : "товаров"}`;
+  return `${count} ${pluralizeRu(count, "товар", "товара", "товаров")}`;
+}
+
+export function optionCountLabel(count: number): string {
+  return `${count} ${pluralizeRu(count, "опция", "опции", "опций")}`;
 }
 
 export function optionGroupCategoryIds(
@@ -73,4 +65,29 @@ export function findCategoryOwnedOptionGroup(
       (optionGroup) => optionGroup.name.trim().toLowerCase() === normalizedName,
     ) ?? null
   );
+}
+
+function pluralizeRu(
+  count: number,
+  one: string,
+  few: string,
+  many: string,
+): string {
+  const value = Math.abs(count);
+  const lastTwoDigits = value % 100;
+  const lastDigit = value % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return many;
+  }
+
+  if (lastDigit === 1) {
+    return one;
+  }
+
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return few;
+  }
+
+  return many;
 }
