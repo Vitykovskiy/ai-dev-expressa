@@ -83,7 +83,7 @@
 
 ## Handoff route for FEATURE-001
 
-- Для входа в backoffice и route guard исполнитель читает `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
+- Для входа в backoffice и route guard исполнитель читает `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.md`, затем `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md`, затем `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
 - Если в FEATURE-001 меняются route, auth state, client-side guard или frontend env/config, обновляется эта карта вместе с consumer-facing contract при изменении request/response boundary.
 
 ## Handoff route for FEATURE-002

@@ -7,6 +7,8 @@
 ## Источники
 
 - `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`
+- `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.md`
+- `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md`
 - `.references/Expressa_admin/src/imports/expressa-backoffice-ui-contract.json`
 - `.references/Expressa_admin/src/app`
 - `.references/Expressa_admin/src/styles`
@@ -145,6 +147,12 @@
 | `users`                      | `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`                                                                                        |
 | `settings`                   | `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`                                                                                                                                            |
 | `entry bootstrap and guards` | `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`                                                               |
+
+## Handoff route for FEATURE-001
+
+- Для backoffice entry и route guard исполнитель читает `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.md`, затем `docs/system/feature-specs/feature-001-administrator-telegram-backoffice-access.test-scenarios.md`, затем `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем эту карту.
+- Система должна использовать `AuthenticatedActor.capabilities` для видимости вкладок и direct-route guard без чтения backend implementation.
+- Система должна отличать `entry-denied` от `forbidden` как разные protected states.
 
 ## Зафиксированные расхождения и пробелы
 
