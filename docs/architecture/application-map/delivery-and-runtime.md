@@ -18,7 +18,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Job `quality` обязан после `npm ci` в корне репозитория, `npm ci --prefix backend` и `npm ci --prefix frontend` проверять `backend` и `frontend` lint, format:check, typecheck, unit tests и связанные статические проверки через root `--prefix`-команды; для `frontend` дополнительно обязателен stylelint.
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
-- Push/merge в `main` запускает `Deploy Test` workflow и деплоит только `test`-окружение на VPS.
+- Push/merge в `main` запускает `Deploy Test` workflow, публикует versioned runtime-образы и готовит rollout двух test-стендов на одном VPS.
 - Secrets для SSH-доступа к VPS, registry credentials и smoke-check overrides хранятся в GitHub Secrets.
 - Runtime переменные приложения на VPS передаются через окружение процесса или внешний env-файл стенда и не коммитятся в репозиторий.
 
@@ -45,17 +45,25 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Workflow `Deploy Test` собирает и публикует versioned backend/frontend runtime images в `ghcr.io` с tag, равным `github.sha`.
 - Перед запуском rollout workflow синхронизирует checkout на VPS с `origin/main`, затем вызывает версионированный скрипт `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
-- `test` VPS поднимает backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
+- Оба VPS-стенда `test` и `test-e2e` поднимают backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
 - Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice; deploy-скрипт проверяет его до container rollout.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
 - Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`, а launcher использует `docker-compose.deploy.yml` для frontend и backend сервисов.
-- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull backend frontend` и `docker compose up -d backend frontend`.
+- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE`, `DEPLOY_FRONTEND_IMAGE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull backend frontend` и `docker compose up -d backend frontend`.
 - Порт backend на host loopback берётся из `TEST_DEPLOY_HOST_BACKEND_PORT` или `PORT`; frontend публикуется на `TEST_DEPLOY_HOST_FRONTEND_PORT` и по умолчанию использует `8080`.
-- Post-deploy smoke-check подтверждает `GET /health`, доступность frontend root, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
+- Канонический dual-stand contract:
+
+| Stand      | Public hostname                            | `ENV_FILE` example               | `DEPLOY_PROJECT_NAME` | `DEPLOY_STAND_SLUG` | `TEST_DEPLOY_HOST_BACKEND_PORT` | `TEST_DEPLOY_HOST_FRONTEND_PORT` |
+| ---------- | ------------------------------------------ | -------------------------------- | --------------------- | ------------------- | ------------------------------- | -------------------------------- |
+| `test`     | `https://expressa.vitykovskiy.ru`          | `/opt/expressa/env/test.env`     | `expressa-test`       | `test`              | `3000`                          | `8080`                           |
+| `test-e2e` | `https://expressa-e2e-test.vitykovskiy.ru` | `/opt/expressa/env/test-e2e.env` | `expressa-test-e2e`   | `test-e2e`          | `3001`                          | `8081`                           |
+
+- `frontend/nginx.conf` публикует только frontend root и `/backoffice/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
+- Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
 
 ## Restore path
 
-- Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/rollback-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
+- Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
 - Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
 - После restore выполняется тот же smoke-check, что и после штатного rollout.
 
@@ -86,6 +94,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
 - `ENV_FILE` указывает deploy/e2e launcher на env-файл test-стенда на VPS.
 - `DEPLOY_BACKEND_IMAGE` и `DEPLOY_FRONTEND_IMAGE` задают versioned image refs для container rollout.
+- `DEPLOY_PROJECT_NAME` задаёт compose project name и изоляцию контейнеров конкретного стенда.
+- `DEPLOY_STAND_SLUG` задаёт stand-specific каталог для rollback и summary артефактов; по умолчанию используется нормализованный `DEPLOY_PROJECT_NAME`.
 - `DEPLOY_REGISTRY`, `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD` задают registry login для `docker pull`, если стенд не имеет преднастроенного доступа.
 - `TEST_DEPLOY_HOST_BACKEND_PORT` задаёт host loopback port для backend container; по умолчанию используется значение `PORT` или `3000`.
 - `TEST_DEPLOY_HOST_FRONTEND_PORT` задаёт host port для frontend container; по умолчанию используется `8080`.
