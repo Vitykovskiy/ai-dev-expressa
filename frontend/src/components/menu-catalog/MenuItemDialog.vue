@@ -66,7 +66,7 @@
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="0"
+                placeholder="Введите цену"
               />
             </div>
           </div>
@@ -80,7 +80,7 @@
             type="number"
             min="0"
             step="0.01"
-            placeholder="0"
+            placeholder="Введите цену"
           />
         </ui-form-field>
       </div>

@@ -85,7 +85,7 @@
                 <span class="product-row__content">
                   <span>
                     <strong>{{ item.name }}</strong>
-                    <small>{{ itemPriceLabel(item) }}</small>
+                    <small>{{ section.priceLabel(item) }}</small>
                   </span>
                   <ChevronRight :size="18" />
                 </span>
@@ -152,12 +152,15 @@ const visibleSections = computed(() =>
       categories: regularCategories.value,
       emptyText: "Товаров в этой группе пока нет",
       countLabel: itemCountLabel,
+      priceLabel: (item: MenuItem) => itemPriceLabel(item),
     },
     {
       title: "Группы опций",
       categories: optionCategories.value,
       emptyText: "Опций в этой группе пока нет",
       countLabel: optionCountLabel,
+      priceLabel: (item: MenuItem) =>
+        itemPriceLabel(item, { freeLabel: "Бесплатно" }),
     },
   ].filter((section) => section.categories.length > 0),
 );

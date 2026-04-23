@@ -1,15 +1,29 @@
 import {
+  DRINK_SIZES,
   type MenuCategory,
   type MenuItem,
   type OptionGroup,
   type SelectionMode,
 } from "@/modules/menu-catalog/types";
 
-export function itemPriceLabel(item: MenuItem): string {
+export function itemPriceLabel(
+  item: MenuItem,
+  options?: { freeLabel?: string },
+): string {
   if (item.itemType === "drink") {
-    const prices = item.drinkSizePrices ?? [];
-    const minPrice = Math.min(...prices.map((price) => price.price));
-    return Number.isFinite(minPrice) ? `от ${minPrice} ₽` : "Нет цены";
+    const sizePrices = DRINK_SIZES.map((size) => {
+      const price = item.drinkSizePrices?.find(
+        (sizePrice) => sizePrice.size === size,
+      )?.price;
+
+      return typeof price === "number" ? `${size}: ${price} ₽` : null;
+    }).filter((price): price is string => Boolean(price));
+
+    return sizePrices.length > 0 ? sizePrices.join(" · ") : "Нет цены";
+  }
+
+  if (item.basePrice === 0 && options?.freeLabel) {
+    return options.freeLabel;
   }
 
   return typeof item.basePrice === "number"

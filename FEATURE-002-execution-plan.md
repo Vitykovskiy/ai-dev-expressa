@@ -9,7 +9,7 @@
 1. `[completed]` `FEATURE-002-context-01-error-handling-edge-cases.md`
    Усилить обработку ошибок управления каталогом для пограничных случаев удаления и вернуть заметные frontend-нотификации по backend-ошибкам.
 
-2. `[pending]` `FEATURE-002-context-02-menu-ui-parity.md`
+2. `[completed]` `FEATURE-002-context-02-menu-ui-parity.md`
    Привести вкладку `Меню` к актуальному versioned reference после первого добавления `.references`, включая отображение цен напитков по размерам и прочие подтвержденные UI-расхождения.
 
 3. `[pending]` `FEATURE-002-context-03-regression-coverage.md`

@@ -15,7 +15,7 @@ import type {
 } from "@/modules/menu-catalog/types";
 
 describe("menu catalog presentation", () => {
-  it("formats drink price from the minimum size price", () => {
+  it("formats drink price as a size list", () => {
     const item: MenuItem = {
       menuItemId: "item-1",
       menuCategoryId: "cat-1",
@@ -29,7 +29,20 @@ describe("menu catalog presentation", () => {
       ],
     };
 
-    expect(itemPriceLabel(item)).toBe("от 180 ₽");
+    expect(itemPriceLabel(item)).toBe("S: 180 ₽ · M: 220 ₽ · L: 260 ₽");
+  });
+
+  it("formats free items with a custom label", () => {
+    const item: MenuItem = {
+      menuItemId: "item-2",
+      menuCategoryId: "cat-1",
+      name: "Без сиропа",
+      itemType: "regular",
+      basePrice: 0,
+      availability: true,
+    };
+
+    expect(itemPriceLabel(item, { freeLabel: "Бесплатно" })).toBe("Бесплатно");
   });
 
   it("formats selection mode label", () => {
