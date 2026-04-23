@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { getCatalog } from "./support/menu-catalog-api";
+import { annotateScenarioIds } from "./support/menu-catalog-auth";
 import {
   assignOptionGroupToCategory,
   createCategory,
@@ -10,6 +11,41 @@ import {
 } from "./support/menu-catalog-ui";
 
 test.describe("administrator menu catalog management", () => {
+  test("FTS-002-002 administrator creates a regular item with a base price", async ({
+    page,
+    request,
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, ["FTS-002-002"]);
+    const suffix = Date.now().toString(36);
+    const categoryName = `Обычная группа E2E ${suffix}`;
+    const itemName = `Американо E2E ${suffix}`;
+
+    await page.goto("/menu");
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Меню" }),
+    ).toBeVisible();
+
+    await createCategory(page, categoryName);
+    await createRegularItem(page, {
+      categoryName,
+      name: itemName,
+      price: "180",
+    });
+
+    await expandCategory(page, categoryName);
+    await expect(page.getByText(itemName, { exact: true })).toBeVisible();
+
+    const catalog = await getCatalog(request);
+    const item = catalog.items.find((entry) => entry.name === itemName);
+
+    expect(item).toMatchObject({
+      itemType: "regular",
+      name: itemName,
+      basePrice: 180,
+    });
+    expect(item?.drinkSizePrices ?? []).toEqual([]);
+  });
+
   test("administrator manages menu catalog through backoffice", async ({
     page,
     request,
@@ -126,12 +162,3 @@ test.describe("administrator menu catalog management", () => {
     expect(optionGroup?.selectionMode).toBe("multiple");
   });
 });
-
-function annotateScenarioIds(
-  testInfo: { annotations: { type: string; description?: string }[] },
-  scenarioIds: readonly string[],
-): void {
-  for (const scenarioId of scenarioIds) {
-    testInfo.annotations.push({ type: "scenario", description: scenarioId });
-  }
-}

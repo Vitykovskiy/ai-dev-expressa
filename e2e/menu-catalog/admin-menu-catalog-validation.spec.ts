@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  annotateScenarioIds,
+  baristaActor,
+  expectHiddenTabs,
+  forbiddenHeading,
+  mockSessionBootstrap,
+} from "./support/menu-catalog-auth";
+import {
   categoryBlock,
   createCategory,
   createRegularItem,
@@ -10,6 +17,28 @@ import {
 } from "./support/menu-catalog-ui";
 
 test.describe("administrator menu catalog validation", () => {
+  test("FTS-002-007 menu tab is hidden and direct route is forbidden without menu capability", async ({
+    page,
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, ["FTS-002-007"]);
+
+    await mockSessionBootstrap(page, () => baristaActor);
+
+    await page.goto("/");
+
+    await expect(page.getByText("Бариста")).toBeVisible();
+    await expectHiddenTabs(page, ["Меню"]);
+
+    await page.goto("/menu");
+
+    await expect(page).toHaveURL(/\/forbidden(?:\?|$)/);
+    await expect(page.getByText("403")).toBeVisible();
+    await expect(forbiddenHeading(page)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Добавить группу" }),
+    ).toHaveCount(0);
+  });
+
   test("incomplete drink size model is rejected", async ({
     page,
   }, testInfo) => {
@@ -88,12 +117,3 @@ test.describe("administrator menu catalog validation", () => {
     await expect(page.getByText(itemName, { exact: true })).toBeVisible();
   });
 });
-
-function annotateScenarioIds(
-  testInfo: { annotations: { type: string; description?: string }[] },
-  scenarioIds: readonly string[],
-): void {
-  for (const scenarioId of scenarioIds) {
-    testInfo.annotations.push({ type: "scenario", description: scenarioId });
-  }
-}
