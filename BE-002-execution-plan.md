@@ -40,7 +40,7 @@ Backend must provide a protected administrator-only menu catalog API for categor
 
 ### BE-002-02 API Guard And Error Mapping
 
-- Status: `pending`
+- Status: `completed`
 - Context: `BE-002-context-02-api-guard-and-error-mapping.md`
 - Objective: verify and harden `/backoffice/menu/*` endpoint behavior, capability guard attachment, and transport error mapping.
 - Allowed edit area: `backend/src/menu-catalog/**`, `backend/src/identity-access/auth/backoffice-auth.guard.ts`, `backend/test/menu-catalog.integration.spec.ts`, `backend/test/backoffice-role-guard.spec.ts`.
