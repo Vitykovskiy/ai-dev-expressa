@@ -113,7 +113,7 @@
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
 - QA запускает browser e2e локально из корня через `npm run test:e2e`; Playwright по умолчанию использует опубликованный стенд `https://expressa-e2e-test.vitykovskiy.ru`.
-- `E2E_BASE_URL` задаёт локальный override frontend origin для QA; `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API.
+- `E2E_BASE_URL` задаёт локальный override frontend origin для QA; `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API. Для published `test-e2e` стенда canonical значение `E2E_BACKEND_BASE_URL` совпадает с frontend origin `https://expressa-e2e-test.vitykovskiy.ru`, потому что `frontend/nginx.conf` проксирует `/backoffice/*` и `/customer/*` на backend.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.
 
 ## Backend

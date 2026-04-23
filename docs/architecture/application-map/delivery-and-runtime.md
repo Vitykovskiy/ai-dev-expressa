@@ -60,13 +60,13 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 | `test-e2e` | `https://expressa-e2e-test.vitykovskiy.ru` | `/opt/expressa/env/test-e2e.env` | `expressa-test-e2e`   | `test-e2e`          | `3001`                          | `8081`                           |
 
 - `frontend/nginx.conf` публикует frontend root, `/backoffice/*` и `/customer/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
-- Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и отказ production-like bypass через config validation внутри backend container.
+- Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON-доступ к `GET /backoffice/orders`, published proxy JSON-доступ к `GET /customer/slots` и отказ production-like bypass через config validation внутри backend container.
 
 ## Restore path
 
 - Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
 - Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
-- После restore выполняется тот же smoke-check, что и после штатного rollout.
+- После restore выполняется тот же smoke-check, что и после штатного rollout, включая published proxy `GET /backoffice/orders` и published proxy `GET /customer/slots`.
 
 ## QA e2e route
 
@@ -75,7 +75,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Каноническая команда запуска: `npm run test:e2e`.
 - Playwright по умолчанию использует `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
-- `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API; canonical значение для `test-e2e` совпадает с published frontend origin, потому что `/customer/*` проксируется через frontend nginx на backend.
+- `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API; canonical значение для `test-e2e` совпадает с published frontend origin `https://expressa-e2e-test.vitykovskiy.ru`, потому что `/customer/*` проксируется через frontend nginx на backend.
+- Канонический published route для slot settings e2e JSON verification: `GET https://expressa-e2e-test.vitykovskiy.ru/customer/slots`.
 - `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
 - QA-owned route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
@@ -102,7 +103,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA-owned Playwright command; по умолчанию используется `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_TEST_TELEGRAM_ID` задаёт test Telegram id для QA-owned Playwright command.
 - `E2E_STAND_COMMIT` задаёт commit/версию проверяемого опубликованного стенда для QA evidence.
-- `E2E_BACKEND_BASE_URL` задаёт backend API base URL для QA-owned Playwright command; для `test-e2e` canonical значение совпадает с `https://expressa-e2e-test.vitykovskiy.ru`.
+- `E2E_BACKEND_BASE_URL` задаёт backend API base URL для QA-owned Playwright command; для `test-e2e` canonical значение совпадает с `https://expressa-e2e-test.vitykovskiy.ru`, где `/customer/*` и `/backoffice/*` публикуются через frontend proxy.
 - `IP`, `ROOT_USER`, `ROOT_PASSWORD` в корневом `.env` задают параметры подключения к серверу для локальных operational сценариев; `ROOT_PASSWORD` не коммитится и хранится только в локальном окружении исполнителя или секретном хранилище.
 
 ## Backend commands
@@ -144,7 +145,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Test environment с `DISABLE_TG_AUTH=true` позволяет выполнить проверку role guard без Telegram.
 - PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
-- Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, test-mode доступ к `GET /backoffice/orders` с заголовком `x-test-telegram-id`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
+- Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, published proxy `GET /backoffice/orders` с заголовком `x-test-telegram-id`, published proxy `GET /customer/slots`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
 - `npm run test:e2e` запускает QA-owned Playwright suite против `https://expressa-e2e-test.vitykovskiy.ru` без локальной сборки backend/frontend.
 
 ## Обновлять эту карту

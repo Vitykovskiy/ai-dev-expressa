@@ -29,9 +29,11 @@
 - Playwright по умолчанию использует опубликованный стенд `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
 - `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API.
+- Для published `test-e2e` стенда canonical значение `E2E_BACKEND_BASE_URL` совпадает с `E2E_BASE_URL`, потому что frontend origin обязан публиковать `/backoffice/*` и `/customer/*` как JSON proxy routes.
 - QA владеет feature e2e assertions, browser сценариями, fixtures, expected behavior, pass/fail evidence и defect handoff.
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
 - Изменение e2e URL, локальных e2e overrides или QA-команды запуска считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
+- Post-deploy smoke-check обязан подтверждать published proxy JSON route для QA-owned browser e2e, если feature-level acceptance зависит от frontend-proxied backend endpoints.
 
 ## PR gates для качества кода
 

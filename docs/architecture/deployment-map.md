@@ -40,7 +40,7 @@
 - GitHub Actions хранит инфраструктурные секреты для SSH и rollout: `TEST_VPS_HOST`, `TEST_VPS_USER`, `TEST_VPS_SSH_KEY`, `TEST_VPS_PORT`, `TEST_VPS_HOST_FINGERPRINT`, `TEST_VPS_APP_DIR`, registry credentials и отдельные env values для каждого стенда.
 - Deploy workflow синхронизирует checkout на VPS с `origin/main`, затем многократно запускает `scripts/deploy-test-vps.sh` с `SKIP_GIT_PULL=true`; launcher валидирует runtime env, выполняет `docker login` при наличии credentials, затем `docker compose pull` и `docker compose up -d`.
 - `docker-compose.deploy.yml` совместим с rollout двух стендов без изменений, потому что использует env-driven image refs и host port bindings, а изоляция контейнеров задаётся через `docker compose -p`.
-- Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и negative path для production-like bypass.
+- Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON route `GET /backoffice/orders`, published proxy JSON route `GET /customer/slots` и negative path для production-like bypass.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
 ## QA e2e route
@@ -48,7 +48,8 @@
 - Feature-level e2e acceptance запускается локально из репозитория против опубликованного `test-e2e` стенда.
 - Каноническая команда запуска: `npm run test:e2e`.
 - Playwright по умолчанию использует `https://expressa-e2e-test.vitykovskiy.ru`; QA может переопределить target через `E2E_BASE_URL`.
-- Для browser e2e, которым нужен прямой JSON-доступ к backend API, `E2E_BACKEND_BASE_URL` задаёт backend API base URL; для `test-e2e` canonical значение совпадает с frontend origin, потому что `frontend/nginx.conf` проксирует `/customer/*` на backend container.
+- Для browser e2e, которым нужен прямой JSON-доступ к backend API, `E2E_BACKEND_BASE_URL` задаёт backend API base URL; для `test-e2e` canonical значение совпадает с frontend origin `https://expressa-e2e-test.vitykovskiy.ru`, потому что `frontend/nginx.conf` проксирует `/customer/*` на backend container.
+- Canonical published QA route для `FTS-003-006` проходит через `GET https://expressa-e2e-test.vitykovskiy.ru/customer/slots`; локальный override нужен только если QA сознательно уводит suite с published origin.
 - `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
 - E2E не является частью обязательного `PR Checks` или `Deploy Test` gate.
 - QA владеет feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
@@ -66,7 +67,7 @@ E2E не добавляется в branch protection без отдельного
 
 - После каждого rollout `scripts/deploy-test-vps.sh` сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs, env-файлом и deploy-параметрами конкретного стенда.
 - Для restore оператор source-ит нужный rollback-файл, затем повторно запускает `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh` в `TEST_VPS_APP_DIR`.
-- После restore оператор повторяет smoke-check `GET /health`, frontend root и `GET /backoffice/orders` в test-mode.
+- После restore оператор повторяет smoke-check `GET /health`, frontend root, published proxy `GET /backoffice/orders` и published proxy `GET /customer/slots`.
 
 ## FEATURE-001
 
