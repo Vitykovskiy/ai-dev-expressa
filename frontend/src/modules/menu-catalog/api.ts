@@ -74,7 +74,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
     payload: MenuCategoryPayload,
   ): Promise<MenuCatalogSnapshot> {
     return this.mutateAndReadCatalog(
-      `/backoffice/menu/categories/${menuCategoryId}`,
+      `/backoffice/menu/categories/${encodePathId(menuCategoryId)}`,
       {
         method: "PATCH",
         body: JSON.stringify(payload),
@@ -84,7 +84,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
 
   async deleteCategory(menuCategoryId: string): Promise<MenuCatalogSnapshot> {
     return this.mutateAndReadCatalog(
-      `/backoffice/menu/categories/${menuCategoryId}`,
+      `/backoffice/menu/categories/${encodePathId(menuCategoryId)}`,
       {
         method: "DELETE",
       },
@@ -102,16 +102,22 @@ export class MenuCatalogApi implements MenuCatalogClient {
     menuItemId: string,
     payload: MenuItemPayload,
   ): Promise<MenuCatalogSnapshot> {
-    return this.mutateAndReadCatalog(`/backoffice/menu/items/${menuItemId}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    });
+    return this.mutateAndReadCatalog(
+      `/backoffice/menu/items/${encodePathId(menuItemId)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+    );
   }
 
   async deleteItem(menuItemId: string): Promise<MenuCatalogSnapshot> {
-    return this.mutateAndReadCatalog(`/backoffice/menu/items/${menuItemId}`, {
-      method: "DELETE",
-    });
+    return this.mutateAndReadCatalog(
+      `/backoffice/menu/items/${encodePathId(menuItemId)}`,
+      {
+        method: "DELETE",
+      },
+    );
   }
 
   async createOptionGroup(
@@ -128,7 +134,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
     payload: OptionGroupPayload,
   ): Promise<MenuCatalogSnapshot> {
     return this.mutateAndReadCatalog(
-      `/backoffice/menu/option-groups/${optionGroupId}`,
+      `/backoffice/menu/option-groups/${encodePathId(optionGroupId)}`,
       {
         method: "PATCH",
         body: JSON.stringify(payload),
@@ -138,7 +144,7 @@ export class MenuCatalogApi implements MenuCatalogClient {
 
   async deleteOptionGroup(optionGroupId: string): Promise<MenuCatalogSnapshot> {
     return this.mutateAndReadCatalog(
-      `/backoffice/menu/option-groups/${optionGroupId}`,
+      `/backoffice/menu/option-groups/${encodePathId(optionGroupId)}`,
       {
         method: "DELETE",
       },
@@ -212,6 +218,10 @@ function readErrorCode(body: unknown): MenuCatalogErrorCode {
   }
 
   return "menu-catalog-request-failed";
+}
+
+function encodePathId(id: string): string {
+  return encodeURIComponent(id);
 }
 
 function isMenuCatalogSnapshot(value: unknown): value is MenuCatalogSnapshot {

@@ -108,6 +108,13 @@ export type MenuCatalogErrorCode =
   | "administrator-role-required"
   | "invalid-drink-size-model"
   | "invalid-option-group-rule"
+  | "telegram-init-data-required"
+  | "telegram-bot-token-required"
+  | "telegram-hash-invalid"
+  | "backoffice-user-not-found"
+  | "user-blocked"
+  | "backoffice-role-required"
+  | "backoffice-capability-not-found"
   | "backoffice-capability-forbidden"
   | "backoffice-auth-failed"
   | "menu-catalog-request-failed";
