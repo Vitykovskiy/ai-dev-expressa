@@ -32,7 +32,7 @@
 
 ### 02 - E2E Negative Validation And Access Guard
 
-- Status: `pending`
+- Status: `completed`
 - Context package: `QA-007-context-02-negative-validation-and-access-guard.md`
 - Role: `Тестирование`
 - Scope: extend FEATURE-003 Playwright coverage for `FTS-003-003`, `FTS-003-004`, and `FTS-003-005`.
