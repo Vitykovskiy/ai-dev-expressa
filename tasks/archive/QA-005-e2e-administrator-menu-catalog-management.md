@@ -30,15 +30,14 @@
 
 ## Результаты выполнения
 
-- Подзадача `QA-005/03` выполнена: QA-owned Playwright feature suite для `FEATURE-002` зафиксирован как split-suite `e2e/menu-catalog/admin-menu-catalog-save.spec.ts`, `e2e/menu-catalog/admin-menu-catalog-validation.spec.ts`, `e2e/menu-catalog/admin-menu-catalog-api.spec.ts`.
+- Подзадача `QA-005/03` выполнена: QA-owned Playwright feature suite для `FEATURE-002` зафиксирован как split-suite `e2e/menu-catalog/admin-menu-catalog-save.spec.ts`, `e2e/menu-catalog/admin-menu-catalog-validation.spec.ts`, `e2e/menu-catalog/admin-menu-catalog-api.spec.ts`, а defect handoff и итоговый closeout синхронизированы с финальным evidence.
 - `e2e/menu-catalog/admin-menu-catalog-save.spec.ts` содержит сценарий `administrator manages menu catalog through backoffice` и annotations `FTS-002-001`, `FTS-002-002`, `FTS-002-003`, `FTS-002-004`, `FTS-002-005`, `FTS-002-006`; browser flow покрывает открытие `/menu`, создание обычной группы меню, создание обычного товара, создание напитка с ценами `S/M/L`, создание группы опций через toggle `Группа опций`, создание бесплатной и платной опции как товаров внутри группы опций, назначение группы опций на категорию и проверку сохраненного snapshot через backend contract.
 - `e2e/menu-catalog/admin-menu-catalog-validation.spec.ts` содержит negative coverage: `FTS-002-008 incomplete drink size model is rejected` и `FTS-002-009 category with products cannot be deleted`.
 - `e2e/menu-catalog/admin-menu-catalog-api.spec.ts` содержит contract/guard coverage: `FTS-002-011 invalid option group rule is rejected by menu catalog contract` и `FTS-002-007 direct menu API access is denied when menu access is unavailable`.
 - Automated coverage mapping приведен к stable Scenario IDs из `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`: split-suite покрывает `FTS-002-001`, `FTS-002-002`, `FTS-002-003`, `FTS-002-004`, `FTS-002-005`, `FTS-002-006`, `FTS-002-007`, `FTS-002-008`, `FTS-002-009`, `FTS-002-011`; `FTS-002-010` остается manual-only UI parity check; backend integration/domain evidence используется как входное contract evidence и не подменяет browser coverage.
 - Финальный browser e2e-прогон: `5 passed`.
 - Evidence финального прогона: Playwright summary и browser report.
-- В финальном прогоне `QA-005/03` воспроизводимых product failures или launch failures не обнаружено; создание `BUG-*` по результатам этой подзадачи не требуется.
-- Подзадача `QA-005/04` выполнена: defect handoff проведен по финальному Playwright evidence.
+- В финальном прогоне `QA-005/03` воспроизводимых product failures или launch failures не обнаружено; defect handoff проведен по финальному Playwright evidence, создание `BUG-*` по результатам этой подзадачи не требуется.
 - Последний browser e2e result: `5 passed`; failed tests: `[]`.
-- Новые `BUG-*` задачи по результатам `QA-005/04` не создавались, потому что воспроизводимые product failures и launch failures отсутствуют.
-- Блокеры с неясным контуром причины по результатам `QA-005/04` отсутствуют.
+- Новые `BUG-*` задачи по результатам `QA-005/03` не создавались, потому что воспроизводимые product failures и launch failures отсутствуют.
+- Блокеры с неясным контуром причины по результатам `QA-005/03` отсутствуют.

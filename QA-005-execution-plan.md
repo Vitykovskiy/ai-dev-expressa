@@ -9,11 +9,11 @@
 
 ## Порядок выполнения
 
-| ID   | Статус            | Подзадача                                                                                                                          | Контекст                                           |
-| ---- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `01` | `Выполнена`       | Нормализовать browser e2e coverage mapping и evidence в карточке `QA-005` по фактическому split-suite `e2e/menu-catalog/*`.        | `QA-005-context-01-suite-and-coverage.md`          |
-| `02` | `Выполнена`       | Проверить и при необходимости актуализировать QA route и acceptance path в `docs/architecture/application-map/qa-menu-catalog.md`. | `QA-005-context-02-qa-route-and-acceptance.md`     |
-| `03` | `Готова к работе` | Нормализовать defect handoff, итоговый closeout `QA-005` и отметить полное завершение execution plan.                              | `QA-005-context-03-defect-handoff-and-closeout.md` |
+| ID   | Статус      | Подзадача                                                                                                                          | Контекст                                           |
+| ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `01` | `Выполнена` | Нормализовать browser e2e coverage mapping и evidence в карточке `QA-005` по фактическому split-suite `e2e/menu-catalog/*`.        | `QA-005-context-01-suite-and-coverage.md`          |
+| `02` | `Выполнена` | Проверить и при необходимости актуализировать QA route и acceptance path в `docs/architecture/application-map/qa-menu-catalog.md`. | `QA-005-context-02-qa-route-and-acceptance.md`     |
+| `03` | `Выполнена` | Нормализовать defect handoff, итоговый closeout `QA-005` и отметить полное завершение execution plan.                              | `QA-005-context-03-defect-handoff-and-closeout.md` |
 
 ## Правила исполнения
 
@@ -27,4 +27,4 @@
 
 - `01`: `Выполнена`
 - `02`: `Выполнена`
-- `03`: `Готова к работе`
+- `03`: `Выполнена`
