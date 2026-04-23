@@ -68,20 +68,41 @@
 - `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`
 - `FEATURE-001`
 
+## Contract Boundary
+
+### Read users list
+
+- Operation: `GET /backoffice/users`
+- Canonical contract: `docs/system/contracts/user-role-and-blocking-management.md#contract-read-users-list`
+- Purpose in feature flow: загрузить наблюдаемый список пользователей для экрана `Пользователи` без изменения ролей или `blocked state`.
+- Query parameters in scope: `search`, `role`, `blocked`
+- Success semantics: `200 OK` возвращает `items[]` с `userId`, `displayName`, `telegramUsername`, `roles`, `blocked`, `availableRoleAssignments` и `meta.total`.
+- Error semantics: `401 Unauthorized` с кодом auth boundary, `403 Forbidden` + `backoffice-capability-forbidden`, `500 Internal Server Error` + `identity-access-read-failed`.
+
+### Assign user role
+
+- Operation: `PATCH /backoffice/users/{userId}/role`
+- Canonical contract: `docs/system/contracts/user-role-and-blocking-management.md#contract-assign-user-role`
+- Purpose in feature flow: изменить набор ролей целевого пользователя и вернуть пересчитанный доступ к вкладкам backoffice.
+- Request body in scope: `{ "role": "barista" | "administrator" }`
+- Success semantics: `200 OK` возвращает `userId`, фактически сохраненный набор `roles` и `backofficeAccess.capabilities`.
+- Error semantics: `401 Unauthorized` с кодом auth boundary, `403 Forbidden` + `backoffice-capability-forbidden | administrator-role-required`, `404 Not Found` + `user-not-found`, `409 Conflict` + `administrator-assignment-rule-unresolved`, `422 Unprocessable Entity` + `role-not-assignable`, `500 Internal Server Error` + `identity-access-write-failed`.
+
 ## User Workflows
 
 ### Main workflow
 
 1. `Administrator` открывает вкладку `Пользователи` в backoffice.
-2. `Система должна отобразить список пользователей, доступный для выбора цели назначения роли.`
+2. `Система должна вызвать contract Read users list через GET /backoffice/users и отобразить список пользователей, доступный для выбора цели назначения роли.`
 3. `Administrator` при необходимости использует поиск или фильтр для уточнения списка.
 4. `Administrator` инициирует действие добавления пользователя или выбора роли для существующего пользователя.
 5. Система должна предоставить форму с выбором допустимой назначаемой роли из набора `barista` и `administrator`.
 6. `Administrator` подтверждает назначение роли.
-7. `Система должна проверить административные права инициатора и допустимость назначаемой роли.`
-8. `Система должна сохранить новое ролевое назначение в постоянном хранилище.`
-9. `Система должна пересчитать доступ целевого пользователя к вкладкам backoffice согласно обновленному набору ролей.`
-10. `Система должна подтвердить успешное завершение операции наблюдаемым пользовательским уведомлением.`
+7. `Система должна отправить contract Assign user role через PATCH /backoffice/users/{userId}/role с выбранной ролью.`
+8. `Система должна проверить административные права инициатора, capability users и допустимость назначаемой роли.`
+9. `Система должна сохранить новое ролевое назначение в постоянном хранилище.`
+10. `Система должна пересчитать доступ целевого пользователя к вкладкам backoffice согласно обновленному набору ролей и вернуть его в success response.`
+11. `Система должна подтвердить успешное завершение операции наблюдаемым пользовательским уведомлением.`
 
 ### Alternative workflows
 
@@ -103,19 +124,19 @@
 
 1. `Administrator` или клиентский UI передает значение роли вне набора `barista`, `administrator`.
 2. `Система должна отклонить изменение роли.`
-3. Система должна вернуть наблюдаемую ошибку `role-not-assignable` без изменения набора ролей пользователя.
+3. Система должна вернуть `422 Unprocessable Entity` с бизнес-ошибкой `role-not-assignable` без изменения набора ролей пользователя.
 
 #### `Инициатор не имеет административных прав`
 
 1. Операцию назначения роли инициирует пользователь без административных прав.
 2. `Система должна отклонить изменение роли.`
-3. Система должна вернуть наблюдаемую ошибку `administrator-role-required` без изменения набора ролей целевого пользователя.
+3. Система должна вернуть `403 Forbidden` с ошибкой `administrator-role-required` или `backoffice-capability-forbidden` без изменения ролей целевого пользователя в зависимости от точки отклонения запроса.
 
 #### `Право назначения administrator не согласовано`
 
 1. `Administrator` инициирует назначение роли `administrator`.
 2. Система должна считать этот сценарий аналитически незавершенным до отдельного разрешения blocker о праве назначения роли `administrator`.
-3. `Система должна передавать этот сценарий в архитектурный handoff как открытый blocker, а не как согласованное правило авторизации.`
+3. `Система должна возвращать transport-level конфликт 409 Conflict с ошибкой administrator-assignment-rule-unresolved и передавать этот сценарий в архитектурный handoff как открытый blocker, а не как согласованное правило авторизации.`
 
 ### System-relevant UI states
 
@@ -192,11 +213,14 @@
 - `назначаемая роль`
 - `name` в форме нового пользователя
 - `telegramUsername` в форме нового пользователя
+- `userId` в path операции `PATCH /backoffice/users/{userId}/role`
 
 ### Allowed values
 
 - `назначаемая роль`: `barista`, `administrator`
 - `AccessChannel` для операционных ролей: `backoffice-telegram-entry`
+- `query.role` для `GET /backoffice/users`: `barista`, `administrator`
+- `query.blocked` для `GET /backoffice/users`: `true`, `false`
 
 ### Cross-field constraints
 
@@ -238,17 +262,20 @@
 
 ### System errors
 
-- `неидентифицируемый целевой пользователь` — `Система должна отклонять изменение роли без сохранения частичного результата.`
-- `неразрешенный сценарий назначения administrator` — `Система должна фиксировать blocker и не подменять его предположением о праве доступа.`
+- `user-not-found` — `Система должна отклонять изменение роли без сохранения частичного результата, если целевой пользователь не найден.`
+- `identity-access-read-failed` — `Система должна отклонять чтение списка пользователей без частичного результата.`
+- `identity-access-write-failed` — `Система должна отклонять изменение роли без частичного результата при ошибке сохранения.`
+- `administrator-assignment-rule-unresolved` — `Система должна фиксировать blocker и не подменять его предположением о праве доступа.`
 
 ### Error mapping
 
-| Condition                                  | User-visible outcome                                                                 | Source                                                          |
-| ------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| `initiator has no administrator role`      | `Система должна показать отказ в административной операции.`                         | `docs/system/contracts/user-role-and-blocking-management.md`    |
-| `role outside assignable set`              | `Система должна показать ошибку недопустимой роли.`                                  | `docs/system/contracts/user-role-and-blocking-management.md`    |
-| `target user cannot be resolved`           | `Система должна сохранить экран пользователя без подтверждения операции.`            | `docs/system/use-cases/administrator-manage-users-and-roles.md` |
-| `administrator assignment rule unresolved` | `Система должна передать blocker в handoff вместо фиксации недоказанного поведения.` | `docs/system/domain-model/identity-and-access.md`               |
+| Condition                                                                               | User-visible outcome                                                                                  | Source                                                       |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `GET /backoffice/users -> 403 backoffice-capability-forbidden`                          | `Система должна не показывать рабочий список пользователей и сохранять защищенное состояние доступа.` | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 403 administrator-role-required`              | `Система должна показать отказ в административной операции.`                                          | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 422 role-not-assignable`                      | `Система должна показать ошибку недопустимой роли.`                                                   | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 404 user-not-found`                           | `Система должна сохранить экран пользователя без подтверждения операции.`                             | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 409 administrator-assignment-rule-unresolved` | `Система должна передать blocker в handoff вместо фиксации недоказанного поведения.`                  | `docs/system/contracts/user-role-and-blocking-management.md` |
 
 ## Edge Cases
 
@@ -307,7 +334,7 @@
 ## Test Scenarios Link
 
 - `Система должна ссылаться на sibling документ сценариев тестирования фичи: docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md.`
-- `Подготовка sibling документа сценариев тестирования является следующей подзадачей плана FEATURE-004.`
+- `Sibling документ сценариев тестирования должен использовать тот же contract boundary GET /backoffice/users и PATCH /backoffice/users/{userId}/role с актуальными transport/business errors.`
 
 ## Architecture Handoff Checklist
 
@@ -319,4 +346,5 @@
 - `Система должна иметь audit design readiness и documented prototype completeness status.`
 - `Система должна иметь sibling test scenarios document со stable scenario IDs и coverage mapping.`
 - `Система должна иметь ссылки на canonical system sources и versioned design sources.`
-- `Система должна быть готова к архитектурной декомпозиции без обращения к production code после подготовки sibling test scenarios document и разрешения blocker либо его явной обработки архитектором.`
+- `Система должна явно фиксировать transport/API boundary GET /backoffice/users и PATCH /backoffice/users/{userId}/role без обращения к production code.`
+- `Система должна быть готова к архитектурной декомпозиции без обращения к production code после подготовки sibling test scenarios document и сохранения blocker в явном transport-level виде либо его отдельного разрешения.`
