@@ -73,13 +73,14 @@
 
 ### Defect handoff
 
-- Создан `BUG-001` с меткой контура `frontend`: `tasks/BUG-001-menu-ui-freezes-after-successful-save.md`.
-- `BUG-001` имеет статус `Выполнена`; повторный pass подтвердил закрытие: модалки закрываются, busy/disabled state снимается, snapshot обновляется без reload.
-- `BUG-002` имеет статус `Выполнена` и закрыт как documentation mismatch; QA acceptance path подтвержден под текущий дизайн.
-- Новые `frontend`, `backend` или `devops` BUG не создавались: проверенные API-вызовы сохраняют category, regular item, drink item, option group category, paid/free option items и category assignment; runtime health/session доступны.
+- `BUG-001` оформлен и закрыт в архиве как `frontend` defect: `tasks/archive/BUG-001-menu-ui-freezes-after-successful-save.md`.
+- Повторный manual pass подтвердил закрытие `BUG-001`: модалки закрываются, busy/disabled state снимается, snapshot обновляется без reload.
+- `BUG-002` оформлен и закрыт в архиве как documentation/system-analysis handoff: `tasks/archive/BUG-002-menu-ui-has-no-option-group-options-management-flow.md`.
+- `BUG-002` не трактуется как незакрытый product defect manual lane: он фиксирует устраненное расхождение в QA acceptance path и подтверждает canonical option-group flow под текущий дизайн.
+- Новые воспроизводимые `frontend`, `backend` или `devops` defects по итогам manual lane не обнаружены: проверенные API-вызовы сохраняют category, regular item, drink item, option group category, paid/free option items и category assignment; runtime health/session доступны.
 
 ### Итог QA-002
 
-- `QA-002` закрыта как `Выполнена`: обязательные ручные сценарии и UI parity `FEATURE-002` подтверждены в local test-mode.
-- Blocking manual QA defects по `FEATURE-002` отсутствуют: `BUG-001` и `BUG-002` закрыты, новых воспроизводимых product defects по manual lane не обнаружено.
-- Закрытие `FEATURE-002` по-прежнему зависит от отдельной e2e lane `QA-005`, потому что `QA-002` закрывает только manual QA.
+- `QA-002` закрыта как `Выполнена`: manual QA lane подтверждает обязательные ручные сценарии и UI parity `FEATURE-002` в local test-mode в пределах зафиксированного evidence.
+- Blocking defects для manual QA lane отсутствуют: `BUG-001` закрыт повторным pass, `BUG-002` закрыт как documentation handoff, новых воспроизводимых product defects по manual lane не обнаружено.
+- `QA-002` не закрывает feature-level acceptance целиком: финальное закрытие `FEATURE-002` по-прежнему зависит от отдельной e2e lane `QA-005` и ее собственного evidence.
