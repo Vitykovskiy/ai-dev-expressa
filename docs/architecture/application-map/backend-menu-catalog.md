@@ -87,7 +87,7 @@
 
 ## Handoff route for FEATURE-002
 
-- Для backend-реализации сначала читать `docs/system/contracts/menu-and-availability-management.md`, затем `docs/system/domain-model/menu-catalog.md`, затем эту карту и `docs/architecture/application-map/backend-access.md`.
+- Для backend-реализации сначала читать `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, затем `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, затем `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, эту карту и `docs/architecture/application-map/backend-access.md`.
 - Если меняется endpoint boundary, DTO shape, guard attachment или mapping ошибок каталога, обновляется эта карта и соответствующий system contract в одном handoff.
 
 ## Запрещено в FEATURE-002

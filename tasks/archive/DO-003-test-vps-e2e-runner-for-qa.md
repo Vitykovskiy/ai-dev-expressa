@@ -13,7 +13,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `не требуются`
+- Системные артефакты: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`
 - Архитектурные артефакты: `docs/architecture/devops-standards.md`, `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/qa-standards.md`
 - Контурная карта: `docs/architecture/application-map/delivery-and-runtime.md`
 - Бизнес-артефакты: `не требуются`
@@ -22,7 +22,7 @@
 ## Примечания
 
 - Зависимости: `DO-001`, `BE-002`, `FE-002`
-- Минимальный read set: `docs/architecture/devops-standards.md`, `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/qa-standards.md`, `scripts/deploy-test-vps.sh`, `package.json`, `backend/package.json`
+- Минимальный read set: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, `docs/architecture/devops-standards.md`, `docs/architecture/deployment-map.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/qa-standards.md`, `scripts/deploy-test-vps.sh`, `package.json`, `backend/package.json`
 - Ожидаемый результат для ревью: `В репозитории сохранен historical/deprecated DevOps-owned baseline запуска QA-owned e2e command на test VPS: скрипт или documented command wrapper, список обязательных env/secrets, preflight проверки доступности backend/frontend и инструкция по получению pass/fail артефакта для QA.`
 - Проверки: `Dry-run/preflight скрипта без запуска e2e-сценариев; проверка обязательных env/secrets; проверка доступности test VPS backend health и опубликованного backoffice origin; подтверждение, что PR Checks и Deploy Test не запускают e2e как обязательный gate.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/delivery-and-runtime.md, docs/architecture/deployment-map.md и docs/architecture/devops-standards.md, если добавляются e2e run path, env vars, secrets, script или diagnostic checks.`
@@ -40,5 +40,6 @@
 ## Связь с новым QA-005 route
 
 - `DO-003` является historical/deprecated baseline для запуска QA-owned команды против уже опубликованного `test` стенда.
+- Feature package `FEATURE-002` используется только как контекст границы фичи и сценариев проверки; `DO-003` не становится acceptance path для `QA-005`.
 - `DO-009` не задает acceptance path для `QA-005` после перехода на локальный containerized e2e workflow.
 - Non-gate policy из `DO-003` сохраняется для `DO-009`: browser e2e не входит в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения.

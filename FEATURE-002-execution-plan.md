@@ -22,7 +22,7 @@
 
 ### 02. Task handoff normalization
 
-- Статус: `Ожидает 01`
+- Статус: `Выполнена`
 - Контекст: `FEATURE-002-context-02-task-handoff-normalization.md`
 - Роль: `Архитектор`
 - Задача: синхронизировать карточки дочерних задач `FEATURE-002` с новым маршрутом чтения через feature spec и test scenarios.

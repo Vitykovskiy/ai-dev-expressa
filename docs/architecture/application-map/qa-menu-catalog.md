@@ -42,8 +42,8 @@
 
 ## Handoff route for FEATURE-002
 
-- QA читает `docs/system/contracts/menu-and-availability-management.md` как канонический источник contract `Manage menu catalog`, затем `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-access.md` и эту карту.
-- Browser e2e и integration checks используют system contracts и architecture maps как источники API shape, DTO и guard semantics.
+- QA читает `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, затем `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, затем `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-access.md` и эту карту.
+- Browser e2e и integration checks используют feature test scenarios, system contracts и architecture maps как источники Scenario IDs, API shape, DTO и guard semantics.
 - QA-005 получает renamed backend integration coverage из `BE-004` как входное evidence, а не как e2e-сценарий.
 
 ## Обновлять эту карту

@@ -13,7 +13,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`
+- Системные артефакты: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`
 - Архитектурные артефакты: `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
 - Контурная карта: `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
 - Бизнес-артефакты: `не требуются`
@@ -22,7 +22,7 @@
 ## Примечания
 
 - Зависимости: `FEATURE-001`, `AR-003`
-- Минимальный read set: `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
+- Минимальный read set: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/architecture/stack.md`, `docs/architecture/backend-architecture.md`, `docs/architecture/application-map/backend-menu-catalog.md`, `docs/architecture/application-map/backend-access.md`
 - Ожидаемый результат для ревью: `Backend предоставляет защищённый administrator-only API управления каталогом: категории, товары, basePrice, цены S/M/L для напитков, группы опций, опции и назначение групп на категории; доменные ошибки invalid-drink-size-model и invalid-option-group-rule воспроизводимы тестами.`
 - Проверки: `Модульные тесты доменных правил каталога; integration tests для Manage menu catalog endpoints; negative tests для неполной размерной модели напитка, неверного selectionMode и доступа без administrator capability; backend build/test.`
 - Обновление карты приложения: `Обновить docs/architecture/application-map/backend-menu-catalog.md и при необходимости docs/architecture/application-map/backend-access.md, если появляются новые modules, endpoints, DTO, guard attachment или error mapping.`

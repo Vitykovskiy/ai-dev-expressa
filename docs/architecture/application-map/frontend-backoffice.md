@@ -88,7 +88,7 @@
 
 ## Handoff route for FEATURE-002
 
-- Для управления меню исполнитель читает `docs/system/contracts/menu-and-availability-management.md`, затем `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
+- Для управления меню исполнитель читает `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, затем `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, затем `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
 - Frontend использует `/menu` как существующий administrator-only route и не добавляет новые top-level routes без обновления этой карты.
 - Экран `Меню` должен поддержать категории, товары, базовые цены, размерные цены `S/M/L`, группы дополнительных опций через toggle `Группа опций`, платные/бесплатные опции как товары внутри такой группы и назначение групп на категории через `Выбрать группу опций`.
 - Отдельная route-level панель или отдельная кнопка `Добавить группу опций` не входит в канонический UI `FEATURE-002`, потому что `.references/Expressa_admin` задает сценарий через диалоги групп и товаров.
