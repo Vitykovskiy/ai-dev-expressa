@@ -16,7 +16,7 @@ Subtasks are executed sequentially. Each subtask uses exactly one context packag
 ### FE-002-01 API Boundary And Store
 
 - Context package: `FE-002-context-01-api-store.md`
-- Status: `Готова к работе`
+- Status: `Выполнена`
 - Goal: verify and complete the client API boundary and store for `Manage menu catalog`.
 - Allowed area: `frontend/src/modules/menu-catalog/api.ts`, `frontend/src/modules/menu-catalog/store.ts`, `frontend/src/modules/menu-catalog/types.ts`, related tests.
 - Required checks: `npm test -- --run src/modules/menu-catalog/api.spec.ts src/modules/menu-catalog/store.spec.ts`, or record why unavailable.
