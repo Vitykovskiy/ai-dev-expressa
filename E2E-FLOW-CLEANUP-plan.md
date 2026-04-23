@@ -49,7 +49,7 @@
 
 ### 03. Active documentation cleanup
 
-- Status: `[ ]`
+- Status: `[x]`
 - Context: `E2E-FLOW-CLEANUP-context-03-active-docs.md`
 - Goal: rewrite active documentation so the e2e route is local QA Playwright execution against `https://expressa-e2e-test.vitykovskiy.ru`; remove runner, preflight, fallback/debug and historical route mentions from active docs.
 - Allowed write scope:

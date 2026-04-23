@@ -22,7 +22,7 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 
 - Change only VPS environment setup, GitHub Actions, runtime packaging, secrets handling, deployment, smoke-check, or restore paths required by the task.
 - Keep `ci.yml` and `deploy.yml` limited to the documented non-e2e checks.
-- Prepare an e2e run path only when an assigned `DO-*` task explicitly requires it; limit that work to scripts or command wrappers, env/secrets, preflight, diagnostics, and documentation for the deployed `test` VPS route.
+- Change e2e deployment support only when an assigned `DO-*` task explicitly requires it; limit that work to env/secrets, diagnostics, and documentation for publication of the deployed `test-e2e` VPS stand.
 - If workflow or job names change, update the required GitHub status checks for merge admission and document the exact check-run names in `docs/architecture/deployment-map.md`.
 - Any new env var, deploy target, pipeline stage, or smoke-check must be documented.
 

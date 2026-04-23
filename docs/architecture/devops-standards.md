@@ -13,7 +13,7 @@
 ## Container-based deploy route для test VPS
 
 - Merge-driven route `main -> test VPS` использует versioned frontend/backend runtime images, которые workflow `Deploy Test` собирает и публикует в `ghcr.io` один раз на commit.
-- Канонический delivery route завершает rollout двух изолированных стендов `test` и `test-e2e`, после чего QA запускает локальный `npm run test:e2e:remote` против опубликованного `test-e2e` стенда.
+- Канонический delivery route завершает rollout двух изолированных стендов `test` и `test-e2e`, после чего QA запускает локальный `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
 - VPS deploy path использует versioned `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh`; launcher валидирует env-файл выбранного стенда, выполняет `docker compose pull`, затем `docker compose up -d` для frontend и backend.
 - Runtime-конфигурация каждого test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID` и `BACKOFFICE_CORS_ORIGINS`.
 - Dual-stand deploy route должен переиспользовать один и тот же compose-манифест и один и тот же набор GHCR-образов для стендов `test` и `test-e2e`.
@@ -23,24 +23,15 @@
 - Restore path использует rollback-файл конкретного стенда из `artifacts/deploy-test/<stand-slug>/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
 - Изменение compose-манифеста, Dockerfile, registry route, deploy secrets, smoke-check или rollback contract требует обновления `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/deployment-map.md` и `README.md`.
 
-## Remote e2e runner
+## QA e2e route
 
-- DevOps готовит e2e run path только по назначенной `DO-*` задаче.
-- Для `QA-005` DevOps-owned run path должен включать локальный launcher `scripts/run-test-vps-e2e.sh`, который выполняет preflight published e2e-стенда, затем запускает QA-owned Playwright suite против опубликованного `test-e2e` стенда без локальной сборки приложения.
-- Локальная команда запуска QA-005 e2e runner: `npm run test:e2e:remote`.
-- Локальная команда operational preflight published e2e-стенда: `npm run test:e2e:remote:preflight`; alias `npm run ops:e2e:remote:preflight` допустим для эксплуатационного запуска.
-- DevOps-owned launcher должен иметь одну локальную команду запуска для QA и документированный формат evidence: stand commit/version, base URL, runner summary, путь к логам и явный pass/fail status.
-- DevOps-owned launcher должен иметь минимальную smoke e2e-проверку published маршрута запуска без владения feature assertions `QA-005`.
-- Workflow `Test E2E Stand Preflight` является non-canonical operational route и использует только preflight published стенда.
-- DevOps не создает, не адаптирует и не поддерживает feature e2e assertions; browser сценарии, fixtures, expected behavior и defect handoff остаются ответственностью `QA-*`.
+- QA запускает browser e2e локально из репозитория командой `npm run test:e2e`.
+- Playwright по умолчанию использует опубликованный стенд `https://expressa-e2e-test.vitykovskiy.ru`.
+- `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
+- `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API.
+- QA владеет feature e2e assertions, browser сценариями, fixtures, expected behavior, pass/fail evidence и defect handoff.
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
-- Изменение e2e run path, связанных env vars, secrets, diagnostic checks, container runner или скриптов считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
-
-## Local containerized e2e fallback
-
-- `Dockerfile.e2e` и `scripts/run-local-container-e2e.sh` сохраняются как debug/fallback route.
-- Локальная команда fallback-маршрута QA-005: `npm run test:e2e:local`.
-- Fallback runner собирает Docker-контейнер со всем приложением, запускает backend, frontend и browser e2e внутри локального Docker runtime, выполняет preflight и сохраняет pass/fail артефакты.
+- Изменение e2e URL, локальных e2e overrides или QA-команды запуска считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
 
 ## PR gates для качества кода
 
