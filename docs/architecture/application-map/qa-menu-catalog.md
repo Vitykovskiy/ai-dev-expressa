@@ -21,9 +21,10 @@
 - Administrator создает категорию меню.
 - Administrator создает товар в категории.
 - Для напитка administrator задает цены для `S`, `M`, `L`; неполная размерная модель отклоняется.
-- Administrator создает группу дополнительных опций с взаимоисключающим или множественным выбором.
+- Administrator создает группу дополнительных опций через canonical menu-flow `Добавить группу` + флаг `Группа опций` без отдельной route-level панели.
 - Administrator создает платные и бесплатные опции внутри группы.
 - Administrator назначает группу дополнительных опций на категорию, и товары категории наследуют эту группу.
+- QA фиксирует documented UI gap по `selectionMode`, если `.references/Expressa_admin` не задает control для выбора `single/multiple`, и не домысливает отсутствующее UI-поведение в manual acceptance.
 - Пользователь без capability `menu` не может выполнить операции управления каталогом по прямому route/API.
 - Финальный e2e acceptance подтверждается полным browser suite через опубликованный `test-e2e` стенд `https://expressa-e2e-test.vitykovskiy.ru`.
 - Команда финального локального e2e-прогона: `npm run test:e2e`.
@@ -44,6 +45,7 @@
 
 - QA читает `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, затем `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, затем `docs/system/contracts/menu-and-availability-management.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, после этого `frontend-backoffice.md`, `backend-access.md` и эту карту.
 - Browser e2e и integration checks используют feature test scenarios, system contracts и architecture maps как источники Scenario IDs, API shape, DTO и guard semantics.
+- Manual UI parity использует `FTS-002-010` для canonical option-group route и `FTS-002-011` для documented `selectionMode` gap.
 - QA-005 получает renamed backend integration coverage из `BE-004` как входное evidence, а не как e2e-сценарий.
 
 ## Обновлять эту карту
