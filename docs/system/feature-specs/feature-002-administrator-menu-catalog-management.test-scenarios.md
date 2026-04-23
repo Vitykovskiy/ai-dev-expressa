@@ -48,9 +48,9 @@
   - Категория не является группой дополнительных опций.
   - Операция доступна только через capability `menu`.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-001 administrator creates menu category`
-  - Required assertions: `проверка появления группы в меню, проверка success notification, проверка отличия обычной группы от группы опций`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`
+  - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-001`
+  - Required assertions: `проверка появления группы в меню, проверка наличия категории в snapshot каталога`
 
 ### `FTS-002-002` — Создание обычного товара с базовой ценой
 
@@ -74,9 +74,9 @@
 - Проверяемые инварианты:
   - Обычный товар не содержит `drinkSizePrices`.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-002 administrator creates regular menu item`
-  - Required assertions: `проверка выбранной категории, цены товара, отсутствия размеров у обычного товара`
+  - Test file: `backend/test/menu-catalog-domain.spec.ts`
+  - Test title / ID: `FTS-002-002 rejects size prices on a regular menu item`
+  - Required assertions: `проверка доменного отказа для обычного товара с drinkSizePrices; browser e2e для создания обычного товара в обычной группе не добавлен в текущей подзадаче`
 
 ### `FTS-002-003` — Создание напитка с ценами S/M/L
 
@@ -101,9 +101,9 @@
   - Для напитка выбор размера обязателен в customer-сценарии.
   - Цена напитка зависит от выбранного размера.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-003 administrator creates drink with size prices`
-  - Required assertions: `проверка трех цен размеров, проверка отсутствия basePrice как единственной цены напитка`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-003`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
+  - Required assertions: `проверка трех цен размеров в UI/API snapshot, проверка itemType=drink`
 
 ### `FTS-002-004` — Создание группы опций через флаг `Группа опций`
 
@@ -125,9 +125,9 @@
 - Проверяемые инварианты:
   - Группа опций не отображается как самостоятельная обычная категория customer-меню.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-004 administrator creates option group through menu group`
-  - Required assertions: `проверка флага группы опций, проверка появления в разделе групп опций, проверка отсутствия отдельной кнопки Добавить группу опций`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`
+  - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-004`
+  - Required assertions: `проверка флага группы опций при создании, проверка появления группы опций в меню, проверка наличия группы опций в snapshot каталога`
 
 ### `FTS-002-005` — Создание платной и бесплатной опции внутри группы опций
 
@@ -150,9 +150,9 @@
 - Проверяемые инварианты:
   - `priceDelta` дополнительной опции неотрицателен.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-005 administrator creates paid and free options`
-  - Required assertions: `проверка priceDelta > 0 для платной опции, проверка priceDelta = 0 для бесплатной опции, проверка отображения опций в группе`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-005`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
+  - Required assertions: `проверка basePrice=0 для бесплатной опции, проверка basePrice>0 для платной опции, проверка отображения опций в группе`
 
 ### `FTS-002-006` — Назначение группы опций на обычную группу
 
@@ -173,9 +173,9 @@
 - Проверяемые инварианты:
   - Группа опций не назначается сама на себя.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-006 administrator binds option group to menu category`
-  - Required assertions: `проверка выбранной группы опций в категории, проверка сохранения optionGroupRefs, проверка отсутствия самоназначения`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-006`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
+  - Required assertions: `проверка выбранной группы опций в категории, проверка сохранения optionGroupRefs`
 
 ### `FTS-002-007` — Guard доступа к вкладке меню
 
@@ -196,9 +196,9 @@
 - Проверяемые инварианты:
   - Backend guard остается источником истины для capability access.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
-  - Test title / ID: `FTS-002-007 menu capability guard`
-  - Required assertions: `проверка отсутствия вкладки, проверка forbidden state, проверка отсутствия кнопок управления меню`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test title / ID: `FTS-002-007 direct menu API access is denied when menu access is unavailable`; integration title `FTS-002-007 rejects menu catalog access without administrator menu capability`
+  - Required assertions: `проверка API refusal status, проверка documented capability error; browser navigation/tab guard не добавлен в текущей подзадаче`
 
 ### `FTS-002-008` — Ошибка неполной ценовой модели напитка
 
@@ -219,9 +219,9 @@
 - Проверяемые инварианты:
   - Напиток не сохраняется без полного набора `S`, `M`, `L`.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
   - Test title / ID: `FTS-002-008 incomplete drink size model is rejected`
-  - Required assertions: `проверка отсутствия success notification, проверка ошибки, проверка отсутствия товара в списке после отклонения`
+  - Required assertions: `проверка user-visible validation text, проверка backend error invalid-drink-size-model в integration/domain evidence`
 
 ### `FTS-002-009` — Удаление категории с товарами отклоняется
 
@@ -241,9 +241,9 @@
 - Проверяемые инварианты:
   - Категория с товарами остается владельцем своих товаров.
 - E2E mapping:
-  - Test file: `будет определен в e2e QA`
+  - Test file: `not automated; E2E QA optional`
   - Test title / ID: `FTS-002-009 category with products cannot be deleted`
-  - Required assertions: `проверка отказа удаления, проверка сохранения категории и товара`
+  - Required assertions: `manual QA required; optional browser e2e not implemented in current automated suite`
 
 ### `FTS-002-010` — Проверка отсутствия отдельной панели групп опций
 
@@ -264,8 +264,8 @@
   - Системное поведение групп опций достигается через существующий menu-flow.
 - E2E mapping:
   - Test file: `n/a`
-  - Test title / ID: `n/a`
-  - Required assertions: `n/a`
+  - Test title / ID: `FTS-002-010`
+  - Required assertions: `manual UI parity check required; E2E QA n/a`
 
 ### `FTS-002-011` — Проверка gap по `selectionMode` групп опций
 
@@ -286,9 +286,9 @@
   - Взаимоисключающая группа сохраняет ограничение выбора одной опции.
   - Группа множественного выбора сохраняет возможность выбора нескольких опций.
 - E2E mapping:
-  - Test file: `n/a`
-  - Test title / ID: `n/a`
-  - Required assertions: `n/a`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
+  - Test title / ID: `invalid option group rule is rejected by menu catalog contract`; annotation `FTS-002-011`; integration titles `FTS-002-011 returns invalid-option-group-rule for an unknown selection mode`, `FTS-002-011 rejects an unknown option group selection mode`
+  - Required assertions: `проверка e2e/backend/domain error invalid-option-group-rule; manual UI parity фиксирует отсутствие control selectionMode в reference UI`
 
 ## Правила покрытия
 

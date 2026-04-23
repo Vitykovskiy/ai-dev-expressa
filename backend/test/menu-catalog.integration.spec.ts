@@ -28,7 +28,7 @@ describe("Menu catalog integration", () => {
     app = undefined;
   });
 
-  it("lets an administrator manage categories, drink prices, option groups and assignments", async () => {
+  it("FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments", async () => {
     app = await createTestApp();
 
     const groupId = await request(app.getHttpServer())
@@ -82,7 +82,7 @@ describe("Menu catalog integration", () => {
       });
   });
 
-  it("returns invalid-drink-size-model for an incomplete drink size model", async () => {
+  it("FTS-002-008 returns invalid-drink-size-model for an incomplete drink size model", async () => {
     app = await createTestApp();
     const categoryId = await createCategory(app, "Coffee");
 
@@ -104,7 +104,7 @@ describe("Menu catalog integration", () => {
       });
   });
 
-  it("returns invalid-option-group-rule for an unknown selection mode", async () => {
+  it("FTS-002-011 returns invalid-option-group-rule for an unknown selection mode", async () => {
     app = await createTestApp();
 
     await request(app.getHttpServer())
@@ -117,7 +117,7 @@ describe("Menu catalog integration", () => {
       });
   });
 
-  it("rejects menu catalog access without administrator menu capability", async () => {
+  it("FTS-002-007 rejects menu catalog access without administrator menu capability", async () => {
     app = await createTestApp();
     await app
       .get(IdentityAccessService)
