@@ -121,6 +121,7 @@ import type {
 } from "@/modules/menu-catalog/types";
 import {
   mapMenuCatalogError,
+  validateMenuCategoryPayload,
   validateMenuItemPayload,
 } from "@/modules/menu-catalog/validation";
 
@@ -237,8 +238,9 @@ async function submitCategory(
   submission: CategoryDialogSubmitPayload,
 ): Promise<void> {
   clearError();
-  if (!submission.category.name.trim()) {
-    localError.value = "Введите название группы";
+  const validation = validateMenuCategoryPayload(submission.category);
+  if (!validation.valid) {
+    localError.value = validation.message;
     return;
   }
 

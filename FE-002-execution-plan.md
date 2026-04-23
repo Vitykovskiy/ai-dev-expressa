@@ -32,7 +32,7 @@ Subtasks are executed sequentially. Each subtask uses exactly one context packag
 ### FE-002-03 Validation, Presentation And Error Mapping
 
 - Context package: `FE-002-context-03-validation-presentation.md`
-- Status: `Ожидает FE-002-02`
+- Status: `Выполнена`
 - Goal: verify and complete field validation, contract error mapping and presentation helpers for categories, items, drink prices and option groups.
 - Allowed area: `frontend/src/modules/menu-catalog/validation.ts`, `frontend/src/modules/menu-catalog/presentation.ts`, related tests, minimal component adjustments when needed to expose validation state.
 - Required checks: `npm test -- --run src/modules/menu-catalog/validation.spec.ts src/modules/menu-catalog/presentation.spec.ts`, or record why unavailable.
