@@ -19,7 +19,7 @@
    - Результат: в `docs/system/contracts/user-role-and-blocking-management.md` появляется явный consumer-facing contract для чтения списка пользователей и назначения роли; связанные `use-case` и `domain-model` синхронизированы только при необходимости.
 
 2. `02` `Feature handoff alignment`
-   - Статус: `pending`
+   - Статус: `done`
    - Контекст: `FEATURE-004-context-02-feature-handoff-alignment.md`
    - Зависимость: `01`
    - Результат: `feature spec` и `test scenarios` используют явный contract boundary, сохраняют blocker по праву назначения `administrator` и не оставляют скрытых пробелов handoff.
@@ -32,7 +32,7 @@
 
 ## Текущий статус
 
-- Активная подзадача: `02`
+- Активная подзадача: `03`
 - Общее состояние: `in_progress`
 
 ## Открытые blockers
