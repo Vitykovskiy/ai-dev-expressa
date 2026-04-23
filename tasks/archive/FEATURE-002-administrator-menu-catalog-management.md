@@ -13,7 +13,7 @@
 
 ## Ссылки на документы
 
-- Системные артефакты: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
+- Системные артефакты: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Архитектурные артефакты: `не требуются`
 - Контурная карта: `не требуется`
 - Бизнес-артефакты: `не требуются`
@@ -23,7 +23,7 @@
 
 - Зависимости: `FEATURE-001`
 - Декомпозиция: `AR-003`, `BE-002`, `FE-002`, `DO-003`, `QA-002`, `QA-005`; повторная нормализация feature-level acceptance выполняется через `AR-005`, `BE-004`, `FE-005`, `QA-005` и подзадачи плана `QA-005`. `DO-003` остается historical/deprecated baseline для non-gate wrapper route и не является acceptance path для `QA-005`.
-- Минимальный read set: `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`
+- Минимальный read set: `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.md`, `docs/system/feature-specs/feature-002-administrator-menu-catalog-management.test-scenarios.md`, `docs/system/domain-model/menu-catalog.md`, `docs/system/contracts/menu-and-availability-management.md`, `docs/system/contracts/backoffice-auth-and-capability-access.md`, `docs/system/use-cases/administrator-manage-menu.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`
 - Ожидаемый результат для ревью: `Administrator через вкладку Меню может создать и изменить категории, товары, ценовые схемы, группы дополнительных опций и сами опции без потери системных правил для напитков, взаимоисключающих групп и наследования групп от категории.`
 - Проверки: `Модульные тесты доменных правил каталога и валидаций; интеграционные проверки контракта Manage menu catalog; manual QA пользовательских сценариев и UI parity; browser e2e-сценарий создания категории, товара с размерами и группы дополнительных опций через локальный containerized e2e route; дымовая проверка сборки и запуска затронутых контуров.`
 - Обновление карты приложения: `Обязательно в дочерних задачах, если меняются модули каталога, клиентские маршруты, серверные API, схемы хранения, общие типы или тестовый маршрут.`
