@@ -1,7 +1,7 @@
 <template>
   <ui-dialog-shell
     :open="open"
-    :title="editingItem ? 'Редактировать товар' : 'Новый товар'"
+    :title="dialogTitle"
     :description="dialogDescription"
     @close="$emit('close')"
   >
@@ -9,7 +9,7 @@
       <ui-icon-button
         v-if="editingItem"
         class="delete-item-button"
-        title="Удалить товар"
+        :title="deleteButtonTitle"
         @click="$emit('delete')"
       >
         <Trash2 :size="20" />
@@ -94,7 +94,7 @@
         :loading="isBusy"
         :disabled="isSubmitDisabled"
       >
-        {{ editingItem ? "Сохранить изменения" : "Добавить товар" }}
+        {{ submitButtonLabel }}
       </ui-button>
       <ui-button block variant="ghost" @click="$emit('close')"
         >Отмена</ui-button
@@ -159,6 +159,11 @@ const editingCategoryName = computed(
 const isSelectedCategoryOptionGroup = computed(() =>
   props.optionGroupCategoryIds.includes(form.menuCategoryId),
 );
+const isEditingOption = computed(() =>
+  props.optionGroupCategoryIds.includes(
+    props.editingItem?.menuCategoryId ?? "",
+  ),
+);
 const sizePricesEnabled = computed(
   () => !isSelectedCategoryOptionGroup.value && form.itemType === "drink",
 );
@@ -167,7 +172,9 @@ const hasValidPrice = computed(() => {
     return hasNonNegativeMoneyInput(form.basePrice);
   }
 
-  return normalizeDrinkSizePrices(form.sizePrices).length > 0;
+  return DRINK_SIZES.every((size) =>
+    hasPositiveMoneyInput(form.sizePrices[size]),
+  );
 });
 const isFormValid = computed(
   () => Boolean(form.menuCategoryId && form.name.trim()) && hasValidPrice.value,
@@ -176,8 +183,31 @@ const isSubmitDisabled = computed(() => props.isBusy || !isFormValid.value);
 const dialogDescription = computed(() =>
   props.editingItem
     ? `Категория: "${editingCategoryName.value}"`
-    : "Добавьте новый товар в меню",
+    : isSelectedCategoryOptionGroup.value
+      ? "Добавьте новую опцию в группу"
+      : "Добавьте новый товар в меню",
 );
+const dialogTitle = computed(() => {
+  if (props.editingItem) {
+    return isEditingOption.value
+      ? "Редактировать опцию"
+      : "Редактировать товар";
+  }
+
+  return isSelectedCategoryOptionGroup.value ? "Новая опция" : "Новый товар";
+});
+const deleteButtonTitle = computed(() =>
+  isEditingOption.value ? "Удалить опцию" : "Удалить товар",
+);
+const submitButtonLabel = computed(() => {
+  if (props.editingItem) {
+    return "Сохранить изменения";
+  }
+
+  return isSelectedCategoryOptionGroup.value
+    ? "Добавить опцию"
+    : "Добавить товар";
+});
 
 watch(
   () => [props.open, props.editingItem, props.defaultCategoryId] as const,
@@ -274,6 +304,16 @@ function hasNonNegativeMoneyInput(value: string): boolean {
 
   const parsed = Number.parseFloat(normalized);
   return Number.isFinite(parsed) && parsed >= 0;
+}
+
+function hasPositiveMoneyInput(value: string): boolean {
+  const normalized = value.replace(",", ".").trim();
+  if (!normalized) {
+    return false;
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) && parsed > 0;
 }
 </script>
 

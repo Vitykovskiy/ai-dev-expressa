@@ -62,7 +62,7 @@
         type="submit"
         form="menu-category-dialog-form"
         :loading="isBusy"
-        :disabled="isBusy"
+        :disabled="isBusy || !name.trim()"
       >
         {{ editingCategory ? "Сохранить изменения" : "Добавить категорию" }}
       </ui-button>
