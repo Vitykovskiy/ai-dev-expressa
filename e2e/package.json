@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "playwright test",
-    "test:smoke": "playwright test smoke"
+    "test": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "1.59.1"
