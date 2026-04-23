@@ -42,7 +42,7 @@
 
 ### 03 - Coverage Mapping, Evidence, Acceptance Run
 
-- Status: `pending`
+- Status: `completed`
 - Context package: `QA-007-context-03-coverage-mapping-and-evidence.md`
 - Role: `Тестирование`
 - Scope: record scenario mapping, runner evidence, browser report path, pass/fail status, and update QA navigation only if the slot settings e2e route or fixtures changed.
