@@ -22,7 +22,7 @@
 | ----- | ----------------- | -------------------------------------------- | ------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `01`  | `Выполнена`       | `AR-003-context-01-architecture-maps.md`     | Проверить архитектурные карты FEATURE-002   | Нет              | Карты `frontend-backoffice`, `backend-menu-catalog`, `qa-menu-catalog`, индекс и профильные стандарты согласованы с AR-003. |
 | `02`  | `Выполнена`       | `AR-003-context-02-child-task-handoff.md`    | Проверить дочерние FE/BE задачи FEATURE-002 | `01`             | `FE-002` и `BE-002` содержат самодостаточный read set, контракты, контурные карты, проверки и границы.                      |
-| `03`  | `Готова к работе` | `AR-003-context-03-qa-and-devops-handoff.md` | Проверить QA и DevOps handoff FEATURE-002   | `01`, `02`       | `QA-002`, `QA-005`, `DO-003` фиксируют manual/e2e lane, local containerized acceptance path и historical VPS baseline.      |
+| `03`  | `Выполнена`       | `AR-003-context-03-qa-and-devops-handoff.md` | Проверить QA и DevOps handoff FEATURE-002   | `01`, `02`       | `QA-002`, `QA-005`, `DO-003` фиксируют manual/e2e lane, local containerized acceptance path и historical VPS baseline.      |
 | `04`  | `Готова к работе` | `AR-003-context-04-final-feature-closure.md` | Проверить feature-level closure и навигацию | `01`, `02`, `03` | `FEATURE-002` и `AR-003` отражают завершённый handoff, а корневые контексты и план не противоречат карточкам.               |
 
 ## Completion criteria
