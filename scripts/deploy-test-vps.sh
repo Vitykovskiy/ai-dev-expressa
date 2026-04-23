@@ -62,6 +62,34 @@ require_command() {
   fi
 }
 
+smoke_json_route() {
+  local url="$1"
+  shift
+
+  local headers_file
+  local body_file
+  headers_file="$(mktemp)"
+  body_file="$(mktemp)"
+
+  if ! curl --fail --silent --show-error --location -D "$headers_file" -o "$body_file" "$@" "$url"; then
+    rm -f "$headers_file" "$body_file"
+    return 1
+  fi
+
+  if ! grep -qi '^content-type:[[:space:]]*application/json' "$headers_file"; then
+    local content_type
+    content_type="$(grep -i '^content-type:' "$headers_file" | tail -n 1 | tr -d '\r' || true)"
+    echo "Expected JSON response from $url, got ${content_type:-missing content-type}."
+    echo "Response preview:"
+    head -c 200 "$body_file" || true
+    echo
+    rm -f "$headers_file" "$body_file"
+    return 1
+  fi
+
+  rm -f "$headers_file" "$body_file"
+}
+
 make_absolute_path() {
   local path="$1"
 
@@ -190,6 +218,8 @@ docker_compose up -d backend frontend
 
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}}"
 FRONTEND_BASE_URL="${SMOKE_FRONTEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}}"
+PROXIED_BACKOFFICE_URL="${FRONTEND_BASE_URL%/}/backoffice/orders"
+PROXIED_CUSTOMER_SLOTS_URL="${FRONTEND_BASE_URL%/}/customer/slots"
 
 for attempt in {1..30}; do
   if curl --fail --silent "$BACKEND_BASE_URL/health" >/dev/null; then
@@ -205,12 +235,12 @@ done
 
 curl --fail --silent --show-error "$FRONTEND_BASE_URL/" >/dev/null
 
-curl \
-  --fail \
-  --silent \
-  --show-error \
+smoke_json_route \
+  "$PROXIED_BACKOFFICE_URL" \
   --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
-  "$BACKEND_BASE_URL/backoffice/orders" >/dev/null
+  >/dev/null
+
+smoke_json_route "$PROXIED_CUSTOMER_SLOTS_URL" >/dev/null
 
 docker_compose exec -T backend node <<'NODE'
 const { ConfigValidationError, loadAccessConfig } = require("./dist/identity-access/config/access-config.js");
@@ -242,5 +272,7 @@ cat >"$SUMMARY_FILE" <<SUMMARY
 - Frontend image: \`$DEPLOY_FRONTEND_IMAGE\`
 - Backend URL: \`$BACKEND_BASE_URL\`
 - Frontend URL: \`$FRONTEND_BASE_URL\`
+- Proxied backoffice smoke URL: \`$PROXIED_BACKOFFICE_URL\`
+- Proxied customer slots smoke URL: \`$PROXIED_CUSTOMER_SLOTS_URL\`
 - Rollback file: \`$ROLLBACK_FILE\`
 SUMMARY
