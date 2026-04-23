@@ -34,6 +34,7 @@ The result must be sufficient for:
 
 - Modify and, when necessary, create only canonical system artifacts in `docs/system/`.
 - Use only the assigned task, the relevant business artifacts, approved UI contracts, and the relevant existing system artifacts as sources of truth.
+- Use process templates and current canonical artifacts as the structure source for new handoff documents instead of previous task cards or archived decompositions.
 - Use traceable facts, constraints, entities, states, interfaces, and rules from assigned sources.
 - Record input contradictions explicitly.
 - Describe system behavior.
@@ -131,10 +132,12 @@ Approved UI contracts may exist in `docs/system/ui-contracts/` or in another exp
 - For every `FEATURE-*`, create or update one feature test scenarios document in `docs/system/feature-specs/` before handoff to the architect.
 - For UI features, analyze the current interface, UI contract or prototype, `ui-behavior-mapping`, and every system-relevant UI state before marking the feature ready for architecture.
 - Treat `.references/` as a versioned project artifact rather than a local-only reference source when UI/design input is required for the feature.
+- Do not use previous `FEATURE-*` cards, archived tasks, or earlier decompositions as an implicit source of task format, system rules, or handoff content unless the assigned task explicitly points to them.
 - If a frontend-facing or backend-facing interaction would otherwise force the next role to inspect production code, create or update the required canonical interaction contract in `docs/system/contracts/` instead of leaving the gap to implementation.
 - If a business requirement is too broad for safe phased delivery, first decompose it into delivery-ready increments with explicit scope, dependency order, and verifiable completion outcome.
 - If a statement cannot be traced to business input or an existing system artifact, do not treat it as established fact.
 - If a required interaction contract, validation rule, guard, or error mapping is missing, treat it as a blocker or documented inconsistency instead of expecting the implementation role to discover it from code.
+- If a required fact is missing from the assigned sources, record the missing source explicitly instead of searching for an analogue in previous tasks.
 - Every ambiguity must end in exactly one of these outcomes:
   - resolved by explicit input
   - recorded as an open question

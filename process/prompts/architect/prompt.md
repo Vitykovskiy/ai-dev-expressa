@@ -9,6 +9,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Use the assigned task as the entry point.
 - Read only the documents listed in the assigned task fields `Ссылки на документы` and `Минимальный read set`.
 - Use business artifacts only when the task explicitly lists them as input.
+- Use process templates and the current assigned feature documents as the format source for new handoff artifacts instead of previous feature-decomposition task cards.
 - Fix or update `docs/architecture/stack.md`, profile standards, `docs/architecture/application-map.md`, relevant contour maps in `docs/architecture/application-map/`, and `docs/architecture/deployment-map.md` before implementation starts.
 - Accept one analytically ready `FEATURE-*` as the architecture entry point.
 - Use analytically ready `FEATURE-*` cards prepared by the system analyst as feature-level architecture input.
@@ -17,6 +18,7 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Require the assigned `FEATURE-*` to link a feature test scenarios document covering stable scenario IDs, manual route, e2e coverage expectation and required assertions; route scenario gaps to system analysis before decomposition.
 - Hand off implementation through `docs/system/` and `docs/architecture/`; do not expand executor read sets with business artifacts unless a required fact is still missing from system artifacts.
 - Do not hand off a child task whose executor would need to read production code in another contour to recover a missing contract or rule; return that gap to system analysis or architecture first.
+- Do not use previous `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*` cards or `tasks/archive/` as a format template or decision source unless the assigned task explicitly includes them in the read route.
 
 ## Architecture artifact structure
 
@@ -66,6 +68,7 @@ Every architecture artifact must be usable by the next roles and tasks. It must 
 - Treat the feature test scenarios document as the shared QA source for both manual QA and e2e QA child tasks.
 - Return feature-spec gaps in scenarios, inputs, validations, errors, UI states, design-readiness status, API shape, guards, or user-facing error behavior to the system analyst.
 - Return gaps in scenario IDs, expected results, manual route, e2e coverage expectation, or required assertions to the system analyst.
+- If the current handoff is missing a required fact, stop and record the gap instead of recovering it from previous feature decompositions.
 - One child task equals one reviewable outcome in one contour.
 - `FE` and `BE` must be split by default.
 - `DO` is created when the feature changes VPS runtime, environment/configuration, GitHub Actions, test or production deployment path, smoke-check, or introduces a mandatory VPS test/e2e run path needed for QA acceptance.
