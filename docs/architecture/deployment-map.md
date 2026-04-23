@@ -23,6 +23,7 @@
 ## Test deployment contract
 
 - Workflow `Deploy Test` собирает и публикует versioned backend/frontend images в `ghcr.io`; эти же образы должны переиспользоваться для двух изолированных стендов на одном VPS.
+- Канонический delivery path после merge в `main`: rollout стенда `test`, затем rollout стенда `test-e2e`, после чего локальный исполнитель запускает `npm run test:e2e:remote` против опубликованного `test-e2e` стенда.
 - VPS `test` использует checkout из `main` только как источник versioned deploy-артефактов `scripts/deploy-test-vps.sh` и `docker-compose.deploy.yml`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Backend на `test` запускается в `NODE_ENV=test`.
@@ -42,17 +43,22 @@
 - Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, test-mode доступ к `GET /backoffice/orders` и negative path для production-like bypass.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
-## Local containerized e2e route
+## Remote e2e route
 
-- Feature-level e2e acceptance для `QA-005` запускается локально как browser suite внутри containerized runtime; e2e не является частью обязательного `PR Checks` или `Deploy Test` gate.
-- Локальный containerized route должен собирать Docker-контейнер со всем приложением перед e2e-прогоном.
-- Локальный containerized route должен запускать backend, frontend и browser e2e внутри локального Docker runtime.
-- Локальный containerized route должен выполнять preflight запуска, сохранять pass/fail evidence и возвращать воспроизводимый код завершения.
-- Локальная команда запуска `QA-005`: `npm run test:e2e:local`.
-- DevOps предоставляет runner и smoke e2e-проверку маршрута запуска по отдельной подзадаче QA-005/02; QA предоставляет feature scenarios, fixtures, assertions и defect handoff.
-- `DO-003`, `scripts/run-test-vps-e2e.sh`, `npm run test:vps:e2e:preflight`, `npm run test:vps:e2e` и workflow `Test VPS E2E` являются historical/deprecated baseline для запуска QA-owned команды против опубликованного `test` стенда и не являются acceptance path для `QA-005`.
-- Минимальный output e2e route: commit/версия проверяемого кода, локальные backend/frontend targets внутри runner, результат preflight, результат browser e2e run, путь к runner summary, логам и browser report артефактам.
+- Feature-level e2e acceptance для `QA-005` запускается локально против уже опубликованного `test-e2e` стенда; e2e не является частью обязательного `PR Checks` или `Deploy Test` gate.
+- Локальный remote e2e route использует `scripts/run-test-vps-e2e.sh` и root-команду `npm run test:e2e:remote`.
+- Маршрут должен выполнять preflight published frontend origin и test-mode API probe, затем запускать QA-owned Playwright suite без локальной сборки backend/frontend.
+- Базовый published target маршрута: `https://expressa-e2e-test.vitykovskiy.ru`; `TEST_E2E_BASE_URL` может переопределить его, а при отсутствии значения script fallback использует `E2E_BASE_URL`, затем canonical hostname.
+- Локальный preflight published e2e-стенда запускается через `npm run test:e2e:remote:preflight`; alias `npm run ops:e2e:remote:preflight` сохраняется для operational запуска.
+- Workflow `Test E2E Stand Preflight` сохраняется как non-canonical operational route и выполняет только `--preflight-only` против опубликованного `test-e2e` стенда.
+- DevOps предоставляет launcher и smoke e2e-проверку маршрута запуска по отдельной подзадаче QA-005/02; QA предоставляет feature scenarios, fixtures, assertions и defect handoff.
+- Минимальный output remote e2e route: commit/версия стенда, base URL опубликованного стенда, test Telegram id, результат preflight, результат browser e2e run, путь к summary и логам в `artifacts/remote-e2e`.
 - Smoke-check и restore path остаются отдельными delivery/runtime проверками и не заменяют e2e acceptance.
+
+## Local containerized e2e fallback route
+
+- `Dockerfile.e2e` и `npm run test:e2e:local` сохраняются как debug/fallback route для локального containerized runner и не являются каноническим acceptance path.
+- Локальный containerized fallback route должен собирать Docker-контейнер со всем приложением, запускать backend, frontend и browser e2e внутри локального Docker runtime, выполнять preflight запуска и сохранять evidence в `artifacts/qa-005-local-e2e`.
 
 ## Required GitHub checks
 
@@ -60,7 +66,7 @@
 - `quality`
 - `build`
 
-Workflow `Test VPS E2E` является historical/deprecated non-gate route и не должен добавляться в branch protection без отдельного архитектурного решения.
+Workflow `Test E2E Stand Preflight` является non-canonical operational route и не должен добавляться в branch protection без отдельного архитектурного решения.
 
 ## Restore path
 
