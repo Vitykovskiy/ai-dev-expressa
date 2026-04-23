@@ -25,15 +25,15 @@
    - Результат: `feature spec` и `test scenarios` используют явный contract boundary, сохраняют blocker по праву назначения `administrator` и не оставляют скрытых пробелов handoff.
 
 3. `03` `Task and navigation sync`
-   - Статус: `pending`
+   - Статус: `done`
    - Контекст: `FEATURE-004-context-03-task-and-navigation-sync.md`
    - Зависимость: `01`, `02`
    - Результат: карточка `FEATURE-004`, `docs/system/README.md` и этот план синхронизированы с обновленным handoff и фиксируют следующий архитектурный маршрут без скрытых предположений.
 
 ## Текущий статус
 
-- Активная подзадача: `03`
-- Общее состояние: `in_progress`
+- Активная подзадача: `нет`
+- Общее состояние: `done`
 
 ## Открытые blockers
 

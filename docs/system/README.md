@@ -41,7 +41,8 @@
 - `FEATURE-004 Administrator User Role Management`
   - Файл: [feature-specs/feature-004-administrator-user-role-management.md](./feature-specs/feature-004-administrator-user-role-management.md)
   - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management.test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management.test-scenarios.md)
-  - Использовать для архитектурной декомпозиции административного сценария просмотра пользователей и назначения ролей `barista` и `administrator`, а также для handoff QA-сценариев по guards, пустому состоянию и открытому blocker по праву назначения роли `administrator`.
+  - Использовать как основной handoff архитектору по административному сценарию просмотра пользователей и назначения ролей `barista` и `administrator`; feature spec и sibling test scenarios уже фиксируют consumer-facing transport/API boundary `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role`.
+  - При декомпозиции сохранять единственный открытый blocker по праву назначения роли `administrator`; отсутствие contract boundary больше не является blocker для маршрута чтения.
 
 ### `system-context`
 
@@ -177,7 +178,7 @@
 - Если задача про создание заказа customer: читать `system-context/expressa-v1-telegram-ordering.md`, `domain-model/ordering-and-pickup.md`, `use-cases/customer-create-pickup-order.md`, `contracts/customer-ordering.md`, `state-models/order-lifecycle.md`.
 - Если задача про каталог и допы: читать `domain-model/menu-catalog.md`, `use-cases/administrator-manage-menu.md`, `use-cases/barista-manage-menu-availability.md`, `contracts/menu-and-availability-management.md`.
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
-- Если задача про роли, Telegram-доступ и блокировку: читать `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
+- Если задача про роли, Telegram-доступ и блокировку: для `FEATURE-004` сначала читать ее feature spec и sibling test scenarios, затем `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про вход во внутренний backoffice, session bootstrap, capability guard или test-mode ограничения: читать `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
 - Если задача приходит из UI-контракта или экранного флоу на этапе подготовки `FEATURE-*`: читать соответствующий файл в `ui-contracts/`, затем нужные versioned-файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`; перед передачей архитектору создать feature spec.
