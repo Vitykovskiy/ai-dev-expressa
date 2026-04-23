@@ -12,11 +12,14 @@
 
 ## Container-based deploy route для test VPS
 
-- Merge-driven route `main -> test VPS` использует versioned frontend/backend runtime images, которые workflow `Deploy Test` собирает и публикует в `ghcr.io`.
-- VPS deploy path использует versioned `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh`; launcher валидирует env-файл стенда, выполняет `docker compose pull`, затем `docker compose up -d` для frontend и backend.
-- Runtime-конфигурация test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID` и `BACKOFFICE_CORS_ORIGINS`.
+- Merge-driven route `main -> test VPS` использует versioned frontend/backend runtime images, которые workflow `Deploy Test` собирает и публикует в `ghcr.io` один раз на commit.
+- VPS deploy path использует versioned `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh`; launcher валидирует env-файл выбранного стенда, выполняет `docker compose pull`, затем `docker compose up -d` для frontend и backend.
+- Runtime-конфигурация каждого test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID` и `BACKOFFICE_CORS_ORIGINS`.
+- Dual-stand deploy route должен переиспользовать один и тот же compose-манифест и один и тот же набор GHCR-образов для стендов `test` и `test-e2e`.
+- Изоляция стендов должна обеспечиваться отдельными значениями `ENV_FILE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, `TEST_DEPLOY_HOST_BACKEND_PORT`, `TEST_DEPLOY_HOST_FRONTEND_PORT`, `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL`.
+- `scripts/deploy-test-vps.sh` должен сохранять rollback и summary артефакты в отдельные каталоги `artifacts/deploy-test/<stand-slug>/`, чтобы restore metadata не смешивалась между стендами.
 - Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`; registry credentials подключаются только через GitHub Secrets или env окружения стенда.
-- Restore path использует rollback-файл из `artifacts/deploy-test/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
+- Restore path использует rollback-файл конкретного стенда из `artifacts/deploy-test/<stand-slug>/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
 - Изменение compose-манифеста, Dockerfile, registry route, deploy secrets, smoke-check или rollback contract требует обновления `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/deployment-map.md` и `README.md`.
 
 ## Local containerized e2e runner

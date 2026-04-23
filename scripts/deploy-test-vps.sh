@@ -5,7 +5,6 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-$(pwd)}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
 COMPOSE_FILE_INPUT="${DEPLOY_COMPOSE_FILE:-docker-compose.deploy.yml}"
-ARTIFACT_DIR_INPUT="${DEPLOY_ARTIFACT_DIR:-artifacts/deploy-test}"
 TIMESTAMP="$(date -u +"%Y%m%dT%H%M%SZ")"
 
 show_help() {
@@ -15,15 +14,17 @@ Usage:
 
 Required environment:
   APP_DIR                 Repo root on VPS. Defaults to current directory.
-  ENV_FILE                Runtime env file for the deployed test stand.
-  DEPLOY_BACKEND_IMAGE    Versioned backend image ref for Deploy Test.
-  DEPLOY_FRONTEND_IMAGE   Versioned frontend image ref for Deploy Test.
+  ENV_FILE                Runtime env file for the deployed stand.
+  DEPLOY_BACKEND_IMAGE    Versioned backend image ref for the selected stand.
+  DEPLOY_FRONTEND_IMAGE   Versioned frontend image ref for the selected stand.
 
 Optional environment:
   DEPLOY_COMPOSE_FILE     Compose file for merge-driven deploy. Defaults to docker-compose.deploy.yml.
   DEPLOY_ARTIFACT_DIR     Artifact directory for deploy summaries and rollback files.
-                          Defaults to artifacts/deploy-test.
+                          Defaults to artifacts/deploy-test/<stand-slug>.
   DEPLOY_PROJECT_NAME     Docker compose project name. Defaults to expressa-test.
+  DEPLOY_STAND_SLUG       Stand slug for artifact separation and summaries.
+                          Defaults to the normalized compose project name.
   DEPLOY_REGISTRY         Registry hostname used for docker login when credentials are provided.
   DEPLOY_REGISTRY_USERNAME
   DEPLOY_REGISTRY_PASSWORD
@@ -100,10 +101,13 @@ docker_registry_login() {
 
 COMPOSE_PROJECT_NAME_INPUT="${DEPLOY_PROJECT_NAME:-expressa-test}"
 COMPOSE_PROJECT_NAME="$(printf "%s" "$COMPOSE_PROJECT_NAME_INPUT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+DEPLOY_STAND_SLUG_INPUT="${DEPLOY_STAND_SLUG:-$COMPOSE_PROJECT_NAME}"
+DEPLOY_STAND_SLUG="$(printf "%s" "$DEPLOY_STAND_SLUG_INPUT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+ARTIFACT_DIR_INPUT="${DEPLOY_ARTIFACT_DIR:-artifacts/deploy-test/$DEPLOY_STAND_SLUG}"
 COMPOSE_FILE_PATH="$(make_absolute_path "$COMPOSE_FILE_INPUT")"
 ARTIFACT_DIR="$(make_absolute_path "$ARTIFACT_DIR_INPUT")"
-ROLLBACK_FILE="$ARTIFACT_DIR/rollback-$TIMESTAMP.env"
-SUMMARY_FILE="$ARTIFACT_DIR/deploy-test-$TIMESTAMP.summary.md"
+ROLLBACK_FILE="$ARTIFACT_DIR/rollback-$DEPLOY_STAND_SLUG-$TIMESTAMP.env"
+SUMMARY_FILE="$ARTIFACT_DIR/deploy-test-$DEPLOY_STAND_SLUG-$TIMESTAMP.summary.md"
 
 if [[ -z "${DEPLOY_BACKEND_IMAGE:-}" || -z "${DEPLOY_FRONTEND_IMAGE:-}" ]]; then
   echo "DEPLOY_BACKEND_IMAGE and DEPLOY_FRONTEND_IMAGE are required."
@@ -156,6 +160,7 @@ if [[ "${DISABLE_TG_AUTH:-}" != "true" ]]; then
 fi
 
 export ENV_FILE
+export DEPLOY_STAND_SLUG
 export DEPLOY_BACKEND_IMAGE
 export DEPLOY_FRONTEND_IMAGE
 export TEST_DEPLOY_HOST_BACKEND_PORT="${TEST_DEPLOY_HOST_BACKEND_PORT:-${PORT:-3000}}"
@@ -172,15 +177,18 @@ DEPLOY_FRONTEND_IMAGE=${PREVIOUS_FRONTEND_IMAGE}
 DEPLOY_COMPOSE_FILE=${COMPOSE_FILE_PATH}
 ENV_FILE=${ENV_FILE}
 DEPLOY_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+DEPLOY_STAND_SLUG=${DEPLOY_STAND_SLUG}
 TEST_DEPLOY_HOST_BACKEND_PORT=${TEST_DEPLOY_HOST_BACKEND_PORT}
 TEST_DEPLOY_HOST_FRONTEND_PORT=${TEST_DEPLOY_HOST_FRONTEND_PORT}
+SMOKE_BACKEND_BASE_URL=${SMOKE_BACKEND_BASE_URL:-}
+SMOKE_FRONTEND_BASE_URL=${SMOKE_FRONTEND_BASE_URL:-}
 ROLLBACK
 
 docker_compose config >/dev/null
 docker_compose pull backend frontend
 docker_compose up -d backend frontend
 
-BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${PORT:-3000}}"
+BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}}"
 FRONTEND_BASE_URL="${SMOKE_FRONTEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}}"
 
 for attempt in {1..30}; do
@@ -226,8 +234,10 @@ cat >"$SUMMARY_FILE" <<SUMMARY
 # Deploy Test Summary
 
 - Timestamp UTC: \`$TIMESTAMP\`
+- Stand slug: \`$DEPLOY_STAND_SLUG\`
 - Compose project: \`$COMPOSE_PROJECT_NAME\`
 - Compose file: \`$COMPOSE_FILE_PATH\`
+- Env file: \`$ENV_FILE\`
 - Backend image: \`$DEPLOY_BACKEND_IMAGE\`
 - Frontend image: \`$DEPLOY_FRONTEND_IMAGE\`
 - Backend URL: \`$BACKEND_BASE_URL\`

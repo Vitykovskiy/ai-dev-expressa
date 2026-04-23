@@ -83,7 +83,7 @@
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
 - `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команды `deploy:test:vps` и `test:e2e:local`, а также команды запуска и проверки отдельных контуров через `--prefix`.
-- `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов.
+- `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов; переиспользуется для двух изолированных стендов через разные `DEPLOY_PROJECT_NAME`, `ENV_FILE` и host ports.
 - `Dockerfile.e2e` — локальный containerized runner для browser e2e `QA-005`.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
@@ -91,7 +91,7 @@
 - `e2e/` — Playwright e2e-контур для локального containerized runner `QA-005`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — активные task-артефакты проекта; выполненные task-артефакты могут храниться в `tasks/archive/`.
-- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS, `run-local-container-e2e.sh` обслуживает локальный acceptance path для `QA-005`, `run-test-vps-e2e.sh` сохраняется как historical/deprecated QA e2e route.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS и параметризуется для независимых стендов `test` и `test-e2e`, `run-local-container-e2e.sh` обслуживает локальный acceptance path для `QA-005`, `run-test-vps-e2e.sh` сохраняется как historical/deprecated QA e2e route.
 - `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в `test`-окружение на VPS.
 
 ## Process и project
