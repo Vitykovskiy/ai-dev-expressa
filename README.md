@@ -82,17 +82,17 @@
 - `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
-- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команды `deploy:test:vps` и `test:e2e:local`, а также команды запуска и проверки отдельных контуров через `--prefix`.
+- `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команды `deploy:test:vps`, `test:e2e:remote`, `test:e2e:remote:preflight`, `ops:e2e:remote:preflight` и `test:e2e:local`, а также команды запуска и проверки отдельных контуров через `--prefix`.
 - `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов; переиспользуется для двух изолированных стендов через разные `DEPLOY_PROJECT_NAME`, `ENV_FILE` и host ports.
-- `Dockerfile.e2e` — локальный containerized runner для browser e2e `QA-005`.
+- `Dockerfile.e2e` — локальный containerized runner для browser e2e `QA-005`, сохраняемый как debug/fallback route.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify`, а также Docker/Nginx-артефакты client runtime для `test` VPS: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа, тесты, `Dockerfile` и `nginx.conf`.
 - `e2e/` — Playwright e2e-контур для локального containerized runner `QA-005`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — активные task-артефакты проекта; выполненные task-артефакты могут храниться в `tasks/archive/`.
-- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS и параметризуется для независимых стендов `test` и `test-e2e`, `run-local-container-e2e.sh` обслуживает локальный acceptance path для `QA-005`, `run-test-vps-e2e.sh` сохраняется как historical/deprecated QA e2e route.
-- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в `test`-окружение на VPS.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS и параметризуется для независимых стендов `test` и `test-e2e`, `run-test-vps-e2e.sh` обслуживает основной локальный remote e2e route против опубликованного `test-e2e` стенда, `run-local-container-e2e.sh` сохраняется как debug/fallback route.
+- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в два `test`-стенда на одном VPS; отдельный workflow preflight сохраняется как non-canonical operational route.
 
 ## Process и project
 
@@ -117,7 +117,9 @@
 - Корневой pre-commit hook запускает `lint-staged`: форматирование и линтинг делегируются в локальные binaries `backend` и `frontend`.
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
-- Локальный containerized e2e runner для `QA-005` запускается из корня через `npm run test:e2e:local`; команда собирает Docker-контейнер, стартует backend/frontend/browser e2e внутри контейнера и сохраняет evidence в `artifacts/qa-005-local-e2e`.
+- Основной локальный e2e-маршрут для `QA-005` запускается из корня через `npm run test:e2e:remote`; команда выполняет preflight и QA-owned Playwright suite против опубликованного `https://expressa-e2e-test.vitykovskiy.ru`, по умолчанию сохраняет evidence в `artifacts/remote-e2e` и не требует локальной сборки backend/frontend.
+- Операционный preflight published e2e-стенда запускается через `npm run test:e2e:remote:preflight` или alias `npm run ops:e2e:remote:preflight`.
+- Локальный containerized e2e runner для `QA-005` запускается из корня через `npm run test:e2e:local`; команда собирает Docker-контейнер, стартует backend/frontend/browser e2e внутри контейнера, сохраняет evidence в `artifacts/qa-005-local-e2e` и используется как debug/fallback route.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.
 
 ## Backend
