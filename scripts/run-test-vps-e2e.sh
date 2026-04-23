@@ -4,6 +4,7 @@ set -uo pipefail
 
 MODE="run"
 ARTIFACT_DIR="${TEST_E2E_ARTIFACT_DIR:-artifacts/remote-e2e}"
+DEFAULT_TEST_E2E_COMMAND="npm --prefix e2e test"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -28,7 +29,7 @@ Required environment:
   TEST_E2E_BASE_URL               Published frontend origin for remote e2e stand.
                                   Falls back to E2E_BASE_URL or https://expressa-e2e-test.vitykovskiy.ru.
   TEST_E2E_TELEGRAM_ID            Test-mode Telegram id allowed on the remote stand.
-                                  Falls back to E2E_TEST_TELEGRAM_ID or ADMIN_TELEGRAM_ID.
+                                  Falls back to E2E_TEST_TELEGRAM_ID, ADMIN_TELEGRAM_ID, or the published stand default.
 
 Optional environment:
   TEST_E2E_ENV_FILE               Optional env file to source before resolving route variables.
@@ -75,6 +76,15 @@ require_env() {
   fi
 }
 
+select_curl_command() {
+  if grep -qi "microsoft" /proc/version 2>/dev/null && command -v curl.exe >/dev/null 2>&1; then
+    CURL_COMMAND=(curl.exe)
+    return 0
+  fi
+
+  CURL_COMMAND=(curl)
+}
+
 source_env_file() {
   local env_file="${TEST_E2E_ENV_FILE:-${ENV_FILE:-}}"
 
@@ -94,8 +104,8 @@ source_env_file() {
 
 resolve_route_env() {
   TEST_E2E_BASE_URL="${TEST_E2E_BASE_URL:-${E2E_BASE_URL:-https://expressa-e2e-test.vitykovskiy.ru}}"
-  TEST_E2E_TELEGRAM_ID="${TEST_E2E_TELEGRAM_ID:-${E2E_TEST_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-123456789}}}"
-  TEST_E2E_COMMAND="${TEST_E2E_COMMAND:-npm --prefix e2e test}"
+  TEST_E2E_TELEGRAM_ID="${TEST_E2E_TELEGRAM_ID:-${E2E_TEST_TELEGRAM_ID:-${ADMIN_TELEGRAM_ID:-1}}}"
+  TEST_E2E_COMMAND="${TEST_E2E_COMMAND:-$DEFAULT_TEST_E2E_COMMAND}"
 }
 
 trim_trailing_slash() {
@@ -126,7 +136,7 @@ http_probe() {
 
   local status
   status="$(
-    curl \
+    "${CURL_COMMAND[@]}" \
       --location \
       --silent \
       --show-error \
@@ -179,10 +189,26 @@ write_summary() {
 SUMMARY
 }
 
+run_e2e_command() {
+  if grep -qi "microsoft" /proc/version 2>/dev/null \
+    && command -v powershell.exe >/dev/null 2>&1 \
+    && [[ "$TEST_E2E_COMMAND" == "$DEFAULT_TEST_E2E_COMMAND" ]]; then
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "\
+\$env:E2E_BASE_URL = '$E2E_BASE_URL'; \
+\$env:E2E_TEST_TELEGRAM_ID = '$E2E_TEST_TELEGRAM_ID'; \
+\$env:E2E_STAND_COMMIT = '$E2E_STAND_COMMIT'; \
+npm --prefix e2e test"
+    return $?
+  fi
+
+  bash -lc "$TEST_E2E_COMMAND"
+}
+
 CURL_TIMEOUT="${TEST_E2E_CURL_TIMEOUT:-10}"
 API_PROBE_PATH="${TEST_E2E_API_PROBE_PATH:-/backoffice/orders}"
 FRONTEND_PATH="${TEST_E2E_FRONTEND_PATH:-/menu}"
 
+select_curl_command
 source_env_file
 resolve_route_env
 
@@ -216,7 +242,7 @@ export E2E_BASE_URL="$BASE_URL"
 export E2E_TEST_TELEGRAM_ID="$TEST_E2E_TELEGRAM_ID"
 export E2E_STAND_COMMIT="${STAND_COMMIT:-unknown}"
 
-bash -lc "$TEST_E2E_COMMAND" 2>&1 | tee -a "$LOG_FILE"
+run_e2e_command 2>&1 | tee -a "$LOG_FILE"
 E2E_EXIT_CODE="${PIPESTATUS[0]}"
 
 if [[ "$E2E_EXIT_CODE" -ne 0 ]]; then
