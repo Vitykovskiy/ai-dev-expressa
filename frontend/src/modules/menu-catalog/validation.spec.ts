@@ -156,6 +156,12 @@ describe("menu catalog validation", () => {
   });
 
   it("maps backend validation codes to operator messages", () => {
+    expect(mapMenuCatalogError("menu-category-has-items")).toContain(
+      "есть товары",
+    );
+    expect(mapMenuCatalogError("option-group-in-use")).toContain(
+      "назначена на категории",
+    );
     expect(mapMenuCatalogError("invalid-drink-size-model")).toContain(
       "S, M и L",
     );

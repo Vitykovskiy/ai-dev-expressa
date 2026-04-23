@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import {
   MenuCatalogSnapshot,
@@ -7,6 +7,10 @@ import {
   MenuOption,
   OptionGroup,
 } from "./menu-catalog.types";
+import {
+  MenuCategoryHasItemsError,
+  OptionGroupInUseError,
+} from "./menu-catalog.errors";
 import {
   CreateCategoryInput,
   CreateItemInput,
@@ -43,7 +47,7 @@ export function removeCategory(
   assertCategoryExists(snapshot, menuCategoryId);
 
   if (snapshot.items.some((item) => item.menuCategoryId === menuCategoryId)) {
-    throw new BadRequestException("menu-category-has-items");
+    throw new MenuCategoryHasItemsError();
   }
 
   return {
@@ -124,7 +128,7 @@ export function removeOptionGroup(
       category.optionGroupRefs.includes(optionGroupId),
     )
   ) {
-    throw new BadRequestException("option-group-in-use");
+    throw new OptionGroupInUseError();
   }
 
   return {

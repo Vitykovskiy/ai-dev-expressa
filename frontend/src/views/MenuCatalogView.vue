@@ -300,7 +300,7 @@ async function submitCategory(
 
     closeCategoryDialog();
   } catch {
-    localError.value = null;
+    errorToastOpen.value = true;
   }
 }
 
@@ -323,7 +323,7 @@ async function deleteCurrentCategory(): Promise<void> {
     }
     closeCategoryDialog();
   } catch {
-    localError.value = null;
+    errorToastOpen.value = true;
   }
 }
 
@@ -365,7 +365,7 @@ async function submitItem(payload: MenuItemPayload): Promise<void> {
 
     closeItemDialog();
   } catch {
-    localError.value = null;
+    errorToastOpen.value = true;
   }
 }
 
@@ -378,7 +378,7 @@ async function deleteCurrentItem(): Promise<void> {
     await store.deleteItem(editingItem.value.menuItemId);
     closeItemDialog();
   } catch {
-    localError.value = null;
+    errorToastOpen.value = true;
   }
 }
 

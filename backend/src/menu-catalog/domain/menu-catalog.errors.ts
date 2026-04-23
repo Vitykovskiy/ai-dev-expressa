@@ -12,6 +12,18 @@ export class InvalidOptionGroupRuleError extends BadRequestException {
   }
 }
 
+export class MenuCategoryHasItemsError extends BadRequestException {
+  constructor() {
+    super("menu-category-has-items");
+  }
+}
+
+export class OptionGroupInUseError extends BadRequestException {
+  constructor() {
+    super("option-group-in-use");
+  }
+}
+
 export class AdministratorRoleRequiredError extends ForbiddenException {
   constructor() {
     super("administrator-role-required");
