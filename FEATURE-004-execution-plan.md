@@ -24,7 +24,7 @@
 
 ### `03` — Обновление навигации и task-card
 
-- Статус: `pending`
+- Статус: `completed`
 - Контекст: `FEATURE-004-context-03-navigation-and-task-card.md`
 - Зависимости: `01`, `02`
 - Результат: обновлены `docs/system/README.md` и `tasks/FEATURE-004-administrator-user-role-management.md` для ссылки на готовые системные артефакты и передачи `FEATURE-004` архитектору.
