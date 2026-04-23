@@ -12,7 +12,14 @@ test.describe("administrator menu catalog management", () => {
   test("administrator manages menu catalog through backoffice", async ({
     page,
     request,
-  }) => {
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, [
+      "FTS-002-001",
+      "FTS-002-003",
+      "FTS-002-004",
+      "FTS-002-005",
+      "FTS-002-006",
+    ]);
     const suffix = Date.now().toString(36);
     const categoryName = `Кофе E2E ${suffix}`;
     const optionGroupName = `Сиропы E2E ${suffix}`;
@@ -97,7 +104,9 @@ test.describe("administrator menu catalog management", () => {
     expect(optionGroup?.selectionMode).toBe("multiple");
   });
 
-  test("incomplete drink size model is rejected", async ({ page }) => {
+  test("FTS-002-008 incomplete drink size model is rejected", async ({
+    page,
+  }) => {
     const suffix = Date.now().toString(36);
     const categoryName = `Валидация E2E ${suffix}`;
 
@@ -123,7 +132,8 @@ test.describe("administrator menu catalog management", () => {
 
   test("invalid option group rule is rejected by menu catalog contract", async ({
     request,
-  }) => {
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, ["FTS-002-011"]);
     const response = await apiPost(request, "/backoffice/menu/option-groups", {
       name: `Bad option group ${Date.now()}`,
       selectionMode: "unsupported",
@@ -134,7 +144,7 @@ test.describe("administrator menu catalog management", () => {
     await expectJsonMessage(response, "invalid-option-group-rule");
   });
 
-  test("direct menu API access is denied when menu access is unavailable", async ({
+  test("FTS-002-007 direct menu API access is denied when menu access is unavailable", async ({
     request,
   }) => {
     const response = await request.get("/backoffice/menu/catalog", {
@@ -148,6 +158,15 @@ test.describe("administrator menu catalog management", () => {
     );
   });
 });
+
+function annotateScenarioIds(
+  testInfo: { annotations: { type: string; description?: string }[] },
+  scenarioIds: readonly string[],
+): void {
+  for (const scenarioId of scenarioIds) {
+    testInfo.annotations.push({ type: "scenario", description: scenarioId });
+  }
+}
 
 async function createCategory(
   page: Parameters<typeof fieldByLabel>[0],

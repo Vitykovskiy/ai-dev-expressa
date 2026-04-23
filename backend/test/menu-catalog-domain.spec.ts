@@ -9,7 +9,7 @@ import { MenuCatalogValidator } from "../src/menu-catalog/domain/menu-catalog.va
 describe("MenuCatalogValidator", () => {
   const validator = new MenuCatalogValidator();
 
-  it("rejects a drink without the complete S/M/L price model", () => {
+  it("FTS-002-008 rejects a drink without the complete S/M/L price model", () => {
     expect(() =>
       validator.validateItem({
         menuItemId: "item-1",
@@ -26,7 +26,7 @@ describe("MenuCatalogValidator", () => {
     ).toThrow(InvalidDrinkSizeModelError);
   });
 
-  it("rejects size prices on a regular menu item", () => {
+  it("FTS-002-002 rejects size prices on a regular menu item", () => {
     expect(() =>
       validator.validateItem({
         menuItemId: "item-1",
@@ -40,7 +40,7 @@ describe("MenuCatalogValidator", () => {
     ).toThrow(InvalidDrinkSizeModelError);
   });
 
-  it("rejects an unknown option group selection mode", () => {
+  it("FTS-002-011 rejects an unknown option group selection mode", () => {
     expect(() =>
       validator.validateOptionGroup({
         optionGroupId: "group-1",

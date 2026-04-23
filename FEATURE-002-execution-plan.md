@@ -40,7 +40,7 @@
 
 ### 03. Scenario ID coverage alignment
 
-- Статус: `Ожидает 02`
+- Статус: `Выполнена`
 - Контекст: `FEATURE-002-context-03-scenario-id-coverage.md`
 - Роль: `Тестирование`
 - Задача: привязать существующие e2e и backend integration checks `FEATURE-002` к stable Scenario IDs из нового test scenarios document.
