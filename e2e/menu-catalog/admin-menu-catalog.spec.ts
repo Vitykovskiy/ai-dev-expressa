@@ -15,6 +15,7 @@ test.describe("administrator menu catalog management", () => {
   }, testInfo) => {
     annotateScenarioIds(testInfo, [
       "FTS-002-001",
+      "FTS-002-002",
       "FTS-002-003",
       "FTS-002-004",
       "FTS-002-005",
@@ -23,6 +24,7 @@ test.describe("administrator menu catalog management", () => {
     const suffix = Date.now().toString(36);
     const categoryName = `Кофе E2E ${suffix}`;
     const optionGroupName = `Сиропы E2E ${suffix}`;
+    const regularItemName = `Круассан E2E ${suffix}`;
     const drinkName = `Латте E2E ${suffix}`;
     const freeOptionName = `Корица E2E ${suffix}`;
     const paidOptionName = `Ваниль E2E ${suffix}`;
@@ -35,6 +37,11 @@ test.describe("administrator menu catalog management", () => {
     await createCategory(page, categoryName);
     await expect(page.getByText(categoryName, { exact: true })).toBeVisible();
 
+    await createRegularItem(page, {
+      categoryName,
+      name: regularItemName,
+      price: "160",
+    });
     await createDrink(page, {
       categoryName,
       name: drinkName,
@@ -42,6 +49,9 @@ test.describe("administrator menu catalog management", () => {
     });
 
     await expandCategory(page, categoryName);
+    await expect(
+      page.getByText(regularItemName, { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText(drinkName, { exact: true })).toBeVisible();
     await expect(page.getByText("от 190 ₽")).toBeVisible();
 
@@ -77,6 +87,9 @@ test.describe("administrator menu catalog management", () => {
     const optionGroup = catalog.optionGroups.find(
       (entry) => entry.name === optionGroupName,
     );
+    const regularItem = catalog.items.find(
+      (entry) => entry.name === regularItemName,
+    );
     const drink = catalog.items.find((entry) => entry.name === drinkName);
     const freeOption = catalog.items.find(
       (entry) => entry.name === freeOptionName,
@@ -87,6 +100,12 @@ test.describe("administrator menu catalog management", () => {
 
     expect(category, "created category").toBeTruthy();
     expect(optionGroup, "created option group").toBeTruthy();
+    expect(regularItem).toMatchObject({
+      itemType: "regular",
+      name: regularItemName,
+      basePrice: 160,
+    });
+    expect(regularItem?.drinkSizePrices).toBeUndefined();
     expect(drink).toMatchObject({
       itemType: "drink",
       name: drinkName,
@@ -106,7 +125,8 @@ test.describe("administrator menu catalog management", () => {
 
   test("FTS-002-008 incomplete drink size model is rejected", async ({
     page,
-  }) => {
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, ["FTS-002-008"]);
     const suffix = Date.now().toString(36);
     const categoryName = `Валидация E2E ${suffix}`;
 
@@ -146,7 +166,8 @@ test.describe("administrator menu catalog management", () => {
 
   test("FTS-002-007 direct menu API access is denied when menu access is unavailable", async ({
     request,
-  }) => {
+  }, testInfo) => {
+    annotateScenarioIds(testInfo, ["FTS-002-007"]);
     const response = await request.get("/backoffice/menu/catalog", {
       headers: { "x-test-telegram-id": NON_MENU_TELEGRAM_ID },
     });

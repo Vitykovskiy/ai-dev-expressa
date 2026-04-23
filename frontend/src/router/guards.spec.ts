@@ -49,4 +49,24 @@ describe("resolveGuardDecision", () => {
       ),
     ).toEqual({ kind: "redirect", name: "forbidden" });
   });
+
+  it("allows menu route only when actor has menu capability", () => {
+    expect(
+      resolveGuardDecision(
+        {
+          meta: { capability: "menu" },
+        } as never,
+        administrator,
+      ),
+    ).toEqual({ kind: "allow" });
+
+    expect(
+      resolveGuardDecision(
+        {
+          meta: { capability: "menu" },
+        } as never,
+        barista,
+      ),
+    ).toEqual({ kind: "redirect", name: "forbidden" });
+  });
 });

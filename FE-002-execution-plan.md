@@ -40,7 +40,7 @@ Subtasks are executed sequentially. Each subtask uses exactly one context packag
 ### FE-002-04 Tests, Guard Evidence And Documentation Consistency
 
 - Context package: `FE-002-context-04-tests-evidence.md`
-- Status: `Ожидает FE-002-03`
+- Status: `Выполнена`
 - Goal: verify frontend tests, route/capability guard behavior, e2e scenario mapping and application-map consistency for FE-002.
 - Allowed area: frontend menu-catalog tests, router/navigation tests, `e2e/menu-catalog/admin-menu-catalog.spec.ts`, `docs/architecture/application-map/frontend-backoffice.md` only if actual frontend structure changed.
 - Required checks: `npm run lint`, `npm run stylelint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`, or record unavailable checks.
