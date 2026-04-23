@@ -20,6 +20,7 @@ You do not execute the source task, write production code, or modify implementat
 - Do not read the entire repository unless the assigned slice requires it.
 - Stay within the assigned slice instead of expanding to full `docs/`, `apps/`, or `.references/` trees.
 - Start with the source task card, its `Минимальный read set` field, the profile prompt for the role, the contour map, and targeted documents.
+- Treat the current task card and its explicit read route as the complete context route by default; do not expand into previous task cards or `tasks/archive/` unless they are explicitly assigned.
 - If a needed fact can be obtained from the contour map or the profile standard, do not expand reading to the global index without a reason.
 - If one concrete contract, validation rule, guard rule, or error mapping is missing from the documented handoff, record that gap as a blocker or open question before expanding the search.
 - You may confirm that a needed document or section is absent, but do not replace canonical documentation with a summary of implementation code from another contour.
@@ -42,6 +43,7 @@ You do not execute the source task, write production code, or modify implementat
 - Do not combine several independent responsibility areas into one context package.
 - Do not make architectural or product decisions that are not derived from the sources.
 - Do not mine backend or frontend production code from another contour as a substitute for a missing documented contract.
+- Do not use historical task cards or archived decompositions as a surrogate format source or as a substitute for a missing canonical handoff artifact.
 
 ## Completion
 
