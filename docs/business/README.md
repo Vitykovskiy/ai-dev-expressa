@@ -89,11 +89,11 @@
 
 - `Administrator управляет ролями пользователей`
   - Файл: [scenarios/administrator-manage-users-and-roles.md](./scenarios/administrator-manage-users-and-roles.md)
-  - Точка входа для назначения ролей.
+  - Точка входа для назначения ролей через экран `Пользователи` и entrypoint `Добавить пользователя`.
 
-- `Administrator блокирует пользователя`
+- `Administrator управляет статусом доступа пользователя`
   - Файл: [scenarios/administrator-block-user.md](./scenarios/administrator-block-user.md)
-  - Точка входа для блокировки доступа.
+  - Точка входа для блокировки и разблокировки доступа на экране `Пользователи`.
 
 ## Быстрый маршрут для агентов
 
@@ -102,4 +102,5 @@
 - Если запрос про `когда можно получить заказ`: начинать с `business-rules/pickup-slots-and-capacity.md`.
 - Если запрос про `в каком статусе заказ` или `что видит customer`: начинать с `business-rules/order-lifecycle-and-history.md`.
 - Если запрос про `что делает barista` или `что делает administrator`: начинать с `business-rules/backoffice-operations.md`.
+- Если запрос про `кто может назначать administrator`, `можно ли разблокировать пользователя` или `что входит в экран Пользователи`: начинать с `business-rules/access-and-roles.md`, затем переходить в `scenarios/administrator-manage-users-and-roles.md` и `scenarios/administrator-block-user.md`.
 - Если нужен конкретный путь пользователя: переходить сразу в `scenarios/`.
