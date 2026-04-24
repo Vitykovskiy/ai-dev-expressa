@@ -93,13 +93,16 @@
       :is-busy="isAssigning"
       :users="users"
       :selected-user-id="selectedUserId"
+      :name="assignmentName"
+      :telegram-username="assignmentTelegramUsername"
       :role="selectedRole"
       :submit-disabled="isDialogSubmitDisabled"
       :errors="dialogErrors"
       :form-error="dialogFormError"
       @close="closeAssignmentDialog"
       @submit="submitAssignment"
-      @update:selected-user-id="updateSelectedUser"
+      @update:name="assignmentName = $event"
+      @update:telegram-username="assignmentTelegramUsername = $event"
       @update:role="selectedRole = $event"
     />
 
@@ -131,7 +134,6 @@ import {
   mapUserManagementLoadError,
   mapUserRoleAssignmentError,
   mergeRoleAssignmentErrors,
-  buildRoleAssignmentDraft,
   userRoleAssignmentSuccessMessage,
 } from "@/modules/user-management/presentation";
 import { useUserManagementStore } from "@/modules/user-management/store";
@@ -147,6 +149,8 @@ const searchDraft = ref(store.state.search);
 const searchOpen = ref(false);
 const dialogOpen = ref(false);
 const selectedUserId = ref("");
+const assignmentName = ref("");
+const assignmentTelegramUsername = ref("");
 const selectedRole = ref<AssignableUserRole | "">("");
 const submittedAssignErrorCode = ref<UserManagementErrorCode | null>(null);
 const successToastOpen = ref(false);
@@ -162,7 +166,12 @@ const selectedUser = computed<UserSummary | null>(
 );
 const validation = computed(() =>
   validateRoleAssignmentDraft(
-    buildRoleAssignmentDraft(selectedUser.value, selectedRole.value),
+    {
+      userId: selectedUser.value?.userId ?? "",
+      name: assignmentName.value,
+      telegramUsername: assignmentTelegramUsername.value,
+      role: selectedRole.value,
+    },
     selectedUser.value?.availableRoleAssignments ?? [],
   ),
 );
@@ -209,6 +218,7 @@ watch(
       nextUsers[0] ??
       null;
     selectedUserId.value = preservedUser?.userId ?? "";
+    syncAssignmentFieldsFromSelectedUser();
     ensureSelectedRole();
   },
   { immediate: true },
@@ -238,6 +248,7 @@ watch(searchDraft, (value) => {
 });
 
 watch(selectedUser, () => {
+  syncAssignmentFieldsFromSelectedUser();
   ensureSelectedRole();
 });
 
@@ -253,14 +264,10 @@ function selectFilter(value: typeof activeFilter.value): void {
   void reloadUsers();
 }
 
-function updateSelectedUser(value: string): void {
-  selectedUserId.value = value;
-  submittedAssignErrorCode.value = null;
-}
-
 function openAssignmentDialog(userId?: string): void {
   dialogOpen.value = true;
   selectedUserId.value = userId ?? users.value[0]?.userId ?? "";
+  syncAssignmentFieldsFromSelectedUser();
   selectedRole.value = "";
   submittedAssignErrorCode.value = null;
   ensureSelectedRole();
@@ -269,6 +276,8 @@ function openAssignmentDialog(userId?: string): void {
 function closeAssignmentDialog(): void {
   dialogOpen.value = false;
   selectedUserId.value = "";
+  assignmentName.value = "";
+  assignmentTelegramUsername.value = "";
   selectedRole.value = "";
   submittedAssignErrorCode.value = null;
 }
@@ -305,6 +314,12 @@ function ensureSelectedRole(): void {
   ) {
     selectedRole.value = nextDefaultRole;
   }
+}
+
+function syncAssignmentFieldsFromSelectedUser(): void {
+  assignmentName.value = selectedUser.value?.displayName ?? "";
+  assignmentTelegramUsername.value = selectedUser.value?.telegramUsername ?? "";
+  submittedAssignErrorCode.value = null;
 }
 </script>
 
