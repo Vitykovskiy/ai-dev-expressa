@@ -14,8 +14,8 @@
 
 - Merge-driven route `main -> test VPS` использует versioned frontend/backend runtime images, которые workflow `Deploy Test` собирает и публикует в `ghcr.io` один раз на commit.
 - Канонический delivery route завершает rollout двух изолированных стендов `test` и `test-e2e`, после чего QA запускает локальный `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
-- VPS deploy path использует versioned `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh`; launcher валидирует env-файл выбранного стенда, выполняет `docker compose pull`, затем `docker compose up -d` для frontend и backend.
-- Runtime-конфигурация каждого test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID` и `BACKOFFICE_CORS_ORIGINS`.
+- VPS deploy path использует versioned `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh`; launcher валидирует env-файл выбранного стенда, выполняет `docker compose pull`, затем `docker compose up -d` для PostgreSQL, frontend и backend.
+- Runtime-конфигурация каждого test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID`, `BACKOFFICE_CORS_ORIGINS`, `DATABASE_URL`, `POSTGRES_DB`, `POSTGRES_USER` и `POSTGRES_PASSWORD`.
 - Dual-stand deploy route должен переиспользовать один и тот же compose-манифест и один и тот же набор GHCR-образов для стендов `test` и `test-e2e`.
 - Изоляция стендов должна обеспечиваться отдельными значениями `ENV_FILE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, `TEST_DEPLOY_HOST_BACKEND_PORT`, `TEST_DEPLOY_HOST_FRONTEND_PORT`, `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL`.
 - `scripts/deploy-test-vps.sh` должен сохранять rollback и summary артефакты в отдельные каталоги `artifacts/deploy-test/<stand-slug>/`, чтобы restore metadata не смешивалась между стендами.

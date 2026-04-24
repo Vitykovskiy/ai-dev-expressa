@@ -1,9 +1,30 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ${ENV_FILE:?ENV_FILE is required}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    healthcheck:
+      test:
+        ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   backend:
     image: ${DEPLOY_BACKEND_IMAGE:?DEPLOY_BACKEND_IMAGE is required}
     restart: unless-stopped
     env_file:
       - ${ENV_FILE:?ENV_FILE is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - 127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT:-3000}:3000
 
@@ -14,3 +35,6 @@ services:
       - backend
     ports:
       - ${TEST_DEPLOY_HOST_FRONTEND_PORT:-8080}:8080
+
+volumes:
+  postgres-data:

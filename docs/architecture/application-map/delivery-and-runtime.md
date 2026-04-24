@@ -47,11 +47,11 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Перед запуском rollout workflow синхронизирует checkout на VPS с `origin/main`, затем вызывает версионированный скрипт `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Оба VPS-стенда `test` и `test-e2e` поднимают backend с `NODE_ENV=test`, `ADMIN_TELEGRAM_ID=<env>` и `DISABLE_TG_AUTH=true`.
-- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice и `DATABASE_URL` для persistent users boundary; deploy-скрипт проверяет эти значения до container rollout.
+- Env-файл стенда должен также содержать `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice, `DATABASE_URL` для persistent users boundary и `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` для compose-managed PostgreSQL; deploy-скрипт проверяет эти значения до container rollout.
 - `SERVICE_TELEGRAM_BOT_TOKEN` в окружении задаётся только если стенд должен одновременно проверять Telegram auth path; пустое значение не ломает test-mode bypass сценарий.
-- Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`, а launcher использует `docker-compose.deploy.yml` для frontend и backend сервисов.
-- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE`, `DEPLOY_FRONTEND_IMAGE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull backend frontend` и `docker compose up -d backend frontend`.
-- Перед smoke-check launcher обязан подтвердить готовность `PostgreSQL` и применить schema/migration step для users boundary без ручного чтения backend implementation.
+- Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`, а launcher использует `docker-compose.deploy.yml` для PostgreSQL, frontend и backend сервисов.
+- Deploy launcher принимает `DEPLOY_BACKEND_IMAGE`, `DEPLOY_FRONTEND_IMAGE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, выполняет `docker login` при наличии `DEPLOY_REGISTRY_USERNAME` и `DEPLOY_REGISTRY_PASSWORD`, затем запускает `docker compose pull postgres backend frontend`, `docker compose up -d postgres` и `docker compose up -d backend frontend`.
+- Перед container rollout launcher обязан подтвердить готовность `PostgreSQL` через `DATABASE_URL` и применить schema/migration step для users boundary отдельным one-off запуском backend image.
 - Порт backend на host loopback берётся из `TEST_DEPLOY_HOST_BACKEND_PORT` или `PORT`; frontend публикуется на `TEST_DEPLOY_HOST_FRONTEND_PORT` и по умолчанию использует `8080`.
 - Канонический dual-stand contract:
 
@@ -61,12 +61,14 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 | `test-e2e` | `https://expressa-e2e-test.vitykovskiy.ru` | `/opt/expressa/env/test-e2e.env` | `expressa-test-e2e`   | `test-e2e`          | `3001`                          | `8081`                           |
 
 - `frontend/nginx.conf` публикует frontend root, `/backoffice/*` и `/customer/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
+- `docker-compose.deploy.yml` публикует PostgreSQL только во внутреннюю compose network и хранит данные в project-scoped volume `postgres-data`, поэтому стенды `test` и `test-e2e` не разделяют runtime database.
 - Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON-доступ к `GET /backoffice/orders`, published proxy JSON-доступ к `GET /backoffice/users` с `x-test-telegram-id`, published proxy JSON-доступ к `GET /customer/slots` и отказ production-like bypass через config validation внутри backend container.
 
 ## Restore path
 
 - Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
 - Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
+- Restore path сохраняет project-scoped PostgreSQL volume стенда и повторно применяет schema/migration step перед smoke-check.
 - После restore выполняется тот же smoke-check, что и после штатного rollout, включая published proxy `GET /backoffice/orders`, published proxy `GET /backoffice/users` и published proxy `GET /customer/slots`.
 
 ## QA e2e route
@@ -92,6 +94,9 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `PORT` определяет локальный порт backend для smoke-check; по умолчанию используется `3000`.
 - `BACKOFFICE_CORS_ORIGINS` обязан содержать непустой comma-separated список origin, которым backend разрешает browser-доступ к backoffice API.
 - `DATABASE_URL` обязан указывать на доступный `PostgreSQL` instance для persistent users boundary и schema migration step.
+- `POSTGRES_DB` задаёт имя базы данных для compose-managed PostgreSQL стенда.
+- `POSTGRES_USER` задаёт пользователя базы данных для compose-managed PostgreSQL стенда.
+- `POSTGRES_PASSWORD` задаёт пароль пользователя базы данных для compose-managed PostgreSQL стенда и хранится только во внешнем env-файле или секретном хранилище.
 - `VITE_BACKOFFICE_API_BASE_URL` может быть определён в окружении frontend build во время deploy.
 - `VITE_BACKOFFICE_TEST_TELEGRAM_ID` используется только для локального или серверно разрешённого test-mode bypass.
 - `ENV_FILE` указывает deploy launcher на env-файл test-стенда на VPS.
