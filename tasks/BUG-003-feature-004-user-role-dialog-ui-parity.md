@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-004`
 - Роль: `Фронтенд`
 - Приоритет: `Высокий`
-- Статус: `Ожидает тестирования`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -27,3 +27,18 @@
 - Проверки: `npm --prefix frontend run lint`, `npm --prefix frontend run stylelint`, `npm --prefix frontend run format:check`, `npm --prefix frontend run typecheck`, `npm --prefix frontend test`, `npm --prefix frontend run build`, `ручная сверка UI parity по QA-001-evidence.md`
 - Обновление карты приложения: `docs/architecture/application-map/frontend-backoffice.md обновляется, если выбранное исправление меняет frontend implementation map или допустимую модель диалога; индекс карт не требуется`
 - Критерии готовности: `QA может повторно проверить dialog parity без открытого deviation-recorded по AddUserDialog; поведение назначения роли остается в границах FEATURE-004 и использует server-driven availableRoleAssignments`
+
+## Результат выполнения
+
+- Дата проверки: `2026-04-25`
+- Результат: `Диалог /users соответствует каноническому AddUserDialog по title, description, editable required fields, role select, primary confirm button, ghost cancel button и использует тот же dialog component pattern без отдельного selector Пользователь из QA-001 deviation.`
+- Системное отличие: `Роль остается server-driven через availableRoleAssignments выбранного существующего пользователя; это соответствует FEATURE-004 и frontend implementation map, а scope остается в границах role assignment.`
+- Ручная сверка UI parity: `выполнена по QA-001-evidence.md, .references/Expressa_admin/src/app/components/AddUserDialog.tsx и frontend/src/components/user-management/UserRoleAssignmentDialog.vue; deviation-recorded по AddUserDialog снят.`
+- Проверки:
+  - `npm --prefix frontend run lint`: `pass`
+  - `npm --prefix frontend run stylelint`: `pass`
+  - `npm --prefix frontend run format:check`: `pass`
+  - `npm --prefix frontend run typecheck`: `pass`
+  - `npm --prefix frontend test`: `pass, 16 files / 76 tests`
+  - `npm --prefix frontend run build`: `pass`
+- Примечание к проверкам: `перед финальным format:check удалены локальные ignored artifacts frontend/playwright-report и frontend/test-results; это локальные output-директории browser test run вне исходного кода.`
