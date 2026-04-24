@@ -1,8 +1,8 @@
-# Шаблон сценариев тестирования фичи
+# Шаблон test-scenarios.md feature package
 
 ## Назначение
 
-Документ фиксирует канонические сценарии проверки одной `FEATURE-*`.
+Документ фиксирует QA slice decomposed feature package для одной `FEATURE-*`.
 
 Документ используется как:
 
@@ -10,17 +10,19 @@
 - маршрут ручного тестирования фичи;
 - источник traceability между Scenario ID, ручной проверкой и e2e-тестами;
 - контрольная точка ревью, по которой проверяется, что автоматизированные тесты подтверждают задокументированное ожидаемое поведение фичи.
+- часть feature package, оптимизированная для передачи QA-контекста без чтения широкого `docs/system/`.
 
 ## Размещение
 
-- Канонический путь: `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
-- Документ размещается рядом с feature spec той же фичи.
+- Канонический путь: `docs/system/feature-specs/<feature-id>-<slug>/test-scenarios.md`.
+- Документ размещается внутри folder package той же фичи.
 - Документ создается до передачи `FEATURE-*` архитектору.
-- Документ входит в `Системные артефакты` и `Минимальный read set` карточек `FEATURE-*`, `AR-*`, manual `QA-*` и e2e `QA-*`.
+- Документ входит в role read routes для `FEATURE-*`, `AR-*`, manual `QA-*` и e2e `QA-*`.
+- Legacy flat путь `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md` допустим только для существующих flat packages до ближайшего системно-аналитического обновления фичи.
 
 ## Владение
 
-- Системный аналитик создает и обновляет сценарии на основании feature spec, use cases, contracts, state models, UI behavior mapping и versioned UI/design sources.
+- Системный аналитик создает и обновляет сценарии на основании package slices, use cases, contracts, state models, UI behavior mapping и versioned UI/design sources.
 - Архитектор передает этот документ в обе QA-задачи при декомпозиции фичи.
 - Manual QA использует сценарии как чек-лист ручной приемки.
 - E2E QA использует сценарии как источник для автоматизированных browser e2e-тестов и coverage mapping.
@@ -29,16 +31,20 @@
 ## Карточка документа
 
 - Feature: `<FEATURE-001>`
-- Feature spec: `<docs/system/feature-specs/feature-001-slug.md>`
+- Package root: `<docs/system/feature-specs/feature-001-slug/>`
+- Index: `<./index.md>`
+- Behavior: `<./behavior.md>`
+- Interfaces: `<./interfaces.md>`
+- UI behavior: `<./ui-behavior.md | n/a>`
 - Статус сценариев: `<draft | ready-for-architecture | updated-after-analysis>`
 - Источники: `<use-cases, contracts, ui-behavior-mapping, state-models, .references при наличии>`
 - Последняя проверка согласованности: `<YYYY-MM-DD | pending>`
 
 ## Coverage Matrix
 
-| Scenario ID | Название             | Тип                                                     | Manual QA                   | E2E QA                      | Приоритет                        | Источник                                            |
-| ----------- | -------------------- | ------------------------------------------------------- | --------------------------- | --------------------------- | -------------------------------- | --------------------------------------------------- |
-| `FTS-001`   | `<Краткое название>` | `main / alternative / negative / guard / visual-parity` | `required / optional / n/a` | `required / optional / n/a` | `critical / high / medium / low` | `<feature spec / contract / use case / UI mapping>` |
+| Scenario ID | Название             | Тип                                                     | Manual QA                   | E2E QA                      | Приоритет                        | Источник                                             |
+| ----------- | -------------------- | ------------------------------------------------------- | --------------------------- | --------------------------- | -------------------------------- | ---------------------------------------------------- |
+| `FTS-001`   | `<Краткое название>` | `main / alternative / negative / guard / visual-parity` | `required / optional / n/a` | `required / optional / n/a` | `critical / high / medium / low` | `<package slice / contract / use case / UI mapping>` |
 
 ## Сценарии
 
@@ -71,15 +77,17 @@
 - Coverage mapping фиксирует тестовый файл, название теста и обязательные assertions для каждого e2e-covered сценария.
 - Сценарий с `E2E QA: required` считается покрытым после появления browser e2e-теста с assertions из этого документа.
 - Сценарий с `Manual QA: required` считается покрытым после ручного прохода по шагам и фиксации результата в `QA-*` карточке.
+- Ожидаемое поведение сценария должно ссылаться на `behavior.md`, `interfaces.md` или `ui-behavior.md`.
+- Сценарий не должен вводить новое поведение, отсутствующее в других package slices.
 
 ## Scope Constraints
 
 - Один документ покрывает одну `FEATURE-*`.
-- Сценарии описывают проверяемое поведение фичи.
+- Сценарии описывают проверяемое поведение фичи из package slices.
 - Результат manual QA хранится в `QA-*` карточке, а этот документ хранит канонический маршрут проверки.
 
 ## Safety Constraints
 
-- Ожидаемые результаты сценариев сохраняют смысл feature spec, contracts и use cases.
+- Ожидаемые результаты сценариев сохраняют смысл feature package, contracts и use cases.
 - Ослабление e2e assertions требует предварительного обновления сценария через системную аналитику.
 - Закрытие e2e QA требует соответствия automated coverage mapping сценариям с `E2E QA: required`.

@@ -6,7 +6,7 @@ You operate as a strict frontend engineer. Your job is to implement only the ass
 
 ## Input route
 
-- Use the assigned `FE-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Минимальный read set` as the task-specific source of truth.
+- Use the assigned `FE-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Маршрут чтения` as the task-specific source of truth; for legacy tasks, use `Минимальный read set` with the same meaning.
 - Use `docs/architecture/frontend-architecture.md` as the default frontend profile standard.
 - For the current internal administrative contour, use `docs/architecture/application-map/frontend-backoffice.md` unless the task names another contour map.
 - If the task changes a user interface, use the UI contract and reference source named by the task.

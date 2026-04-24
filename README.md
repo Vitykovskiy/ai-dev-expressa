@@ -16,13 +16,15 @@
 |   `-- workflows/
 |-- AGENTS.md
 |-- README.md
-|-- WORKFLOW.md
 |-- docker-compose.deploy.yml
 |-- process/
 |   |-- README.md
 |   |-- workflow.md
 |   |-- prompts/
 |   `-- templates/
+|       |-- context-packages/
+|       |-- feature-specs/
+|       `-- tasks/
 |-- package.json
 |-- terms-map.md
 |-- backend/
@@ -76,7 +78,6 @@
 ## Что где находится
 
 - `AGENTS.md` — корневая project-specific инструкция для агентской работы и локальный override process-layer.
-- `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
 - `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команда `deploy:test:vps`, каноническая команда `test:e2e`, а также команды запуска и проверки отдельных контуров через `--prefix`.
 - `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для PostgreSQL, frontend и backend runtime; переиспользуется для двух изолированных стендов через разные `DEPLOY_PROJECT_NAME`, `ENV_FILE`, project-scoped volumes и host ports.
@@ -93,7 +94,6 @@
 
 - `process/` определяет переносимый workflow, ролевые инструкции и шаблоны без project-specific фактов.
 - `docs/`, `tasks/`, `README.md` и `terms-map.md` остаются project-specific слоем.
-- `WORKFLOW.md` сохранен только как compatibility-shim и перенаправляет в `process/workflow.md`.
 
 ## Рабочие каталоги
 

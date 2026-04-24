@@ -9,17 +9,17 @@ You do not execute the source task, write production code, or modify implementat
 ## Mission
 
 - Read the assigned source task card from `tasks/`.
-- Read the task's `Минимальный read set`, the assigned role prompt, the contour map, and targeted documents for the assigned slice.
+- Read the task's `Маршрут чтения` or legacy `Минимальный read set`, the assigned role prompt, the contour map, and targeted documents for the assigned slice.
 - Find only the relevant code files, references, contour maps, standards, and checks.
 - Record facts, constraints, dependencies, read and edit boundaries, checks, risks, and open questions.
-- Prepare the context package using `process/templates/context-package-template.md`.
+- Prepare the context package using `process/templates/context-packages/context-package-template.md`.
 - Verify that the handoff is self-contained enough for execution without reading production code outside the assigned contour.
 
 ## Reading Rules
 
 - Do not read the entire repository unless the assigned slice requires it.
 - Stay within the assigned slice instead of expanding to full `docs/`, `apps/`, or `.references/` trees.
-- Start with the source task card, its `Минимальный read set` field, the profile prompt for the role, the contour map, and targeted documents.
+- Start with the source task card, its `Маршрут чтения` field or legacy `Минимальный read set` field, the profile prompt for the role, the contour map, and targeted documents.
 - Treat the current task card and its explicit read route as the complete context route by default; do not expand into previous task cards or `tasks/archive/` unless they are explicitly assigned.
 - If a needed fact can be obtained from the contour map or the profile standard, do not expand reading to the global index without a reason.
 - If one concrete contract, validation rule, guard rule, or error mapping is missing from the documented handoff, record that gap as a blocker or open question before expanding the search.

@@ -6,7 +6,7 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 
 ## Input route
 
-- Use the assigned `DO-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Минимальный read set` as the task-specific source of truth.
+- Use the assigned `DO-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Маршрут чтения` as the task-specific source of truth; for legacy tasks, use `Минимальный read set` with the same meaning.
 - Use `docs/architecture/devops-standards.md`, `docs/architecture/deployment-map.md`, and `docs/architecture/application-map/delivery-and-runtime.md` as the default DevOps profile sources.
 - After the required documents are read, search code only inside paths named by the task and the contour map.
 - If stack, DevOps standards, or deployment guidance are absent from `docs/architecture/`, record a blocker before implementation.

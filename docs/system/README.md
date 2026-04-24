@@ -4,7 +4,8 @@
 
 ## Как искать документ
 
-- Если нужно начать работу по конкретной `FEATURE-*`: сначала читать ее `feature-spec` в `feature-specs/`, затем точечно переходить в связанные `contracts`, `use-cases`, `domain-model`, `state-models`, `ui-behavior-mapping` и `ui-contracts`.
+- Если нужно начать работу по конкретной новой `FEATURE-*`: сначала читать package `feature-specs/<feature-id>-<slug>/index.md`, затем только role-relevant package slices и supporting sources, назначенные в role read routes.
+- Если `FEATURE-*` еще хранится в legacy flat format: читать ее flat feature spec и sibling `.test-scenarios.md`, затем точечно переходить в связанные supporting sources.
 - Если нужно понять границы системы, внешние роли, Telegram-точки входа, системные срезы для анализа и зафиксированные несогласованности: `system-context`.
 - Если нужно понять верхнеуровневые задачи поставки и их зависимости: переходите в `tasks/`, а не в `system-context`.
 - Если нужно понять сущности, связи и инварианты предметной области: `domain-model`.
@@ -14,19 +15,22 @@
 - Если нужно понять, как экран, действие, UI-state или role-guard связаны с системным поведением: `ui-behavior-mapping`.
 - Если нужен входной UI-указатель на канонический визуальный источник и системные ограничения: `ui-contracts`.
 
-Для `FEATURE-*` основным входом архитектора является `feature-spec`. `ui-contracts` остаются указателем на визуальный канон и прототипы, `ui-behavior-mapping` остается связкой экранов с системным поведением, а feature-level handoff задается через `feature-spec`.
+Для новых `FEATURE-*` основным входом архитектора является decomposed feature package. `ui-contracts` остаются указателем на визуальный канон и прототипы, `ui-behavior-mapping` остается связкой экранов с системным поведением, а feature-level handoff задается через package slices.
 
 ## Семейства артефактов
 
 ### `feature-specs`
 
-- Один файл = одна `FEATURE-*`.
-- Путь: `feature-specs/<feature-id>-<slug>.md`.
-- Использовать как первый маршрут чтения для архитектурной декомпозиции конкретной фичи.
-- Feature spec собирает в разрезе одной фичи границу, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design-readiness status и ссылки на canonical system sources и versioned `.references` sources.
-- Canonical источниками остаются `use-cases`, `contracts`, `domain-model`, `state-models` и `ui-behavior-mapping`; feature spec ссылается на них и фиксирует сценарный handoff для архитектора.
-- Для UI-фич feature spec подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
-- Архитектор начинает с feature spec, затем точечно читает связанные contracts/use-cases/domain/state/ui mapping. При gap в сценариях, inputs, validations, errors, UI states или design readiness фича возвращается системному аналитику.
+- Один folder package = одна `FEATURE-*`.
+- Новый путь: `feature-specs/<feature-id>-<slug>/`.
+- Required slices: `index.md`, `behavior.md`, `interfaces.md`, `ui-behavior.md`, `test-scenarios.md`.
+- Использовать `index.md` как первый маршрут чтения для архитектурной декомпозиции конкретной фичи.
+- Package раскладывает feature-level context по срезам, чтобы агент читал только релевантную часть: boundary/navigation, behavior, interfaces, UI behavior и QA scenarios.
+- Canonical источниками анализа остаются `use-cases`, `contracts`, `domain-model`, `state-models` и `ui-behavior-mapping`; package фиксирует feature-specific выводы и точечные ссылки.
+- Для UI-фич `ui-behavior.md` подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
+- Для non-UI фич `ui-behavior.md` остается коротким slice со статусом `n/a`.
+- Архитектор начинает с package `index.md`, затем читает назначенные role read routes. При gap в сценариях, inputs, validations, errors, interfaces, UI states, role read routes или design readiness фича возвращается системному аналитику.
+- Legacy flat files `feature-specs/<feature-id>-<slug>.md` и `feature-specs/<feature-id>-<slug>.test-scenarios.md` допустимы для существующих фич до ближайшего системно-аналитического обновления.
 
 - `FEATURE-001 Administrator Telegram Backoffice Access`
   - Файл: [feature-specs/feature-001-administrator-telegram-backoffice-access.md](./feature-specs/feature-001-administrator-telegram-backoffice-access.md)
@@ -41,7 +45,7 @@
 - `FEATURE-004 Administrator User Role Management`
   - Файл: [feature-specs/feature-004-administrator-user-role-management.md](./feature-specs/feature-004-administrator-user-role-management.md)
   - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management.test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management.test-scenarios.md)
-  - Использовать как основной handoff архитектору по административному сценарию просмотра пользователей и назначения ролей `barista` и `administrator`; feature spec и sibling test scenarios уже фиксируют consumer-facing transport/API boundary `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role`.
+  - Legacy flat package. Использовать как основной handoff архитектору по административному сценарию просмотра пользователей и назначения ролей `barista` и `administrator`; flat feature spec и sibling test scenarios уже фиксируют consumer-facing transport/API boundary `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role`.
   - При декомпозиции использовать вместе с `contracts/user-role-and-blocking-management.md`: правило назначения роли `administrator` зафиксировано через guard `BootstrapAdministrator`, открытый blocker по этой фиче снят.
 
 ### `system-context`
@@ -174,16 +178,17 @@
 
 ## Быстрый маршрут для следующей роли
 
-- Если задача привязана к конкретной `FEATURE-*`: читать `README.md`, затем `docs/system/feature-specs/<feature-id>-<slug>.md`, затем только связанные в feature spec `contracts`, `use-cases`, `domain-model`, `state-models`, `ui-behavior-mapping`, `ui-contracts` и архитектурные карты.
+- Если задача привязана к конкретной новой `FEATURE-*`: читать `README.md`, затем `docs/system/feature-specs/<feature-id>-<slug>/index.md`, затем только package slices и supporting sources из role read routes.
+- Если задача привязана к legacy flat `FEATURE-*`: читать `README.md`, затем `docs/system/feature-specs/<feature-id>-<slug>.md`, sibling `.test-scenarios.md`, затем только связанные supporting sources и архитектурные карты.
 - Если задача про создание заказа customer: читать `system-context/expressa-v1-telegram-ordering.md`, `domain-model/ordering-and-pickup.md`, `use-cases/customer-create-pickup-order.md`, `contracts/customer-ordering.md`, `state-models/order-lifecycle.md`.
 - Если задача про каталог и допы: читать `domain-model/menu-catalog.md`, `use-cases/administrator-manage-menu.md`, `use-cases/barista-manage-menu-availability.md`, `contracts/menu-and-availability-management.md`.
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
-- Если задача про роли, Telegram-доступ и блокировку: для `FEATURE-004` сначала читать ее feature spec и sibling test scenarios, затем `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
+- Если задача про роли, Telegram-доступ и блокировку: для `FEATURE-004` сначала читать ее legacy flat feature spec и sibling test scenarios, затем `domain-model/identity-and-access.md`, `use-cases/administrator-manage-users-and-roles.md`, `use-cases/administrator-block-user.md`, `contracts/user-role-and-blocking-management.md`.
 - Если задача про вход во внутренний backoffice, session bootstrap, capability guard или test-mode ограничения: читать `domain-model/identity-and-access.md`, `contracts/backoffice-auth-and-capability-access.md`, `ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`.
 - Если задача про слоты и вместимость: читать `domain-model/ordering-and-pickup.md`, `use-cases/administrator-manage-slot-settings.md`, `contracts/slot-settings-management.md`.
-- Если задача приходит из UI-контракта или экранного флоу на этапе подготовки `FEATURE-*`: читать соответствующий файл в `ui-contracts/`, затем нужные versioned-файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`; перед передачей архитектору создать feature spec.
-- Если задача про UI внутреннего административного контура: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-backoffice-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_admin`, `ui-behavior-mapping/backoffice-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
-- Если задача про UI клиентского веб-интерфейса: читать `README.md`, затем feature spec целевой `FEATURE-*` при его наличии; для подготовки feature spec читать `ui-contracts/expressa-customer-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_customer`, `ui-behavior-mapping/customer-ordering-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача приходит из UI-контракта или экранного флоу на этапе подготовки `FEATURE-*`: читать соответствующий файл в `ui-contracts/`, затем нужные versioned-файлы в `.references`, затем соответствующий файл в `ui-behavior-mapping/` вместе с целевыми `use-cases`, `contracts` и `state-models`; перед передачей архитектору создать feature package.
+- Если задача про UI внутреннего административного контура: читать `README.md`, затем package `index.md` целевой `FEATURE-*` при его наличии; для подготовки feature package читать `ui-contracts/expressa-backoffice-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_admin`, `ui-behavior-mapping/backoffice-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
+- Если задача про UI клиентского веб-интерфейса: читать `README.md`, затем package `index.md` целевой `FEATURE-*` при его наличии; для подготовки feature package читать `ui-contracts/expressa-customer-ui-contract.md`, нужные versioned-файлы в `.references/Expressa_customer`, `ui-behavior-mapping/customer-ordering-ui-binding.md` и затем целевые `use-cases`, `contracts`, `domain-model` и `state-models`.
 - Если в ходе системного анализа выявлены design gaps или required prototype updates, системный аналитик должен ссылаться на конкретные versioned-файлы в `.references/`, зафиксировать требования к изменениям и выполнить повторную верификацию по обновленному Git-tracked состоянию этих файлов.
 
 ## Зафиксированные blockers и вопросы
