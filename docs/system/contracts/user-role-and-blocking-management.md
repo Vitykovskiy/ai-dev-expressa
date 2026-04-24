@@ -81,7 +81,9 @@
 
 - `items[].roles` отражает фактический набор ролей пользователя на стороне identity-access boundary.
 - `items[].blocked` передается как наблюдаемое состояние пользователя, потому что оно влияет на смежный административный контур, но само по себе не инициирует действие блокировки в рамках этого контракта.
-- `items[].availableRoleAssignments` ограничивается набором `barista`, `administrator` и не снимает blocker по правилу назначения `administrator`.
+- `items[].availableRoleAssignments` отражает набор ролей, которые инициатор может назначить целевому пользователю без дополнительных догадок из production-кода.
+- Для обычного `administrator` `items[].availableRoleAssignments` включает только `barista`.
+- Для `BootstrapAdministrator` `items[].availableRoleAssignments` может включать `barista` и `administrator`.
 
 ### Transport errors
 
@@ -126,7 +128,8 @@
 - Контракт изменяет только ролевое назначение пользователя и связанный доступ к вкладкам backoffice.
 - Контракт не изменяет роль `customer`.
 - Контракт не выполняет блокировку или разблокировку пользователя.
-- Контракт не подменяет blocker по праву назначения `administrator` предположением о том, кто имеет это право.
+- Любой `administrator` с capability `users` может назначить роль `barista`.
+- Только `BootstrapAdministrator`, совпадающий с `ADMIN_TELEGRAM_ID`, может назначить роль `administrator`.
 
 ### Response `200 OK`
 
@@ -145,21 +148,21 @@
 - `roles` отражает фактически сохраненный набор ролей пользователя после операции.
 - `backofficeAccess.capabilities` отражает пересчитанный доступ пользователя к вкладкам backoffice на основании серверного набора ролей.
 - Для назначения `barista` пересчитанный доступ ограничивается capabilities, соответствующими вкладкам `Заказы` и `Доступность`.
-- Для назначения `administrator` shape успешного ответа остается тем же, но допустимость самой операции остается зависимой от отдельного blocker.
+- Для назначения `administrator` shape успешного ответа остается тем же и возвращается только после проверки правила `BootstrapAdministrator`.
 
 ### Transport and business errors
 
 - `401 Unauthorized` + `telegram-init-data-required | telegram-bot-token-required | telegram-hash-invalid` — auth context backoffice не подтвержден.
 - `403 Forbidden` + `backoffice-capability-forbidden` — у инициатора нет capability `users`.
 - `403 Forbidden` + `administrator-role-required` — инициатор не имеет административных прав для операции назначения роли.
+- `403 Forbidden` + `administrator-role-assignment-forbidden` — инициатор пытается назначить роль `administrator`, не являясь `BootstrapAdministrator`.
 - `404 Not Found` + `user-not-found` — целевой пользователь не найден в identity-access boundary.
-- `409 Conflict` + `administrator-assignment-rule-unresolved` — запрос на назначение роли `administrator` достиг открытого blocker по правилу назначения этой роли.
 - `422 Unprocessable Entity` + `role-not-assignable` — запрошено значение роли вне набора `barista`, `administrator`.
 - `500 Internal Server Error` + `identity-access-write-failed` — identity-access boundary не смог сохранить новое ролевое назначение без частичного результата.
 
 ### Несогласованности
 
-- Требование о том, кто именно имеет право назначать роль `administrator`, противоречиво и требует отдельного разрешения.
+- Отсутствуют.
 
 ## Contract `Block user`
 

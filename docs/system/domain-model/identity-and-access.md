@@ -50,7 +50,8 @@
 
 - `User` с ролью `customer` использует `customer-telegram-entry`.
 - `User` с ролью `barista` или `administrator` использует `backoffice-telegram-entry`.
-- `administrator` назначает роли другим `User`.
+- `administrator` с capability `users` назначает роль `barista` другим `User`.
+- `BootstrapAdministrator` назначает роль `administrator` другим `User`.
 - `administrator` может установить для `User` признак `blocked=true`.
 
 ## Наблюдаемые операции доменной границы
@@ -68,6 +69,8 @@
 - Доступ к вкладкам backoffice определяется ролью пользователя.
 - Роль `barista` даёт доступ только к вкладкам `Заказы` и `Доступность`.
 - Роль `administrator` даёт доступ к вкладкам `Заказы`, `Доступность`, `Меню`, `Пользователи`, `Настройки`.
+- Только `BootstrapAdministrator` может назначать роль `administrator`.
+- Любой `administrator` с capability `users` может назначать роль `barista`.
 - Наблюдаемые transport/API контракты управления пользователями должны выражать guard по capability `users` без восстановления этого правила из production-кода.
 
 ## Наблюдаемые пробелы
@@ -77,6 +80,4 @@
 
 ## Несогласованности
 
-- Право назначения новых `administrator` противоречиво:
-  - `docs/business/business-rules/access-and-roles.md` и `docs/business/scenarios/administrator-manage-users-and-roles.md` допускают назначение `administrator` со стороны `administrator`;
-  - Бизнес-артефакты не фиксируют однозначно, может ли любой `administrator` назначать новых `administrator`, или это право есть только у главного administrator.
+- Отсутствуют.
