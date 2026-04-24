@@ -6,20 +6,21 @@
 - Feature spec: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`
 - Статус сценариев: `updated-after-analysis`
 - Источники: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`
-- Последняя проверка согласованности: `2026-04-23`
+- Последняя проверка согласованности: `2026-04-24`
 
 ## Coverage Matrix
 
-| Scenario ID   | Название                                                      | Тип             | Manual QA  | E2E QA     | Приоритет  | Источник                                                                                                                  |
-| ------------- | ------------------------------------------------------------- | --------------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `FTS-004-001` | Отображение списка пользователей и entrypoint назначения роли | `main`          | `required` | `required` | `critical` | `feature spec`, `administrator-manage-users-and-roles.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`   |
-| `FTS-004-002` | Успешное назначение роли `barista` новому пользователю        | `main`          | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx` |
-| `FTS-004-003` | Поиск и фильтрация списка перед выбором пользователя          | `alternative`   | `required` | `optional` | `high`     | `feature spec`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                                              |
-| `FTS-004-004` | Пустое состояние списка пользователей                         | `alternative`   | `required` | `optional` | `medium`   | `feature spec`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                                              |
-| `FTS-004-005` | Ошибка при недопустимой назначаемой роли                      | `negative`      | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`                                                                    |
-| `FTS-004-006` | Guard доступа к назначению роли без административных прав     | `guard`         | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`, `backoffice-ui-binding.md`                                        |
-| `FTS-004-007` | Blocker назначения роли `administrator`                       | `guard`         | `required` | `n/a`      | `critical` | `feature spec`, `administrator-manage-users-and-roles.md`, `user-role-and-blocking-management.md`                         |
-| `FTS-004-008` | UI boundary: сценарий не расширяется до `unblock_user`        | `visual-parity` | `required` | `n/a`      | `medium`   | `feature spec`, `backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                  |
+| Scenario ID   | Название                                                       | Тип             | Manual QA  | E2E QA     | Приоритет  | Источник                                                                                                                  |
+| ------------- | -------------------------------------------------------------- | --------------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `FTS-004-001` | Отображение списка пользователей и entrypoint назначения роли  | `main`          | `required` | `required` | `critical` | `feature spec`, `administrator-manage-users-and-roles.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`   |
+| `FTS-004-002` | Успешное назначение роли `barista` новому пользователю         | `main`          | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx` |
+| `FTS-004-003` | Поиск и фильтрация списка перед выбором пользователя           | `alternative`   | `required` | `optional` | `high`     | `feature spec`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                                              |
+| `FTS-004-004` | Пустое состояние списка пользователей                          | `alternative`   | `required` | `optional` | `medium`   | `feature spec`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                                              |
+| `FTS-004-005` | Ошибка при недопустимой назначаемой роли                       | `negative`      | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`                                                                    |
+| `FTS-004-006` | Guard доступа к назначению роли без административных прав      | `guard`         | `required` | `required` | `critical` | `feature spec`, `user-role-and-blocking-management.md`, `backoffice-ui-binding.md`                                        |
+| `FTS-004-007` | Успешное назначение роли `administrator` главным administrator | `main`          | `required` | `required` | `critical` | `feature spec`, `administrator-manage-users-and-roles.md`, `user-role-and-blocking-management.md`                         |
+| `FTS-004-008` | Guard назначения роли `administrator` не главным administrator | `guard`         | `required` | `required` | `critical` | `feature spec`, `administrator-manage-users-and-roles.md`, `user-role-and-blocking-management.md`                         |
+| `FTS-004-009` | UI boundary: сценарий не расширяется до `unblock_user`         | `visual-parity` | `required` | `n/a`      | `medium`   | `feature spec`, `backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`                  |
 
 ## Сценарии
 
@@ -169,31 +170,57 @@
   - Test title / ID: `FTS-004-006 role assignment access guard`
   - Required assertions: `проверка отсутствия вкладки users, проверка protected или forbidden state при прямом доступе, проверка transport status 403, проверка business error backoffice-capability-forbidden или administrator-role-required`
 
-### `FTS-004-007` — Blocker назначения роли `administrator`
+### `FTS-004-007` — Успешное назначение роли `administrator` главным administrator
 
-- Цель: зафиксировать открытый blocker по праву назначения роли `administrator` и не подменять его недоказанным правилом.
-- Тип: `guard`
-- Покрытие: `Manual QA: required; E2E QA: n/a`
-- Источники: `feature spec / Exception workflows`, `feature spec / Blockers`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/contracts/user-role-and-blocking-management.md`
-- Предусловия: пользователь аутентифицирован как `administrator`; форма назначения роли допускает выбор `administrator`.
+- Цель: подтвердить happy path назначения роли `administrator` только главным administrator.
+- Тип: `main`
+- Покрытие: `Manual QA: required; E2E QA: required`
+- Источники: `feature spec / Alternative workflows`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/contracts/user-role-and-blocking-management.md`
+- Предусловия: пользователь аутентифицирован как `BootstrapAdministrator`; capability `users` доступна; целевой пользователь существует и допускает назначение роли `administrator`.
 - Тестовые данные: `role=administrator`
 - Шаги:
-  1. Открыть форму назначения роли.
-  2. Выбрать роль `Администратор`.
-  3. Сверить ожидаемое поведение с каноническими системными артефактами.
+  1. Открыть экран `Пользователи` под главным administrator.
+  2. Открыть форму назначения роли.
+  3. Выбрать роль `Администратор`.
+  4. Подтвердить операцию.
 - Ожидаемый результат:
-  1. `Система должна сохранять сценарий назначения роли administrator как аналитически незавершенный blocker.`
-  2. `Система должна не трактовать этот сценарий как согласованное разрешение для любого administrator.`
-  3. `Система должна возвращать 409 Conflict с ошибкой administrator-assignment-rule-unresolved и передавать blocker в архитектурный handoff явно, а не скрывать его за UI-наличием выбора роли.`
+  1. `Система должна принять роль administrator как допустимую для инициатора, совпадающего с ADMIN_TELEGRAM_ID.`
+  2. `Система должна отправить PATCH /backoffice/users/{userId}/role с body role=administrator и сохранить ролевое назначение без частичного результата.`
+  3. `Система должна вернуть success response с фактически сохраненным набором roles и пересчитанным backofficeAccess.capabilities целевого пользователя.`
+  4. `Система должна показать наблюдаемое уведомление об успешной административной операции.`
 - Проверяемые инварианты:
-  - Наличие опции `administrator` в UI reference не является доказательством согласованного правила авторизации.
-  - Blocker должен оставаться видимым в QA coverage и handoff-артефактах.
+  - Назначение роли `administrator` доступно только `BootstrapAdministrator`.
+  - Shape успешного ответа совпадает с contract `Assign user role`.
 - E2E mapping:
-  - Test file: `n/a`
-  - Test title / ID: `n/a`
-  - Required assertions: `n/a; ручная проверка должна подтвердить наличие в канонических артефактах transport-level ошибки 409 administrator-assignment-rule-unresolved`
+  - Test file: `будет определен в e2e QA`
+  - Test title / ID: `FTS-004-007 assign administrator role by bootstrap administrator`
+  - Required assertions: `проверка успешной отправки PATCH /backoffice/users/{userId}/role с role=administrator, проверка success notification, проверка response roles и backofficeAccess.capabilities, проверка отсутствия business error administrator-role-assignment-forbidden`
 
-### `FTS-004-008` — UI boundary: сценарий не расширяется до `unblock_user`
+### `FTS-004-008` — Guard назначения роли `administrator` не главным administrator
+
+- Цель: подтвердить, что обычный `administrator` не может назначить роль `administrator`.
+- Тип: `guard`
+- Покрытие: `Manual QA: required; E2E QA: required`
+- Источники: `feature spec / Exception workflows`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/contracts/user-role-and-blocking-management.md`
+- Предусловия: пользователь аутентифицирован как `administrator`, но не совпадает с `BootstrapAdministrator`; форма назначения роли допускает выбор `administrator`.
+- Тестовые данные: `role=administrator`
+- Шаги:
+  1. Открыть форму назначения роли под обычным administrator.
+  2. Выбрать роль `Администратор`.
+  3. Подтвердить операцию.
+- Ожидаемый результат:
+  1. `Система должна отклонить изменение роли без изменения ролей целевого пользователя.`
+  2. `Система должна вернуть 403 Forbidden с ошибкой administrator-role-assignment-forbidden.`
+  3. `Система должна сохранить текущее состояние экрана без ложного success state.`
+- Проверяемые инварианты:
+  - Наличие опции `administrator` в UI не отменяет серверный guard `BootstrapAdministrator`.
+  - Ошибка назначения роли `administrator` не приводит к частичному сохранению.
+- E2E mapping:
+  - Test file: `будет определен в e2e QA`
+  - Test title / ID: `FTS-004-008 forbid administrator role assignment for non-bootstrap administrator`
+  - Required assertions: `проверка transport status 403, проверка business error administrator-role-assignment-forbidden, проверка отсутствия success notification, проверка неизменности набора ролей пользователя`
+
+### `FTS-004-009` — UI boundary: сценарий не расширяется до `unblock_user`
 
 - Цель: зафиксировать границу фичи и исключить смешение назначения роли с блокировкой или разблокировкой пользователя.
 - Тип: `visual-parity`
