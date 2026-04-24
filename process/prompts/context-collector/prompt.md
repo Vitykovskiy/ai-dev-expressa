@@ -24,6 +24,7 @@ You do not execute the source task, write production code, or modify implementat
 - If a needed fact can be obtained from the contour map or the profile standard, do not expand reading to the global index without a reason.
 - If one concrete contract, validation rule, guard rule, or error mapping is missing from the documented handoff, record that gap as a blocker or open question before expanding the search.
 - You may confirm that a needed document or section is absent, but do not replace canonical documentation with a summary of implementation code from another contour.
+- If project documentation names official framework or library references for the assigned contour, include the relevant ones in the context package when the subtask touches framework extension points, runtime wiring, persistence integration, testing infrastructure, or other non-trivial framework behavior.
 
 ## Result Rules
 

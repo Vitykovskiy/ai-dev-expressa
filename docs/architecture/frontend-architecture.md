@@ -6,6 +6,8 @@
 - Для backoffice UI используется `Vuetify`.
 - React-референсы из `.references/Expressa_admin` применяются как визуальный и поведенческий ориентир, но не как стек реализации.
 - Клиентский код не является источником истины по ролям, Telegram identity или test-mode доступу.
+- Для routing, composition, forms, reactivity и UI composition используется нативный путь project-selected client stack, если он покрывает задачу без нарушения project constraints.
+- Перед выбором нового frontend package исполнитель читает релевантные разделы official docs из `docs/architecture/stack.md` и проверяет, не перекрывает ли этот сценарий встроенный механизм текущего client stack или уже принятого UI toolkit.
 
 ## Для FEATURE-001
 

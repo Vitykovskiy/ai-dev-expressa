@@ -5,6 +5,8 @@
 - Серверная часть Expressa v1 реализуется на `NestJS`.
 - Контур идентификации и доступа должен быть отделён от доменных контуров меню, слотов, заказов и уведомлений.
 - Backend является источником истины по пользователю, Telegram identity, ролям и доступу к backoffice capabilities.
+- Для server-side infrastructure, module wiring, config, validation, guards и persistence integration используется нативный путь `NestJS`, если он покрывает задачу без нарушения project constraints.
+- Перед выбором нового backend package исполнитель читает релевантные разделы official docs из `docs/architecture/stack.md` и проверяет, не перекрывает ли этот сценарий встроенный `NestJS`-механизм или уже принятая project-specific библиотека.
 
 ## Для FEATURE-001
 
@@ -25,6 +27,7 @@
 - `service.ts` отвечает за application orchestration: вызывает domain validation, repository и внешние adapters внутри своего контура. Service не должен знать детали HTTP headers, Telegram init data parsing или frontend route behavior.
 - `domain/*.types.ts`, `domain/*.validator.ts` и `domain/*.errors.ts` содержат доменные типы, инварианты и канонические ошибки. Доменные правила нельзя восстанавливать из controller tests или UI-кода.
 - `repository/*` является слоем хранения данных. In-memory repository допустим как текущий adapter, но он не должен становиться местом доменной валидации или auth checks.
+- Persistence integration должна сначала опираться на нативные NestJS-механизмы composition, configuration и lifecycle; дополнительный database client, ORM или SQL toolkit подключается только по явно зафиксированному architecture decision.
 - Access boundary (`identity-access`) является источником истины по actor, roles, blocked state, Telegram/test-mode auth и capabilities. Доменные модули меню, слотов, заказов и уведомлений используют guard/capability contract, но не реализуют собственную модель identity.
 - Static backoffice endpoints без `:capability` обязаны использовать metadata decorator с канонической capability, например `menu`, и общий `BackofficeAuthGuard`.
 - Целевой размер: controller до 250 строк, service до 300 строк, validator до 250 строк, repository adapter до 250 строк. Превышение требует декомпозиции или явного обоснования в ревью.

@@ -11,6 +11,26 @@
 - React-референс `.references/Expressa_admin` является визуальным и поведенческим ориентиром, но не задаёт технологический стек реализации.
 - Сервисы должны оставаться независимыми по границам ответственности; общая авторизация не должна смешиваться с управлением меню, слотами, ролями или блокировкой.
 
+## Правило использования framework stack
+
+- Исполнитель обязан сначала использовать встроенные возможности фреймворков и платформ, зафиксированных в этом документе и профильных архитектурных стандартах, если они покрывают требуемый сценарий без нарушения архитектурных ограничений.
+- Внешняя библиотека допускается только если project stack не покрывает требуемую capability нативно либо если отдельное архитектурное решение явно фиксирует использование этой библиотеки.
+- Выбор внешней библиотеки вместо нативного пути фреймворка требует явного архитектурного обоснования в project documentation до handoff в реализацию.
+
+## Official documentation route
+
+- `NestJS`: https://docs.nestjs.com
+- `PostgreSQL`: https://www.postgresql.org/docs/
+- `Vue 3`: https://vuejs.org/guide/
+- `Vuetify`: https://vuetifyjs.com/en/getting-started/installation/
+- `Docker Compose`: https://docs.docker.com/compose/
+- `Playwright`: https://playwright.dev/docs/intro
+
+## Правило чтения official docs
+
+- Если задача меняет framework extension points, dependency injection wiring, persistence integration, migrations, validation pipeline, auth flow, routing, UI-kit composition, build tooling, testing infrastructure или deployment behavior, исполнитель обязан прочитать релевантные разделы official documentation до выбора реализации.
+- Project-specific архитектурные документы задают, какие official docs обязательны для конкретного контура и какой нативный путь считается предпочтительным.
+
 ## Базовое решение по хранению данных
 
 - Пользователи, роли, blocked state, каталог меню, настройки слотов и другие доменные данные должны храниться в `PostgreSQL`.
