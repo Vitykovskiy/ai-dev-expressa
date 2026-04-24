@@ -42,7 +42,7 @@
   - Файл: [feature-specs/feature-004-administrator-user-role-management.md](./feature-specs/feature-004-administrator-user-role-management.md)
   - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management.test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management.test-scenarios.md)
   - Использовать как основной handoff архитектору по административному сценарию просмотра пользователей и назначения ролей `barista` и `administrator`; feature spec и sibling test scenarios уже фиксируют consumer-facing transport/API boundary `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role`.
-  - При декомпозиции сохранять единственный открытый blocker по праву назначения роли `administrator`; отсутствие contract boundary больше не является blocker для маршрута чтения.
+  - При декомпозиции использовать вместе с `contracts/user-role-and-blocking-management.md`: правило назначения роли `administrator` зафиксировано через guard `BootstrapAdministrator`, открытый blocker по этой фиче снят.
 
 ### `system-context`
 
@@ -188,7 +188,6 @@
 
 ## Зафиксированные blockers и вопросы
 
-- Не согласовано, кто имеет право назначать роль `administrator`: любой `administrator` или только главный administrator.
 - Не определена периодичность Telegram-напоминаний barista.
 - Не зафиксировано системное поведение при конкурентной попытке занять последний слот выдачи.
 - Не определён требуемый уровень snapshot-данных каталога внутри заказа после последующего изменения меню.

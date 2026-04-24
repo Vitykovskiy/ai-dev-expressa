@@ -6,10 +6,10 @@
 - Parent sprint: `SPRINT-001`
 - Feature spec: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`
 - Test scenarios: `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`
-- Status: `draft`
+- Status: `ready-for-architecture`
 - Related roles: `Системный аналитик`, `Архитектор`, `Frontend`, `Backend`, `QA`
 - Affected interfaces: `backoffice users screen`, `assign user role contract`, `identity and access boundary`
-- Last consistency check: `2026-04-23`
+- Last consistency check: `2026-04-24`
 
 ## Source Trace
 
@@ -29,7 +29,7 @@
 
 - `ui-contract`: `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`
 - `versioned design sources`: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`
-- `prototype verification status`: `blocked`
+- `prototype verification status`: `verified`
 
 ## Feature Boundary
 
@@ -38,8 +38,8 @@
 - Просмотр списка пользователей во вкладке `Пользователи` backoffice.
 - Поиск и фильтрация списка пользователей как часть пользовательского сценария выбора цели назначения роли.
 - Открытие формы добавления пользователя как UI entrypoint для операции назначения роли.
-- Назначение пользователю роли `barista`.
-- Назначение пользователю роли `administrator` как допустимой роли в системном контракте с отдельным blocker по праву назначения.
+- Назначение пользователю роли `barista` любым `administrator` с capability `users`.
+- Назначение пользователю роли `administrator` только главным `administrator`, совпадающим с `ADMIN_TELEGRAM_ID`.
 - Пересчет доступа пользователя к вкладкам backoffice после успешного назначения роли.
 - Явная фиксация зависимости от постоянного хранения пользователей, ролей и `blocked state` в `PostgreSQL`.
 
@@ -50,7 +50,6 @@
 - Изменение роли `customer`.
 - Отзыв уже выданной роли.
 - Изменение визуального канона экрана `Пользователи` вне зафиксированного референса.
-- Устранение blocker по праву назначения роли `administrator` без отдельного согласования источника.
 
 ### Business outcome
 
@@ -86,7 +85,7 @@
 - Purpose in feature flow: изменить набор ролей целевого пользователя и вернуть пересчитанный доступ к вкладкам backoffice.
 - Request body in scope: `{ "role": "barista" | "administrator" }`
 - Success semantics: `200 OK` возвращает `userId`, фактически сохраненный набор `roles` и `backofficeAccess.capabilities`.
-- Error semantics: `401 Unauthorized` с кодом auth boundary, `403 Forbidden` + `backoffice-capability-forbidden | administrator-role-required`, `404 Not Found` + `user-not-found`, `409 Conflict` + `administrator-assignment-rule-unresolved`, `422 Unprocessable Entity` + `role-not-assignable`, `500 Internal Server Error` + `identity-access-write-failed`.
+- Error semantics: `401 Unauthorized` с кодом auth boundary, `403 Forbidden` + `backoffice-capability-forbidden | administrator-role-required | administrator-role-assignment-forbidden`, `404 Not Found` + `user-not-found`, `422 Unprocessable Entity` + `role-not-assignable`, `500 Internal Server Error` + `identity-access-write-failed`.
 
 ## User Workflows
 
@@ -96,10 +95,10 @@
 2. `Система должна вызвать contract Read users list через GET /backoffice/users и отобразить список пользователей, доступный для выбора цели назначения роли.`
 3. `Administrator` при необходимости использует поиск или фильтр для уточнения списка.
 4. `Administrator` инициирует действие добавления пользователя или выбора роли для существующего пользователя.
-5. Система должна предоставить форму с выбором допустимой назначаемой роли из набора `barista` и `administrator`.
+5. Система должна предоставить форму с выбором допустимой назначаемой роли из набора `barista` и `administrator` в соответствии с `availableRoleAssignments` для целевого пользователя и инициатора.
 6. `Administrator` подтверждает назначение роли.
 7. `Система должна отправить contract Assign user role через PATCH /backoffice/users/{userId}/role с выбранной ролью.`
-8. `Система должна проверить административные права инициатора, capability users и допустимость назначаемой роли.`
+8. `Система должна проверить административные права инициатора, capability users, допустимость назначаемой роли и право назначения роли administrator только для BootstrapAdministrator.`
 9. `Система должна сохранить новое ролевое назначение в постоянном хранилище.`
 10. `Система должна пересчитать доступ целевого пользователя к вкладкам backoffice согласно обновленному набору ролей и вернуть его в success response.`
 11. `Система должна подтвердить успешное завершение операции наблюдаемым пользовательским уведомлением.`
@@ -118,6 +117,12 @@
 2. `Система должна принять это значение как допустимую назначаемую роль.`
 3. Система должна пересчитать доступ пользователя так, чтобы ему были доступны только вкладки `Заказы` и `Доступность` в рамках доменной модели доступа.
 
+#### `Назначение роли administrator главным administrator`
+
+1. `BootstrapAdministrator` выбирает в форме значение `administrator`.
+2. `Система должна принять это значение как допустимую назначаемую роль только для инициатора, совпадающего с ADMIN_TELEGRAM_ID.`
+3. `Система должна сохранить роль administrator и вернуть success response с пересчитанным набором backoffice capabilities целевого пользователя.`
+
 ### Exception workflows
 
 #### `Недопустимая назначаемая роль`
@@ -132,11 +137,11 @@
 2. `Система должна отклонить изменение роли.`
 3. Система должна вернуть `403 Forbidden` с ошибкой `administrator-role-required` или `backoffice-capability-forbidden` без изменения ролей целевого пользователя в зависимости от точки отклонения запроса.
 
-#### `Право назначения administrator не согласовано`
+#### `Назначение administrator инициировано не главным administrator`
 
-1. `Administrator` инициирует назначение роли `administrator`.
-2. Система должна считать этот сценарий аналитически незавершенным до отдельного разрешения blocker о праве назначения роли `administrator`.
-3. `Система должна возвращать transport-level конфликт 409 Conflict с ошибкой administrator-assignment-rule-unresolved и передавать этот сценарий в архитектурный handoff как открытый blocker, а не как согласованное правило авторизации.`
+1. Обычный `administrator` инициирует назначение роли `administrator`.
+2. `Система должна отклонить изменение роли без изменения ролей целевого пользователя.`
+3. `Система должна возвращать 403 Forbidden с ошибкой administrator-role-assignment-forbidden.`
 
 ### System-relevant UI states
 
@@ -163,6 +168,7 @@
 
 - `User` хранит набор ролей `roles`.
 - `administrator` назначает роли другим `User`.
+- `BootstrapAdministrator` назначает роль `administrator` другим `User`.
 - `User` с операционной ролью получает доступ к backoffice по вычисленному набору вкладок.
 - `BootstrapAdministrator` задает главного `administrator` через `ADMIN_TELEGRAM_ID`.
 
@@ -171,6 +177,7 @@
 - Система должна считать допустимыми назначаемыми ролями в этой фиче только `barista` и `administrator`.
 - Система должна сохранять роль `customer` вне операций назначения роли этой фичи.
 - `Система должна вычислять доступ к вкладкам backoffice на основании фактического набора ролей пользователя.`
+- `Система должна разрешать назначение роли administrator только BootstrapAdministrator.`
 - Система должна хранить пользователей, роли и `blocked state` в `PostgreSQL` как в постоянном источнике истины для production-уровня handoff.
 
 ### Identity and ownership
@@ -251,13 +258,14 @@
 
 - `Система должна разрешать операцию назначения роли только пользователю с административными правами.`
 - Система должна ограничивать видимость вкладки `Пользователи` и связанных действий пользователями с capability `users`.
-- Система должна фиксировать право назначения роли `administrator` как открытый blocker до отдельного подтвержденного правила.
+- `Система должна разрешать назначение роли administrator только BootstrapAdministrator.`
 
 ## Errors
 
 ### User-facing errors
 
 - `administrator-role-required` — `Система должна сообщать, что операция назначения роли требует административных прав.`
+- `administrator-role-assignment-forbidden` — `Система должна сообщать, что роль administrator может назначать только главный administrator.`
 - `role-not-assignable` — `Система должна сообщать, что выбранная роль не может быть назначена в рамках этой операции.`
 
 ### System errors
@@ -265,17 +273,16 @@
 - `user-not-found` — `Система должна отклонять изменение роли без сохранения частичного результата, если целевой пользователь не найден.`
 - `identity-access-read-failed` — `Система должна отклонять чтение списка пользователей без частичного результата.`
 - `identity-access-write-failed` — `Система должна отклонять изменение роли без частичного результата при ошибке сохранения.`
-- `administrator-assignment-rule-unresolved` — `Система должна фиксировать blocker и не подменять его предположением о праве доступа.`
 
 ### Error mapping
 
-| Condition                                                                               | User-visible outcome                                                                                  | Source                                                       |
-| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `GET /backoffice/users -> 403 backoffice-capability-forbidden`                          | `Система должна не показывать рабочий список пользователей и сохранять защищенное состояние доступа.` | `docs/system/contracts/user-role-and-blocking-management.md` |
-| `PATCH /backoffice/users/{userId}/role -> 403 administrator-role-required`              | `Система должна показать отказ в административной операции.`                                          | `docs/system/contracts/user-role-and-blocking-management.md` |
-| `PATCH /backoffice/users/{userId}/role -> 422 role-not-assignable`                      | `Система должна показать ошибку недопустимой роли.`                                                   | `docs/system/contracts/user-role-and-blocking-management.md` |
-| `PATCH /backoffice/users/{userId}/role -> 404 user-not-found`                           | `Система должна сохранить экран пользователя без подтверждения операции.`                             | `docs/system/contracts/user-role-and-blocking-management.md` |
-| `PATCH /backoffice/users/{userId}/role -> 409 administrator-assignment-rule-unresolved` | `Система должна передать blocker в handoff вместо фиксации недоказанного поведения.`                  | `docs/system/contracts/user-role-and-blocking-management.md` |
+| Condition                                                                              | User-visible outcome                                                                                     | Source                                                       |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `GET /backoffice/users -> 403 backoffice-capability-forbidden`                         | `Система должна не показывать рабочий список пользователей и сохранять защищенное состояние доступа.`    | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 403 administrator-role-required`             | `Система должна показать отказ в административной операции.`                                             | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 403 administrator-role-assignment-forbidden` | `Система должна сообщить, что роль administrator доступна для назначения только главному administrator.` | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 422 role-not-assignable`                     | `Система должна показать ошибку недопустимой роли.`                                                      | `docs/system/contracts/user-role-and-blocking-management.md` |
+| `PATCH /backoffice/users/{userId}/role -> 404 user-not-found`                          | `Система должна сохранить экран пользователя без подтверждения операции.`                                | `docs/system/contracts/user-role-and-blocking-management.md` |
 
 ## Edge Cases
 
@@ -291,11 +298,10 @@
 - `Фича исключает блокировку и разблокировку пользователя.`
 - Фича исключает изменение роли `customer`.
 - Фича не задает новое визуальное решение вне канонического UI-референса `.references/Expressa_admin`.
-- Фича не снимает blocker по праву назначения роли `administrator` без отдельного согласованного источника.
 
 ## Safety Constraints
 
-- Решение о праве назначения роли `administrator` сохраняется как blocker до отдельного согласования.
+- Назначение роли `administrator` остается доступным только `BootstrapAdministrator`.
 - `Постоянное хранение пользователей, ролей и blocked state сохраняется как обязательное условие production-ready handoff.`
 - `Доступ к операции назначения роли сохраняется только за administrator и не определяется клиентом самостоятельно.`
 - `Пересчет доступа к вкладкам backoffice сохраняется зависимым от серверного набора ролей пользователя.`
@@ -311,25 +317,17 @@
 - `UsersScreen` содержит список пользователей, поиск, фильтры и entrypoint добавления пользователя.
 - `AddUserDialog` содержит обязательные поля имени, Telegram username и выбора роли.
 - Прототип показывает выбор роли `administrator`, что соответствует контракту `Assign user role`.
-- Прототип не снимает blocker по правилу, кто именно может назначать роль `administrator`.
 - Прототип содержит соседние паттерны управления пользователями шире границы этой фичи.
 
 ### Design gaps and required prototype corrections
 
-- Gap: Поток назначения роли `administrator` визуально доступен, но системное право назначения этой роли не согласовано.
-  - Required correction: Сохранить текущий визуальный entrypoint как reference input, но перед реализацией согласовать rule-level guard для назначения роли `administrator` и отразить его в канонических системных артефактах.
-  - Canonical source: `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`
 - Gap: `Экран пользователей в общей карте UI связывается также с блокировкой и разблокировкой, которые не входят в границы FEATURE-004.`
   - Required correction: При handoff в реализацию отделить операции назначения роли от блокировки и не считать `unblock_user` частью этой фичи.
   - Canonical source: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`
 
 ### Repeated verification result
 
-- `blocked`
-
-## Blockers
-
-- `Не согласовано, может ли любой administrator назначать других administrator, или это право ограничено только главным administrator.`
+- `Проверка повторена после BA-001 и обновления базовых system artifacts: визуальный выбор роли administrator остается допустимым, а guard BootstrapAdministrator зафиксирован в канонических system artifacts без открытых blocker по FEATURE-004.`
 
 ## Test Scenarios Link
 
@@ -347,4 +345,4 @@
 - `Система должна иметь sibling test scenarios document со stable scenario IDs и coverage mapping.`
 - `Система должна иметь ссылки на canonical system sources и versioned design sources.`
 - `Система должна явно фиксировать transport/API boundary GET /backoffice/users и PATCH /backoffice/users/{userId}/role без обращения к production code.`
-- `Система должна быть готова к архитектурной декомпозиции без обращения к production code после подготовки sibling test scenarios document и сохранения blocker в явном transport-level виде либо его отдельного разрешения.`
+- `Система должна быть готова к архитектурной декомпозиции без обращения к production code после подготовки sibling test scenarios document и фиксации guard BootstrapAdministrator в system artifacts.`
