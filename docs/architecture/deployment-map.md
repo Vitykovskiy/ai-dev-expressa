@@ -40,8 +40,10 @@
 - GitHub Actions хранит инфраструктурные секреты для SSH и rollout: `TEST_VPS_HOST`, `TEST_VPS_USER`, `TEST_VPS_SSH_KEY`, `TEST_VPS_PORT`, `TEST_VPS_HOST_FINGERPRINT`, `TEST_VPS_APP_DIR`, registry credentials и отдельные env values для каждого стенда.
 - Deploy workflow синхронизирует checkout на VPS с `origin/main`, затем многократно запускает `scripts/deploy-test-vps.sh` с `SKIP_GIT_PULL=true`; launcher валидирует runtime env, выполняет `docker login` при наличии credentials, затем `docker compose pull`, `docker compose up -d postgres` и `docker compose up -d backend frontend`.
 - Перед container rollout launcher обязан подтвердить готовность `PostgreSQL` по `DATABASE_URL` и выполнить schema/migration step для users boundary через one-off запуск backend image.
+- Для `DEPLOY_STAND_SLUG=test-e2e` launcher после schema/migration step применяет idempotent `FEATURE-004` test-data seed в PostgreSQL: assignable target user `feature004-target-user`, ordinary administrator actor `feature004-ordinary-admin` и non-admin/barista actor `feature004-barista-actor`.
 - `docker-compose.deploy.yml` совместим с rollout двух стендов без изменений, потому что использует env-driven image refs, host port bindings и project-scoped volume `postgres-data`, а изоляция контейнеров и PostgreSQL storage задаётся через `docker compose -p`.
 - Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON route `GET /backoffice/orders`, published proxy JSON route `GET /backoffice/users` с `x-test-telegram-id`, published proxy JSON route `GET /customer/slots` и negative path для production-like bypass.
+- Для `test-e2e` post-deploy smoke-check дополнительно подтверждает `FEATURE-004` preconditions через published frontend proxy: target user имеет заполненный `telegramUsername`, barista actor проходит session bootstrap без capability `users`, direct users access для barista actor возвращает `403 backoffice-capability-forbidden`, ordinary administrator actor получает `403 administrator-role-assignment-forbidden` при попытке назначить target user роль `administrator`.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
 ## QA e2e route
@@ -55,6 +57,8 @@
 - E2E не является частью обязательного `PR Checks` или `Deploy Test` gate.
 - QA владеет feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
 - Smoke-check и restore path остаются delivery/runtime проверками и не заменяют e2e acceptance.
+- `FEATURE-004` QA route на published `test-e2e` использует bootstrap administrator из `ADMIN_TELEGRAM_ID`, assignable target `feature004-target-user` (`telegramId=9404002`, `telegramUsername=@ivan_petrov`), ordinary administrator actor `x-test-telegram-id: 9404008` и non-admin/barista actor `x-test-telegram-id: 9404006`.
+- Canonical empty users state для `FEATURE-004` на shared `test-e2e` заменяется допустимым исключением: bootstrap administrator не удаляется из-за runtime invariant, а empty-state UI проверяется через zero-result search/filter responses.
 
 ## Required GitHub checks
 
@@ -68,7 +72,7 @@ E2E не добавляется в branch protection без отдельного
 
 - После каждого rollout `scripts/deploy-test-vps.sh` сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs, env-файлом и deploy-параметрами конкретного стенда.
 - Для restore оператор source-ит нужный rollback-файл, затем повторно запускает `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh` в `TEST_VPS_APP_DIR`.
-- Restore path сохраняет project-scoped PostgreSQL volume стенда и повторно применяет users schema/migration step перед smoke-check.
+- Restore path сохраняет project-scoped PostgreSQL volume стенда, повторно применяет users schema/migration step и для `test-e2e` заново применяет `FEATURE-004` test-data seed перед smoke-check.
 - После restore оператор повторяет smoke-check `GET /health`, frontend root, published proxy `GET /backoffice/orders`, published proxy `GET /backoffice/users` и published proxy `GET /customer/slots`.
 
 ## FEATURE-001
@@ -78,5 +82,5 @@ E2E не добавляется в branch protection без отдельного
 ## FEATURE-004
 
 - Runtime path `FEATURE-004` использует тот же deploy workflow `main -> test -> test-e2e`, но добавляет обязательный persistent backend dependency `PostgreSQL` для users boundary.
-- Handoff `FEATURE-004` считается неполным, если env/config не задают `DATABASE_URL`, а smoke-check не подтверждает published `GET /backoffice/users` на test-стенде.
+- Handoff `FEATURE-004` считается неполным, если env/config не задают `DATABASE_URL`, smoke-check не подтверждает published `GET /backoffice/users` на test-стенде или `test-e2e` route не предоставляет воспроизводимые actors для `FTS-004-002`, `FTS-004-006` и `FTS-004-008`.
 - Детальный runtime route, локальный dev contract и QA route для users flow описаны в `docs/architecture/application-map/delivery-and-runtime.md`.

@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-004`
 - Роль: `Девопс`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -27,3 +27,10 @@
 - Проверки: `Документированная проверка seed/precondition route на test-e2e`, `GET /backoffice/users с test-mode actor для bootstrap administrator возвращает target user с заполненным telegramUsername`, `session/direct users access для non-admin actor позволяет проверить expected 403 guard semantics`, `ordinary administrator actor позволяет проверить administrator-role-assignment-forbidden`, `QA route npm run test:e2e остается опубликованным на https://expressa-e2e-test.vitykovskiy.ru`
 - Обновление карты приложения: `Обязательно: docs/architecture/application-map/delivery-and-runtime.md; docs/architecture/deployment-map.md обновляется, если меняется deploy/test-data route; docs/architecture/application-map/backend-access.md обновляется, если меняется server runtime/config route`
 - Критерии готовности: `QA-001 blockers QA-001-BLOCKER-002, QA-001-BLOCKER-003, QA-001-BLOCKER-004 и QA-001-BLOCKER-005 имеют воспроизводимый test-e2e route для повторной проверки`
+
+## Результат выполнения
+
+- `test-e2e` deploy route применяет idempotent `FEATURE-004` seed после users schema/migration step только при `DEPLOY_STAND_SLUG=test-e2e`.
+- Published route предоставляет assignable target `feature004-target-user` (`telegramId=9404002`, `telegramUsername=@ivan_petrov`), ordinary administrator actor `x-test-telegram-id: 9404008` и non-admin/barista actor `x-test-telegram-id: 9404006`.
+- Post-deploy smoke-check подтверждает target user через `GET /backoffice/users`, session/direct guard semantics для barista actor и `administrator-role-assignment-forbidden` для ordinary administrator actor.
+- Canonical empty users state для shared `test-e2e` зафиксирован как допустимое runtime-исключение из-за обязательного bootstrap administrator; QA проверяет empty-state UI через zero-result search/filter responses.

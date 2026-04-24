@@ -163,6 +163,254 @@ const pool = new Pool({ connectionString: databaseUrl });
 NODE
 }
 
+seed_feature004_e2e_preconditions() {
+  if [[ "$DEPLOY_STAND_SLUG" != "test-e2e" ]]; then
+    return 0
+  fi
+
+  run_backend_node <<'NODE'
+const { Pool } = require("pg");
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error("DATABASE_URL is required for FEATURE-004 e2e preconditions.");
+  process.exit(1);
+}
+
+const fixtures = [
+  {
+    userId: "feature004-target-user",
+    telegramId: "9404002",
+    displayName: "Ivan Petrov",
+    telegramUsername: "@ivan_petrov",
+    roles: ["customer"],
+  },
+  {
+    userId: "feature004-ordinary-admin",
+    telegramId: "9404008",
+    displayName: "Ordinary Administrator",
+    telegramUsername: "@ordinary_admin",
+    roles: ["administrator"],
+  },
+  {
+    userId: "feature004-barista-actor",
+    telegramId: "9404006",
+    displayName: "Barista Guard Actor",
+    telegramUsername: "@barista_guard",
+    roles: ["barista"],
+  },
+];
+
+const pool = new Pool({ connectionString: databaseUrl });
+
+(async () => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const fixture of fixtures) {
+      await client.query(
+        `
+          DELETE FROM identity_access_user_roles
+          WHERE user_id IN (
+            SELECT user_id
+            FROM identity_access_users
+            WHERE user_id = $1 OR telegram_id = $2
+          )
+        `,
+        [fixture.userId, fixture.telegramId],
+      );
+      await client.query(
+        `
+          DELETE FROM identity_access_users
+          WHERE user_id = $1 OR telegram_id = $2
+        `,
+        [fixture.userId, fixture.telegramId],
+      );
+      await client.query(
+        `
+          INSERT INTO identity_access_users (
+            user_id,
+            telegram_id,
+            display_name,
+            telegram_username,
+            blocked
+          )
+          VALUES ($1, $2, $3, $4, FALSE)
+        `,
+        [
+          fixture.userId,
+          fixture.telegramId,
+          fixture.displayName,
+          fixture.telegramUsername,
+        ],
+      );
+
+      for (const role of fixture.roles) {
+        await client.query(
+          `
+            INSERT INTO identity_access_user_roles (user_id, role)
+            VALUES ($1, $2)
+          `,
+          [fixture.userId, role],
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    console.log("FEATURE-004 test-e2e preconditions seeded.");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+    await pool.end();
+  }
+})().catch((error) => {
+  console.error("FEATURE-004 test-e2e precondition seed failed.");
+  console.error(error);
+  process.exit(1);
+});
+NODE
+}
+
+smoke_feature004_e2e_preconditions() {
+  if [[ "$DEPLOY_STAND_SLUG" != "test-e2e" ]]; then
+    return 0
+  fi
+
+  local users_url="${FRONTEND_BASE_URL%/}/backoffice/users"
+  local session_url="${FRONTEND_BASE_URL%/}/backoffice/auth/session"
+  local target_role_url="${users_url}/feature004-target-user/role"
+  local body_file
+  local status
+
+  body_file="$(mktemp)"
+  curl --fail --silent --show-error --location \
+    --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
+    -o "$body_file" \
+    "$users_url"
+
+  docker_compose exec -T \
+    -e FEATURE004_USERS_BODY_JSON="$(cat "$body_file")" \
+    backend node <<'NODE'
+const body = JSON.parse(process.env.FEATURE004_USERS_BODY_JSON);
+const items = Array.isArray(body.items) ? body.items : [];
+
+function requireUser(userId, expected) {
+  const user = items.find((item) => item.userId === userId);
+  if (!user) {
+    throw new Error(`Missing FEATURE-004 e2e precondition user: ${userId}`);
+  }
+
+  for (const [key, value] of Object.entries(expected)) {
+    if (Array.isArray(value)) {
+      const actual = Array.isArray(user[key]) ? user[key] : [];
+      for (const expectedValue of value) {
+        if (!actual.includes(expectedValue)) {
+          throw new Error(`${userId}.${key} is missing ${expectedValue}`);
+        }
+      }
+    } else if (user[key] !== value) {
+      throw new Error(`${userId}.${key} expected ${value}, got ${user[key]}`);
+    }
+  }
+}
+
+requireUser("feature004-target-user", {
+  telegramUsername: "@ivan_petrov",
+  roles: ["customer"],
+});
+requireUser("feature004-ordinary-admin", {
+  telegramUsername: "@ordinary_admin",
+  roles: ["administrator"],
+});
+requireUser("feature004-barista-actor", {
+  telegramUsername: "@barista_guard",
+  roles: ["barista"],
+});
+NODE
+  rm -f "$body_file"
+
+  body_file="$(mktemp)"
+  curl --fail --silent --show-error --location \
+    --header "content-type: application/json" \
+    --data '{"testTelegramId":"9404006"}' \
+    -o "$body_file" \
+    "$session_url"
+
+  docker_compose exec -T \
+    -e FEATURE004_SESSION_BODY_JSON="$(cat "$body_file")" \
+    backend node <<'NODE'
+const body = JSON.parse(process.env.FEATURE004_SESSION_BODY_JSON);
+const capabilities = Array.isArray(body.capabilities) ? body.capabilities : [];
+
+if (body.telegramId !== "9404006") {
+  throw new Error(`Expected barista actor telegramId 9404006, got ${body.telegramId}`);
+}
+
+if (!capabilities.includes("orders") || !capabilities.includes("availability")) {
+  throw new Error("Expected barista actor to expose orders and availability capabilities.");
+}
+
+if (capabilities.includes("users")) {
+  throw new Error("Barista actor must not expose users capability.");
+}
+NODE
+  rm -f "$body_file"
+
+  body_file="$(mktemp)"
+  status="$(curl --silent --show-error --location \
+    --header "x-test-telegram-id: 9404006" \
+    --output "$body_file" \
+    --write-out "%{http_code}" \
+    "$users_url")"
+  if [[ "$status" != "403" ]]; then
+    echo "Expected barista users access to return 403, got $status."
+    cat "$body_file"
+    rm -f "$body_file"
+    exit 1
+  fi
+
+  docker_compose exec -T \
+    -e FEATURE004_ERROR_BODY_JSON="$(cat "$body_file")" \
+    -e FEATURE004_EXPECTED_ERROR="backoffice-capability-forbidden" \
+    backend node <<'NODE'
+const body = JSON.parse(process.env.FEATURE004_ERROR_BODY_JSON);
+if (body.message !== process.env.FEATURE004_EXPECTED_ERROR) {
+  throw new Error(`Expected ${process.env.FEATURE004_EXPECTED_ERROR}, got ${body.message}`);
+}
+NODE
+  rm -f "$body_file"
+
+  body_file="$(mktemp)"
+  status="$(curl --silent --show-error --location \
+    --request PATCH \
+    --header "content-type: application/json" \
+    --header "x-test-telegram-id: 9404008" \
+    --data '{"role":"administrator"}' \
+    --output "$body_file" \
+    --write-out "%{http_code}" \
+    "$target_role_url")"
+  if [[ "$status" != "403" ]]; then
+    echo "Expected ordinary administrator role assignment to return 403, got $status."
+    cat "$body_file"
+    rm -f "$body_file"
+    exit 1
+  fi
+
+  docker_compose exec -T \
+    -e FEATURE004_ERROR_BODY_JSON="$(cat "$body_file")" \
+    -e FEATURE004_EXPECTED_ERROR="administrator-role-assignment-forbidden" \
+    backend node <<'NODE'
+const body = JSON.parse(process.env.FEATURE004_ERROR_BODY_JSON);
+if (body.message !== process.env.FEATURE004_EXPECTED_ERROR) {
+  throw new Error(`Expected ${process.env.FEATURE004_EXPECTED_ERROR}, got ${body.message}`);
+}
+NODE
+  rm -f "$body_file"
+}
+
 make_absolute_path() {
   local path="$1"
 
@@ -294,6 +542,7 @@ docker_compose pull postgres backend frontend
 docker_compose up -d postgres
 confirm_postgresql_ready
 apply_users_schema
+seed_feature004_e2e_preconditions
 docker_compose up -d backend frontend
 
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}}"
@@ -327,6 +576,8 @@ smoke_json_route \
   >/dev/null
 
 smoke_json_route "$PROXIED_CUSTOMER_SLOTS_URL" >/dev/null
+
+smoke_feature004_e2e_preconditions
 
 docker_compose exec -T backend node <<'NODE'
 const { ConfigValidationError, loadAccessConfig } = require("./dist/identity-access/config/access-config.js");

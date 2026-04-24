@@ -63,6 +63,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `frontend/nginx.conf` публикует frontend root, `/backoffice/*` и `/customer/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
 - `docker-compose.deploy.yml` публикует PostgreSQL только во внутреннюю compose network и хранит данные в project-scoped volume `postgres-data`, поэтому стенды `test` и `test-e2e` не разделяют runtime database.
 - Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON-доступ к `GET /backoffice/orders`, published proxy JSON-доступ к `GET /backoffice/users` с `x-test-telegram-id`, published proxy JSON-доступ к `GET /customer/slots` и отказ production-like bypass через config validation внутри backend container.
+- Для стенда `test-e2e` deploy launcher после schema/migration step идемпотентно применяет `FEATURE-004` test-data preconditions в PostgreSQL: `feature004-target-user` (`telegramId=9404002`, `telegramUsername=@ivan_petrov`, roles `[customer]`), `feature004-ordinary-admin` (`telegramId=9404008`, `telegramUsername=@ordinary_admin`, roles `[administrator]`) и `feature004-barista-actor` (`telegramId=9404006`, `telegramUsername=@barista_guard`, roles `[barista]`).
+- Для стенда `test-e2e` post-deploy smoke-check через published frontend proxy подтверждает наличие этих записей в `GET /backoffice/users` под bootstrap administrator, успешную test-mode session для `telegramId=9404006`, отказ `GET /backoffice/users` для `telegramId=9404006` с `backoffice-capability-forbidden` и отказ `PATCH /backoffice/users/feature004-target-user/role` с `role=administrator` под `telegramId=9404008` с `administrator-role-assignment-forbidden`.
 
 ## Restore path
 
@@ -83,6 +85,8 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
 - QA-owned route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
+- `FEATURE-004` QA может использовать published `test-e2e` actors: bootstrap administrator из `ADMIN_TELEGRAM_ID`, assignable target `feature004-target-user`, ordinary administrator actor `x-test-telegram-id: 9404008` и non-admin/barista actor `x-test-telegram-id: 9404006`.
+- Canonical empty users state для `FEATURE-004` имеет допустимое runtime-исключение на published `test-e2e`: backend bootstrap invariant всегда сохраняет главного administrator из `ADMIN_TELEGRAM_ID`; QA проверяет empty-state UI через zero-result filters/search responses, а не через удаление bootstrap administrator из shared stand.
 
 ## Env vars
 
@@ -155,6 +159,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - PR workflow `quality` успешно завершает `backend/frontend` lint, format:check, typecheck и unit tests, а также frontend stylelint.
 - PR workflow `build` успешно завершает сборку `backend/frontend`.
 - Deploy workflow для `main` после выкладки проверяет `GET /health`, frontend root, published proxy `GET /backoffice/orders` с заголовком `x-test-telegram-id`, published proxy `GET /backoffice/users` с заголовком `x-test-telegram-id`, published proxy `GET /customer/slots`, и negative check, подтверждающий, что production-like `DISABLE_TG_AUTH=true` остаётся недопустимым.
+- Deploy workflow для `test-e2e` после FEATURE-004 seed проверяет published proxy route для target user с заполненным `telegramUsername`, authenticated non-admin/barista actor и ordinary administrator guard `administrator-role-assignment-forbidden`.
 - `npm run test:e2e` запускает QA-owned Playwright suite против `https://expressa-e2e-test.vitykovskiy.ru` без локальной сборки backend/frontend.
 
 ## Обновлять эту карту
