@@ -22,7 +22,7 @@
 ## Примечания
 
 - Зависимости: `AR-007; после архитектурного handoff задача может выполняться параллельно с FE-001 и DO-010`
-- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/stack.md`, `docs/architecture/application-map/backend-access.md`, `FEATURE-004-context-02-backend-postgresql-and-users-api.md`
+- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/architecture/stack.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `FEATURE-004-context-02-backend-postgresql-and-users-api.md`
 - Ожидаемый результат для ревью: `Backend возвращает список пользователей через GET /backoffice/users и обрабатывает PATCH /backoffice/users/{userId}/role по каноническому contract без чтения frontend-кода; данные пользователей, ролей и blocked state хранятся в PostgreSQL; success path назначения administrator доступен только BootstrapAdministrator и error mapping соответствует contract.`
 - Проверки: `npm --prefix backend run lint`, `npm --prefix backend run format:check`, `npm --prefix backend run typecheck`, `npm --prefix backend test`, `npm --prefix backend run build`
 - Обновление карты приложения: `Обязательно: docs/architecture/application-map/backend-access.md; индекс и корневая навигация не требуются, если маршрут карт не меняется`

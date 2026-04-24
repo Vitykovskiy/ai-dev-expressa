@@ -57,6 +57,7 @@
 - `.references/Expressa_admin/src/app/RootLayout.tsx` задаёт общую layout-структуру.
 - `.references/Expressa_admin/src/app/components/SideNav.tsx` и `TabBar.tsx` задают роль-зависимую навигацию.
 - `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`, `AddCategoryDialog.tsx`, `EditCategoryDialog.tsx`, `AddProductDialog.tsx`, `EditProductDialog.tsx` и `MenuGuide.tsx` задают визуальный и поведенческий ориентир для вкладки `Меню`.
+- `.references/Expressa_admin/src/app/screens/UsersScreen.tsx` и `AddUserDialog.tsx` задают визуальный и поведенческий ориентир для вкладки `Пользователи` и диалога назначения роли.
 - Цвета, отступы и композиция берутся из UI-контракта и референса, но реализация должна быть на `Vue 3`/`Vuetify`.
 
 ## FEATURE-002 frontend implementation map
@@ -111,6 +112,25 @@
 - Frontend использует существующий administrator-only route `/settings` и не добавляет новые top-level routes или альтернативные settings flow без обновления этой карты.
 - Экран `Настройки` должен показывать текущие либо дефолтные значения, поддерживать loading/success/error/inline-validation states и сохранять administrator в контексте редактирования при ошибке сохранения.
 - Клиентская форма не должна фиксировать `max=50` как каноническое системное правило только на основании `.references/Expressa_admin`; визуальный reference используется для parity, а контрактная валидация и результат сохранения приходят из backend.
+
+## FEATURE-004 frontend implementation map
+
+| Путь                                                                                | Назначение                                                                                                                                    |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/views/UsersView.vue`                                                  | Экран `/users`: route-level orchestration чтения списка пользователей, поиска, фильтрации и открытия формы назначения роли.                   |
+| `frontend/src/components/user-management/*.vue`                                     | Feature-specific компоненты списка пользователей, фильтров, empty/loading/error states и диалога назначения роли без transport logic.         |
+| `frontend/src/modules/user-management/api.ts`                                       | Client API boundary для `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role` по consumer-facing contract.                        |
+| `frontend/src/modules/user-management/store.ts`                                     | Локальное состояние users snapshot, active filters, busy state и повторное чтение списка после успешного назначения роли.                     |
+| `frontend/src/modules/user-management/types.ts`, `validation.ts`, `presentation.ts` | Клиентские типы списка пользователей и формы назначения роли, UI-валидация обязательных полей и mapping transport/business errors.            |
+| `frontend/src/modules/user-management/access.ts`                                    | Производные helpers для `availableRoleAssignments`, отображения server-driven guard states и исключения `block_user`/`unblock_user` из scope. |
+
+## Handoff route for FEATURE-004
+
+- Для сценария `/users` исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, затем `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, затем `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, затем эту карту.
+- Frontend использует существующий administrator-only route `/users` и не добавляет новые top-level routes, отдельные users-flow экраны или альтернативные entrypoints назначения роли без обновления этой карты.
+- Экран `Пользователи` должен читать список пользователей через `GET /backoffice/users`, поддерживать loading, empty, search, filter, dialog, success и error states и сохранять users flow в пределах канонического UI reference.
+- Форма назначения роли должна использовать `availableRoleAssignments` из server response как источник допустимых вариантов и не восстанавливать guard `BootstrapAdministrator` из frontend-кода.
+- Клиентская реализация должна рассматривать `block_user` и `unblock_user` как соседние entrypoints экрана `Пользователи`, но не включать их в scope `FEATURE-004`.
 
 ## Запрещено в FEATURE-001
 

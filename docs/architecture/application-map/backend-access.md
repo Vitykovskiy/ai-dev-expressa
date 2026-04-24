@@ -2,7 +2,7 @@
 
 ## Граница
 
-Серверный контур идентификации, bootstrap главного `administrator`, Telegram/test-mode авторизация и role guard для backoffice.
+Серверный контур идентификации, bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard для backoffice и users boundary для чтения списка пользователей и назначения роли.
 
 ## Модули
 
@@ -13,6 +13,9 @@
 | `TelegramAuth`                                  | Проверяет вход из служебного Telegram-бота и связывает `telegramId` с пользователем.            |
 | `TestModeAuth`                                  | Разрешает bypass Telegram только в test environment при `DISABLE_TG_AUTH=true`.                 |
 | `BackofficeRoleGuard`                           | Защищает backoffice capabilities и прямые route/API обращения по ролям.                         |
+| `UsersReadModel`                                | Читает наблюдаемый список пользователей с `roles`, `blocked` и `availableRoleAssignments`.      |
+| `RoleAssignmentService`                         | Назначает роли `barista` и `administrator` по contract `Assign user role`.                      |
+| `UserRepository`                                | Хранит пользователей, роли и `blocked state` в `PostgreSQL` как production source of truth.     |
 
 ## Реализация
 
@@ -28,7 +31,11 @@
 | `backend/src/identity-access/auth/telegram-init-data.verifier.ts`          | Проверка подписи Telegram Web App `initData` через секрет служебного бота.                                                                                           |
 | `backend/src/identity-access/auth/backoffice-auth.service.ts`              | Единая авторизация backoffice через Telegram или test-mode.                                                                                                          |
 | `backend/src/identity-access/auth/backoffice-auth.guard.ts`                | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
-| `backend/src/identity-access/users/in-memory-user.repository.ts`           | Текущий in-memory адаптер `UserRepository`; замена на постоянное хранилище должна выполняться отдельной архитектурной задачей.                                       |
+| `backend/src/identity-access/users/users.controller.ts`                    | Consumer-facing HTTP boundary `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role`.                                                                     |
+| `backend/src/identity-access/users/users.service.ts`                       | Orchestration чтения списка пользователей, назначения роли и пересчета `backofficeAccess.capabilities`.                                                              |
+| `backend/src/identity-access/users/user.repository.ts`                     | Контракт репозитория пользователей для списка, bootstrap и сохранения ролевых изменений.                                                                             |
+| `backend/src/identity-access/users/postgresql-user.repository.ts`          | PostgreSQL-адаптер хранения пользователей, ролей и `blocked state`; in-memory адаптер не является итоговым runtime path `FEATURE-004`.                               |
+| `backend/src/identity-access/users/postgresql/`                            | SQL schema, migrations и mapping persistent record -> domain `User` для users boundary.                                                                              |
 
 ## Code architecture standard for FEATURE-006
 
@@ -41,11 +48,13 @@
 
 ## Endpoints
 
-| Method | Path                       | Назначение                                                                                                              |
-| ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/health`                  | Техническая проверка живости backend.                                                                                   |
-| `POST` | `/backoffice/auth/session` | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                          |
-| `GET`  | `/backoffice/:capability`  | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`. |
+| Method  | Path                              | Назначение                                                                                                              |
+| ------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `GET`   | `/health`                         | Техническая проверка живости backend.                                                                                   |
+| `POST`  | `/backoffice/auth/session`        | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                          |
+| `GET`   | `/backoffice/:capability`         | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`. |
+| `GET`   | `/backoffice/users`               | Возвращает список пользователей для users screen без смешения с `block_user` и `unblock_user`.                          |
+| `PATCH` | `/backoffice/users/{userId}/role` | Назначает роль `barista` или `administrator` и возвращает пересчитанный доступ к вкладкам backoffice.                   |
 
 ## Auth headers and body
 
@@ -76,8 +85,22 @@
 | `ADMIN_TELEGRAM_ID`          | Да                         | production, test                              | Должен быть валидным Telegram identifier для bootstrap administrator.                                |
 | `DISABLE_TG_AUTH`            | Нет                        | только test                                   | `true` разрешает test-mode без Telegram. В production значение `true` является ошибкой конфигурации. |
 | `SERVICE_TELEGRAM_BOT_TOKEN` | Да для Telegram validation | production, test при включённой Telegram auth | Используется для проверки служебного Telegram-входа.                                                 |
+| `DATABASE_URL`               | Да                         | production, test, local development           | Задаёт подключение backend к `PostgreSQL` для users boundary и других persistent доменных данных.    |
 
 Runtime env загружается через `@nestjs/config` `ConfigModule`; прямой bootstrap через пакет `dotenv` в приложении не используется.
+
+## Server contracts for FEATURE-004
+
+- Канонический contract для `GET /backoffice/users`, `PATCH /backoffice/users/{userId}/role`, `availableRoleAssignments`, transport/business errors и запрета на `block_user`/`unblock_user` находится в `docs/system/contracts/user-role-and-blocking-management.md`.
+- Users boundary должен читать и сохранять пользователей, роли и `blocked state` через `PostgreSQL`; in-memory storage допустим только как локальный test double.
+- `GET /backoffice/users` должен возвращать `items[].availableRoleAssignments` без необходимости восстанавливать правило `BootstrapAdministrator` из frontend implementation.
+- `PATCH /backoffice/users/{userId}/role` должен разрешать `barista` любому `administrator` с capability `users`, а `administrator` только `BootstrapAdministrator`, совпадающему с `ADMIN_TELEGRAM_ID`.
+- Backend handoff для `FEATURE-004` считается невалидным, если shape users response, role assignment guard или runtime path `PostgreSQL` нужно восстанавливать из `backend/src/*` вместо system/architecture documentation.
+
+## Handoff route for FEATURE-004
+
+- Для server-side реализации users flow исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, затем `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, затем `docs/system/contracts/user-role-and-blocking-management.md`, затем эту карту и `docs/architecture/application-map/delivery-and-runtime.md`.
+- Если меняются endpoint boundary, runtime path `PostgreSQL`, migrations, env/config или error mapping users contract, обновляется эта карта и соответствующие handoff-артефакты в одном контуре.
 
 ## Запрещено в FEATURE-001
 
