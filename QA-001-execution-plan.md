@@ -27,7 +27,7 @@
 
 ## Input Gap
 
-- [ ] `FEATURE-004-context-05-qa-manual-user-role-management.md` is referenced by the task-card but is absent from the repository root and was not found by `rg --files -g "*FEATURE-004-context-05*" -g "*context-05*"`.
+- [x] `FEATURE-004-context-05-qa-manual-user-role-management.md` was removed from the QA-001 task-card read route by `SA-003`; the manual lane now uses only existing canonical sources from the Read Set above.
 
 ## Subtasks
 

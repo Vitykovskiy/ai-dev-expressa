@@ -16,9 +16,9 @@
 
 ## Input gaps
 
-| Gap ID           | Source                                                                           | Status    | QA impact                                                    | Handling                                                                                                                                                                                                                                                    |
-| ---------------- | -------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `QA-001-GAP-001` | `FEATURE-004-context-05-qa-manual-user-role-management.md` from QA task read set | `missing` | The referenced context package is unavailable for this lane. | Gap is recorded here. Manual QA must proceed only from the current task-card, feature spec, test scenarios, contracts, UI contract, architecture maps, and reference files named in `QA-001-execution-plan.md`; archived tasks are not used as substitutes. |
+| Gap ID           | Source                                                                                    | Status     | QA impact                                                                             | Handling                                                                                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `QA-001-GAP-001` | `FEATURE-004-context-05-qa-manual-user-role-management.md` from previous QA task read set | `resolved` | The non-canonical missing context package is no longer part of the QA-001 read route. | Resolved by `SA-003`: `tasks/QA-001-feature-004-manual-user-role-management.md` now points only to existing canonical system, architecture, and `.references` sources; archived tasks are not used as substitutes. |
 
 ## Manual run context
 
@@ -187,7 +187,7 @@
 
 | Blocker ID           | Related scenario | Status      | Details                                                                                                                                                      |
 | -------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `QA-001-GAP-001`     | `all`            | `delegated` | Referenced context package `FEATURE-004-context-05-qa-manual-user-role-management.md` is absent. Corrective task: `SA-003`.                                  |
+| `QA-001-GAP-001`     | `all`            | `resolved`  | Non-canonical context package reference was removed from the current QA-001 read set by corrective task `SA-003`.                                            |
 | `QA-001-BLOCKER-002` | `FTS-004-004`    | `delegated` | Canonical empty users precondition requires an environment with no user records. Corrective task: `DO-011`.                                                  |
 | `QA-001-BLOCKER-003` | `FTS-004-002`    | `delegated` | Published `test-e2e` stand exposed only the bootstrap administrator target with empty telegramUsername and roles=[administrator]. Corrective task: `DO-011`. |
 | `QA-001-BLOCKER-004` | `FTS-004-008`    | `delegated` | Published `test-e2e` stand exposed no ordinary non-bootstrap administrator actor. Corrective task: `DO-011`.                                                 |
@@ -195,12 +195,12 @@
 
 ### Corrective tasks
 
-| Task ID   | Owner role           | Purpose                                                                                                |
-| --------- | -------------------- | ------------------------------------------------------------------------------------------------------ |
-| `BUG-003` | `Фронтенд`           | Fix or canonically resolve the role assignment dialog UI parity deviation.                             |
-| `DO-011`  | `Девопс`             | Provide reproducible test-e2e runtime preconditions/test data for blocked mandatory scenarios.         |
-| `SA-003`  | `Системный аналитик` | Restore the missing manual QA context package or update QA-001 read set to existing canonical sources. |
-| `QA-008`  | `Тестирование`       | Repeat manual QA after corrective tasks and update final acceptance decision.                          |
+| Task ID   | Owner role           | Purpose                                                                                                   |
+| --------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| `BUG-003` | `Фронтенд`           | Fix or canonically resolve the role assignment dialog UI parity deviation.                                |
+| `DO-011`  | `Девопс`             | Provide reproducible test-e2e runtime preconditions/test data for blocked mandatory scenarios.            |
+| `SA-003`  | `Системный аналитик` | Completed: updated QA-001 to use only existing canonical system, architecture, and `.references` sources. |
+| `QA-008`  | `Тестирование`       | Repeat manual QA after corrective tasks and update final acceptance decision.                             |
 
 ## Final QA decision
 
