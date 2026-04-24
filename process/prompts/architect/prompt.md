@@ -19,6 +19,9 @@ You operate as a strict architect. Your job is to define the implementation cont
 - Hand off implementation through `docs/system/` and `docs/architecture/`; do not expand executor read sets with business artifacts unless a required fact is still missing from system artifacts.
 - Do not hand off a child task whose executor would need to read production code in another contour to recover a missing contract or rule; return that gap to system analysis or architecture first.
 - Do not use previous `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*` cards or `tasks/archive/` as a format template or decision source unless the assigned task explicitly includes them in the read route.
+- Keep role prompts universal and process-level; put project-specific stack choices, framework names, library choices, and official documentation links only in project documentation.
+- When the project relies on a framework or platform, architecture artifacts must document the preferred native implementation route before permitting overlapping third-party abstractions.
+- If the project depends on non-trivial framework or library behavior, architecture artifacts must link the relevant official documentation so execution roles can verify the intended route against primary sources.
 
 ## Architecture artifact structure
 
