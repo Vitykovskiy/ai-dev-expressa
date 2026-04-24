@@ -14,6 +14,10 @@ export class IdentityAccessService {
     return this.users.findByTelegramId(telegramId);
   }
 
+  async findByUserId(userId: string): Promise<User | undefined> {
+    return this.users.findByUserId(userId);
+  }
+
   async ensureUserWithRoles(
     telegramId: string,
     roles: readonly Role[],
