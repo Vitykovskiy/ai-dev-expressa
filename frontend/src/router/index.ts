@@ -5,6 +5,7 @@ import ForbiddenView from "@/views/ForbiddenView.vue";
 import MenuCatalogView from "@/views/MenuCatalogView.vue";
 import RootLayout from "@/views/RootLayout.vue";
 import SettingsView from "@/views/SettingsView.vue";
+import UsersView from "@/views/UsersView.vue";
 import { ensureSession, useAuthSession } from "@/modules/auth/session-store";
 import { SessionApiError } from "@/modules/auth/session-api";
 import { resolveGuardDecision } from "@/router/guards";
@@ -53,12 +54,7 @@ export const router = createRouter({
         {
           path: "users",
           name: "users",
-          component: FeatureStubView,
-          props: {
-            title: "Пользователи",
-            description:
-              "Вкладка видна только administrator. Управление ролями и блокировкой будет добавлено отдельной задачей.",
-          },
+          component: UsersView,
           meta: { capability: "users" },
         },
         {
