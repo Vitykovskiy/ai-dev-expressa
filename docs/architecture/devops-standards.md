@@ -18,6 +18,7 @@
 - Runtime-конфигурация каждого test-стенда хранится во внешнем env-файле VPS; deploy route использует обязательные значения `NODE_ENV=test`, `DISABLE_TG_AUTH=true`, `ADMIN_TELEGRAM_ID`, `BACKOFFICE_CORS_ORIGINS`, `DATABASE_URL`, `POSTGRES_DB`, `POSTGRES_USER` и `POSTGRES_PASSWORD`.
 - Dual-stand deploy route должен переиспользовать один и тот же compose-манифест и один и тот же набор GHCR-образов для стендов `test` и `test-e2e`.
 - Изоляция стендов должна обеспечиваться отдельными значениями `ENV_FILE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, `TEST_DEPLOY_HOST_BACKEND_PORT`, `TEST_DEPLOY_HOST_FRONTEND_PORT`, `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL`.
+- Feature-specific test-data seed допустим только для изолированного `test-e2e` стенда, должен быть идемпотентным, должен выполняться после schema/migration step и должен подтверждаться post-deploy smoke-check через published routes.
 - `scripts/deploy-test-vps.sh` должен сохранять rollback и summary артефакты в отдельные каталоги `artifacts/deploy-test/<stand-slug>/`, чтобы restore metadata не смешивалась между стендами.
 - Host test runtime предоставляет `docker`, `docker compose` plugin и `curl`; registry credentials подключаются только через GitHub Secrets или env окружения стенда.
 - Restore path использует rollback-файл конкретного стенда из `artifacts/deploy-test/<stand-slug>/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
@@ -34,6 +35,7 @@
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
 - Изменение e2e URL, локальных e2e overrides или QA-команды запуска считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
 - Post-deploy smoke-check обязан подтверждать published proxy JSON route для QA-owned browser e2e, если feature-level acceptance зависит от frontend-proxied backend endpoints.
+- Если QA-owned e2e зависит от заранее известных test-mode actors, published `test-e2e` route должен документировать их Telegram ids, user ids, роли и допустимые исключения для shared runtime invariants.
 
 ## PR gates для качества кода
 
