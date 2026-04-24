@@ -67,7 +67,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 - Каждый rollout сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs и deploy-параметрами стенда.
 - Restore path использует нужный rollback-файл как входной env и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
-- После restore выполняется тот же smoke-check, что и после штатного rollout, включая published proxy `GET /backoffice/orders` и published proxy `GET /customer/slots`.
+- После restore выполняется тот же smoke-check, что и после штатного rollout, включая published proxy `GET /backoffice/orders`, published proxy `GET /backoffice/users` и published proxy `GET /customer/slots`.
 
 ## QA e2e route
 
