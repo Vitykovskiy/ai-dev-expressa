@@ -55,7 +55,7 @@
 - Canonical published QA route для `FTS-003-006` проходит через `GET https://expressa-e2e-test.vitykovskiy.ru/customer/slots`; локальный override нужен только если QA сознательно уводит suite с published origin.
 - `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
 - E2E не является частью обязательного `PR Checks` или `Deploy Test` gate.
-- QA владеет feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
+- QA владеет feature scenarios, fixtures, assertions, run result и defect handoff.
 - Smoke-check и restore path остаются delivery/runtime проверками и не заменяют e2e acceptance.
 - `FEATURE-004` QA route на published `test-e2e` использует bootstrap administrator из `ADMIN_TELEGRAM_ID`, assignable target `feature004-target-user` (`telegramId=9404002`, `telegramUsername=@ivan_petrov`), ordinary administrator actor `x-test-telegram-id: 9404008` и non-admin/barista actor `x-test-telegram-id: 9404006`.
 - Canonical empty users state для `FEATURE-004` на shared `test-e2e` заменяется допустимым исключением: bootstrap administrator не удаляется из-за runtime invariant, а empty-state UI проверяется через zero-result search/filter responses.

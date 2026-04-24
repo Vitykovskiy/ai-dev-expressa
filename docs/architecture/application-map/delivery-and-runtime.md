@@ -76,14 +76,14 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 ## QA e2e route
 
 - Финальный feature-level e2e-прогон выполняется локально против опубликованного `test-e2e` стенда.
-- Backend endpoint suites относятся к integration evidence и не закрывают feature-level e2e acceptance.
+- Backend endpoint suites относятся к integration coverage и не закрывают feature-level e2e acceptance.
 - Каноническая команда запуска: `npm run test:e2e`.
 - Playwright по умолчанию использует `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
 - `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API; canonical значение для `test-e2e` совпадает с published frontend origin `https://expressa-e2e-test.vitykovskiy.ru`, потому что `/customer/*` проксируется через frontend nginx на backend.
 - Канонический published route для slot settings e2e JSON verification: `GET https://expressa-e2e-test.vitykovskiy.ru/customer/slots`.
 - `E2E_TEST_TELEGRAM_ID` задаёт test-mode Telegram id для QA-owned Playwright suite.
-- QA-owned route включает feature scenarios, fixtures, assertions, pass/fail evidence и defect handoff.
+- QA-owned route включает feature scenarios, fixtures, assertions, run result и defect handoff.
 - Этот route обслуживает QA-задачи и не является обязательным `PR Checks` или `Deploy Test` gate.
 - `FEATURE-004` QA может использовать published `test-e2e` actors: bootstrap administrator из `ADMIN_TELEGRAM_ID`, assignable target `feature004-target-user`, ordinary administrator actor `x-test-telegram-id: 9404008` и non-admin/barista actor `x-test-telegram-id: 9404006`.
 - Canonical empty users state для `FEATURE-004` имеет допустимое runtime-исключение на published `test-e2e`: backend bootstrap invariant всегда сохраняет главного administrator из `ADMIN_TELEGRAM_ID`; QA проверяет empty-state UI через zero-result filters/search responses, а не через удаление bootstrap administrator из shared stand.
@@ -113,7 +113,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL` могут переопределить базовые URL post-deploy smoke-check.
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA-owned Playwright command; по умолчанию используется `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_TEST_TELEGRAM_ID` задаёт test Telegram id для QA-owned Playwright command.
-- `E2E_STAND_COMMIT` задаёт commit/версию проверяемого опубликованного стенда для QA evidence.
+- `E2E_STAND_COMMIT` задаёт commit/версию проверяемого опубликованного стенда для QA run result.
 - `E2E_BACKEND_BASE_URL` задаёт backend API base URL для QA-owned Playwright command; для `test-e2e` canonical значение совпадает с `https://expressa-e2e-test.vitykovskiy.ru`, где `/customer/*` и `/backoffice/*` публикуются через frontend proxy.
 - `IP`, `ROOT_USER`, `ROOT_PASSWORD` в корневом `.env` задают параметры подключения к серверу для локальных operational сценариев; `ROOT_PASSWORD` не коммитится и хранится только в локальном окружении исполнителя или секретном хранилище.
 

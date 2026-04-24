@@ -17,14 +17,14 @@
 - Архитектурные артефакты: `docs/architecture/qa-standards.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Бизнес-артефакты: `не требуются`
-- Дополнительные материалы: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `QA-001-evidence.md`
+- Дополнительные материалы: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `tasks/QA-001-feature-004-manual-user-role-management.md`
 
 ## Примечания
 
 - Зависимости: `FE-001`, `QA-001`
-- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `QA-001-evidence.md`
+- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/application-map/frontend-backoffice.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `tasks/QA-001-feature-004-manual-user-role-management.md`
 - Ожидаемый результат для ревью: `Диалог /users соответствует каноническому UI reference по title, description, required fields, role select, confirm/ghost buttons, visual states и component pattern либо канонические system artifacts явно фиксируют допустимое отличие existing-user role assignment model.`
-- Проверки: `npm --prefix frontend run lint`, `npm --prefix frontend run stylelint`, `npm --prefix frontend run format:check`, `npm --prefix frontend run typecheck`, `npm --prefix frontend test`, `npm --prefix frontend run build`, `ручная сверка UI parity по QA-001-evidence.md`
+- Проверки: `npm --prefix frontend run lint`, `npm --prefix frontend run stylelint`, `npm --prefix frontend run format:check`, `npm --prefix frontend run typecheck`, `npm --prefix frontend test`, `npm --prefix frontend run build`, `ручная сверка UI parity по QA-001 task report`
 - Обновление карты приложения: `docs/architecture/application-map/frontend-backoffice.md обновляется, если выбранное исправление меняет frontend implementation map или допустимую модель диалога; индекс карт не требуется`
 - Критерии готовности: `QA может повторно проверить dialog parity без открытого deviation-recorded по AddUserDialog; поведение назначения роли остается в границах FEATURE-004 и использует server-driven availableRoleAssignments`
 
@@ -33,7 +33,7 @@
 - Дата проверки: `2026-04-25`
 - Результат: `Диалог /users соответствует каноническому AddUserDialog по title, description, editable required fields, role select, primary confirm button, ghost cancel button и использует тот же dialog component pattern без отдельного selector Пользователь из QA-001 deviation.`
 - Системное отличие: `Роль остается server-driven через availableRoleAssignments выбранного существующего пользователя; это соответствует FEATURE-004 и frontend implementation map, а scope остается в границах role assignment.`
-- Ручная сверка UI parity: `выполнена по QA-001-evidence.md, .references/Expressa_admin/src/app/components/AddUserDialog.tsx и frontend/src/components/user-management/UserRoleAssignmentDialog.vue; deviation-recorded по AddUserDialog снят.`
+- Ручная сверка UI parity: `выполнена по QA-001 task report, .references/Expressa_admin/src/app/components/AddUserDialog.tsx и frontend/src/components/user-management/UserRoleAssignmentDialog.vue; deviation-recorded по AddUserDialog снят.`
 - Проверки:
   - `npm --prefix frontend run lint`: `pass`
   - `npm --prefix frontend run stylelint`: `pass`

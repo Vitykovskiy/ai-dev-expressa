@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-004`
 - Роль: `Тестирование`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -17,13 +17,23 @@
 - Архитектурные артефакты: `docs/architecture/qa-standards.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
 - Бизнес-артефакты: `не требуются`
-- Дополнительные материалы: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `QA-001-evidence.md`, `tasks/BUG-003-feature-004-user-role-dialog-ui-parity.md`, `tasks/DO-011-feature-004-test-e2e-role-management-preconditions.md`, `tasks/SA-003-feature-004-restore-manual-qa-context-package.md`
+- Дополнительные материалы: `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `tasks/QA-001-feature-004-manual-user-role-management.md`, `tasks/BUG-003-feature-004-user-role-dialog-ui-parity.md`, `tasks/DO-011-feature-004-test-e2e-role-management-preconditions.md`, `tasks/SA-003-feature-004-restore-manual-qa-context-package.md`
 
 ## Примечания
 
 - Зависимости: `BUG-003`, `DO-011`, `SA-003`
-- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `QA-001-evidence.md`
-- Ожидаемый результат для ревью: `Manual QA evidence обновлена после корректировок; mandatory scenarios FTS-004-001..FTS-004-009 имеют pass либо воспроизводимые BUG-*; final QA decision больше не остается blocked из-за прежних runtime/read-set blockers.`
+- Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AddUserDialog.tsx`, `tasks/QA-001-feature-004-manual-user-role-management.md`
+- Ожидаемый результат для ревью: `Manual QA отчет обновлен в QA-card после корректировок; mandatory scenarios FTS-004-001..FTS-004-009 имеют pass либо воспроизводимые BUG-*; final QA decision больше не остается blocked из-за прежних runtime/read-set blockers.`
 - Проверки: `Ручной проход FTS-004-001, FTS-004-002, FTS-004-003, FTS-004-004, FTS-004-005, FTS-004-006, FTS-004-007, FTS-004-008, FTS-004-009`, `UI parity users screen и role assignment dialog относительно .references`, `проверка закрытия QA-001-BLOCKER-002..QA-001-BLOCKER-005`, `фиксация BUG-* по новым воспроизводимым отклонениям или явная запись об их отсутствии`
 - Обновление карты приложения: `Не требуется`
-- Критерии готовности: `Все mandatory manual scenarios из feature test scenarios document пройдены или заведены как defects/blockers с владельцами; success path administrator подтвержден только для BootstrapAdministrator; QA evidence не расширяет scope до block/unblock user`
+- Критерии готовности: `Все mandatory manual scenarios из feature test scenarios document пройдены или заведены как defects/blockers с владельцами; success path administrator подтвержден только для BootstrapAdministrator; QA-отчет не расширяет scope до block/unblock user`
+
+## Результат выполнения
+
+- Дата проверки: `2026-04-25`
+- Итоговое решение QA: `blocked`
+- Пройдено: `FTS-004-001`, `FTS-004-003`, `FTS-004-004`, `FTS-004-005`, `FTS-004-006`, `FTS-004-007`, `FTS-004-008`, `FTS-004-009`
+- Заблокировано: `FTS-004-002`
+- Новый defect: `BUG-004` (`devops`) — published `test-e2e` target `feature004-target-user` уже имеет `roles=[administrator, barista, customer]`, поэтому чистый happy path назначения `barista` и пересчёт доступа только к `Заказы`/`Доступность` не подтверждаются.
+- Закрытие прежних blockers QA-001: `QA-001-GAP-001` закрыт через `SA-003`; `QA-001-BLOCKER-004` и `QA-001-BLOCKER-005` закрыты через actor preconditions `9404008` и `9404006`; `QA-001-BLOCKER-002` закрыт через documented runtime exception и zero-result empty-state route; dialog parity deviation `BUG-003` снят.
+- Scope boundary: `block_user` и `unblock_user` не включались в acceptance scope.

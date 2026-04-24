@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-004`
 - Роль: `Тестирование`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Ссылки на документы
 
@@ -26,4 +26,15 @@
 - Ожидаемый результат для ревью: `Ручной acceptance маршрут по scenario IDs FTS-004-001..FTS-004-009 завершен, UI parity и scope boundary подтверждены, воспроизводимые defects заведены как BUG-* либо явно подтверждено их отсутствие.`
 - Проверки: `Ручной проход FTS-004-001, FTS-004-002, FTS-004-003, FTS-004-004, FTS-004-005, FTS-004-006, FTS-004-007, FTS-004-008, FTS-004-009`, `Сверка live UI с .references/Expressa_admin для users screen и dialog`, `Фиксация BUG-* по найденным отклонениям или явная запись об их отсутствии`
 - Обновление карты приложения: `Не требуется`
-- Критерии готовности: `Все mandatory manual scenarios из feature test scenarios document пройдены или зафиксированы как defects/blockers; success path назначения administrator подтвержден только для BootstrapAdministrator; QA evidence не расширяет scope фичи до block/unblock user`
+- Критерии готовности: `Все mandatory manual scenarios из feature test scenarios document пройдены или зафиксированы как defects/blockers; success path назначения administrator подтвержден только для BootstrapAdministrator; QA-отчет не расширяет scope фичи до block/unblock user`
+
+## Результат выполнения
+
+- Дата проверки: `2026-04-24`
+- Стенд: `published test-e2e`, `https://expressa-e2e-test.vitykovskiy.ru/users`
+- Итоговое решение QA: `blocked`
+- Пройдено: `FTS-004-001`, `FTS-004-003`, `FTS-004-005`, `FTS-004-007`, `FTS-004-009`
+- Заблокировано: `FTS-004-002`, `FTS-004-004`, `FTS-004-006`, `FTS-004-008`
+- Созданные задачи: `BUG-003` (`frontend`) для dialog UI parity deviation, `DO-011` (`devops`) для test-e2e runtime/test-data preconditions, `SA-003` (`Системный аналитик`) для восстановления QA read set.
+- Основная причина блокировки: `test-e2e` стенд не предоставлял отдельный target user для назначения `barista`, canonical empty users state, authenticated non-admin/barista actor и ordinary non-bootstrap administrator actor.
+- Scope boundary: `block_user` и `unblock_user` не включались в acceptance scope.

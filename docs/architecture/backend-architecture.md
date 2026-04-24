@@ -36,5 +36,5 @@
 
 - Обязательные проверки для серверного контура: `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.
 - Рефакторинг backend для `FEATURE-006` не должен менять endpoint boundary, DTO shape, auth headers/body, capability semantics, status codes или error mapping, зафиксированные в `docs/system/contracts/*`.
-- Если текущий код нарушает boundary, исправление выполняется поведенчески нейтрально: сначала сохраняются tests/contract evidence, затем responsibility переносится в controller/service/domain/repository слой.
+- Если текущий код нарушает boundary, исправление выполняется поведенчески нейтрально: сначала сохраняются tests/contract confirmations, затем responsibility переносится в controller/service/domain/repository слой.
 - Любое обнаруженное расхождение между production-кодом и системным contract является blocker для локального рефакторинга. Исполнитель не выбирает новое поведение самостоятельно.

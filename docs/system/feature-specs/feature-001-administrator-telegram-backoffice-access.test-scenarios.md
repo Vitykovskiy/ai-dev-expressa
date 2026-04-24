@@ -188,16 +188,16 @@
 ## Правила покрытия
 
 - Каждый сценарий получает стабильный `Scenario ID`.
-- Manual QA и E2E QA ссылаются на `Scenario ID` в evidence.
+- Manual QA и E2E QA ссылаются на `Scenario ID` в результатах QA-задач.
 - E2E mapping фиксирует тестовый файл, название проверки и обязательные assertions.
 - Сценарий с `E2E QA: required` считается покрытым только после появления автоматизированной проверки с assertions из этого документа.
-- Сценарий с `Manual QA: required` считается покрытым только после записи результата в QA evidence.
+- Сценарий с `Manual QA: required` считается покрытым только после записи результата в QA-задаче.
 
 ## Scope Constraints
 
 - Один документ покрывает одну `FEATURE-*`.
 - Сценарии описывают проверяемое поведение backoffice entry, bootstrap и guard matrix.
-- Manual evidence хранится в QA задаче или QA evidence, а этот документ хранит canonical route проверки.
+- Результат manual QA хранится в QA-задаче, а этот документ хранит canonical route проверки.
 
 ## Safety Constraints
 

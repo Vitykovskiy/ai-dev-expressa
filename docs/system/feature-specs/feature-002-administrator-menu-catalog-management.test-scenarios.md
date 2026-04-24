@@ -101,7 +101,7 @@
   - Для напитка выбор размера обязателен в customer-сценарии.
   - Цена напитка зависит от выбранного размера.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`
   - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-003`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
   - Required assertions: `проверка трех цен размеров в UI/API snapshot, проверка itemType=drink`
 
@@ -150,7 +150,7 @@
 - Проверяемые инварианты:
   - `priceDelta` дополнительной опции неотрицателен.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`
   - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-005`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
   - Required assertions: `проверка basePrice=0 для бесплатной опции, проверка basePrice>0 для платной опции, проверка отображения опций в группе`
 
@@ -173,7 +173,7 @@
 - Проверяемые инварианты:
   - Группа опций не назначается сама на себя.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`
   - Test title / ID: `administrator manages menu catalog through backoffice`; annotation `FTS-002-006`; integration title `FTS-002-003 FTS-002-005 FTS-002-006 lets an administrator manage categories, drink prices, option groups and assignments`
   - Required assertions: `проверка выбранной группы опций в категории, проверка сохранения optionGroupRefs`
 
@@ -196,7 +196,7 @@
 - Проверяемые инварианты:
   - Backend guard остается источником истины для capability access.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`
   - Test title / ID: `FTS-002-007 direct menu API access is denied when menu access is unavailable`; integration title `FTS-002-007 rejects menu catalog access without administrator menu capability`
   - Required assertions: `проверка API refusal status, проверка documented capability error; browser navigation/tab guard не добавлен в текущей подзадаче`
 
@@ -219,9 +219,9 @@
 - Проверяемые инварианты:
   - Напиток не сохраняется без полного набора `S`, `M`, `L`.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
   - Test title / ID: `FTS-002-008 incomplete drink size model is rejected`
-  - Required assertions: `проверка user-visible validation text, проверка backend error invalid-drink-size-model в integration/domain evidence`
+  - Required assertions: `проверка user-visible validation text, проверка backend error invalid-drink-size-model в integration/domain coverage`
 
 ### `FTS-002-009` — Удаление категории с товарами отклоняется
 
@@ -286,7 +286,7 @@
   - Взаимоисключающая группа сохраняет ограничение выбора одной опции.
   - Группа множественного выбора сохраняет возможность выбора нескольких опций.
 - E2E mapping:
-  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration evidence: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
+  - Test file: `e2e/menu-catalog/admin-menu-catalog.spec.ts`; integration coverage: `backend/test/menu-catalog.integration.spec.ts`, `backend/test/menu-catalog-domain.spec.ts`
   - Test title / ID: `invalid option group rule is rejected by menu catalog contract`; annotation `FTS-002-011`; integration titles `FTS-002-011 returns invalid-option-group-rule for an unknown selection mode`, `FTS-002-011 rejects an unknown option group selection mode`
   - Required assertions: `проверка e2e/backend/domain error invalid-option-group-rule; manual UI parity фиксирует отсутствие control selectionMode в reference UI`
 
@@ -297,13 +297,13 @@
 - E2E-тесты используют `Scenario ID` в названии теста, annotation, tag или coverage-комментарии.
 - Coverage mapping фиксирует тестовый файл, название теста и обязательные assertions для каждого e2e-covered сценария.
 - Сценарий с `E2E QA: required` считается покрытым после появления browser e2e-теста с assertions из этого документа.
-- Сценарий с `Manual QA: required` считается покрытым после ручного прохода по шагам и фиксации результата в QA evidence.
+- Сценарий с `Manual QA: required` считается покрытым после ручного прохода по шагам и фиксации результата в QA-задаче.
 
 ## Scope Constraints
 
 - Один документ покрывает одну `FEATURE-*`.
 - Сценарии описывают проверяемое поведение управления каталогом меню administrator.
-- Manual evidence хранится в QA-задаче или QA evidence, а этот документ хранит канонический маршрут проверки.
+- Результат manual QA хранится в QA-задаче, а этот документ хранит канонический маршрут проверки.
 - Визуальные parity-сценарии проверяют соответствие canonical `.references/Expressa_admin`, а не вводят новое UI-поведение.
 
 ## Safety Constraints

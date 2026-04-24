@@ -31,7 +31,7 @@
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA.
 - `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API.
 - Для published `test-e2e` стенда canonical значение `E2E_BACKEND_BASE_URL` совпадает с `E2E_BASE_URL`, потому что frontend origin обязан публиковать `/backoffice/*` и `/customer/*` как JSON proxy routes.
-- QA владеет feature e2e assertions, browser сценариями, fixtures, expected behavior, pass/fail evidence и defect handoff.
+- QA владеет feature e2e assertions, browser сценариями, fixtures, expected behavior, run result и defect handoff.
 - E2E не включаются в обязательные `PR Checks` или `Deploy Test` gates без отдельного архитектурного решения; стандартный PR/deploy route остается non-e2e.
 - Изменение e2e URL, локальных e2e overrides или QA-команды запуска считается изменением delivery/runtime карты и требует обновления `docs/architecture/application-map/delivery-and-runtime.md` и `docs/architecture/deployment-map.md`.
 - Post-deploy smoke-check обязан подтверждать published proxy JSON route для QA-owned browser e2e, если feature-level acceptance зависит от frontend-proxied backend endpoints.
@@ -56,7 +56,7 @@
 - `lint-staged` должен как минимум запускать `prettier --write` через локальные binaries контуров для staged text-файлов, `eslint --fix` внутри `backend/` и `frontend/` для TypeScript/Vue файлов и `stylelint --fix` внутри `frontend/` для style-файлов и Vue style blocks.
 - Hook не заменяет полные `test`, `typecheck` и `build`; эти команды остаются обязательными перед передачей задачи на ревью.
 - Конфигурация hooks должна быть версионирована в репозитории. Установка hooks должна быть описана через npm scripts или стандартный lifecycle, а не через ручные локальные инструкции.
-- Отключение hook допустимо только как аварийное действие исполнителя и не является evidence для ревью.
+- Отключение hook допустимо только как аварийное действие исполнителя и не является подтверждением для ревью.
 
 ## Local runtime
 

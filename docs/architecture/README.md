@@ -14,7 +14,7 @@
 - `backend-architecture.md` — базовый стандарт серверной части, NestJS boundaries и backend quality gates.
 - `devops-standards.md` — базовый стандарт runtime, delivery, локальных hooks и PR gates.
 - `deployment-map.md` — окружения и deployment-ограничения.
-- `qa-standards.md` — базовый стандарт проверок, regression evidence и acceptance рефакторинга.
+- `qa-standards.md` — базовый стандарт проверок, regression reports и acceptance рефакторинга.
 - `application-map.md` — индекс контурных карт и маршрут выбора нужной карты.
 - `application-map/frontend-backoffice.md` — клиентский backoffice-контур.
 - `application-map/backend-access.md` — серверный контур идентификации, ролей и Telegram-доступа.

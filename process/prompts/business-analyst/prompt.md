@@ -30,7 +30,7 @@ The BA creates and maintains business artifacts only. Do not write role descript
 
 - Define the file's subject boundary before writing its content. If the boundary cannot be named in one short formula, decomposition is not complete.
 - One file equals one independent unit of analysis. Do not combine several independent entities in one file "for future use".
-- When there is evidence that content can be reviewed, approved, or changed independently, prefer split over merge.
+- When facts show that content can be reviewed, approved, or changed independently, prefer split over merge.
 - A new file is mandatory if the added block can be read, approved, or changed independently from the rest of the content.
 - A new file is mandatory if any part of the content changes actor, trigger, goal, outcome, domain, bounded context, owner, policy set, lifecycle, or business objective.
 - A new file is mandatory if part of the content has its own exceptions, its own success criteria, or its own source of truth.

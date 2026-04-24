@@ -17,13 +17,13 @@
 - Архитектурные артефакты: `docs/architecture/qa-standards.md`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
 - Бизнес-артефакты: `не требуются`
-- Дополнительные материалы: `tasks/QA-001-feature-004-manual-user-role-management.md`, `QA-001-evidence.md`, `process/templates/context-package-template.md`
+- Дополнительные материалы: `tasks/QA-001-feature-004-manual-user-role-management.md`, `process/templates/context-package-template.md`
 
 ## Примечания
 
 - Зависимости: `QA-001`
-- Минимальный read set: `process/workflow.md`, `process/templates/context-package-template.md`, `tasks/QA-001-feature-004-manual-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`, `QA-001-evidence.md`
+- Минимальный read set: `process/workflow.md`, `process/templates/context-package-template.md`, `tasks/QA-001-feature-004-manual-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management.test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/frontend-backoffice.md`, `docs/architecture/application-map/backend-access.md`, `docs/architecture/application-map/delivery-and-runtime.md`
 - Ожидаемый результат для ревью: `QA-001 read set больше не содержит битую ссылку: task-card QA-001 обновлена на существующий достаточный маршрут чтения без неканонического context package.`
-- Проверки: `rg --files -g "*FEATURE-004-context-05*"`, `проверка QA-001-evidence.md на закрытие QA-001-GAP-001 или явное обновление статуса gap`, `проверка отсутствия ссылок на tasks/archive как источник текущего read set`
+- Проверки: `rg --files -g "*FEATURE-004-context-05*"`, `проверка QA-001 task report на закрытие QA-001-GAP-001 или явное обновление статуса gap`, `проверка отсутствия ссылок на tasks/archive как источник текущего read set`
 - Обновление карты приложения: `Не требуется`
 - Критерии готовности: `Повторная manual QA может стартовать без input gap QA-001-GAP-001 и без обращения к архивным задачам`

@@ -25,7 +25,7 @@
 - `FTS-003-006`: сохранённые настройки влияют на последующее формирование доступных слотов текущего дня.
 - `FTS-003-007`: QA фиксирует documented inconsistency по верхней границе `slotCapacity` между UI reference и каноническими system artifacts.
 - Финальный e2e acceptance для lane e2e выполняется локально командой `npm run test:e2e` против `https://expressa-e2e-test.vitykovskiy.ru`.
-- Backend integration coverage используется как входное contract evidence и debug, но не заменяет feature-level browser e2e.
+- Backend integration coverage используется как входное contract confirmation и debug, но не заменяет feature-level browser e2e.
 - QA создаёт `BUG-*` задачи для воспроизводимых product failures с меткой `frontend` или `backend`, если контур причины ясен.
 - QA создаёт `BUG-*` задачи с меткой `devops` только если failure относится к runtime, env/config или pipeline path.
 

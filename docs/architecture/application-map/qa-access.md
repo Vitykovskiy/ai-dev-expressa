@@ -16,18 +16,18 @@
 ## Regression acceptance для FEATURE-006
 
 - После code style/code architecture рефакторинга повторяются acceptance scenarios этой карты без изменения expected behavior.
-- Обязательное evidence: server-driven `AuthenticatedActor`, role-based navigation, forbidden screen, production отказ без Telegram, test-mode bypass только при `NODE_ENV=test DISABLE_TG_AUTH=true`.
+- Обязательные подтверждения: server-driven `AuthenticatedActor`, role-based navigation, forbidden screen, production отказ без Telegram, test-mode bypass только при `NODE_ENV=test DISABLE_TG_AUTH=true`.
 - Рефакторинг не принимается, если изменились auth headers/body, capability matrix, `401`/`403` mapping или production запрет test-mode.
 - QA использует `docs/system/contracts/backoffice-auth-and-capability-access.md` как источник истины и не восстанавливает expected behavior из `frontend/src/*` или `backend/src/*`.
 
 ## Текущее расположение проверок
 
-- `backend/test/bootstrap-administrator.spec.ts` — unit evidence для идемпотентного bootstrap administrator.
-- `backend/test/access-config.spec.ts` — unit evidence для env/config validation и запрета `DISABLE_TG_AUTH=true` вне `NODE_ENV=test`.
-- `backend/test/backoffice-auth.spec.ts` — integration evidence для Telegram/test-mode auth service.
-- `backend/test/backoffice-role-guard.spec.ts` — integration evidence для матрицы role guard по capabilities.
-- `backend/test/backoffice-entry.integration.spec.ts` — integration/regression evidence для `Telegram entry -> session -> capability access` и production-like отказа без Telegram.
-- `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts` — frontend contract/navigation evidence для bootstrap, guard и role-aware tab visibility.
+- `backend/test/bootstrap-administrator.spec.ts` — unit coverage для идемпотентного bootstrap administrator.
+- `backend/test/access-config.spec.ts` — unit coverage для env/config validation и запрета `DISABLE_TG_AUTH=true` вне `NODE_ENV=test`.
+- `backend/test/backoffice-auth.spec.ts` — integration coverage для Telegram/test-mode auth service.
+- `backend/test/backoffice-role-guard.spec.ts` — integration coverage для матрицы role guard по capabilities.
+- `backend/test/backoffice-entry.integration.spec.ts` — integration/regression coverage для `Telegram entry -> session -> capability access` и production-like отказа без Telegram.
+- `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts` — frontend contract/navigation coverage для bootstrap, guard и role-aware tab visibility.
 
 ## Handoff route for FEATURE-001
 
