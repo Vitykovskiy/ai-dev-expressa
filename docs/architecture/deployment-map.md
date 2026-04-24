@@ -28,7 +28,7 @@
 - Runtime-конфигурация на VPS передаётся через окружение процесса или внешний env-файл стенда; локальные `backend/.env.local` и `frontend/.env.local` на VPS не используются.
 - Backend на `test` запускается в `NODE_ENV=test`.
 - `DISABLE_TG_AUTH=true` допустим только для `test` и не переносится в `production`.
-- Env-файл стенда обязан содержать все runtime vars backend до container rollout: `NODE_ENV=test`, `PORT`, `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH=true`, `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice и `DATABASE_URL` для подключения к `PostgreSQL`.
+- Env-файл стенда обязан содержать все runtime vars backend до container rollout: `NODE_ENV=test`, `PORT`, `ADMIN_TELEGRAM_ID`, `DISABLE_TG_AUTH=true`, `BACKOFFICE_CORS_ORIGINS` с origin опубликованного backoffice, `DATABASE_URL` для подключения к `PostgreSQL`, а также `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` для compose-managed database service.
 - Изоляция двух стендов обеспечивается отдельными значениями `ENV_FILE`, `DEPLOY_PROJECT_NAME`, `DEPLOY_STAND_SLUG`, `TEST_DEPLOY_HOST_BACKEND_PORT`, `TEST_DEPLOY_HOST_FRONTEND_PORT`, `SMOKE_BACKEND_BASE_URL` и `SMOKE_FRONTEND_BASE_URL`.
 - Базовый контракт стендов:
 
@@ -38,10 +38,10 @@
 | `test-e2e` | `https://expressa-e2e-test.vitykovskiy.ru` | `expressa-test-e2e`   | `test-e2e`          | `/opt/expressa/env/test-e2e.env` | `3001`                          | `8081`                           | `http://127.0.0.1:3001`  | `https://expressa-e2e-test.vitykovskiy.ru` |
 
 - GitHub Actions хранит инфраструктурные секреты для SSH и rollout: `TEST_VPS_HOST`, `TEST_VPS_USER`, `TEST_VPS_SSH_KEY`, `TEST_VPS_PORT`, `TEST_VPS_HOST_FINGERPRINT`, `TEST_VPS_APP_DIR`, registry credentials и отдельные env values для каждого стенда.
-- Deploy workflow синхронизирует checkout на VPS с `origin/main`, затем многократно запускает `scripts/deploy-test-vps.sh` с `SKIP_GIT_PULL=true`; launcher валидирует runtime env, выполняет `docker login` при наличии credentials, затем `docker compose pull` и `docker compose up -d`.
-- Перед post-deploy smoke-check launcher обязан подтвердить готовность `PostgreSQL` и выполнить schema/migration step для users boundary без восстановления этого маршрута из backend implementation.
-- `docker-compose.deploy.yml` совместим с rollout двух стендов без изменений, потому что использует env-driven image refs и host port bindings, а изоляция контейнеров задаётся через `docker compose -p`.
-- Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON route `GET /backoffice/orders`, published proxy JSON route `GET /backoffice/users`, published proxy JSON route `GET /customer/slots` и negative path для production-like bypass.
+- Deploy workflow синхронизирует checkout на VPS с `origin/main`, затем многократно запускает `scripts/deploy-test-vps.sh` с `SKIP_GIT_PULL=true`; launcher валидирует runtime env, выполняет `docker login` при наличии credentials, затем `docker compose pull`, `docker compose up -d postgres` и `docker compose up -d backend frontend`.
+- Перед container rollout launcher обязан подтвердить готовность `PostgreSQL` по `DATABASE_URL` и выполнить schema/migration step для users boundary через one-off запуск backend image.
+- `docker-compose.deploy.yml` совместим с rollout двух стендов без изменений, потому что использует env-driven image refs, host port bindings и project-scoped volume `postgres-data`, а изоляция контейнеров и PostgreSQL storage задаётся через `docker compose -p`.
+- Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON route `GET /backoffice/orders`, published proxy JSON route `GET /backoffice/users` с `x-test-telegram-id`, published proxy JSON route `GET /customer/slots` и negative path для production-like bypass.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
 
 ## QA e2e route
@@ -68,6 +68,7 @@ E2E не добавляется в branch protection без отдельного
 
 - После каждого rollout `scripts/deploy-test-vps.sh` сохраняет rollback-файл в `artifacts/deploy-test/<stand-slug>/rollback-<stand-slug>-<timestamp>.env` с предыдущими image refs, env-файлом и deploy-параметрами конкретного стенда.
 - Для restore оператор source-ит нужный rollback-файл, затем повторно запускает `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh` в `TEST_VPS_APP_DIR`.
+- Restore path сохраняет project-scoped PostgreSQL volume стенда и повторно применяет users schema/migration step перед smoke-check.
 - После restore оператор повторяет smoke-check `GET /health`, frontend root, published proxy `GET /backoffice/orders`, published proxy `GET /backoffice/users` и published proxy `GET /customer/slots`.
 
 ## FEATURE-001

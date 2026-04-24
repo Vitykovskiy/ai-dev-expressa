@@ -90,6 +90,79 @@ smoke_json_route() {
   rm -f "$headers_file" "$body_file"
 }
 
+run_backend_node() {
+  docker_compose run --rm --no-deps -T backend node "$@"
+}
+
+confirm_postgresql_ready() {
+  run_backend_node <<'NODE'
+const { Pool } = require("pg");
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error("DATABASE_URL is required for PostgreSQL readiness.");
+  process.exit(1);
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const pool = new Pool({ connectionString: databaseUrl });
+
+(async () => {
+  try {
+    for (let attempt = 1; attempt <= 30; attempt += 1) {
+      try {
+        await pool.query("SELECT 1");
+        console.log("PostgreSQL readiness confirmed.");
+        return;
+      } catch (error) {
+        if (attempt === 30) {
+          throw error;
+        }
+
+        await sleep(2000);
+      }
+    }
+  } finally {
+    await pool.end();
+  }
+})().catch((error) => {
+  console.error("PostgreSQL readiness failed.");
+  console.error(error);
+  process.exit(1);
+});
+NODE
+}
+
+apply_users_schema() {
+  run_backend_node <<'NODE'
+const { Pool } = require("pg");
+const { applyUsersSchema } = require("./dist/identity-access/users/postgresql/users-schema.js");
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error("DATABASE_URL is required for users schema migration.");
+  process.exit(1);
+}
+
+const pool = new Pool({ connectionString: databaseUrl });
+
+(async () => {
+  try {
+    await applyUsersSchema({
+      query: (queryText, values = []) => pool.query(queryText, [...values]),
+    });
+    console.log("Users boundary schema migration applied.");
+  } finally {
+    await pool.end();
+  }
+})().catch((error) => {
+  console.error("Users boundary schema migration failed.");
+  console.error(error);
+  process.exit(1);
+});
+NODE
+}
+
 make_absolute_path() {
   local path="$1"
 
@@ -176,6 +249,10 @@ set +a
 
 require_env "ADMIN_TELEGRAM_ID"
 require_env "BACKOFFICE_CORS_ORIGINS"
+require_env "DATABASE_URL"
+require_env "POSTGRES_DB"
+require_env "POSTGRES_USER"
+require_env "POSTGRES_PASSWORD"
 
 if [[ "${NODE_ENV:-}" != "test" ]]; then
   echo "NODE_ENV must be set to test on the test VPS."
@@ -213,12 +290,16 @@ SMOKE_FRONTEND_BASE_URL=${SMOKE_FRONTEND_BASE_URL:-}
 ROLLBACK
 
 docker_compose config >/dev/null
-docker_compose pull backend frontend
+docker_compose pull postgres backend frontend
+docker_compose up -d postgres
+confirm_postgresql_ready
+apply_users_schema
 docker_compose up -d backend frontend
 
 BACKEND_BASE_URL="${SMOKE_BACKEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}}"
 FRONTEND_BASE_URL="${SMOKE_FRONTEND_BASE_URL:-http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}}"
 PROXIED_BACKOFFICE_URL="${FRONTEND_BASE_URL%/}/backoffice/orders"
+PROXIED_BACKOFFICE_USERS_URL="${FRONTEND_BASE_URL%/}/backoffice/users"
 PROXIED_CUSTOMER_SLOTS_URL="${FRONTEND_BASE_URL%/}/customer/slots"
 
 for attempt in {1..30}; do
@@ -237,6 +318,11 @@ curl --fail --silent --show-error "$FRONTEND_BASE_URL/" >/dev/null
 
 smoke_json_route \
   "$PROXIED_BACKOFFICE_URL" \
+  --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
+  >/dev/null
+
+smoke_json_route \
+  "$PROXIED_BACKOFFICE_USERS_URL" \
   --header "x-test-telegram-id: ${ADMIN_TELEGRAM_ID}" \
   >/dev/null
 
@@ -273,6 +359,7 @@ cat >"$SUMMARY_FILE" <<SUMMARY
 - Backend URL: \`$BACKEND_BASE_URL\`
 - Frontend URL: \`$FRONTEND_BASE_URL\`
 - Proxied backoffice smoke URL: \`$PROXIED_BACKOFFICE_URL\`
+- Proxied users smoke URL: \`$PROXIED_BACKOFFICE_USERS_URL\`
 - Proxied customer slots smoke URL: \`$PROXIED_CUSTOMER_SLOTS_URL\`
 - Rollback file: \`$ROLLBACK_FILE\`
 SUMMARY
