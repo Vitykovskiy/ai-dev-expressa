@@ -118,7 +118,9 @@
 | Путь                                                                                | Назначение                                                                                                                                    |
 | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `frontend/src/views/UsersView.vue`                                                  | Экран `/users`: route-level orchestration чтения списка пользователей, поиска, фильтрации и открытия формы назначения роли.                   |
-| `frontend/src/components/user-management/*.vue`                                     | Feature-specific компоненты списка пользователей, фильтров, empty/loading/error states и диалога назначения роли без transport logic.         |
+| `frontend/src/components/user-management/UserManagementFilterTabs.vue`              | Feature-specific фильтры экрана `Пользователи`, повторяющие tabs `Все`, `Баристы`, `Заблокированные` без transport logic.                     |
+| `frontend/src/components/user-management/UserManagementList.vue`                    | Feature-specific список пользователей, badges ролей и статуса, а также entrypoint назначения роли через row action.                           |
+| `frontend/src/components/user-management/UserRoleAssignmentDialog.vue`              | Feature-specific диалог назначения роли с server-driven набором `availableRoleAssignments` и inline validation обязательных полей.            |
 | `frontend/src/modules/user-management/api.ts`                                       | Client API boundary для `GET /backoffice/users` и `PATCH /backoffice/users/{userId}/role` по consumer-facing contract.                        |
 | `frontend/src/modules/user-management/store.ts`                                     | Локальное состояние users snapshot, active filters, busy state и повторное чтение списка после успешного назначения роли.                     |
 | `frontend/src/modules/user-management/types.ts`, `validation.ts`, `presentation.ts` | Клиентские типы списка пользователей и формы назначения роли, UI-валидация обязательных полей и mapping transport/business errors.            |
@@ -130,6 +132,7 @@
 - Frontend использует существующий administrator-only route `/users` и не добавляет новые top-level routes, отдельные users-flow экраны или альтернативные entrypoints назначения роли без обновления этой карты.
 - Экран `Пользователи` должен читать список пользователей через `GET /backoffice/users`, поддерживать loading, empty, search, filter, dialog, success и error states и сохранять users flow в пределах канонического UI reference.
 - Форма назначения роли должна использовать `availableRoleAssignments` из server response как источник допустимых вариантов и не восстанавливать guard `BootstrapAdministrator` из frontend-кода.
+- Клиентская реализация поддерживает route-level entrypoint `Добавить пользователя` и row-level entrypoint назначения роли, при этом success/error mapping остаётся привязанным только к contract `Assign user role`.
 - Клиентская реализация должна рассматривать `block_user` и `unblock_user` как соседние entrypoints экрана `Пользователи`, но не включать их в scope `FEATURE-004`.
 
 ## Запрещено в FEATURE-001
