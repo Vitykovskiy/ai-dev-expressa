@@ -141,7 +141,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `npm run dev:backend` поднимает backend на `http://127.0.0.1:3000`.
 - `npm run dev:frontend` поднимает frontend на `http://localhost:5173`.
 - `GET /health` отвечает в локальном dev-сценарии.
-- Backend имеет доступный `PostgreSQL` по `DATABASE_URL`, а users boundary не опирается на in-memory storage как production-equivalent путь.
+- Backend имеет доступный `PostgreSQL` по `DATABASE_URL`, а users boundary использует его как источник хранения.
 - Локальное открытие backoffice по URL при запущенных `dev:backend` и `dev:frontend` проходит через test-mode и не возвращает `backoffice-auth-failed`.
 - Production-like запуск с `DISABLE_TG_AUTH=true` завершается ошибкой конфигурации или блокирует bypass.
 - Backoffice без Telegram-входа в production-like режиме не открывает рабочие вкладки.
