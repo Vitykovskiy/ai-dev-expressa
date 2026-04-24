@@ -12,6 +12,10 @@ export interface AuthenticatedActor {
   readonly capabilities: readonly BackofficeCapability[];
 }
 
+export interface BackofficeAccess {
+  readonly capabilities: readonly BackofficeCapability[];
+}
+
 export function toAuthenticatedActor(user: User): AuthenticatedActor {
   return {
     userId: user.userId,
