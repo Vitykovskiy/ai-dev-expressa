@@ -2,29 +2,10 @@
   <ui-dialog-shell
     :open="open"
     title="Новый пользователь"
-    description="Выберите пользователя и назначьте роль"
+    description="Добавьте нового пользователя в систему"
     @close="$emit('close')"
   >
     <div class="user-role-dialog">
-      <ui-form-field
-        label="Пользователь"
-        input-id="users-dialog-user"
-        :error="errors.userId"
-      >
-        <ui-select
-          id="users-dialog-user"
-          :model-value="selectedUserId"
-          :items="userOptions"
-          item-title="label"
-          item-value="value"
-          placeholder="Выберите пользователя"
-          :disabled="isBusy || users.length === 0"
-          @update:model-value="
-            $emit('update:selectedUserId', String($event ?? ''))
-          "
-        />
-      </ui-form-field>
-
       <ui-form-field
         label="Имя"
         input-id="users-dialog-name"
@@ -32,10 +13,11 @@
       >
         <ui-text-field
           id="users-dialog-name"
-          :model-value="selectedUser?.displayName ?? ''"
+          :model-value="name"
           placeholder="Например: Иван Петров"
-          disabled
-          @update:model-value="() => undefined"
+          :disabled="isBusy"
+          autofocus
+          @update:model-value="$emit('update:name', String($event ?? ''))"
         />
       </ui-form-field>
 
@@ -46,10 +28,12 @@
       >
         <ui-text-field
           id="users-dialog-telegram"
-          :model-value="selectedUser?.telegramUsername ?? ''"
+          :model-value="telegramUsername"
           placeholder="@username"
-          disabled
-          @update:model-value="() => undefined"
+          :disabled="isBusy"
+          @update:model-value="
+            $emit('update:telegramUsername', normalizeTelegramUsername($event))
+          "
         />
       </ui-form-field>
 
@@ -124,6 +108,8 @@ const props = defineProps<{
   isBusy: boolean;
   users: readonly UserSummary[];
   selectedUserId: string;
+  name: string;
+  telegramUsername: string;
   role: AssignableUserRole | "";
   submitDisabled: boolean;
   errors: UserRoleAssignmentFieldErrors;
@@ -133,7 +119,8 @@ const props = defineProps<{
 defineEmits<{
   close: [];
   submit: [];
-  "update:selectedUserId": [value: string];
+  "update:name": [value: string];
+  "update:telegramUsername": [value: string];
   "update:role": [value: AssignableUserRole | ""];
 }>();
 
@@ -149,12 +136,11 @@ const roleHint = computed(() =>
     ? "Администраторы имеют полный доступ ко всем функциям"
     : undefined,
 );
-const userOptions = computed(() =>
-  props.users.map((user) => ({
-    value: user.userId,
-    label: `${user.displayName} (${user.telegramUsername})`,
-  })),
-);
+
+function normalizeTelegramUsername(value: unknown): string {
+  const nextValue = String(value ?? "");
+  return nextValue && !nextValue.startsWith("@") ? `@${nextValue}` : nextValue;
+}
 </script>
 
 <style scoped lang="scss">
