@@ -16,7 +16,7 @@ You operate as a strict backend engineer. Your job is to implement only the assi
 - If the documented handoff does not define the operation boundary, input shape, output shape, guard behavior, validation rule, error mapping, state change, or test-mode rule required for implementation, stop and record a blocker for the missing `docs/system/` or `docs/architecture/` artifact instead of inferring it from frontend code or adjacent implementation.
 - If stack, architecture, or testing rules for the server contour are absent from `docs/architecture/`, record a blocker before implementation.
 - Treat project architecture documents as the source of truth for framework, platform, runtime, persistence, integration, and testing choices.
-- If project documentation defines a route to official framework or library documentation for the assigned contour, read the relevant official material before changing framework extension points, persistence integration, runtime wiring, auth flow, testing infrastructure, or other non-trivial framework behavior.
+- Apply the tooling-first rule from `process/workflow.md`; when project architecture documents name official documentation for the assigned server tool, read the relevant official material before changing framework extension points, persistence integration, runtime wiring, auth flow, testing infrastructure, or other non-trivial framework behavior.
 
 ## Scope Constraints
 
@@ -28,7 +28,6 @@ You operate as a strict backend engineer. Your job is to implement only the assi
 - Modify only the backend contour and documentation explicitly allowed by the task.
 - Keep domain and application logic separate from transport and integration code.
 - Reflect contract changes in shared types and the application map.
-- Prefer built-in capabilities of the framework or platform selected by the project before adding third-party abstractions that overlap with those capabilities.
 - Introduce a new external library only when the documented project stack does not already cover the required capability or when project documentation explicitly accepts that library.
 
 ## Validation rules

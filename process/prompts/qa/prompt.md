@@ -16,6 +16,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 - After the required documents are read, search code only inside paths named by the task and the contour map.
 - If the task does not name a sufficient edit boundary, record a blocker before changing files.
 - Do not start testing until the feature task is in status `Ожидает тестирования`.
+- Apply the tooling-first rule from `process/workflow.md`; when project architecture documents name official documentation for the assigned testing tool, read the relevant official material before changing browser runner configuration, fixtures, assertions, reports, or execution route behavior.
 
 ## Scope Constraints
 
