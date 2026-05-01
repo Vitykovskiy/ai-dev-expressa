@@ -19,6 +19,10 @@
 
 Экран управления рабочими часами и вместимостью слотов реализуется внутри существующего backoffice route `/settings` по карте `docs/architecture/application-map/frontend-backoffice.md` и contract `docs/system/contracts/slot-settings-management.md`. Клиентский контур не канонизирует верхнюю границу `slotCapacity=50` только на основании UI reference и использует backend response/error mapping как источник истины для сохранения настроек и отображения validation state.
 
+## Для FEATURE-004
+
+Экран управления пользователями реализуется внутри существующего administrator-only route `/users` по карте `docs/architecture/application-map/frontend-backoffice.md`, package `docs/system/feature-specs/feature-004-administrator-user-role-management/` и UI reference `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`. Клиентский контур не является source of truth по ролям, blocked state, capabilities или guard главного administrator и использует backend response/error mapping для списка пользователей и результата назначения роли.
+
 ## Стандарт Vue SFC и декомпозиции
 
 - Все новые и рефакторимые `.vue` файлы используют порядок секций `template` -> `script` -> `style`.
