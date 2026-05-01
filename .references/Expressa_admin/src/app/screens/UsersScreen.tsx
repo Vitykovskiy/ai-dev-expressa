@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Users as UsersIcon, MoreVertical, Plus } from 'lucide-react';
+import { Search, Users as UsersIcon } from 'lucide-react';
 import { TopBar } from '../components/TopBar';
 import { FilterTabs } from '../components/FilterTabs';
 import { EmptyState } from '../components/EmptyState';
-import { Button } from '../components/Button';
-import { AddUserDialog } from '../components/AddUserDialog';
-import { User } from '../types';
+import { UserActionsMenu } from '../components/UserActionsMenu';
+import { AssignRoleDialog } from '../components/AssignRoleDialog';
+import { User, UserRole } from '../types';
 import { toast } from 'sonner';
 
 interface UsersScreenProps {
@@ -34,10 +34,20 @@ const getStatusBadge = (status: User['status']) => {
 
 export function UsersScreen({ users }: UsersScreenProps) {
   const [activeFilter, setActiveFilter] = useState('all');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAssignRoleDialog, setShowAssignRoleDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const filteredUsers = users.filter((user) => {
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = user.name.toLowerCase().includes(query);
+      const matchesTelegram = user.telegramUsername?.toLowerCase().includes(query);
+      if (!matchesName && !matchesTelegram) return false;
+    }
+
+    // Filter by tab
     if (activeFilter === 'all') return true;
     if (activeFilter === 'barista') return user.role === 'barista';
     if (activeFilter === 'blocked') return user.status === 'blocked';
@@ -48,57 +58,60 @@ export function UsersScreen({ users }: UsersScreenProps) {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const handleAddUser = (userData: {
-    name: string;
-    telegramUsername: string;
-    role: User['role'];
-  }) => {
-    console.log('Добавление пользователя:', userData);
-    toast.success(`Пользователь "${userData.name}" добавлен`);
-    // Здесь должна быть логика добавления пользователя в store
+  const handleAssignRole = (user: User) => {
+    setSelectedUser(user);
+    setShowAssignRoleDialog(true);
+  };
+
+  const handleRevokeRole = (user: User) => {
+    console.log('Снятие роли баристы:', user.id);
+    toast.success(`Роль баристы снята у пользователя "${user.name}"`);
+    // Здесь должна быть логика изменения роли в store
+  };
+
+  const handleBlock = (user: User) => {
+    console.log('Блокировка пользователя:', user.id);
+    toast.success(`Пользователь "${user.name}" заблокирован`);
+    // Здесь должна быть логика блокировки в store
+  };
+
+  const handleUnblock = (user: User) => {
+    console.log('Разблокировка пользователя:', user.id);
+    toast.success(`Пользователь "${user.name}" разблокирован`);
+    // Здесь должна быть логика разблокировки в store
+  };
+
+  const handleConfirmAssignRole = (role: UserRole) => {
+    if (selectedUser) {
+      console.log('Назначение роли:', selectedUser.id, role);
+      toast.success(`Роль "${role === 'barista' ? 'Бариста' : 'Администратор'}" назначена пользователю "${selectedUser.name}"`);
+      // Здесь должна быть логика назначения роли в store
+    }
   };
 
   return (
     <div className="flex-1 flex flex-col bg-[#F5F5F7] md:bg-white h-full overflow-hidden">
-      <TopBar 
-        title="Пользователи"
-        actionIcon={<Search size={22} />}
-        onAction={() => setSearchOpen(!searchOpen)}
-      />
+      <TopBar title="Пользователи" />
 
       <div className="md:px-6 md:pt-6 md:max-w-[720px] md:mx-auto md:w-full">
         <div className="hidden md:flex md:items-center md:justify-between md:mb-4">
           <h1 className="text-2xl font-bold text-[#111111]">Пользователи</h1>
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors"
-            title="Поиск"
-          >
-            <Search size={22} className="text-[#555555]" />
-          </button>
         </div>
 
-        {/* Add User Button */}
-        <div className="px-4 md:px-0 pt-4 md:pt-0 pb-3">
-          <Button
-            icon={<Plus size={20} />}
-            onClick={() => setShowAddUserDialog(true)}
-          >
-            Добавить пользователя
-          </Button>
-        </div>
-        
-        {searchOpen && (
-          <div className="px-4 py-3 md:px-0 md:mb-4">
+        {/* Search Input - Always Visible */}
+        <div className="px-4 pt-4 pb-3 md:px-0 md:pt-0 md:mb-4">
+          <div className="relative">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]" />
             <input
               type="text"
-              placeholder="Поиск по имени или Telegram"
-              className="w-full px-3 py-2.5 rounded-[10px] bg-[#F5F5F7] border border-[#E0E0E0] text-sm text-[#111111] placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#1A1AFF]/20"
-              autoFocus
+              placeholder="Фильтр по имени или Telegram"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-3 py-2.5 rounded-[10px] bg-[#F5F5F7] border border-[#E0E0E0] text-sm text-[#111111] placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#1A1AFF]/20"
             />
           </div>
-        )}
-        
+        </div>
+
         <FilterTabs tabs={filterTabs} activeTab={activeFilter} onTabChange={setActiveFilter} />
       </div>
 
@@ -143,9 +156,13 @@ export function UsersScreen({ users }: UsersScreenProps) {
                     >
                       {roleBadge.label}
                     </span>
-                    <button className="p-1 text-[#999999] hover:text-[#555555]">
-                      <MoreVertical size={20} />
-                    </button>
+                    <UserActionsMenu
+                      user={user}
+                      onAssignRole={() => handleAssignRole(user)}
+                      onRevokeRole={() => handleRevokeRole(user)}
+                      onBlock={() => handleBlock(user)}
+                      onUnblock={() => handleUnblock(user)}
+                    />
                   </div>
                 </div>
               );
@@ -154,10 +171,11 @@ export function UsersScreen({ users }: UsersScreenProps) {
         )}
       </div>
 
-      <AddUserDialog
-        open={showAddUserDialog}
-        onOpenChange={setShowAddUserDialog}
-        onConfirm={handleAddUser}
+      <AssignRoleDialog
+        open={showAssignRoleDialog}
+        onOpenChange={setShowAssignRoleDialog}
+        onConfirm={handleConfirmAssignRole}
+        user={selectedUser}
       />
     </div>
   );
