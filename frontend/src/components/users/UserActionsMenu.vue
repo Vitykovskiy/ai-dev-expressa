@@ -1,5 +1,9 @@
 <template>
-  <v-menu location="bottom end" :close-on-content-click="true">
+  <v-menu
+    v-model="isMenuOpen"
+    location="bottom end"
+    :close-on-content-click="true"
+  >
     <template #activator="{ props: activatorProps }">
       <ui-icon-button
         v-bind="activatorProps"
@@ -15,7 +19,7 @@
       <template v-if="!user.blocked">
         <v-list-item
           class="user-actions-menu__item"
-          @click="$emit('assign-role')"
+          @click="handleAssignRoleClick"
         >
           <template #prepend>
             <UserCog :size="18" class="user-actions-menu__icon" />
@@ -51,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { Ban, MoreVertical, Unlock, UserCog, UserMinus } from "lucide-vue-next";
 import UiIconButton from "@/ui/UiIconButton.vue";
 import { getPrimaryOperationalRole } from "@/modules/users/presentation";
@@ -67,13 +71,20 @@ const props = withDefaults(
   },
 );
 
-defineEmits<{
+const emit = defineEmits<{
   "assign-role": [];
 }>();
 
+const isMenuOpen = ref(false);
 const isBarista = computed(
   () => getPrimaryOperationalRole(props.user.roles) === "barista",
 );
+
+async function handleAssignRoleClick(): Promise<void> {
+  isMenuOpen.value = false;
+  await nextTick();
+  emit("assign-role");
+}
 </script>
 
 <style scoped lang="scss">

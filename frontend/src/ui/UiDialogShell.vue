@@ -1,9 +1,11 @@
 <template>
   <v-dialog
+    class="app-dialog-shell-overlay"
+    :class="{ 'app-dialog-shell-overlay--mobile': isMobile }"
     :model-value="open"
     :max-width="maxWidth"
     :fullscreen="isMobile"
-    transition="dialog-bottom-transition"
+    :transition="dialogTransition"
     @update:model-value="emitModelUpdate"
   >
     <v-card class="app-dialog-shell" :rounded="isMobile ? 't-lg' : 'lg'">
@@ -35,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useDisplay } from "vuetify";
 
 const props = withDefaults(
@@ -56,6 +59,9 @@ const emit = defineEmits<{
 
 const { smAndDown } = useDisplay();
 const isMobile = smAndDown;
+const dialogTransition = computed(() =>
+  isMobile.value ? "dialog-bottom-transition" : "dialog-transition",
+);
 
 function emitModelUpdate(value: boolean): void {
   if (!value) {
@@ -67,6 +73,20 @@ void props;
 </script>
 
 <style scoped lang="scss">
+:global(.app-dialog-shell-overlay) {
+  align-items: center;
+  justify-content: center;
+}
+
+:global(
+  .app-dialog-shell-overlay:not(.app-dialog-shell-overlay--mobile)
+    > .v-overlay__content
+    > .app-dialog-shell.v-card
+) {
+  flex: 0 1 auto;
+  width: 100%;
+}
+
 .app-dialog-shell {
   background: var(--app-color-background-surface);
   display: flex;
