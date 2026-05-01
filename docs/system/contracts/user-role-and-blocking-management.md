@@ -26,6 +26,30 @@
 
 - Пользователь с ролью `administrator`, связанный с `ADMIN_TELEGRAM_ID`.
 
+## Contract `Read users for role management`
+
+### Consumer
+
+- `administrator`
+
+### Inputs
+
+- Нет обязательных бизнес-входов.
+
+### Validations and constraints
+
+- Операция доступна только пользователю с административными правами.
+
+### Outputs
+
+- Список пользователей для вкладки `Пользователи`.
+- Для каждого пользователя система возвращает идентификатор пользователя, Telegram-идентификатор, текущие роли и признак блокировки.
+- Для каждого пользователя система возвращает человекочитаемую подпись пользователя, если она есть в источнике идентификации.
+
+### Business errors
+
+- `administrator-role-required`
+
 ## Contract `Assign user role`
 
 ### Consumer
@@ -46,11 +70,13 @@
 
 - Обновлённый набор ролей пользователя.
 - Обновлённый доступ к вкладкам backoffice.
+- Обновлённое представление пользователя в списке пользователей.
 
 ### Business errors
 
 - `administrator-role-required`
 - `role-not-assignable`
+- `user-not-found`
 
 ### Несогласованности
 
@@ -78,4 +104,3 @@
 
 - `administrator-role-required`
 - `user-not-found`
-
