@@ -9,7 +9,7 @@
 - Роль: `Фронтенд`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -74,4 +74,4 @@
 
 ## Результат выполнения
 
-`не заполнено`
+`2026-05-01: исправлено desktop-позиционирование AssignRoleDialog через UiDialogShell и закрытие UserActionsMenu перед открытием диалога. Проверки: npm run test:frontend, npm run typecheck:frontend, npm run lint:frontend, npm run stylelint:frontend, npm run format:check:frontend; manual browser check 1280x900 с mock backend подтвердил, что menu закрыт, dialog полностью видим и labels Бариста/Администратор/Назначить роль/Отмена отображаются. Focused component test не добавлен, потому что текущий frontend Vitest настроен на node environment без component mount harness.`
