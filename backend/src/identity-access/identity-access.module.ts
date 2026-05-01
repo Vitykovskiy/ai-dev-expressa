@@ -5,12 +5,13 @@ import { TelegramInitDataVerifier } from "./auth/telegram-init-data.verifier";
 import { BootstrapAdministratorService } from "./bootstrap/bootstrap-administrator.service";
 import { BackofficeController } from "./backoffice.controller";
 import { provideAccessConfigFromNestConfig } from "./identity-access.tokens";
+import { UserManagementController } from "./user-management.controller";
 import { InMemoryUserRepository } from "./users/in-memory-user.repository";
 import { IdentityAccessService } from "./users/identity-access.service";
 import { USER_REPOSITORY } from "./users/user.repository";
 
 @Module({
-  controllers: [BackofficeController],
+  controllers: [BackofficeController, UserManagementController],
   providers: [
     provideAccessConfigFromNestConfig(),
     {

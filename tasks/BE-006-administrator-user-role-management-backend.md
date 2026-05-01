@@ -9,7 +9,7 @@
 - Роль: `Бэкенд`
 - Контурная карта: `docs/architecture/application-map/backend-access.md`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -76,4 +76,4 @@
 
 ## Результат выполнения
 
-`не заполнено`
+`2026-05-01 — Выполнено. Реализованы GET /backoffice/user-management/users и PATCH /backoffice/user-management/users/:userId/role внутри identity-access boundary; добавлены repository lookup/list по userId, назначение barista/administrator с сохранением customer и blocked state, пересчет capabilities, static capability guard users и guard главного administrator. Проверки пройдены: npm --prefix backend test -- user-role-management; npm --prefix backend run lint; npm --prefix backend run format:check; npm --prefix backend run typecheck; npm --prefix backend test; npm --prefix backend run build. Новые дефекты не создавались.`
