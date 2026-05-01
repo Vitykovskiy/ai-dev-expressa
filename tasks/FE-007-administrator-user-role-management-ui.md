@@ -9,7 +9,7 @@
 - Роль: `Фронтенд`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -81,4 +81,6 @@
 
 ## Результат выполнения
 
-`не заполнено`
+- `2026-05-01`: реализован frontend users-flow для `/users`: client API boundary, users store, список пользователей, поиск, фильтры, меню `Назначить роль`, диалог выбора роли, success/error/loading/empty/inline-error states и подключение route с capability `users`.
+- Проверки: `npm --prefix frontend run lint`, `npm --prefix frontend run stylelint`, `npm --prefix frontend run format:check`, `npm --prefix frontend run typecheck`, `npm --prefix frontend test`, `npm --prefix frontend run build` — пройдены.
+- Локальная проверка доступности route: `http://127.0.0.1:5173/users` возвращает `200` через Vite dev server.
