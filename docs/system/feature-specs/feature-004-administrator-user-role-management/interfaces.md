@@ -5,7 +5,7 @@
 - Feature: `FEATURE-004`
 - Package root: `docs/system/feature-specs/feature-004-administrator-user-role-management/`
 - Index: `./index.md`
-- Status: `draft`
+- Status: `ready-for-architecture`
 - Last consistency check: `2026-05-01`
 
 ## Interface Boundary
@@ -58,7 +58,7 @@
 - Trigger: подтверждение роли в диалоге назначения роли.
 - Inputs: текущий authenticated actor context, целевой `userId`, назначаемая роль.
 - Outputs: обновленный набор ролей пользователя, обновленный доступ к вкладкам, обновленное представление пользователя.
-- Guards: `administrator-role-required`; финальное правило назначения `administrator` остается blocker.
+- Guards: `administrator-role-required`; `main-administrator-required` для `assignedRole=administrator`.
 - Side effects: роль целевого пользователя изменяется; capabilities целевого пользователя пересчитываются.
 - Source: `docs/system/contracts/user-role-and-blocking-management.md`
 
@@ -76,13 +76,13 @@
 
 ## Validation and Error Mapping
 
-| Operation                        | Condition                                                      | System behavior                                                | User-visible outcome                        | Source                                 |
-| -------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------- | -------------------------------------- |
-| `Read users for role management` | Actor не имеет `administrator`                                 | Система должна отклонить чтение списка.                        | Отказ в доступе к вкладке или screen guard. | `user-role-and-blocking-management.md` |
-| `Assign user role`               | Actor не имеет `administrator`                                 | Система должна отклонить изменение роли.                       | Ошибка `administrator-role-required`.       | `user-role-and-blocking-management.md` |
-| `Assign user role`               | Role вне `barista` / `administrator`                           | Система должна отклонить изменение роли.                       | Ошибка `role-not-assignable`.               | `user-role-and-blocking-management.md` |
-| `Assign user role`               | Target user отсутствует                                        | Система должна отклонить изменение роли.                       | Ошибка `user-not-found`.                    | `user-role-and-blocking-management.md` |
-| `Assign user role`               | Role = `administrator` и финальное guard-правило не определено | Система должна удерживать operation boundary в status blocked. | Architecture handoff blocked.               | `FEATURE-004` blocker                  |
+| Operation                        | Condition                                                       | System behavior                          | User-visible outcome                        | Source                                 |
+| -------------------------------- | --------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------- | -------------------------------------- |
+| `Read users for role management` | Actor не имеет `administrator`                                  | Система должна отклонить чтение списка.  | Отказ в доступе к вкладке или screen guard. | `user-role-and-blocking-management.md` |
+| `Assign user role`               | Actor не имеет `administrator`                                  | Система должна отклонить изменение роли. | Ошибка `administrator-role-required`.       | `user-role-and-blocking-management.md` |
+| `Assign user role`               | Role = `administrator`, actor не является главным administrator | Система должна отклонить изменение роли. | Ошибка `main-administrator-required`.       | `access-and-roles.md`                  |
+| `Assign user role`               | Role вне `barista` / `administrator`                            | Система должна отклонить изменение роли. | Ошибка `role-not-assignable`.               | `user-role-and-blocking-management.md` |
+| `Assign user role`               | Target user отсутствует                                         | Система должна отклонить изменение роли. | Ошибка `user-not-found`.                    | `user-role-and-blocking-management.md` |
 
 ## Test-mode and Runtime Constraints
 
@@ -117,7 +117,7 @@
 - Roles: `customer`, `barista`, `administrator`.
 - Assignable roles in FEATURE-004: `barista`, `administrator`.
 - Capability/tab values: `orders`, `availability`, `menu`, `users`, `settings`.
-- Business errors: `administrator-role-required`, `role-not-assignable`, `user-not-found`.
+- Business errors: `administrator-role-required`, `main-administrator-required`, `role-not-assignable`, `user-not-found`.
 
 ## Role-specific Interface Notes
 
@@ -131,9 +131,9 @@
 ### Backend
 
 - Backend должен защищать чтение списка и назначение роли административным guard.
+- Backend должен защищать назначение роли `administrator` guard-правилом главного administrator.
 - Backend должен пересчитывать capabilities после изменения роли.
 - Backend должен сохранить `customer`, если целевой пользователь уже имеет эту роль.
-- Backend должен удержать назначение `administrator` вне final implementation до снятия blocker по guard-правилу.
 
 ### DevOps
 
@@ -142,8 +142,8 @@
 
 ### E2E QA
 
-- E2E QA должен проверять чтение списка, назначение `barista`, role/capability recalculation и denial для пользователя без `administrator`.
-- E2E QA должен отложить автоматизацию финального назначения `administrator` до снятия blocker по guard-правилу.
+- E2E QA должен проверять чтение списка, назначение `barista`, назначение `administrator` главным administrator, role/capability recalculation и denial для пользователя без `administrator`.
+- E2E QA должен проверять отказ назначения `administrator` для administrator, который не является главным administrator.
 
 ## Traceability
 
@@ -155,4 +155,4 @@
 
 ## Open Questions
 
-- Кто имеет право назначать роль `administrator`: любой `administrator` или только главный `administrator`.
+- Отсутствуют.

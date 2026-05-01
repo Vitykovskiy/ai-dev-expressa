@@ -63,7 +63,8 @@
 
 ### Validations and constraints
 
-- Операция доступна только пользователю с административными правами.
+- Операция назначения роли `barista` доступна пользователю с административными правами.
+- Операция назначения роли `administrator` доступна только главному administrator.
 - Допустимые назначаемые роли ограничены `barista` и `administrator`.
 
 ### Outputs
@@ -75,12 +76,9 @@
 ### Business errors
 
 - `administrator-role-required`
+- `main-administrator-required`
 - `role-not-assignable`
 - `user-not-found`
-
-### Несогласованности
-
-- Требование о том, кто именно имеет право назначать роль `administrator`, противоречиво и требует отдельного разрешения.
 
 ## Contract `Block user`
 
