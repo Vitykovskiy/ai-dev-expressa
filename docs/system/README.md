@@ -20,10 +20,10 @@
 
 ### `feature-specs`
 
-- Один файл = одна `FEATURE-*`.
-- Путь: `feature-specs/<feature-id>-<slug>.md`.
-- Использовать как первый маршрут чтения для архитектурной декомпозиции конкретной фичи.
-- Feature spec собирает в разрезе одной фичи границу, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design-readiness status и ссылки на canonical system sources и versioned `.references` sources.
+- Для новых `FEATURE-*` используется folder package: `feature-specs/<feature-id>-<slug>/index.md` и role-specific slices рядом с ним.
+- Ранние feature specs могут сохранять legacy однофайловый формат рядом с `.test-scenarios.md` до их переоткрытия или миграции.
+- Использовать package `index.md` или legacy feature spec как первый маршрут чтения для архитектурной декомпозиции конкретной фичи.
+- Feature package собирает в разрезе одной фичи границу, пользовательские сценарии, UI-взаимодействия, inputs, validations, errors, disabled/visibility states, design gaps, design-readiness status и ссылки на canonical system sources и versioned `.references` sources.
 - Canonical источниками остаются `use-cases`, `contracts`, `domain-model`, `state-models` и `ui-behavior-mapping`; feature spec ссылается на них и фиксирует сценарный handoff для архитектора.
 - Для UI-фич feature spec подготавливается после анализа текущего интерфейса, UI-контракта или прототипа, `ui-behavior-mapping` и всех системно значимых UI-состояний.
 - Архитектор начинает с feature spec, затем точечно читает связанные contracts/use-cases/domain/state/ui mapping. При gap в сценариях, inputs, validations, errors, UI states или design readiness фича возвращается системному аналитику.
@@ -37,6 +37,15 @@
   - Файл: [feature-specs/feature-003-administrator-slot-settings-management.md](./feature-specs/feature-003-administrator-slot-settings-management.md)
   - Сценарии тестирования: [feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md](./feature-specs/feature-003-administrator-slot-settings-management.test-scenarios.md)
   - Использовать для архитектурной декомпозиции административного сценария изменения рабочих часов и вместимости слотов, а также для handoff QA-сценариев по применению настроек к дальнейшей генерации customer-слотов.
+
+- `FEATURE-004 Administrator User Role Management`
+  - Package root: [feature-specs/feature-004-administrator-user-role-management/](./feature-specs/feature-004-administrator-user-role-management/)
+  - Index: [feature-specs/feature-004-administrator-user-role-management/index.md](./feature-specs/feature-004-administrator-user-role-management/index.md)
+  - Behavior: [feature-specs/feature-004-administrator-user-role-management/behavior.md](./feature-specs/feature-004-administrator-user-role-management/behavior.md)
+  - Interfaces: [feature-specs/feature-004-administrator-user-role-management/interfaces.md](./feature-specs/feature-004-administrator-user-role-management/interfaces.md)
+  - UI behavior: [feature-specs/feature-004-administrator-user-role-management/ui-behavior.md](./feature-specs/feature-004-administrator-user-role-management/ui-behavior.md)
+  - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management/test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management/test-scenarios.md)
+  - Использовать для подготовки просмотра пользователей, назначения роли `barista`, будущего назначения роли `administrator`, пересчета доступа к вкладкам и QA handoff по stable scenario IDs. Package находится в status `draft`, пока не снят blocker по праву назначения роли `administrator`.
 
 ### `system-context`
 
@@ -138,7 +147,7 @@
 
 - `User Role And Blocking Management`
   - Файл: [contracts/user-role-and-blocking-management.md](./contracts/user-role-and-blocking-management.md)
-  - Использовать для bootstrap главного administrator, назначения ролей и блокировки пользователей.
+  - Использовать для bootstrap главного administrator, просмотра пользователей, назначения ролей и блокировки пользователей.
 
 - `Telegram Notifications`
   - Файл: [contracts/telegram-notifications.md](./contracts/telegram-notifications.md)
@@ -168,7 +177,7 @@
 
 ## Быстрый маршрут для следующей роли
 
-- Если задача привязана к конкретной `FEATURE-*`: читать `README.md`, затем `docs/system/feature-specs/<feature-id>-<slug>.md`, затем только связанные в feature spec `contracts`, `use-cases`, `domain-model`, `state-models`, `ui-behavior-mapping`, `ui-contracts` и архитектурные карты.
+- Если задача привязана к конкретной `FEATURE-*`: читать `README.md`, затем `docs/system/feature-specs/<feature-id>-<slug>/index.md` для folder package или legacy `docs/system/feature-specs/<feature-id>-<slug>.md`, затем только связанные в feature spec `contracts`, `use-cases`, `domain-model`, `state-models`, `ui-behavior-mapping`, `ui-contracts` и архитектурные карты.
 - Если задача про создание заказа customer: читать `system-context/expressa-v1-telegram-ordering.md`, `domain-model/ordering-and-pickup.md`, `use-cases/customer-create-pickup-order.md`, `contracts/customer-ordering.md`, `state-models/order-lifecycle.md`.
 - Если задача про каталог и допы: читать `domain-model/menu-catalog.md`, `use-cases/administrator-manage-menu.md`, `use-cases/barista-manage-menu-availability.md`, `contracts/menu-and-availability-management.md`.
 - Если задача про обработку заказа barista: читать `domain-model/ordering-and-pickup.md`, `state-models/order-lifecycle.md`, `use-cases/barista-confirm-order.md`, `use-cases/barista-reject-order.md`, `use-cases/barista-mark-order-ready.md`, `use-cases/barista-close-order.md`, `contracts/backoffice-order-processing.md`, `contracts/telegram-notifications.md`.
