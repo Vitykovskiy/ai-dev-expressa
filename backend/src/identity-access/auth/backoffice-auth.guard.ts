@@ -1,4 +1,5 @@
 import {
+  applyDecorators,
   CanActivate,
   ExecutionContext,
   Inject,
@@ -19,9 +20,28 @@ export interface BackofficeRequest extends Request {
 }
 
 export const BACKOFFICE_CAPABILITY_METADATA = "backofficeCapability";
+export const BACKOFFICE_CAPABILITY_FORBIDDEN_MESSAGE_METADATA =
+  "backofficeCapabilityForbiddenMessage";
 
-export const RequireBackofficeCapability = (capability: BackofficeCapability) =>
-  SetMetadata(BACKOFFICE_CAPABILITY_METADATA, capability);
+export interface RequireBackofficeCapabilityOptions {
+  readonly forbiddenMessage?: string;
+}
+
+export const RequireBackofficeCapability = (
+  capability: BackofficeCapability,
+  options: RequireBackofficeCapabilityOptions = {},
+) =>
+  applyDecorators(
+    SetMetadata(BACKOFFICE_CAPABILITY_METADATA, capability),
+    ...(options.forbiddenMessage
+      ? [
+          SetMetadata(
+            BACKOFFICE_CAPABILITY_FORBIDDEN_MESSAGE_METADATA,
+            options.forbiddenMessage,
+          ),
+        ]
+      : []),
+  );
 
 @Injectable()
 export class BackofficeAuthGuard implements CanActivate {
@@ -44,6 +64,7 @@ export class BackofficeAuthGuard implements CanActivate {
     request.actor = await this.auth.requireCapability(
       getBackofficeAuthInputFromRequest(request),
       capability,
+      this.resolveCapabilityForbiddenMessage(context),
     );
 
     return true;
@@ -58,6 +79,15 @@ export class BackofficeAuthGuard implements CanActivate {
         BACKOFFICE_CAPABILITY_METADATA,
         [context.getHandler(), context.getClass()],
       ) ?? request.params.capability
+    );
+  }
+
+  private resolveCapabilityForbiddenMessage(
+    context: ExecutionContext,
+  ): string | undefined {
+    return this.reflector?.getAllAndOverride<string>(
+      BACKOFFICE_CAPABILITY_FORBIDDEN_MESSAGE_METADATA,
+      [context.getHandler(), context.getClass()],
     );
   }
 }

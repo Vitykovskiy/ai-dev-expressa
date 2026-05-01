@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { Role } from "./role";
+import { AssignableBackofficeRole, Role } from "./role";
 
 export interface User {
   readonly userId: string;
@@ -26,6 +26,19 @@ export function withRoles(user: User, roles: readonly Role[]): User {
   return {
     ...user,
     roles: uniqueRoles([...user.roles, ...roles]),
+  };
+}
+
+export function withAssignedBackofficeRole(
+  user: User,
+  role: AssignableBackofficeRole,
+): User {
+  return {
+    ...user,
+    roles: uniqueRoles([
+      ...user.roles.filter((existingRole) => existingRole === "customer"),
+      role,
+    ]),
   };
 }
 

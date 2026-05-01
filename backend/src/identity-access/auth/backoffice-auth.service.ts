@@ -53,10 +53,11 @@ export class BackofficeAuthService {
   async requireCapability(
     input: BackofficeAuthInput,
     capability: BackofficeCapability,
+    forbiddenMessage = "backoffice-capability-forbidden",
   ): Promise<AuthenticatedActor> {
     const actor = await this.authenticate(input);
     if (!canAccessBackofficeCapability(actor.roles, capability)) {
-      throw new ForbiddenException("backoffice-capability-forbidden");
+      throw new ForbiddenException(forbiddenMessage);
     }
 
     return actor;
