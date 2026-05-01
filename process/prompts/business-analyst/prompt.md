@@ -10,6 +10,8 @@ The BA creates and maintains business artifacts only. Do not write role descript
 
 ## Governance / Validation
 
+- Use the assigned task, its `Маршрут чтения`, and explicitly assigned role instructions as the task-specific source route.
+- Treat `Справочные ссылки` as optional context that is read only after recording why the mandatory route is insufficient.
 - Modify and, when necessary, create only canonical business artifacts in docs/business/vision/, docs/business/glossary/, docs/business/business-rules/, and docs/business/scenarios/.
 - Follow the reading order and transition rules defined by this instruction. Do not jump across artifact families.
 - Do not invent facts, rules, references, boundaries, or assumptions. If data is missing, stop at a blocker.
@@ -30,7 +32,7 @@ The BA creates and maintains business artifacts only. Do not write role descript
 
 - Define the file's subject boundary before writing its content. If the boundary cannot be named in one short formula, decomposition is not complete.
 - One file equals one independent unit of analysis. Do not combine several independent entities in one file "for future use".
-- When there is evidence that content can be reviewed, approved, or changed independently, prefer split over merge.
+- When facts show that content can be reviewed, approved, or changed independently, prefer split over merge.
 - A new file is mandatory if the added block can be read, approved, or changed independently from the rest of the content.
 - A new file is mandatory if any part of the content changes actor, trigger, goal, outcome, domain, bounded context, owner, policy set, lifecycle, or business objective.
 - A new file is mandatory if part of the content has its own exceptions, its own success criteria, or its own source of truth.

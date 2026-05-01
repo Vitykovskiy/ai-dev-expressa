@@ -9,15 +9,76 @@
 Базовый маршрут:
 
 1. Прочитать локальный project entrypoint.
-2. Найти или создать карточку задачи по шаблону из `process/templates/`.
+2. Найти или создать карточку задачи по шаблону из `process/templates/tasks/`.
 3. Прочитать профильный промпт роли из `process/prompts/`.
-4. Для `FEATURE-*` открыть `process/templates/feature-spec-template.md` и `process/templates/feature-test-scenarios-template.md`.
-5. Использовать документы из поля `Минимальный read set` в карточке задачи.
+4. Для `FEATURE-*` открыть `process/templates/feature-specs/feature-spec-package-instruction.md` и package slice templates.
+5. Использовать документы из поля `Маршрут чтения` в карточке задачи.
 6. Обновить навигационные документы, если структура process-layer или проектная навигация изменились.
+
+### Правило явного read set
+
+- Агент использует текущую карточку задачи, ее `Маршрут чтения` и явно назначенные ролевые инструкции как основной и достаточный маршрут чтения.
+- `Маршрут чтения` является исчерпывающим маршрутом чтения по умолчанию для выполнения задачи.
+- `Справочные ссылки` читаются только после явной фиксации причины расширения контекста.
+- Предыдущие `FEATURE-*`, `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*`, архивные карточки из `tasks/archive/` и прошлые декомпозиции не используются как источник формата, решений, правил или эталона, если текущая карточка не ссылается на них явно.
+- Если нужный факт отсутствует в назначенном маршруте чтения, профильная роль фиксирует gap, blocker или запрашивает уточнение вместо поиска аналога в старых задачах.
+- Process templates и актуальные канонические артефакты используются как источник формы и структуры новых документов вместо исторических task-card.
+
+### Правило зоны ответственности
+
+- Агент изменяет только артефакты, указанные в ролевом prompt, task-card, `Зоне ответственности`, контекстном пакете или архитектурной карте контура.
+- Если task-card не задает достаточную зону правок, агент фиксирует blocker или уточняет границу до изменения файлов.
+- Исполнительные роли ищут код только в путях, заданных task-card, контурной картой или контекстным пакетом.
+- Роль не исправляет upstream gap внутри чужой зоны ответственности; gap возвращается владельцу соответствующего этапа.
+
+## Модель потока поставки
+
+Универсальный процесс поставки идет по этапам:
+
+1. Бизнес-аналитик формирует или обновляет business artifacts.
+2. Системный аналитик трансформирует business artifacts в system artifacts.
+3. Дизайнер формирует approved UI source по самодостаточной `DESIGN-*` задаче, если feature требует UI source до декомпозиции.
+4. Системный аналитик декомпозирует system scope на `SPRINT-*`.
+5. Системный аналитик декомпозирует sprint scope на `FEATURE-*`.
+6. Системный аналитик формирует feature package для одной `FEATURE-*`.
+7. Системный аналитик создает `DESIGN-*` correction task, если feature package выявляет design-readiness gap.
+8. Дизайнер обновляет named approved UI source по `DESIGN-*`.
+9. Системный аналитик повторно проверяет design readiness и обновляет feature package.
+10. Архитектор принимает одну analytically ready `FEATURE-*` и декомпозирует ее в `AR/FE/BE/DO/QA-*`.
+11. Frontend, Backend и DevOps выполняют только свои child tasks.
+12. QA выполняет manual QA и e2e QA по общему package `test-scenarios.md`.
+13. QA создает `BUG-*` под той же `FEATURE-*` для воспроизводимых дефектов с установленным контуром причины.
+14. Ответственный контур исправляет `BUG-*`, QA повторно проверяет affected scenarios.
+15. `FEATURE-*` закрывается после прохождения manual QA, e2e QA и закрытия blocking `BUG-*`.
+16. Поток возвращается к следующей `FEATURE-*` внутри sprint или к следующему sprint.
+
+### Владельцы этапов
+
+- Business artifacts принадлежат роли `Бизнес аналитик`.
+- System artifacts, `SPRINT-*`, `FEATURE-*`, feature package и `DESIGN-*` постановки принадлежат роли `Системный аналитик`.
+- Approved UI source и design artifact changes принадлежат роли `Дизайнер`.
+- Architecture artifacts и `AR/FE/BE/DO/QA-*` decomposition принадлежат роли `Архитектор`.
+- Production implementation принадлежит ролям `Фронтенд`, `Бэкенд` и `Девопс` по контуру child task.
+- Manual QA, e2e QA, QA report и оформление воспроизводимых дефектов принадлежат роли `Тестирование`.
 
 ### Feature workflow
 
-Для `FEATURE-*` системный аналитик формирует feature package в следующем порядке:
+Для `FEATURE-*` системный аналитик формирует decomposed feature package в `docs/system/feature-specs/<feature-id>-<slug>/`.
+
+Feature package является основным источником системного handoff-контекста для агентов. Supporting system docs остаются canonical sources для анализа, но исполнительные агенты получают только нужные package slices и точечные supporting sources.
+
+`FEATURE-*` используют стандартную структуру:
+
+```text
+docs/system/feature-specs/<feature-id>-<slug>/
+|-- index.md
+|-- behavior.md
+|-- interfaces.md
+|-- ui-behavior.md
+|-- test-scenarios.md
+```
+
+Системный аналитик формирует package в следующем порядке:
 
 1. Источники и границы задачи.
 2. Пользовательский сценарий.
@@ -25,18 +86,20 @@
 4. Последовательность действий пользователя, привязанная к UI-элементам.
 5. Ограничения инпутов, validations, errors и крайние случаи.
 6. Design readiness и оценка полноты прототипа.
-7. Feature spec.
-8. Документ сценариев тестирования фичи.
+7. `index.md`, `behavior.md`, `interfaces.md`, `ui-behavior.md`.
+8. `test-scenarios.md` как QA slice package.
+9. Role read routes в `index.md`.
 
-Передача архитектору выполняется после того, как feature package полный и прототип готов к работе. Если прототип неполный, системный аналитик фиксирует blocker в task-card и удерживает `FEATURE-*` в ожидании завершения подготовки.
+Передача архитектору выполняется после того, как feature package полный, а design readiness имеет статус `verified` или `n/a`. Если approved UI source неполный или противоречивый, системный аналитик фиксирует blocker в task-card и удерживает `FEATURE-*` в ожидании завершения подготовки.
 
-Для UI-ориентированных `FEATURE-*` обязательный маршрут чтения включает релевантные versioned-артефакты из `.references/`, если они указаны в карточке задачи, UI contract или feature spec.
+Для UI-ориентированных `FEATURE-*` role read routes включают релевантные versioned-артефакты из `.references/`, если они указаны в карточке задачи, UI contract или package `ui-behavior.md`.
 
 ## Ролевые промпты
 
 - `process/prompts/business-analyst/prompt.md` — бизнес-аналитик.
 - `process/prompts/system-analyst/prompt.md` — системный аналитик.
 - `process/prompts/system-analyst/task-tree-rules.md` — правила дерева задач вокруг `SPRINT-*`, `FEATURE-*` и дочерних задач.
+- `process/prompts/designer/prompt.md` — дизайнер.
 - `process/prompts/architect/prompt.md` — архитектор.
 - `process/prompts/frontend/prompt.md` — фронтенд.
 - `process/prompts/backend/prompt.md` — бэкенд.
@@ -46,25 +109,35 @@
 
 ## Шаблоны
 
-- `process/templates/task-template.md` — форма карточки задачи.
-- `process/templates/task-template-instruction.md` — инструкция по заполнению карточки, допустимые роли, статусы, приоритеты и правила ссылок.
-- `process/templates/feature-spec-template.md` — форма feature spec для `FEATURE-*`.
-- `process/templates/context-package-template.md` — форма контекстного пакета подзадачи для передачи исполнителю.
-- `process/templates/feature-test-scenarios-template.md` — форма сценариев тестирования фичи рядом с feature spec.
+- `process/templates/tasks/task-template.md` — форма карточки задачи.
+- `process/templates/tasks/design-task-template.md` — специализированная форма `DESIGN-*` задачи для self-contained brief дизайнеру.
+- `process/templates/tasks/task-template-instruction.md` — инструкция по заполнению карточки, допустимые роли, статусы, приоритеты и правила ссылок.
+- `process/templates/feature-specs/feature-spec-package-instruction.md` — инструкция по формированию decomposed feature package.
+- `process/templates/feature-specs/feature-spec-template.md` — форма `index.md` feature package для `FEATURE-*`.
+- `process/templates/feature-specs/feature-spec-behavior-template.md` — форма `behavior.md` feature package.
+- `process/templates/feature-specs/feature-spec-interfaces-template.md` — форма `interfaces.md` feature package.
+- `process/templates/feature-specs/feature-spec-ui-behavior-template.md` — форма `ui-behavior.md` feature package.
+- `process/templates/context-packages/context-package-template.md` — форма контекстного пакета подзадачи для передачи исполнителю.
+- `process/templates/feature-specs/feature-test-scenarios-template.md` — форма `test-scenarios.md` feature package.
 
 ## Работа с задачами
 
-- Новые задачи оформляются по `process/templates/task-template.md` с учетом `process/templates/task-template-instruction.md`.
+- Новые задачи оформляются по `process/templates/tasks/task-template.md` с учетом `process/templates/tasks/task-template-instruction.md`.
 - `SPRINT-*` — координационная карточка спринта. Она не является единицей поставки.
 - `FEATURE-*` — координационная карточка одной завершенной, тестируемой и демонстрируемой фичи. Именно `FEATURE-*` является единицей поставки.
 - Системный аналитик создает или обновляет `SPRINT-*` и `FEATURE-*` карточки.
-- Системный аналитик берет в работу `FEATURE-*`, если feature spec или документ сценариев тестирования отсутствует, устарел, не покрывает design readiness, validations, errors, крайние случаи или QA coverage mapping.
+- Системный аналитик берет в работу `FEATURE-*`, если feature package отсутствует, устарел, не покрывает design readiness, validations, errors, крайние случаи, interfaces, role read routes или QA coverage mapping.
 - Для UI-ориентированной `FEATURE-*` системный аналитик анализирует design readiness, оценивает необходимость изменений в `.references/` и при необходимости формирует требования к этим изменениям до передачи фичи архитектору.
-- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый feature spec проекта.
-- Каждая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый документ сценариев тестирования фичи: `docs/system/feature-specs/<feature-id>-<slug>.test-scenarios.md`.
-- Документ сценариев тестирования фичи должен находиться рядом с feature spec и содержать stable scenario IDs, ручной маршрут проверки, e2e coverage mapping и обязательные assertions для сценариев с e2e-покрытием.
-- Если approved UI contract, prototype или канонический визуальный референс меняется в рамках фичи, соответствующие изменения в `.references/` фиксируются через Git в рамках той же `FEATURE-*` или связанной аналитической задачи.
-- Архитектор принимает одну аналитически готовую `FEATURE-*` и декомпозирует ее в дочерние `AR/FE/BE/DO/QA-*` задачи.
+- Если системный аналитик фиксирует design-readiness blocker из-за расхождения approved UI source и системного анализа, он создает `DESIGN-*` задачу под той же `FEATURE-*`.
+- `DESIGN-*` задача для устранения такого расхождения создается по `process/templates/tasks/design-task-template.md` и содержит полный brief для дизайнера: что добавить, что изменить, что убрать, какие состояния проверить и какой named approved UI source обновить.
+- `DESIGN-*` задача не требует ссылочного маршрута чтения по project docs, feature specs, task tree или process docs.
+- `FEATURE-*` остается в роли `Системный аналитик` или в заблокированном аналитическом статусе до выполнения `DESIGN-*` задачи и подтверждения updated approved UI source.
+- Каждая новая `FEATURE-*` перед передачей архитектору должна ссылаться на готовый package root: `docs/system/feature-specs/<feature-id>-<slug>/`.
+- Каждая новая `FEATURE-*` перед передачей архитектору должна ссылаться на package `index.md` и role-relevant slices.
+- Package `test-scenarios.md` должен содержать stable scenario IDs, ручной маршрут проверки, e2e coverage mapping и обязательные assertions для сценариев с e2e-покрытием.
+- Если approved UI contract, prototype или канонический визуальный референс меняется в рамках фичи, task-card должен явно назначить владельца изменения и named design artifact.
+- Архитектор принимает одну аналитически готовую `FEATURE-*` только после готового feature package, подтвержденного design readiness или явного `n/a` для non-UI feature.
+- Архитектор декомпозирует принятую `FEATURE-*` в дочерние `AR/FE/BE/DO/QA-*` задачи.
 - Для каждой последующей фичи обязательны две QA-задачи: manual QA и e2e QA.
 - Manual QA и e2e QA используют один документ сценариев тестирования фичи как общий источник проверки; lane разделяется в QA-задачах и coverage matrix.
 - E2E QA подтверждает соответствие автоматизированных тестов documented scenarios через stable scenario IDs, test file mapping, test title mapping и required assertions.
@@ -78,8 +151,8 @@
 - Поле `Роль: Системный аналитик` в карточке `FEATURE-*` назначает подготовку feature-level системной документации, а не реализацию в клиентском, серверном, DevOps или QA-контуре.
 - Поле `Роль: Архитектор` в карточке `FEATURE-*` назначает архитектурную декомпозицию, а не реализацию в клиентском, серверном, DevOps или QA-контуре.
 - Статус `Готова к работе` у `FEATURE-*` означает готовность к этапу, указанному в поле `Роль`.
-- Первое исполнительное действие по `FEATURE-*` со статусом `Готова к работе` выполняется в роли системного аналитика, если feature spec или документ сценариев тестирования отсутствует либо требует обновления.
-- Первое исполнительное действие по `FEATURE-*` со статусом `Готова к работе` выполняется в роли архитектора только после ссылки на готовый feature spec и готовый документ сценариев тестирования.
+- Первое исполнительное действие по `FEATURE-*` со статусом `Готова к работе` выполняется в роли системного аналитика, если feature package отсутствует либо требует обновления.
+- Первое исполнительное действие по `FEATURE-*` со статусом `Готова к работе` выполняется в роли архитектора только после ссылки на готовый feature package.
 - Архитектор создает дочерние `AR/FE/BE/DO/QA-*` карточки до начала реализации в клиентском, серверном, DevOps или QA-контуре.
 - Реализация допускается только по дочерней `AR-*`, `FE-*`, `BE-*`, `DO-*`, `QA-*` или `BUG-*` карточке с явно заданными границами правок.
 
@@ -87,15 +160,63 @@
 
 Перед реализацией task-card используется контекстный маршрут:
 
-1. Основной агент читает исходную карточку, ссылки из нее и обязательный `Минимальный read set`.
-2. Основной агент формирует общий план `<TASK-ID>-execution-plan.md` в корне проекта; для `FEATURE-*` этот план обязателен.
-3. Для независимых подзадач создаются контекстные пакеты `<TASK-ID>-context-<NN>-<slug>.md` по `process/templates/context-package-template.md`.
-4. Если среда поддерживает субагентов, подготовку контекста можно делегировать сборщикам контекста.
-5. Исполнитель подзадачи работает только в границах read set, разрешенной зоны правок и проверок, указанных в контекстном пакете.
+1. Основной агент читает исходную карточку и обязательный `Маршрут чтения`.
+2. Основной агент определяет, является ли задача большой.
+3. Для большой задачи основной агент создает временную рабочую папку `.agent-work/<TASK-ID>/`.
+4. Для большой задачи основной агент формирует общий план `.agent-work/<TASK-ID>/execution-plan.md`.
+5. Для большой задачи основной агент создает контекстные пакеты `.agent-work/<TASK-ID>/context-<NN>-<slug>.md` по `process/templates/context-packages/context-package-template.md`.
+6. Если среда поддерживает субагентов, подготовку контекста можно делегировать сборщикам контекста.
+7. Исполнитель подзадачи работает только в границах read set, разрешенной зоны правок и проверок, указанных в контекстном пакете.
 
 Контекстный пакет должен содержать цель, поведенческий промпт исполнителя, обязательный read set, ключевые факты, разрешенные и запрещенные зоны правок, зависимости, ожидаемый результат, проверки, критерии готовности, риски и открытые вопросы.
 
 Если подзадача зависит от UI parity, design gaps или prototype updates, контекстный пакет должен ссылаться на конкретные versioned-файлы в `.references/`, которые участвуют в анализе или верификации.
+Если контекстный пакет не покрывает обязательный contract, validation, guard, error mapping или другое необходимое правило, агент фиксирует недостающий источник как blocker или открытый вопрос и не заменяет его чтением старых задач.
+
+### Критерий большой задачи
+
+Система должна считать задачу большой, если она требует несколько проверяемых подзадач внутри назначенной зоны ответственности.
+
+Признаки большой задачи:
+
+- несколько независимых зон правок;
+- несколько разных видов проверок;
+- широкий read set, который неудобно удерживать в одном рабочем контексте;
+- несколько результатов, каждый из которых можно проверить отдельно.
+
+Если задача является большой, система должна требовать execution plan и context packages до реализации.
+
+### Execution plan большой задачи
+
+Execution plan является источником статусов подзадач.
+
+Допустимые статусы подзадач:
+
+- `pending`;
+- `in_progress`;
+- `done`;
+- `blocked`.
+
+Execution plan должен содержать список подзадач, порядок выполнения, зависимости, связанный context package, статус, ожидаемый результат и проверки для каждой подзадачи.
+
+Основной агент является владельцем orchestration, статусов execution plan, итоговой проверки и обновления исходной task-card.
+
+Основной агент должен вызывать субагентов по одному или параллельно только для независимых подзадач.
+
+Субагент должен выполнять только назначенную подзадачу и возвращать результат основному агенту.
+
+Основной агент должен отмечать подзадачу `done` только после проверки результата подзадачи.
+
+Если подзадача получает статус `blocked`, основной агент должен сохранить `.agent-work/<TASK-ID>/` до устранения blocker.
+
+### Завершение большой задачи
+
+После выполнения всех подзадач и итоговых проверок основной агент должен обновить исходную task-card:
+
+- установить `Статус: Выполнена`;
+- заполнить `Результат выполнения` датой, кратким итогом, результатом проверок и ссылками на созданные дефекты или последующие задачи, если они появились.
+
+После обновления исходной task-card основной агент должен удалить временную папку `.agent-work/<TASK-ID>/`.
 
 ## Общие правила
 
@@ -113,13 +234,19 @@
 
 - В работу берутся только задачи со статусом `Готова к работе`.
 - Среди задач со статусом `Готова к работе` первой выбирается задача с наивысшим приоритетом.
-- Шкала приоритетов задается в `process/templates/task-template-instruction.md`: `Критический`, `Высокий`, `Средний`, `Низкий`.
+- Шкала приоритетов задается в `process/templates/tasks/task-template-instruction.md`: `Критический`, `Высокий`, `Средний`, `Низкий`.
 
 ## Быстрая навигация
 
 - Роль исполнителя: `process/prompts/<role>/prompt.md`.
 - Правила дерева задач: `process/prompts/system-analyst/task-tree-rules.md`.
-- Шаблон задачи: `process/templates/task-template.md`.
-- Инструкция к шаблону задачи: `process/templates/task-template-instruction.md`.
-- Шаблон контекстного пакета: `process/templates/context-package-template.md`.
-- Шаблон сценариев тестирования фичи: `process/templates/feature-test-scenarios-template.md`.
+- Шаблон задачи: `process/templates/tasks/task-template.md`.
+- Шаблон дизайнерской задачи: `process/templates/tasks/design-task-template.md`.
+- Инструкция к шаблону задачи: `process/templates/tasks/task-template-instruction.md`.
+- Шаблон контекстного пакета: `process/templates/context-packages/context-package-template.md`.
+- Инструкция feature package: `process/templates/feature-specs/feature-spec-package-instruction.md`.
+- Шаблон package index: `process/templates/feature-specs/feature-spec-template.md`.
+- Шаблон package behavior: `process/templates/feature-specs/feature-spec-behavior-template.md`.
+- Шаблон package interfaces: `process/templates/feature-specs/feature-spec-interfaces-template.md`.
+- Шаблон package UI behavior: `process/templates/feature-specs/feature-spec-ui-behavior-template.md`.
+- Шаблон package test scenarios: `process/templates/feature-specs/feature-test-scenarios-template.md`.
