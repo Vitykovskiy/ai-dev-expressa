@@ -8,22 +8,22 @@
 - Behavior: `./behavior.md`
 - Interfaces: `./interfaces.md`
 - UI behavior: `./ui-behavior.md`
-- Статус сценариев: `draft`
-- Источники: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AssignRoleDialog.tsx`, `.references/Expressa_admin/src/app/components/UserActionsMenu.tsx`
+- Статус сценариев: `ready-for-architecture`
+- Источники: `docs/business/business-rules/access-and-roles.md`, `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/use-cases/administrator-manage-users-and-roles.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AssignRoleDialog.tsx`, `.references/Expressa_admin/src/app/components/UserActionsMenu.tsx`
 - Последняя проверка согласованности: `2026-05-01`
 
 ## Coverage Matrix
 
-| Scenario ID   | Название                                                                  | Тип             | Manual QA  | E2E QA     | Приоритет  | Источник                                                                       |
-| ------------- | ------------------------------------------------------------------------- | --------------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------------------ |
-| `F004-SC-001` | Administrator видит список пользователей                                  | `main`          | `required` | `required` | `critical` | `behavior.md`, `interfaces.md`, `ui-behavior.md`                               |
-| `F004-SC-002` | Поиск и фильтры списка пользователей                                      | `alternative`   | `required` | `optional` | `medium`   | `ui-behavior.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx` |
-| `F004-SC-003` | Administrator назначает роль `barista`                                    | `main`          | `required` | `required` | `critical` | `behavior.md`, `interfaces.md`                                                 |
-| `F004-SC-004` | Доступ целевого пользователя пересчитан после назначения `barista`        | `main`          | `required` | `required` | `critical` | `identity-and-access.md`, `behavior.md`, `interfaces.md`                       |
-| `F004-SC-005` | Пользователь без `administrator` не управляет пользователями              | `guard`         | `required` | `required` | `critical` | `identity-and-access.md`, `interfaces.md`                                      |
-| `F004-SC-006` | Недопустимая назначаемая роль отклоняется                                 | `negative`      | `required` | `required` | `high`     | `user-role-and-blocking-management.md`, `interfaces.md`                        |
-| `F004-SC-007` | Назначение роли `administrator` остается blocked до решения guard-правила | `blocked`       | `required` | `n/a`      | `critical` | `FEATURE-004` blocker, `behavior.md`                                           |
-| `F004-SC-008` | UI parity вкладки `Пользователи` и диалога назначения роли                | `visual-parity` | `required` | `optional` | `high`     | `ui-behavior.md`, `.references/Expressa_admin`                                 |
+| Scenario ID   | Название                                                           | Тип             | Manual QA  | E2E QA     | Приоритет  | Источник                                                                       |
+| ------------- | ------------------------------------------------------------------ | --------------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------------------ |
+| `F004-SC-001` | Administrator видит список пользователей                           | `main`          | `required` | `required` | `critical` | `behavior.md`, `interfaces.md`, `ui-behavior.md`                               |
+| `F004-SC-002` | Поиск и фильтры списка пользователей                               | `alternative`   | `required` | `optional` | `medium`   | `ui-behavior.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx` |
+| `F004-SC-003` | Administrator назначает роль `barista`                             | `main`          | `required` | `required` | `critical` | `behavior.md`, `interfaces.md`                                                 |
+| `F004-SC-004` | Доступ целевого пользователя пересчитан после назначения `barista` | `main`          | `required` | `required` | `critical` | `identity-and-access.md`, `behavior.md`, `interfaces.md`                       |
+| `F004-SC-005` | Пользователь без `administrator` не управляет пользователями       | `guard`         | `required` | `required` | `critical` | `identity-and-access.md`, `interfaces.md`                                      |
+| `F004-SC-006` | Недопустимая назначаемая роль отклоняется                          | `negative`      | `required` | `required` | `high`     | `user-role-and-blocking-management.md`, `interfaces.md`                        |
+| `F004-SC-007` | Назначение роли `administrator` ограничено главным administrator   | `guard`         | `required` | `required` | `critical` | `access-and-roles.md`, `behavior.md`, `interfaces.md`                          |
+| `F004-SC-008` | UI parity вкладки `Пользователи` и диалога назначения роли         | `visual-parity` | `required` | `optional` | `high`     | `ui-behavior.md`, `.references/Expressa_admin`                                 |
 
 ## Сценарии
 
@@ -169,26 +169,34 @@
   - Test title / ID: `F004-SC-006 invalid role rejected`.
   - Required assertions: invalid role rejected; target user's roles unchanged after refresh.
 
-### `F004-SC-007` — Назначение роли `administrator` остается blocked до решения guard-правила
+### `F004-SC-007` — Назначение роли `administrator` ограничено главным administrator
 
-- Цель: подтвердить, что QA не принимает финальное поведение назначения `administrator` до снятия blocker.
-- Тип: `blocked`
-- Покрытие: `Manual QA: required; E2E QA: n/a`
-- Источники: `FEATURE-004` blocker, `behavior.md`, `interfaces.md`, `ui-behavior.md`
-- Предусловия: package остается в status `draft`.
-- Тестовые данные: пользователь, которому нужно назначить `administrator`.
+- Цель: подтвердить финальное guard-правило назначения роли `administrator`.
+- Тип: `guard`
+- Покрытие: `Manual QA: required; E2E QA: required`
+- Источники: `access-and-roles.md`, `behavior.md`, `interfaces.md`, `ui-behavior.md`
+- Предусловия: во внутреннем административном контуре есть главный administrator, обычный administrator и целевой пользователь.
+- Тестовые данные: `ADMIN_TELEGRAM_ID` главного administrator; Telegram id обычного administrator; целевой пользователь без роли `administrator`.
 - Шаги:
-  1. Проверить package `index.md`, `behavior.md`, `interfaces.md` и `ui-behavior.md`.
-  2. Проверить наличие blocker по guard-правилу назначения `administrator`.
+  1. Войти как обычный administrator.
+  2. Открыть вкладку `Пользователи`.
+  3. Попытаться назначить целевому пользователю роль `Администратор`.
+  4. Войти как главный administrator.
+  5. Назначить тому же или другому целевому пользователю роль `Администратор`.
+  6. Войти как целевой пользователь и проверить состав вкладок.
 - Ожидаемый результат:
-  1. Система должна удерживать сценарий назначения `administrator` вне final acceptance до решения, кто имеет право выполнять эту операцию.
-  2. Система должна иметь scenario placeholder для последующей QA-детализации после снятия blocker.
+  1. Система должна отклонить назначение роли `administrator` от обычного administrator.
+  2. Система должна вернуть ошибку `main-administrator-required` для обычного administrator.
+  3. Система должна сохранить роли целевого пользователя без изменений после отклоненной операции.
+  4. Система должна сохранить роль `administrator`, если операцию выполняет главный administrator.
+  5. Система должна пересчитать доступ целевого пользователя к вкладкам `Заказы`, `Доступность`, `Меню`, `Пользователи` и `Настройки`.
 - Проверяемые инварианты:
-  - Открытый blocker не закрывается тестовой догадкой.
+  - Назначение роли `administrator` ограничено главным administrator.
+  - UI-доступ к выбору роли не заменяет server-side guard.
 - E2E mapping:
-  - Test file: `n/a` до снятия blocker.
-  - Test title / ID: `n/a` до снятия blocker.
-  - Required assertions: будут определены после финализации guard-правила.
+  - Test file: `e2e/...` будет определен в e2e QA.
+  - Test title / ID: `F004-SC-007 main administrator assigns administrator`.
+  - Required assertions: ordinary administrator receives `main-administrator-required`; target roles unchanged after rejection; main administrator assignment succeeds; target administrator capabilities include `menu`, `users` and `settings`.
 
 ### `F004-SC-008` — UI parity вкладки `Пользователи` и диалога назначения роли
 
@@ -223,7 +231,7 @@
 - Coverage mapping фиксирует тестовый файл, название теста и обязательные assertions для каждого e2e-covered сценария.
 - Сценарий с `E2E QA: required` считается покрытым после появления browser e2e-теста с assertions из этого документа.
 - Сценарий с `Manual QA: required` считается покрытым после ручного прохода по шагам и фиксации результата в `QA-*` карточке.
-- Сценарий `F004-SC-007` должен быть пересмотрен после снятия blocker по назначению роли `administrator`.
+- Сценарий `F004-SC-007` должен подтверждать guard главного administrator для назначения роли `administrator`.
 
 ## QA feedback loop
 
@@ -244,4 +252,4 @@
 - Ожидаемые результаты сценариев сохраняют смысл feature package, contracts и use cases.
 - Ослабление e2e assertions требует предварительного обновления сценария через системную аналитику.
 - Закрытие e2e QA требует соответствия automated coverage mapping сценариям с `E2E QA: required`.
-- Открытый blocker по назначению `administrator` сохраняет сценарий `F004-SC-007` вне автоматизированной acceptance.
+- Назначение роли `administrator` требует guard главного administrator в manual QA и e2e QA.

@@ -45,7 +45,7 @@
   - Interfaces: [feature-specs/feature-004-administrator-user-role-management/interfaces.md](./feature-specs/feature-004-administrator-user-role-management/interfaces.md)
   - UI behavior: [feature-specs/feature-004-administrator-user-role-management/ui-behavior.md](./feature-specs/feature-004-administrator-user-role-management/ui-behavior.md)
   - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management/test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management/test-scenarios.md)
-  - Использовать для подготовки просмотра пользователей, назначения роли `barista`, будущего назначения роли `administrator`, пересчета доступа к вкладкам и QA handoff по stable scenario IDs. Package находится в status `draft`, пока не снят blocker по праву назначения роли `administrator`.
+  - Использовать для подготовки просмотра пользователей, назначения роли `barista`, назначения роли `administrator` главным administrator, пересчета доступа к вкладкам и QA handoff по stable scenario IDs. Package находится в status `ready-for-architecture`.
 
 ### `system-context`
 
@@ -191,7 +191,6 @@
 
 ## Зафиксированные blockers и вопросы
 
-- Не согласовано, кто имеет право назначать роль `administrator`: любой `administrator` или только главный administrator.
 - Не определена периодичность Telegram-напоминаний barista.
 - Не зафиксировано системное поведение при конкурентной попытке занять последний слот выдачи.
 - Не определён требуемый уровень snapshot-данных каталога внутри заказа после последующего изменения меню.

@@ -6,7 +6,7 @@
 - Package root: `docs/system/feature-specs/feature-004-administrator-user-role-management/`
 - Index: `./index.md`
 - UI scope status: `applicable`
-- Status: `draft`
+- Status: `ready-for-architecture`
 - Last consistency check: `2026-05-01`
 
 ## UI Sources
@@ -45,18 +45,18 @@
 
 ### Element-to-action mapping
 
-| UI element                  | User action              | System reaction                                                                                                             | Related behavior or interface                                  | Source                                        |
-| --------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
-| Вкладка `Пользователи`      | Открыть экран            | Система должна прочитать список пользователей через administrator-guarded boundary.                                         | `./interfaces.md#read-users-for-role-management`               | `UsersScreen.tsx`, `backoffice-ui-binding.md` |
-| Поле поиска                 | Ввести имя или Telegram  | Система должна отфильтровать отображаемый список по экранному query.                                                        | `./behavior.md#main-workflow-просмотр-пользователей`           | `UsersScreen.tsx`                             |
-| Фильтр `Все`                | Выбрать фильтр           | Система должна показать всех пользователей из полученного списка.                                                           | `./behavior.md#main-workflow-просмотр-пользователей`           | `UsersScreen.tsx`                             |
-| Фильтр `Баристы`            | Выбрать фильтр           | Система должна показать пользователей с операционной ролью `barista`.                                                       | `./behavior.md#main-workflow-просмотр-пользователей`           | `UsersScreen.tsx`                             |
-| Фильтр `Заблокированные`    | Выбрать фильтр           | Система должна показать пользователей с `blocked=true` без включения блокировки или разблокировки в scope фичи.             | `./behavior.md#scope-constraints`                              | `UsersScreen.tsx`                             |
-| Меню действий пользователя  | Выбрать `Назначить роль` | Система должна открыть диалог выбора роли для выбранного пользователя.                                                      | `./behavior.md#main-workflow-назначение-роли-barista`          | `UsersScreen.tsx`, `UserActionsMenu.tsx`      |
-| `AssignRoleDialog`          | Выбрать `Бариста`        | Система должна подготовить input `assignedRole=barista`.                                                                    | `./interfaces.md#assign-user-role`                             | `AssignRoleDialog.tsx`                        |
-| `AssignRoleDialog`          | Выбрать `Администратор`  | Система должна подготовить input `assignedRole=administrator`, но финальное сохранение зависит от blocker по guard-правилу. | `./behavior.md#blocked-workflow-назначение-роли-administrator` | `AssignRoleDialog.tsx`                        |
-| Кнопка `Назначить роль`     | Подтвердить выбор        | Система должна отправить role assignment operation и показать результат операции.                                           | `./interfaces.md#assign-user-role`                             | `AssignRoleDialog.tsx`                        |
-| Кнопка `Отмена` или overlay | Закрыть диалог           | Система должна закрыть диалог без изменения роли пользователя.                                                              | `./behavior.md#main-workflow-назначение-роли-barista`          | `AssignRoleDialog.tsx`                        |
+| UI element                  | User action              | System reaction                                                                                                       | Related behavior or interface                               | Source                                        |
+| --------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------- |
+| Вкладка `Пользователи`      | Открыть экран            | Система должна прочитать список пользователей через administrator-guarded boundary.                                   | `./interfaces.md#read-users-for-role-management`            | `UsersScreen.tsx`, `backoffice-ui-binding.md` |
+| Поле поиска                 | Ввести имя или Telegram  | Система должна отфильтровать отображаемый список по экранному query.                                                  | `./behavior.md#main-workflow-просмотр-пользователей`        | `UsersScreen.tsx`                             |
+| Фильтр `Все`                | Выбрать фильтр           | Система должна показать всех пользователей из полученного списка.                                                     | `./behavior.md#main-workflow-просмотр-пользователей`        | `UsersScreen.tsx`                             |
+| Фильтр `Баристы`            | Выбрать фильтр           | Система должна показать пользователей с операционной ролью `barista`.                                                 | `./behavior.md#main-workflow-просмотр-пользователей`        | `UsersScreen.tsx`                             |
+| Фильтр `Заблокированные`    | Выбрать фильтр           | Система должна показать пользователей с `blocked=true` без включения блокировки или разблокировки в scope фичи.       | `./behavior.md#scope-constraints`                           | `UsersScreen.tsx`                             |
+| Меню действий пользователя  | Выбрать `Назначить роль` | Система должна открыть диалог выбора роли для выбранного пользователя.                                                | `./behavior.md#main-workflow-назначение-роли-barista`       | `UsersScreen.tsx`, `UserActionsMenu.tsx`      |
+| `AssignRoleDialog`          | Выбрать `Бариста`        | Система должна подготовить input `assignedRole=barista`.                                                              | `./interfaces.md#assign-user-role`                          | `AssignRoleDialog.tsx`                        |
+| `AssignRoleDialog`          | Выбрать `Администратор`  | Система должна подготовить input `assignedRole=administrator`; сохранение должно пройти guard главного administrator. | `./behavior.md#main-workflow-назначение-роли-administrator` | `AssignRoleDialog.tsx`                        |
+| Кнопка `Назначить роль`     | Подтвердить выбор        | Система должна отправить role assignment operation и показать результат операции.                                     | `./interfaces.md#assign-user-role`                          | `AssignRoleDialog.tsx`                        |
+| Кнопка `Отмена` или overlay | Закрыть диалог           | Система должна закрыть диалог без изменения роли пользователя.                                                        | `./behavior.md#main-workflow-назначение-роли-barista`       | `AssignRoleDialog.tsx`                        |
 
 ### Interaction notes
 
@@ -96,7 +96,7 @@
 ### Design handoff rule
 
 - Design readiness по экранному входу назначения роли имеет статус `ready`.
-- Architecture handoff по FEATURE-004 имеет статус `blocked` из-за нерешенного системного правила назначения роли `administrator`.
+- Architecture handoff по FEATURE-004 имеет статус `ready-for-architecture`; системное правило назначения роли `administrator` ограничено главным administrator.
 - `DESIGN-*` task не требуется, потому что required role assignment UI entrypoint и выбор ролей присутствуют в `.references`.
 
 ## Role-specific UI Notes
@@ -116,7 +116,7 @@
 
 - E2E QA должен покрыть открытие вкладки `Пользователи`, выбор пользователя, назначение `barista` и проверку пересчета доступа.
 - E2E QA должен покрыть denial для пользователя без `administrator`.
-- E2E QA должен отложить финальный сценарий назначения `administrator` до снятия blocker.
+- E2E QA должен покрыть назначение `administrator` главным administrator и отказ для administrator, который не является главным administrator.
 
 ## Traceability
 
@@ -133,4 +133,4 @@
 
 ## Open Questions
 
-- Кто имеет право назначать роль `administrator`: любой `administrator` или только главный `administrator`.
+- Отсутствуют.

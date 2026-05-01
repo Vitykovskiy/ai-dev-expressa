@@ -4,7 +4,7 @@
 
 Документ является entry slice decomposed feature package для `FEATURE-004`.
 
-Feature package задает системный handoff для просмотра пользователей и назначения ролей во внутреннем административном контуре. Package остается в status `draft`, потому что источник не разрешает blocker по назначению роли `administrator`.
+Feature package задает системный handoff для просмотра пользователей и назначения ролей во внутреннем административном контуре. Package находится в status `ready-for-architecture`, потому что business rule `AR-008` фиксирует право главного administrator назначать роль `administrator`.
 
 ## Package slices
 
@@ -26,7 +26,7 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 ## Владение
 
 - Системный аналитик создает и обновляет feature package на основании canonical sources.
-- Архитектор использует `index.md` как первый маршрут чтения после снятия blocker.
+- Архитектор использует `index.md` как первый маршрут чтения при архитектурной декомпозиции.
 - Frontend, Backend, DevOps и QA читают только назначенные package slices, профильные architecture docs и точечные supporting sources.
 - Manual QA и E2E QA используют `test-scenarios.md` как общий QA slice package.
 
@@ -35,7 +35,7 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 - Feature: `FEATURE-004`
 - Parent sprint: `SPRINT-001`
 - Package root: `docs/system/feature-specs/feature-004-administrator-user-role-management/`
-- Status: `draft`
+- Status: `ready-for-architecture`
 - Related roles: `Системный аналитик`, `Архитектор`, `Frontend`, `Backend`, `DevOps`, `QA`
 - Affected interfaces: вкладка `Пользователи`, `Read users for role management`, `Assign user role`, role/capability guard, users UI reference
 - Last consistency check: `2026-05-01`
@@ -52,6 +52,8 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 ### Business input
 
 - `tasks/FEATURE-004-administrator-user-role-management.md`
+- `docs/business/business-rules/access-and-roles.md`
+- `docs/business/scenarios/administrator-manage-users-and-roles.md`
 
 ### System sources
 
@@ -80,7 +82,7 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 
 - Система должна предоставить administrator список пользователей во вкладке `Пользователи`.
 - Система должна позволить administrator выбрать пользователя и назначить роль `barista`.
-- Система должна включить назначение роли `administrator` в scope фичи после снятия blocker по guard-правилу.
+- Система должна позволить главному administrator выбрать пользователя и назначить роль `administrator`.
 - Система должна пересчитать доступ целевого пользователя к вкладкам внутреннего административного контура после успешного изменения роли.
 - Система должна сохранить связь UI flow с `.references/Expressa_admin` для вкладки `Пользователи` и диалога назначения роли.
 
@@ -177,8 +179,7 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 
 ## Blockers
 
-- Не согласовано, может ли любой `administrator` назначать других `administrator`, или это право ограничено только главным `administrator`.
-- До снятия blocker package не получает статус `ready-for-architecture`.
+- Отсутствуют.
 
 ## Design Handoff Status
 
@@ -197,4 +198,4 @@ docs/system/feature-specs/feature-004-administrator-user-role-management/
 - Система должна иметь UI behavior и design readiness в ui-behavior slice. Status: `done`.
 - Система должна иметь закрытые blocking DESIGN-\* задачи или явный `n/a`. Status: `done`.
 - Система должна иметь test-scenarios slice со stable scenario IDs и coverage mapping. Status: `done`.
-- Система должна иметь снятый blocker по назначению роли `administrator` до архитектурной декомпозиции. Status: `blocked`.
+- Система должна иметь guard-правило назначения роли `administrator`, ограниченное главным administrator. Status: `done`.
