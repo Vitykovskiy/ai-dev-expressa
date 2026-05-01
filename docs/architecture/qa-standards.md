@@ -25,6 +25,8 @@
 - E2e QA-задача покрывает создание или обновление browser e2e-тестов, прогон полного browser suite через документированный route и evidence результата.
 - Manual QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи.
 - E2e QA evidence ссылается на scenario IDs из документа сценариев тестирования фичи и фиксирует mapping между scenario IDs, test files, test titles и required assertions.
+- Система должна декомпозировать e2e spec-файлы по смысловым lane, если feature-level suite содержит несколько независимых групп поведения: `save/assignment`, `access/guard`, `validation/api-boundary` или аналогичные группы.
+- Система должна хранить общие e2e фикстуры, тестовые данные и helper-функции в `support/`, если они используются несколькими spec-файлами одного контура.
 - Финальное acceptance evidence e2e lane собирается локальным запуском QA-owned Playwright suite командой `npm run test:e2e` против опубликованного `https://expressa-e2e-test.vitykovskiy.ru`.
 - Backend endpoint integration используется для contract feedback и не закрывает feature-level e2e.
 - Feature-level e2e QA закрывается полным browser suite через route, прямо указанный в карточке задачи и профильной QA-карте.

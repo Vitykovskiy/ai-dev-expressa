@@ -28,7 +28,7 @@
 - `backend/test/backoffice-role-guard.spec.ts` — integration evidence для матрицы role guard по capabilities.
 - `backend/test/backoffice-entry.integration.spec.ts` — integration/regression evidence для `Telegram entry -> session -> capability access` и production-like отказа без Telegram.
 - `frontend/src/modules/auth/session-api.spec.ts`, `frontend/src/router/guards.spec.ts`, `frontend/src/modules/navigation/tabs.spec.ts` — frontend contract/navigation evidence для bootstrap, guard и role-aware tab visibility.
-- Для FEATURE-004 ожидаются backend unit/integration checks в `backend/test/user-role-management*.spec.ts`, frontend checks в `frontend/src/modules/users/*.spec.ts` и browser e2e checks в `e2e/access/administrator-user-role-management.spec.ts` или другом QA-owned файле с явным mapping на `F004-*`.
+- Для FEATURE-004 ожидаются backend unit/integration checks в `backend/test/user-role-management*.spec.ts`, frontend checks в `frontend/src/modules/users/*.spec.ts` и browser e2e checks в `e2e/access/administrator-user-role-*.spec.ts` с явным mapping на `F004-*`.
 
 ## Handoff route for FEATURE-001
 
