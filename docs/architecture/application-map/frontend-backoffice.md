@@ -57,6 +57,7 @@
 - `.references/Expressa_admin/src/app/RootLayout.tsx` задаёт общую layout-структуру.
 - `.references/Expressa_admin/src/app/components/SideNav.tsx` и `TabBar.tsx` задают роль-зависимую навигацию.
 - `.references/Expressa_admin/src/app/screens/MenuScreen.tsx`, `AddCategoryDialog.tsx`, `EditCategoryDialog.tsx`, `AddProductDialog.tsx`, `EditProductDialog.tsx` и `MenuGuide.tsx` задают визуальный и поведенческий ориентир для вкладки `Меню`.
+- `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `AssignRoleDialog.tsx` и `UserActionsMenu.tsx` задают визуальный и поведенческий ориентир для вкладки `Пользователи` и назначения ролей.
 - Цвета, отступы и композиция берутся из UI-контракта и референса, но реализация должна быть на `Vue 3`/`Vuetify`.
 
 ## FEATURE-002 frontend implementation map
@@ -111,6 +112,26 @@
 - Frontend использует существующий administrator-only route `/settings` и не добавляет новые top-level routes или альтернативные settings flow без обновления этой карты.
 - Экран `Настройки` должен показывать текущие либо дефолтные значения, поддерживать loading/success/error/inline-validation states и сохранять administrator в контексте редактирования при ошибке сохранения.
 - Клиентская форма не должна фиксировать `max=50` как каноническое системное правило только на основании `.references/Expressa_admin`; визуальный reference используется для parity, а контрактная валидация и результат сохранения приходят из backend.
+
+## FEATURE-004 frontend implementation map
+
+| Путь                                                              | Назначение                                                                                                                                                              |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/views/UsersView.vue`                                | Экран `/users`: route-level orchestration чтения списка пользователей, фильтров, выбора пользователя и подтверждения назначения роли.                                   |
+| `frontend/src/components/users/*.vue`                             | Feature-specific компоненты списка пользователей, меню действий и диалога назначения роли без transport logic и без операций блокировки.                                |
+| `frontend/src/modules/users/api.ts`                               | Client API boundary для `GET /backoffice/user-management/users` и `PATCH /backoffice/user-management/users/:userId/role` с Telegram/test-mode headers из auth contract. |
+| `frontend/src/modules/users/store.ts`                             | Локальное состояние списка, loading/success/error states и обновление строки пользователя после backend response.                                                       |
+| `frontend/src/modules/users/types.ts`, `presentation.ts`          | Клиентские типы, mapping ролей/status badges, display labels и consumer-facing формы без подмены backend validation.                                                    |
+| `frontend/src/modules/users/validation.ts`                        | Клиентская проверка допустимого выбора `barista` / `administrator`; backend validation и guard остаются source of truth.                                                |
+| `frontend/src/router/index.ts`, `frontend/src/modules/navigation` | Подключение `UsersView` к существующему route `/users` без изменения capability `users` и без локального вычисления прав из UI-состояния.                               |
+
+## Handoff route for FEATURE-004
+
+- Для управления ролями пользователей исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management/index.md`, затем `behavior.md`, `interfaces.md`, `ui-behavior.md`, `test-scenarios.md`, затем эту карту, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AssignRoleDialog.tsx` и `.references/Expressa_admin/src/app/components/UserActionsMenu.tsx`.
+- Frontend использует существующий administrator-only route `/users` и заменяет stub на users-flow без добавления новых top-level routes.
+- Frontend получает users list и результат назначения роли только от backend identity/access boundary; локальный store не является source of truth для ролей, blocked state или capabilities.
+- Frontend показывает `Назначить роль`, выбор `Бариста` и `Администратор`, success/error states и empty state по `.references`, но операции блокировки, разблокировки, создания пользователя и снятия роли `barista` остаются вне behavior scope FEATURE-004.
+- Frontend должен отправлять `assignedRole=administrator` как обычный input выбора роли, а окончательный guard главного administrator должен выполняться backend.
 
 ## Запрещено в FEATURE-001
 

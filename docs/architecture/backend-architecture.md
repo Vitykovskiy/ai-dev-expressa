@@ -18,6 +18,10 @@
 
 Подробная карта server-side boundary управления рабочими часами, вместимостью слотов и генерацией доступных слотов находится в `docs/architecture/application-map/backend-slot-settings.md`. Контур настроек слотов использует access guard из `backend-access.md`, но не смешивается с identity/access модулем, обработкой заказов или каталогом меню.
 
+## Для FEATURE-004
+
+Подробная карта server-side boundary чтения пользователей и назначения ролей находится в `docs/architecture/application-map/backend-access.md`. Контур `identity-access` остается source of truth по пользователям, ролям, blocked state, capabilities и guard главного administrator; клиентская часть не может подтверждать назначение роли без backend guard.
+
 ## Стандарт NestJS boundaries
 
 - `module.ts` фиксирует границу NestJS-контура и подключает controller/provider/repository зависимости только своего контура или явно разрешённые внешние guards/adapters.

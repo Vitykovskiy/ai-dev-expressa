@@ -9,7 +9,7 @@
 - Единица поставки: `FEATURE-004`
 - Роль: `Архитектор`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `В работе`
 
 ## Ссылки на документы
 
@@ -24,8 +24,10 @@
 
 - Зависимости: `FEATURE-001`
 - Минимальный read set: `docs/system/feature-specs/feature-004-administrator-user-role-management/index.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management/behavior.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management/interfaces.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management/ui-behavior.md`, `docs/system/feature-specs/feature-004-administrator-user-role-management/test-scenarios.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AssignRoleDialog.tsx`, `.references/Expressa_admin/src/app/components/UserActionsMenu.tsx`
-- Ожидаемый результат для ревью: `Подготовлены feature package и документ сценариев тестирования FEATURE-004: зафиксированы граница фичи, пользовательские сценарии, UI-взаимодействия, validations, errors, design readiness, крайние случаи и handoff для архитектурной декомпозиции. Package находится в status ready-for-architecture; назначение роли administrator ограничено главным administrator.`
-- Проверки: `Feature package slices index.md, behavior.md, interfaces.md, ui-behavior.md и test-scenarios.md созданы в docs/system/feature-specs/feature-004-administrator-user-role-management; карточка FEATURE-004 ссылается на package root, index.md и test-scenarios.md; сценарии содержат stable scenario IDs, manual QA route, e2e coverage expectation и required assertions; design readiness сверен с .references/Expressa_admin/src/app/screens/UsersScreen.tsx, .references/Expressa_admin/src/app/components/AddUserDialog.tsx, .references/Expressa_admin/src/app/components/AssignRoleDialog.tsx и .references/Expressa_admin/src/app/components/UserActionsMenu.tsx.`
+- Ожидаемый результат для ревью: `Подготовлена архитектурная декомпозиция FEATURE-004: feature package остается в status ready-for-architecture; архитектурные карты фиксируют frontend/backend/QA handoff; назначение роли administrator ограничено главным administrator; созданы дочерние задачи AR-007, FE-007, BE-006, QA-008 и QA-009.`
+- Проверки: `Feature package slices index.md, behavior.md, interfaces.md, ui-behavior.md и test-scenarios.md созданы в docs/system/feature-specs/feature-004-administrator-user-role-management; карточка FEATURE-004 ссылается на package root, index.md и test-scenarios.md; архитектурные карты docs/architecture/application-map/frontend-backoffice.md, docs/architecture/application-map/backend-access.md и docs/architecture/application-map/qa-access.md содержат handoff FEATURE-004; дочерние задачи AR-007, FE-007, BE-006, QA-008 и QA-009 созданы с parent link FEATURE-004, контурной картой, зоной ответственности, маршрутом чтения и проверками; DO-задача не требуется, потому что FEATURE-004 не меняет runtime variables, deployment route или smoke-check.`
+- Дочерние задачи: `AR-007-feature-004-user-role-management-architecture-handoff.md`, `FE-007-administrator-user-role-management-ui.md`, `BE-006-administrator-user-role-management-backend.md`, `QA-008-manual-administrator-user-role-management.md`, `QA-009-e2e-administrator-user-role-management.md`
+- Результат архитектурной декомпозиции: `2026-05-01 — обновлены архитектурные карты frontend/backend/QA, создан backend endpoint namespace /backoffice/user-management/users без конфликта с capability guard /backoffice/users, подготовлены FE/BE/manual QA/e2e QA child tasks.`
 - Обновление карты приложения: `Обязательно в дочерних задачах, если меняются модули пользователей, клиентские маршруты, серверные API, схемы хранения, общие типы или тестовый маршрут.`
 - Критерии готовности: `Фича закрыта, когда назначение ролей работает по согласованным правилам доступа и дочерние AR/FE/BE/QA-* задачи завершены и проверены.`
 - Блокер: `Отсутствует. Бизнес-правило AR-008 фиксирует, что главный administrator может назначать пользователей на роль administrator.`

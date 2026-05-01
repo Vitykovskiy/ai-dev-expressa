@@ -30,6 +30,18 @@
 | `backend/src/identity-access/auth/backoffice-auth.guard.ts`                | Guard прямых обращений к backoffice capabilities; поддерживает capability из `:capability` path parameter и metadata decorator для статических backoffice endpoints. |
 | `backend/src/identity-access/users/in-memory-user.repository.ts`           | Текущий in-memory адаптер `UserRepository`; замена на постоянное хранилище должна выполняться отдельной архитектурной задачей.                                       |
 
+## FEATURE-004 backend implementation map
+
+| Путь                                                             | Назначение                                                                                                                                      |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `backend/src/identity-access/user-management.controller.ts`      | HTTP boundary для чтения пользователей и назначения роли через static backoffice endpoints с capability `users`.                                |
+| `backend/src/identity-access/users/identity-access.service.ts`   | Application orchestration чтения списка, проверки целевого пользователя, назначения роли и пересчета target capabilities.                       |
+| `backend/src/identity-access/users/user.repository.ts`           | Repository contract должен поддержать чтение списка пользователей и поиск по `userId` без смены storage adapter.                                |
+| `backend/src/identity-access/users/in-memory-user.repository.ts` | In-memory adapter должен хранить пользователей так, чтобы `telegramId` auth lookup и `userId` role-management lookup оставались согласованными. |
+| `backend/src/identity-access/domain/role.ts`                     | Canonical role/capability mapping для `customer`, `barista`, `administrator` и пересчета доступа после изменения роли.                          |
+| `backend/src/identity-access/domain/user.ts`                     | Role mutation helpers должны обновлять операционную backoffice-роль и сохранять `customer` и `blocked` как отдельные состояния.                 |
+| `backend/test/user-role-management*.spec.ts`                     | Unit/integration evidence для списка пользователей, назначения `barista`, назначения `administrator` главным administrator и error mapping.     |
+
 ## Code architecture standard for FEATURE-006
 
 - Контур `identity-access` должен сохранять разделение `config`, `bootstrap`, `auth`, `users` и module boundary.
@@ -41,16 +53,34 @@
 
 ## Endpoints
 
-| Method | Path                       | Назначение                                                                                                              |
-| ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/health`                  | Техническая проверка живости backend.                                                                                   |
-| `POST` | `/backoffice/auth/session` | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                          |
-| `GET`  | `/backoffice/:capability`  | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`. |
+| Method  | Path                                             | Назначение                                                                                                               |
+| ------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `GET`   | `/health`                                        | Техническая проверка живости backend.                                                                                    |
+| `POST`  | `/backoffice/auth/session`                       | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                           |
+| `GET`   | `/backoffice/:capability`                        | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`.  |
+| `GET`   | `/backoffice/user-management/users`              | Возвращает список пользователей для вкладки `Пользователи`; endpoint использует static capability guard `users`.         |
+| `PATCH` | `/backoffice/user-management/users/:userId/role` | Назначает целевому пользователю роль `barista` или `administrator`; endpoint использует static capability guard `users`. |
 
 ## Auth headers and body
 
 - Production/test с включённой Telegram auth: `POST /backoffice/auth/session` принимает body `{ "initData": "<telegram-web-app-init-data>" }`; прямые capability-запросы передают то же значение в header `x-telegram-init-data`.
 - Test-mode: при `NODE_ENV=test DISABLE_TG_AUTH=true` body может содержать `{ "testTelegramId": "<id>" }`, а прямые capability-запросы могут передавать `x-test-telegram-id`. Если test id не передан, используется `ADMIN_TELEGRAM_ID`.
+- Static endpoints FEATURE-004 используют те же Telegram/test-mode headers, что и `GET /backoffice/:capability`, но capability берут из metadata decorator `users`, а не из path parameter.
+
+## Server contracts for FEATURE-004
+
+- `GET /backoffice/user-management/users` возвращает `{ "users": BackofficeManagedUser[] }`.
+- `PATCH /backoffice/user-management/users/:userId/role` принимает body `{ "assignedRole": "barista" | "administrator" }` и возвращает `{ "user": BackofficeManagedUser }`.
+- `BackofficeManagedUser` содержит `userId`, `telegramId`, `roles`, `blocked`, `displayLabel` при наличии и `capabilities`, рассчитанные по backend role/capability mapping.
+- Endpoint чтения списка требует authenticated actor с capability `users`.
+- Endpoint назначения роли требует authenticated actor с capability `users`.
+- Назначение `assignedRole=administrator` дополнительно требует, чтобы `actor.telegramId` совпадал с `ADMIN_TELEGRAM_ID`.
+- Назначение роли обновляет операционную backoffice-роль target user на `assignedRole` и сохраняет существующую роль `customer`, если она была у target user.
+- FEATURE-004 не предоставляет отдельный flow снятия роли `barista`.
+- FEATURE-004 не выполняет снятие роли `barista`, блокировку, разблокировку или создание пользователя.
+- После успешного изменения роли backend возвращает target user с пересчитанными `capabilities`; frontend использует этот ответ для обновления строки и не вычисляет финальный доступ локально.
+- Error mapping FEATURE-004: `administrator-role-required` -> `403 Forbidden`; `main-administrator-required` -> `403 Forbidden`; `role-not-assignable` -> `400 Bad Request`; `user-not-found` -> `404 Not Found`.
+- FEATURE-004 не добавляет runtime variables и не меняет deployment route.
 
 ## Server contracts for FEATURE-001
 
@@ -68,6 +98,12 @@
 
 - Для server-side реализации сначала читать `docs/system/contracts/backoffice-auth-and-capability-access.md`, затем `docs/system/domain-model/identity-and-access.md`, затем эту карту и `docs/architecture/application-map/delivery-and-runtime.md`.
 - Если меняются endpoint boundary, auth headers/body, env/config или guard behavior, обновляется эта карта и соответствующий system contract в одном handoff.
+
+## Handoff route for FEATURE-004
+
+- Для server-side реализации управления ролями пользователей исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management/index.md`, затем `behavior.md`, `interfaces.md`, `test-scenarios.md`, затем `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/domain-model/identity-and-access.md`, эту карту и `docs/system/contracts/backoffice-auth-and-capability-access.md`.
+- Реализация остается внутри `identity-access` boundary и не смешивается с меню, слотами, заказами или клиентским UI behavior.
+- Если endpoint boundary, DTO shape, error mapping или guard главного administrator меняются относительно этой карты, нужно вернуть изменение в архитектурный handoff до реализации.
 
 ## Env/config
 
