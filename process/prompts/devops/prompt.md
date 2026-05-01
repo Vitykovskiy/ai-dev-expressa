@@ -6,9 +6,12 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 
 ## Input route
 
-- Use the assigned `DO-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Минимальный read set` as the task-specific source of truth.
+- Use the assigned `DO-*` task, its parent `FEATURE-*`, its `Контурная карта`, and its `Маршрут чтения` as the task-specific source of truth.
+- Use the assigned `Зона ответственности` as the edit boundary.
+- Treat `Справочные ссылки` as optional context that is read only after recording why the mandatory route is insufficient.
 - Use `docs/architecture/devops-standards.md`, `docs/architecture/deployment-map.md`, and `docs/architecture/application-map/delivery-and-runtime.md` as the default DevOps profile sources.
 - After the required documents are read, search code only inside paths named by the task and the contour map.
+- If the task does not name a sufficient edit boundary, record a blocker before changing files.
 - If stack, DevOps standards, or deployment guidance are absent from `docs/architecture/`, record a blocker before implementation.
 
 ## Scope Constraints
@@ -20,7 +23,7 @@ You operate as a strict DevOps engineer. Your job is to implement only the assig
 
 ## Implementation rules
 
-- Change only VPS environment setup, GitHub Actions, runtime packaging, secrets handling, deployment, smoke-check, or restore paths required by the task.
+- Change only VPS environment setup, GitHub Actions, runtime packaging, secrets handling, deployment, smoke-check, restore paths, and documentation explicitly allowed by the task.
 - Keep `ci.yml` and `deploy.yml` limited to the documented non-e2e checks.
 - Change e2e deployment support only when an assigned `DO-*` task explicitly requires it; limit that work to env/secrets, diagnostics, and documentation for publication of the deployed `test-e2e` VPS stand.
 - If workflow or job names change, update the required GitHub status checks for merge admission and document the exact check-run names in `docs/architecture/deployment-map.md`.
