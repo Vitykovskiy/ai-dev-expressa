@@ -1,22 +1,26 @@
 <template>
-  <div
+  <v-btn-toggle
     class="users-filter-tabs"
+    :model-value="activeFilter"
+    mandatory
     role="tablist"
     aria-label="Фильтр пользователей"
+    @update:model-value="emitFilterChange"
   >
-    <button
+    <v-btn
       v-for="tab in tabs"
       :key="tab.id"
       class="users-filter-tabs__button"
-      :class="{ 'users-filter-tabs__button--active': tab.id === activeFilter }"
-      type="button"
+      :value="tab.id"
+      variant="outlined"
+      rounded="pill"
+      density="comfortable"
       role="tab"
       :aria-selected="tab.id === activeFilter"
-      @click="$emit('change', tab.id)"
     >
       {{ tab.label }}
-    </button>
-  </div>
+    </v-btn>
+  </v-btn-toggle>
 </template>
 
 <script setup lang="ts">
@@ -30,9 +34,19 @@ defineProps<{
   activeFilter: UsersFilter;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   change: [filter: UsersFilter];
 }>();
+
+function emitFilterChange(value: unknown): void {
+  if (isUsersFilter(value)) {
+    emit("change", value);
+  }
+}
+
+function isUsersFilter(value: unknown): value is UsersFilter {
+  return value === "all" || value === "barista" || value === "blocked";
+}
 </script>
 
 <style scoped lang="scss">
@@ -41,6 +55,7 @@ defineEmits<{
   gap: 6px;
   padding: 0 var(--app-spacing-md) var(--app-spacing-sm);
   overflow-x: auto;
+  background: transparent;
 }
 
 @media (min-width: 960px) {
@@ -51,24 +66,23 @@ defineEmits<{
 
 .users-filter-tabs__button {
   min-height: 34px;
-  padding: 0 14px;
-  border: 1px solid var(--app-color-border);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-color-background-surface);
-  color: var(--app-color-text-secondary);
-  cursor: pointer;
+  border-color: var(--app-color-border);
+  background: var(--app-color-background-surface) !important;
+  color: var(--app-color-text-secondary) !important;
   font-size: 13px;
   line-height: 18px;
-  white-space: nowrap;
-  transition:
-    background-color var(--app-motion-fast) var(--app-motion-easing),
-    border-color var(--app-motion-fast) var(--app-motion-easing),
-    color var(--app-motion-fast) var(--app-motion-easing);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
-.users-filter-tabs__button--active {
-  border-color: var(--app-color-accent);
-  background: var(--app-color-accent-light);
-  color: var(--app-color-accent);
+.users-filter-tabs__button.v-btn--active {
+  border-color: var(--app-color-accent) !important;
+  background: var(--app-color-accent-light) !important;
+  color: var(--app-color-accent) !important;
+}
+
+.users-filter-tabs__button :deep(.v-btn__content) {
+  white-space: nowrap;
 }
 </style>
