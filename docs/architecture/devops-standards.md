@@ -5,6 +5,7 @@
 - Секреты Telegram-ботов и production env values не хранятся в исходном коде.
 - Test-only режимы должны иметь явную защиту от включения в production.
 - Smoke-check должен проверять не только успешный запуск, но и критичные negative paths для доступа.
+- Official documentation route для tooling-first проверки runtime и delivery: `Docker Compose` — `https://docs.docker.com/compose/`, GitHub Actions — `https://docs.github.com/en/actions`, npm scripts — `https://docs.npmjs.com/cli/using-npm/scripts`, Husky — `https://typicode.github.io/husky/`, lint-staged — `https://github.com/lint-staged/lint-staged`.
 
 ## Для FEATURE-001
 

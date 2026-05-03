@@ -5,6 +5,7 @@
 - Серверная часть Expressa v1 реализуется на `NestJS`.
 - Контур идентификации и доступа должен быть отделён от доменных контуров меню, слотов, заказов и уведомлений.
 - Backend является источником истины по пользователю, Telegram identity, ролям и доступу к backoffice capabilities.
+- Official documentation route для tooling-first проверки серверного контура: `NestJS` — `https://docs.nestjs.com/`, `Vitest` — `https://vitest.dev/guide/`.
 
 ## Для FEATURE-001
 

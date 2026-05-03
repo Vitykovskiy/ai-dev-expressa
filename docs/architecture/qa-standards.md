@@ -3,6 +3,7 @@
 ## Базовый стандарт
 
 - Каждая последующая `FEATURE-*` должна иметь две `QA-*` задачи: manual lane для ручной проверки собранной feature и e2e lane для e2e-покрытия этой feature.
+- Official documentation route для tooling-first проверки QA-контура: `Playwright` — `https://playwright.dev/docs/intro`, `Vitest` — `https://vitest.dev/guide/`.
 - Идентификаторы QA-задач сохраняют общий формат `QA-<NNN>`; lane фиксируется в заголовке задачи как `Ручное тестирование ...` или `E2E ...`.
 - Существующие `QA-*` карточки не переписываются массово; новый стандарт применяется к новым feature, а также к существующим feature при новой декомпозиции или переоткрытии.
 - Feature-level e2e означает browser suite, который проходит пользовательские сценарии через опубликованный frontend и backend.

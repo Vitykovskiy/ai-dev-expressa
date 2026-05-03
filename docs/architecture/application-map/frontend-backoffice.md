@@ -13,9 +13,9 @@
 
 ## UI primitives boundary
 
-- Канонический слой повторяемых backoffice primitives находится в `frontend/src/components/ui/`.
-- `frontend/src/components/ui/README.md` является практическим каталогом компонентов, их props/slots/events и mapping на `.references/Expressa_admin`.
-- `docs/architecture/frontend-ui-kit.md` фиксирует архитектурное правило: новый shell-wide или повторяемый visual pattern сначала добавляется в `components/ui/`, затем применяется в `views/` и `components/<feature>/`.
+- Канонический слой повторяемых backoffice primitives находится в `frontend/src/ui/`.
+- `frontend/src/ui/README.md` является практическим каталогом компонентов, их props/slots/events и mapping на `.references/Expressa_admin`.
+- `docs/architecture/frontend-ui-kit.md` фиксирует архитектурное правило: новый shell-wide или повторяемый visual pattern сначала добавляется в `frontend/src/ui/`, затем применяется в `views/` и `components/<feature>/`.
 - Feature-specific код в `frontend/src/components/menu-catalog/` не должен заново определять top bar, navigation, section containers, dialog chrome, empty states или базовые action buttons.
 
 ## Точки входа и маршруты
@@ -64,7 +64,7 @@
 
 | Путь                                                                 | Назначение                                                                                                                                               |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontend/src/components/ui/*.vue`                                   | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
+| `frontend/src/ui/*.vue`                                              | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
 | `frontend/src/views/MenuCatalogView.vue`                             | Экран `/menu`: категории, товары, цены, группы опций через флаг категории и назначение групп опций на категории.                                         |
 | `frontend/src/components/menu-catalog/*.vue`                         | Feature-specific компоненты каталога меню: список категорий, формы категорий и товаров.                                                                  |
 | `frontend/src/modules/menu-catalog/view-model.ts`                    | Form state, derived state и orchestration логика экрана меню без transport details.                                                                      |
@@ -77,7 +77,7 @@
 
 - `MenuCatalogView.vue` является первым обязательным кандидатом на декомпозицию: view должен остаться route-level orchestration, а формы категорий, товаров, размеров и повторяемые rows должны быть вынесены в компоненты или композиционные функции.
 - Все новые и рефакторимые SFC в этом контуре используют порядок `template` -> `script` -> `style` и `<style scoped lang="scss">`.
-- Повторяемые visual primitives для shell и menu flow выносятся в `frontend/src/components/ui/`; feature-компоненты собираются из `App*` компонентов и не дублируют их локальными стилями.
+- Повторяемые visual primitives для shell и menu flow выносятся в `frontend/src/ui/`; feature-компоненты собираются из `ui-*` компонентов и не дублируют их локальными стилями.
 - API calls к `/backoffice/menu/*`, Telegram/test-mode headers и transport error mapping остаются в `modules/menu-catalog/api.ts`; components не обращаются к backend напрямую.
 - Изменение структуры компонентов не должно менять route `/menu`, administrator-only guard, forbidden screen behavior, request/response DTO или mapping ошибок `invalid-drink-size-model` и `invalid-option-group-rule`.
 - Если декомпозиция добавляет новые постоянные components, composables или module files, эта карта обновляется в той же задаче.
