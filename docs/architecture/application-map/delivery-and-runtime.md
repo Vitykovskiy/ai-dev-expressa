@@ -10,6 +10,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 | ----------------- | -------------------------------- | -------------------------------------------- |
 | `production`      | Обязательна                      | Запрещён                                     |
 | `test`            | Допустима                        | Разрешён только при `DISABLE_TG_AUTH=true`   |
+| `expressa-deploy` | Допустима                        | Разрешён только при `DISABLE_TG_AUTH=true`   |
 | local development | Через раздельный запуск контуров | Не должен маскировать production ограничения |
 
 ## Branch policy and pipeline
@@ -19,6 +20,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow, публикует versioned runtime-образы и готовит rollout двух test-стендов на одном VPS.
+- Push в `deploy` запускает `Deploy Expressa Deploy` workflow, публикует versioned runtime-образы и готовит rollout стенда `expressa-deploy`.
 - Secrets для SSH-доступа к VPS, registry credentials и smoke-check overrides хранятся в GitHub Secrets.
 - Runtime переменные приложения на VPS передаются через окружение процесса или внешний env-файл стенда и не коммитятся в репозиторий.
 
@@ -61,6 +63,20 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 - `frontend/nginx.conf` публикует frontend root, `/backoffice/*` и `/customer/*` через proxy на `backend:3000`; отдельный публичный backend-домен не требуется для dual-stand deploy contract.
 - Post-deploy smoke-check подтверждает `GET /health` через `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, доступность frontend root через `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON-доступ к `GET /backoffice/orders`, published proxy JSON-доступ к `GET /customer/slots` и отказ production-like bypass через config validation внутри backend container.
+
+## Deploy branch stand contract
+
+- Ветка `deploy` является источником автодеплоя на VPS-стенд `expressa-deploy`.
+- Workflow `Deploy Expressa Deploy` запускается только для push в `deploy` и использует GitHub environment `expressa-deploy`.
+- Перед rollout workflow синхронизирует checkout на VPS с `origin/deploy`, затем вызывает `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
+- Стенд `expressa-deploy` поднимается через `docker-compose.deploy.yml` с `DEPLOY_PROJECT_NAME=expressa-deploy` и `DEPLOY_STAND_SLUG=expressa-deploy`.
+- Runtime-конфигурация стенда хранится во внешнем env-файле VPS, путь к которому задаёт `EXPRESSA_DEPLOY_VPS_ENV_FILE`.
+- Публичный frontend origin стенда: `https://expressa-deploy.vitykovskiy.ru`.
+- `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` задаёт host loopback port backend container для `expressa-deploy`.
+- `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` задаёт host port frontend container для `expressa-deploy`.
+- `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` и `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` должны отличаться от портов стендов `test` и `test-e2e`.
+- Post-deploy smoke-check для `expressa-deploy` подтверждает `GET /health`, frontend root, published proxy JSON-доступ к `GET /backoffice/orders`, published proxy JSON-доступ к `GET /customer/slots` и отказ production-like bypass.
+- Production deployment и route `main -> test/test-e2e` этим workflow не изменяются.
 
 ## Restore path
 
@@ -105,6 +121,12 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - `E2E_STAND_COMMIT` задаёт commit/версию проверяемого опубликованного стенда для QA evidence.
 - `E2E_BACKEND_BASE_URL` задаёт backend API base URL для QA-owned Playwright command; для `test-e2e` canonical значение совпадает с `https://expressa-e2e-test.vitykovskiy.ru`, где `/customer/*` и `/backoffice/*` публикуются через frontend proxy.
 - `IP`, `ROOT_USER`, `ROOT_PASSWORD` в корневом `.env` задают параметры подключения к серверу для локальных operational сценариев; `ROOT_PASSWORD` не коммитится и хранится только в локальном окружении исполнителя или секретном хранилище.
+- `ROOT_USER` и `ROOT_PASSWORD` используются только для первичного bootstrap отдельного пользователя агента.
+- `AGENT_SSH_USER` в корневом `.env` задаёт отдельного пользователя VPS для штатного агентского SSH-доступа.
+- `AGENT_SSH_KEY_PATH` в корневом `.env` задаёт путь к private key агента вне репозитория.
+- `EXPRESSA_DEPLOY_VPS_HOST`, `EXPRESSA_DEPLOY_VPS_USER`, `EXPRESSA_DEPLOY_VPS_SSH_KEY`, `EXPRESSA_DEPLOY_VPS_PORT`, `EXPRESSA_DEPLOY_VPS_HOST_FINGERPRINT`, `EXPRESSA_DEPLOY_VPS_APP_DIR` и `EXPRESSA_DEPLOY_VPS_ENV_FILE` задают GitHub Secrets для SSH и app directory route `expressa-deploy`.
+- `EXPRESSA_DEPLOY_REGISTRY_USERNAME` и `EXPRESSA_DEPLOY_REGISTRY_PASSWORD` задают optional registry pull credentials для route `expressa-deploy`.
+- `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` и `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` задают GitHub environment variables для host port bindings стенда `expressa-deploy`.
 
 ## Backend commands
 
