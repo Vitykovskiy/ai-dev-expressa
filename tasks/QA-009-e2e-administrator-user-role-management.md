@@ -9,7 +9,7 @@
 - Роль: `Тестирование`
 - Контурная карта: `docs/architecture/application-map/qa-access.md`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -77,4 +77,17 @@
 
 ## Результат выполнения
 
-`не заполнено`
+`2026-05-01 — добавлено browser e2e coverage FEATURE-004 и затем разнесено по focused spec-файлам e2e/access/administrator-user-role-*.spec.ts. Общие role-management fixtures/helpers вынесены в e2e/access/support/user-role-management-helpers.ts, общий access API/helper слой сохранен в e2e/access/support/access-helpers.ts. Команда npm run test:e2e выполнена против default published route https://expressa-e2e-test.vitykovskiy.ru: 31 passed. Focused check npm run test:e2e -- access/administrator-user-role: 6 passed. Новые BUG-* не созданы.`
+
+`Примечание: published test-e2e users list на момент проверки содержит только главного administrator, поэтому сценарии, требующие отдельного target user или ordinary administrator, используют browser route fixtures с assertions request payload, response body и UI state без мутации bootstrap administrator; F004-SC-001 и F004-SC-006 дополнительно проверяют published backend boundary.`
+
+### Coverage mapping
+
+| Scenario ID   | Test file                                               | Test title                                              | Required assertions                                                                                                                                                                                                           |
+| ------------- | ------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `F004-SC-001` | `e2e/access/administrator-user-role-list.spec.ts`       | `F004-SC-001 administrator sees users list`             | Вкладка `Пользователи` видима administrator; список или empty state отображен; `GET /backoffice/user-management/users` проходит в authenticated context и возвращает `200`.                                                   |
+| `F004-SC-003` | `e2e/access/administrator-user-role-assignment.spec.ts` | `F004-SC-003 administrator assigns barista`             | Operation отправляет `assignedRole=barista`; response содержит роль `barista` и barista capabilities; строка пользователя обновляется до `Бариста`.                                                                           |
+| `F004-SC-004` | `e2e/access/administrator-user-role-access.spec.ts`     | `F004-SC-004 assigned barista capabilities`             | Для barista видимы `Заказы` и `Доступность`; `Меню`, `Пользователи`, `Настройки` скрыты; прямой `/users` route приводит к forbidden state.                                                                                    |
+| `F004-SC-005` | `e2e/access/administrator-user-role-access.spec.ts`     | `F004-SC-005 non administrator denied users management` | У barista нет вкладки `Пользователи`; прямой `/users` route запрещен; role assignment operation возвращает `administrator-role-required`.                                                                                     |
+| `F004-SC-006` | `e2e/access/administrator-user-role-api.spec.ts`        | `F004-SC-006 invalid role rejected`                     | Invalid role отклоняется с `role-not-assignable`; роли target user остаются без изменений после повторного чтения списка.                                                                                                     |
+| `F004-SC-007` | `e2e/access/administrator-user-role-assignment.spec.ts` | `F004-SC-007 main administrator assigns administrator`  | Обычный administrator получает `main-administrator-required`; роли target user не меняются после отказа; главный administrator успешно назначает `administrator`; response содержит `menu`, `users`, `settings` capabilities. |
