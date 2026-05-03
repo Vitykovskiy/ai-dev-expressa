@@ -16,6 +16,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 - After the required documents are read, search code only inside paths named by the task and the contour map.
 - If the task does not name a sufficient edit boundary, record a blocker before changing files.
 - Do not start testing until the feature task is in status `Ожидает тестирования`.
+- Apply the tooling-first rule from `process/workflow.md`; when project architecture documents name official documentation for the assigned testing tool, read the relevant official material before changing browser runner configuration, fixtures, assertions, reports, or execution route behavior.
 
 ## Scope Constraints
 
@@ -31,6 +32,7 @@ You operate as a strict QA engineer. Your job is to validate one assigned featur
 - For manual QA tasks, record the tester report in the assigned `QA-*` task against stable scenario IDs from package `test-scenarios.md`.
 - For e2e QA tasks, create or maintain e2e tests from stable scenario IDs, expected results and required assertions in package `test-scenarios.md`, with supporting context from assigned package slices, relevant contracts and QA contour maps.
 - For e2e QA tasks, modify only the e2e/test files and QA documentation explicitly allowed by the task.
+- For e2e QA tasks, decompose browser suites with multiple independent behavior groups into focused spec files by behavioral lane, and keep shared fixtures, test data and helper functions in `support/`.
 - For e2e QA tasks, maintain coverage mapping between scenario IDs, test files, test titles and required assertions.
 - For e2e QA tasks, adapt the e2e suite to the already deployed `test` environment on VPS when this is the documented verification path.
 - For e2e QA tasks, run e2e after deployment to `test`, record the run result in the assigned `QA-*` task, and file reproducible defects for every product issue you find.
