@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { describe, expect, it } from "vitest";
+import { Test, TestingModule } from "@nestjs/testing";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { AvailableSlotsService } from "../src/slot-settings/available-slots.service";
 import {
   InvalidSlotCapacityError,
@@ -8,8 +9,21 @@ import {
 import { SlotSettingsValidator } from "../src/slot-settings/domain/slot-settings.validator";
 
 describe("SlotSettings domain", () => {
-  const validator = new SlotSettingsValidator();
-  const availableSlots = new AvailableSlotsService(validator);
+  let moduleRef: TestingModule;
+  let validator: SlotSettingsValidator;
+  let availableSlots: AvailableSlotsService;
+
+  beforeEach(async () => {
+    moduleRef = await Test.createTestingModule({
+      providers: [SlotSettingsValidator, AvailableSlotsService],
+    }).compile();
+    validator = moduleRef.get(SlotSettingsValidator);
+    availableSlots = moduleRef.get(AvailableSlotsService);
+  });
+
+  afterEach(async () => {
+    await moduleRef.close();
+  });
 
   it("rejects working hours when close time is not later than open time", () => {
     expect(() =>

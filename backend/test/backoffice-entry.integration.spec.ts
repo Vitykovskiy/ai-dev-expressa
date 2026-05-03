@@ -7,7 +7,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { BackofficeAuthGuard } from "../src/identity-access/auth/backoffice-auth.guard";
 import { BackofficeAuthService } from "../src/identity-access/auth/backoffice-auth.service";
 import { TelegramInitDataVerifier } from "../src/identity-access/auth/telegram-init-data.verifier";
-import { BootstrapAdministratorService } from "../src/identity-access/bootstrap/bootstrap-administrator.service";
+import {
+  BootstrapAdministratorService,
+  MANUAL_QA_BARISTA_TELEGRAM_ID,
+} from "../src/identity-access/bootstrap/bootstrap-administrator.service";
 import { AccessConfig } from "../src/identity-access/config/access-config";
 import { BackofficeController } from "../src/identity-access/backoffice.controller";
 import { provideAccessConfig } from "../src/identity-access/identity-access.tokens";
@@ -95,6 +98,32 @@ describe("Backoffice entry integration", () => {
           "users",
           "settings",
         ]);
+      });
+  });
+
+  it("allows the manual QA barista fixture through the existing test-mode session contract", async () => {
+    app = await createTestApp({
+      environment: "test",
+      adminTelegramId: "1001",
+      disableTelegramAuth: true,
+    });
+
+    await request(app.getHttpServer())
+      .post("/backoffice/auth/session")
+      .send({ testTelegramId: MANUAL_QA_BARISTA_TELEGRAM_ID })
+      .expect(201)
+      .expect(({ body }) => {
+        expect(body.telegramId).toBe(MANUAL_QA_BARISTA_TELEGRAM_ID);
+        expect(body.roles).toEqual(["barista"]);
+        expect(body.capabilities).toEqual(["orders", "availability"]);
+      });
+
+    await request(app.getHttpServer())
+      .get("/backoffice/menu")
+      .set("x-test-telegram-id", MANUAL_QA_BARISTA_TELEGRAM_ID)
+      .expect(403)
+      .expect(({ body }) => {
+        expect(body.message).toBe("backoffice-capability-forbidden");
       });
   });
 });
