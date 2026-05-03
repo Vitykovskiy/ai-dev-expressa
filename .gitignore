@@ -8,3 +8,4 @@ artifacts/
 infra/docker/.env.server
 playwright-report/
 test-results/
+.agent-work/
