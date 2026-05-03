@@ -2,10 +2,11 @@
 
 ## Окружения
 
-| Environment  | Назначение         | Ограничение                                                             |
-| ------------ | ------------------ | ----------------------------------------------------------------------- |
-| `production` | Рабочий контур     | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён.             |
-| `test`       | Проверочный контур | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок. |
+| Environment       | Назначение                        | Ограничение                                                                    |
+| ----------------- | --------------------------------- | ------------------------------------------------------------------------------ |
+| `production`      | Рабочий контур                    | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён.                    |
+| `test`            | Проверочный контур                | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок.        |
+| `expressa-deploy` | Проверочный контур ветки `deploy` | Изолирован от `test` и `test-e2e`; использует отдельные SSH, env-файл и ports. |
 
 ## Branch-to-environment mapping
 
@@ -13,6 +14,7 @@
 | ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------- |
 | `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён.         |
 | `push`/merge -> `main`   | `test`             | Выполняется публикация versioned образов и rollout стендов `test` и `test-e2e` через deploy workflow contract. |
+| `push` -> `deploy`       | `expressa-deploy`  | Workflow `Deploy Expressa Deploy` публикует versioned образы и выполняет rollout стенда `expressa-deploy`.     |
 
 ## PR Checks install contract
 
@@ -42,6 +44,35 @@
 - `docker-compose.deploy.yml` совместим с rollout двух стендов без изменений, потому что использует env-driven image refs и host port bindings, а изоляция контейнеров задаётся через `docker compose -p`.
 - Post-deploy smoke-check должен выполняться отдельно для каждого стенда: backend health по `SMOKE_BACKEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_BACKEND_PORT}`, frontend root по `SMOKE_FRONTEND_BASE_URL` или `http://127.0.0.1:${TEST_DEPLOY_HOST_FRONTEND_PORT}`, published proxy JSON route `GET /backoffice/orders`, published proxy JSON route `GET /customer/slots` и negative path для production-like bypass.
 - Production deployment этим flow не затрагивается и требует отдельного канала поставки.
+
+## Expressa deploy branch contract
+
+- Workflow `Deploy Expressa Deploy` обслуживает только route `deploy -> expressa-deploy`.
+- Workflow `Deploy Expressa Deploy` использует GitHub environment `expressa-deploy`.
+- Workflow `Deploy Expressa Deploy` публикует backend/frontend images в `ghcr.io` с tag `github.sha` и передаёт эти image refs в `scripts/deploy-test-vps.sh`.
+- VPS checkout для route `expressa-deploy` синхронизируется с `origin/deploy`.
+- Stand `expressa-deploy` использует тот же `docker-compose.deploy.yml` и тот же deploy launcher, что test route.
+- Runtime env стенда хранится во внешнем env-файле VPS; путь задаётся secret `EXPRESSA_DEPLOY_VPS_ENV_FILE`.
+- Host ports задаются GitHub environment variables `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` и `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` и должны быть выделены отдельно от `test` и `test-e2e`.
+
+| Stand             | Public hostname                          | `DEPLOY_PROJECT_NAME` | `DEPLOY_STAND_SLUG` | `ENV_FILE` secret              | Backend port variable               | Frontend port variable               | `SMOKE_FRONTEND_BASE_URL`                |
+| ----------------- | ---------------------------------------- | --------------------- | ------------------- | ------------------------------ | ----------------------------------- | ------------------------------------ | ---------------------------------------- |
+| `expressa-deploy` | `https://expressa-deploy.vitykovskiy.ru` | `expressa-deploy`     | `expressa-deploy`   | `EXPRESSA_DEPLOY_VPS_ENV_FILE` | `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` | `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` | `https://expressa-deploy.vitykovskiy.ru` |
+
+- Required GitHub Secrets for `expressa-deploy`: `EXPRESSA_DEPLOY_VPS_HOST`, `EXPRESSA_DEPLOY_VPS_USER`, `EXPRESSA_DEPLOY_VPS_SSH_KEY`, `EXPRESSA_DEPLOY_VPS_PORT`, `EXPRESSA_DEPLOY_VPS_HOST_FINGERPRINT`, `EXPRESSA_DEPLOY_VPS_APP_DIR`, `EXPRESSA_DEPLOY_VPS_ENV_FILE`, `EXPRESSA_DEPLOY_REGISTRY_USERNAME`, `EXPRESSA_DEPLOY_REGISTRY_PASSWORD`.
+- Required GitHub environment variables for `expressa-deploy`: `EXPRESSA_DEPLOY_HOST_BACKEND_PORT`, `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT`.
+- Post-deploy smoke-check для `expressa-deploy` проверяет backend health, frontend root, published proxy `GET /backoffice/orders`, published proxy `GET /customer/slots` и production-like bypass rejection.
+- Restore path для `expressa-deploy` использует rollback-файлы из `artifacts/deploy-test/expressa-deploy/` и повторный запуск `SKIP_GIT_PULL=true ./scripts/deploy-test-vps.sh`.
+
+## Root `.env` operational contract
+
+- Корневой `.env` не коммитится и используется только локально для DevOps bootstrap и agent SSH.
+- `IP` задаёт адрес VPS.
+- `ROOT_USER` задаёт root-пользователя только для первичного bootstrap.
+- `ROOT_PASSWORD` задаёт root credential только для первичного bootstrap и не является штатным доступом к стенду.
+- `AGENT_SSH_USER` задаёт отдельного пользователя VPS для агентского SSH-доступа.
+- `AGENT_SSH_KEY_PATH` задаёт путь к private key агента вне репозитория.
+- Значения `.env`, GitHub Secrets и private key не фиксируются в tracked документации.
 
 ## QA e2e route
 

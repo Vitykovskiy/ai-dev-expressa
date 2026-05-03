@@ -24,6 +24,29 @@
 - Restore path использует rollback-файл конкретного стенда из `artifacts/deploy-test/<stand-slug>/` с предыдущими image refs; оператор повторно применяет его как входной env для `scripts/deploy-test-vps.sh`.
 - Изменение compose-манифеста, Dockerfile, registry route, deploy secrets, smoke-check или rollback contract требует обновления `docs/architecture/application-map/delivery-and-runtime.md`, `docs/architecture/deployment-map.md` и `README.md`.
 
+## Deploy branch route для `expressa-deploy`
+
+- Branch-driven route `deploy -> expressa-deploy` использует workflow `Deploy Expressa Deploy`, который запускается только push-событиями ветки `deploy`.
+- Workflow `Deploy Expressa Deploy` собирает versioned frontend/backend runtime images в `ghcr.io` с tag, равным `github.sha`, и разворачивает один изолированный стенд `expressa-deploy`.
+- GitHub environment для route имеет имя `expressa-deploy`.
+- Checkout на VPS для этого route синхронизируется с `origin/deploy`; production route и `main -> test/test-e2e` route не изменяются.
+- Стенд `expressa-deploy` переиспользует `docker-compose.deploy.yml` и `scripts/deploy-test-vps.sh` с `DEPLOY_PROJECT_NAME=expressa-deploy` и `DEPLOY_STAND_SLUG=expressa-deploy`.
+- Runtime-конфигурация стенда `expressa-deploy` хранится во внешнем env-файле VPS, путь к которому передаётся через `EXPRESSA_DEPLOY_VPS_ENV_FILE`.
+- GitHub Actions хранит инфраструктурные секреты route `expressa-deploy` в переменных `EXPRESSA_DEPLOY_VPS_HOST`, `EXPRESSA_DEPLOY_VPS_USER`, `EXPRESSA_DEPLOY_VPS_SSH_KEY`, `EXPRESSA_DEPLOY_VPS_PORT`, `EXPRESSA_DEPLOY_VPS_HOST_FINGERPRINT`, `EXPRESSA_DEPLOY_VPS_APP_DIR`, `EXPRESSA_DEPLOY_VPS_ENV_FILE`, `EXPRESSA_DEPLOY_REGISTRY_USERNAME` и `EXPRESSA_DEPLOY_REGISTRY_PASSWORD`.
+- GitHub environment variables `EXPRESSA_DEPLOY_HOST_BACKEND_PORT` и `EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` задают host ports стенда и должны отличаться от портов `test` и `test-e2e`.
+- Post-deploy smoke-check для `expressa-deploy` проверяет `GET /health`, frontend root `https://expressa-deploy.vitykovskiy.ru/`, published proxy JSON routes и production-like bypass rejection.
+- Restore path для `expressa-deploy` использует rollback-файлы из `artifacts/deploy-test/expressa-deploy/`.
+
+## Локальный `.env` для DevOps-операций
+
+- Корневой `.env` остаётся локальным ignored-файлом и используется только для operational bootstrap и локальных DevOps-команд.
+- `IP` задаёт адрес VPS для локальных operational сценариев.
+- `ROOT_USER` задаёт root-пользователя только для первичного bootstrap отдельного пользователя агента.
+- `ROOT_PASSWORD` задаёт root credential только для первичного bootstrap и не является штатным доступом агента.
+- `AGENT_SSH_USER` задаёт отдельного пользователя VPS для агентского SSH-доступа.
+- `AGENT_SSH_KEY_PATH` задаёт путь к локальному private key агента вне репозитория.
+- Значения корневого `.env`, private key и GitHub Secrets не раскрываются в документации, логах, task-card или tracked файлах.
+
 ## QA e2e route
 
 - QA запускает browser e2e локально из репозитория командой `npm run test:e2e`.
