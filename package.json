@@ -26,5 +26,29 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0"
+  },
+  "lint-staged": {
+    "backend/**/*.{ts,tsx,js,mjs,cjs}": [
+      "npm --prefix backend exec -- eslint --config eslint.config.mjs --fix",
+      "npm --prefix backend exec -- prettier --ignore-path ../.prettierignore --write"
+    ],
+    "backend/**/*.{json,md,yml,yaml}": "npm --prefix backend exec -- prettier --ignore-path ../.prettierignore --write",
+    "frontend/**/*.{ts,tsx,js,mjs,cjs}": [
+      "npm --prefix frontend exec -- eslint --config eslint.config.mjs --fix",
+      "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write"
+    ],
+    "frontend/**/*.vue": [
+      "npm --prefix frontend exec -- eslint --config eslint.config.mjs --fix",
+      "npm --prefix frontend exec -- stylelint --config stylelint.config.mjs --fix",
+      "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write"
+    ],
+    "frontend/**/*.{css,scss}": [
+      "npm --prefix frontend exec -- stylelint --config stylelint.config.mjs --fix",
+      "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write"
+    ],
+    "*.{json,md,yml,yaml}": "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write",
+    ".github/**/*.{yml,yaml}": "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write",
+    "docs/**/*.md": "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write",
+    "tasks/**/*.md": "npm --prefix frontend exec -- prettier --ignore-path ../.prettierignore --write"
   }
 }
