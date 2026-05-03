@@ -49,11 +49,19 @@ test.describe("administrator user role list", () => {
     ]);
 
     if (listBody.users.length > 0) {
+      const firstUserTelegramId = `@${listBody.users[0].telegramId}`;
+      const firstUserStatus = listBody.users[0].blocked
+        ? "Заблокирован"
+        : "Активен";
+      const firstUserRow = page
+        .getByText(firstUserTelegramId, { exact: true })
+        .locator(
+          'xpath=ancestor::*[.//button[@title="Действия пользователя"]][1]',
+        );
+
+      await expect(firstUserRow).toBeVisible();
       await expect(
-        page.getByText(`@${listBody.users[0].telegramId}`),
-      ).toBeVisible();
-      await expect(
-        page.getByText(listBody.users[0].blocked ? "Заблокирован" : "Активен", {
+        firstUserRow.getByText(firstUserStatus, {
           exact: true,
         }),
       ).toBeVisible();
