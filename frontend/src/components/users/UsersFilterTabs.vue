@@ -1,26 +1,22 @@
 <template>
-  <v-btn-toggle
+  <div
     class="users-filter-tabs"
-    :model-value="activeFilter"
-    mandatory
     role="tablist"
     aria-label="Фильтр пользователей"
-    @update:model-value="emitFilterChange"
   >
-    <v-btn
+    <button
       v-for="tab in tabs"
       :key="tab.id"
       class="users-filter-tabs__button"
-      :value="tab.id"
-      variant="outlined"
-      rounded="pill"
-      density="comfortable"
+      :class="{ 'users-filter-tabs__button--active': tab.id === activeFilter }"
+      type="button"
       role="tab"
       :aria-selected="tab.id === activeFilter"
+      @click="emit('change', tab.id)"
     >
       {{ tab.label }}
-    </v-btn>
-  </v-btn-toggle>
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -37,16 +33,6 @@ defineProps<{
 const emit = defineEmits<{
   change: [filter: UsersFilter];
 }>();
-
-function emitFilterChange(value: unknown): void {
-  if (isUsersFilter(value)) {
-    emit("change", value);
-  }
-}
-
-function isUsersFilter(value: unknown): value is UsersFilter {
-  return value === "all" || value === "barista" || value === "blocked";
-}
 </script>
 
 <style scoped lang="scss">
@@ -68,8 +54,9 @@ function isUsersFilter(value: unknown): value is UsersFilter {
 
 .users-filter-tabs__button {
   min-height: 34px;
-  padding: 0 16px !important;
-  border-color: transparent !important;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--app-radius-pill);
   background: var(--app-color-background-secondary) !important;
   color: var(--app-color-text-secondary) !important;
   font-size: 13px;
@@ -77,18 +64,15 @@ function isUsersFilter(value: unknown): value is UsersFilter {
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 }
 
-.users-filter-tabs__button.v-btn--active {
-  border-color: transparent !important;
+.users-filter-tabs__button--active {
   background: var(--app-color-accent) !important;
   color: var(--app-color-text-on-accent) !important;
-}
-
-.users-filter-tabs__button :deep(.v-btn__content) {
-  white-space: nowrap;
 }
 </style>

@@ -77,8 +77,8 @@
     <div class="slot-settings-form__actions">
       <ui-button
         block
-        :loading="isSaving"
         :disabled="isSubmitDisabled"
+        :aria-busy="isSaving ? 'true' : undefined"
         @click="$emit('submit')"
       >
         Сохранить
