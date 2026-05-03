@@ -8,8 +8,10 @@
     :type="type"
     :min="min"
     :step="step"
+    :inputmode="inputmode"
     :disabled="disabled"
     :autofocus="autofocus"
+    :error="error"
     base-color="var(--app-color-border)"
     color="var(--app-color-accent)"
     bg-color="var(--app-color-background-primary)"
@@ -33,8 +35,10 @@ withDefaults(
     type?: string;
     min?: string | number;
     step?: string | number;
+    inputmode?: string;
     disabled?: boolean;
     autofocus?: boolean;
+    error?: boolean;
   }>(),
   {
     id: undefined,
@@ -43,8 +47,10 @@ withDefaults(
     type: "text",
     min: undefined,
     step: undefined,
+    inputmode: undefined,
     disabled: false,
     autofocus: false,
+    error: false,
   },
 );
 

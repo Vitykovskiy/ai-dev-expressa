@@ -10,14 +10,10 @@
           input-id="slot-settings-open"
           :error="errors.workingHoursOpen"
         >
-          <v-text-field
+          <ui-text-field
             id="slot-settings-open"
             :model-value="modelValue.workingHoursOpen"
-            class="slot-settings-form__input"
             type="time"
-            variant="outlined"
-            density="comfortable"
-            hide-details
             :error="Boolean(errors.workingHoursOpen)"
             @update:model-value="
               updateField('workingHoursOpen', normalizeStringValue($event))
@@ -30,14 +26,10 @@
           input-id="slot-settings-close"
           :error="errors.workingHoursClose"
         >
-          <v-text-field
+          <ui-text-field
             id="slot-settings-close"
             :model-value="modelValue.workingHoursClose"
-            class="slot-settings-form__input"
             type="time"
-            variant="outlined"
-            density="comfortable"
-            hide-details
             :error="Boolean(errors.workingHoursClose)"
             @update:model-value="
               updateField('workingHoursClose', normalizeStringValue($event))
@@ -57,17 +49,13 @@
         hint="Сколько активных заказов помещается в один 10-минутный слот"
         :error="errors.slotCapacity"
       >
-        <v-text-field
+        <ui-text-field
           id="slot-settings-capacity"
           :model-value="modelValue.slotCapacity"
-          class="slot-settings-form__input"
           type="number"
           min="1"
           step="1"
           inputmode="numeric"
-          variant="outlined"
-          density="comfortable"
-          hide-details
           :error="Boolean(errors.slotCapacity)"
           @update:model-value="
             updateField('slotCapacity', normalizeStringValue($event))
@@ -103,6 +91,7 @@
 import UiButton from "@/ui/UiButton.vue";
 import UiFormField from "@/ui/UiFormField.vue";
 import UiSectionCard from "@/ui/UiSectionCard.vue";
+import UiTextField from "@/ui/UiTextField.vue";
 import type {
   SlotSettingsFieldErrors,
   SlotSettingsFormDraft,
@@ -150,27 +139,6 @@ function normalizeStringValue(value: unknown): string {
   display: flex;
   flex-direction: column;
   gap: var(--app-spacing-md);
-}
-
-.slot-settings-form__input {
-  :deep(.v-field) {
-    border-radius: var(--app-radius-md);
-  }
-
-  :deep(.v-field__outline) {
-    --v-field-border-opacity: 1;
-
-    color: var(--app-color-border);
-  }
-
-  :deep(.v-field.v-field--focused .v-field__outline) {
-    color: var(--app-color-accent);
-  }
-
-  :deep(input) {
-    color: var(--app-color-text-primary);
-    font-size: 14px;
-  }
 }
 
 .slot-settings-form__alert {

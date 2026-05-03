@@ -26,31 +26,36 @@
       <fieldset class="assign-role-dialog__fieldset" :disabled="isSaving">
         <legend class="assign-role-dialog__legend">Роль</legend>
 
-        <label
-          v-for="option in roleOptions"
-          :key="option.value"
-          class="assign-role-dialog__option"
-          :class="{
-            'assign-role-dialog__option--active': selectedRole === option.value,
-          }"
+        <v-radio-group
+          v-model="selectedRole"
+          class="assign-role-dialog__role-group"
+          hide-details
+          :disabled="isSaving"
         >
-          <input
-            v-model="selectedRole"
-            class="assign-role-dialog__radio"
-            type="radio"
+          <v-radio
+            v-for="option in roleOptions"
+            :key="option.value"
+            class="assign-role-dialog__option"
+            :class="{
+              'assign-role-dialog__option--active':
+                selectedRole === option.value,
+            }"
+            color="primary"
             name="assignedRole"
             :value="option.value"
-          />
-          <span class="assign-role-dialog__radio-mark" aria-hidden="true" />
-          <span class="assign-role-dialog__option-copy">
-            <span class="assign-role-dialog__option-title">
-              {{ option.label }}
-            </span>
-            <span class="assign-role-dialog__option-description">
-              {{ option.description }}
-            </span>
-          </span>
-        </label>
+          >
+            <template #label>
+              <span class="assign-role-dialog__option-copy">
+                <span class="assign-role-dialog__option-title">
+                  {{ option.label }}
+                </span>
+                <span class="assign-role-dialog__option-description">
+                  {{ option.description }}
+                </span>
+              </span>
+            </template>
+          </v-radio>
+        </v-radio-group>
       </fieldset>
 
       <p v-if="inlineError" class="assign-role-dialog__error">
@@ -235,10 +240,13 @@ function handleClose(): void {
   font-weight: 500;
 }
 
+.assign-role-dialog__role-group {
+  :deep(.v-selection-control-group) {
+    gap: 8px;
+  }
+}
+
 .assign-role-dialog__option {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   min-height: 70px;
   padding: 12px;
   border: 1px solid var(--app-color-border);
@@ -249,6 +257,16 @@ function handleClose(): void {
     border-color var(--app-motion-fast) var(--app-motion-easing);
 }
 
+.assign-role-dialog__option :deep(.v-selection-control__wrapper) {
+  margin-inline-end: 12px;
+}
+
+.assign-role-dialog__option :deep(.v-label) {
+  flex: 1;
+  min-width: 0;
+  opacity: 1;
+}
+
 .assign-role-dialog__option:hover,
 .assign-role-dialog__option--active {
   background: var(--app-color-background-secondary);
@@ -256,30 +274,6 @@ function handleClose(): void {
 
 .assign-role-dialog__option--active {
   border-color: var(--app-color-accent);
-}
-
-.assign-role-dialog__radio {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.assign-role-dialog__radio-mark {
-  flex: 0 0 20px;
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--app-color-border-strong);
-  border-radius: 50%;
-}
-
-.assign-role-dialog__radio:checked + .assign-role-dialog__radio-mark {
-  border-color: var(--app-color-accent);
-  background:
-    radial-gradient(circle at center, #ffffff 0 35%, transparent 38%),
-    var(--app-color-accent);
 }
 
 .assign-role-dialog__option-copy {
