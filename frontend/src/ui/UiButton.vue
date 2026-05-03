@@ -4,7 +4,6 @@
     :class="[variantContract.className, { 'app-button--block': block }]"
     :color="variantContract.color"
     :variant="variantContract.variant"
-    :loading="loading"
     :disabled="disabled"
     :icon="iconOnly"
     :type="type"
@@ -23,7 +22,6 @@ import { resolveButtonVariant, type AppButtonVariant } from "@/ui/contracts";
 const props = withDefaults(
   defineProps<{
     variant?: AppButtonVariant;
-    loading?: boolean;
     disabled?: boolean;
     block?: boolean;
     iconOnly?: boolean;
@@ -32,7 +30,6 @@ const props = withDefaults(
   }>(),
   {
     variant: "primary",
-    loading: false,
     disabled: false,
     block: false,
     iconOnly: false,
@@ -63,6 +60,18 @@ const variantContract = computed(() => resolveButtonVariant(props.variant));
 .app-button--primary {
   background: var(--app-color-accent) !important;
   color: var(--app-color-text-on-accent) !important;
+}
+
+.app-button--primary:deep(.v-btn__content) {
+  color: var(--app-color-text-on-accent) !important;
+}
+
+.app-button--primary:deep(.v-btn__overlay) {
+  background: var(--app-color-text-primary);
+}
+
+.app-button--primary.v-btn--disabled:deep(.v-btn__overlay) {
+  opacity: 0.18;
 }
 
 .app-button--secondary {

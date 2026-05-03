@@ -9,7 +9,7 @@
 - Роль: `Фронтенд`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -95,6 +95,10 @@
 - `npm run test:frontend`
 - `npm run typecheck:frontend`
 
+## Комментарии
+
+- `2026-05-03`: User feedback: `UiButton` должен оставаться простым UI-primitive для стилизации. Логику Loader не нужно переносить внутрь `ui`; если нужна кнопка с Loader, это должен быть отдельный компонент.
+
 ## Результат выполнения
 
-`не заполнено`
+`2026-05-03: исправлена читаемость названия Сохранить на primary-кнопке сохранения настроек. UiButton оставлен styling primitive: slot forwarding возвращен к прямому пробросу $slots, loading-логика и фильтрация attrs из UiButton удалены, отдельный UiButton.spec.ts удален. Автоматические проверки прошли: npm run lint:frontend, npm run stylelint:frontend, npm run test:frontend (15 files, 71 tests), npm run typecheck:frontend. Ручная проверка /settings на desktop/mobile не выполнялась.`

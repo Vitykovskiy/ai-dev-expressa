@@ -1,49 +1,69 @@
 <template>
-  <ui-section-card class="users-list" flush>
-    <div
-      v-for="(user, index) in users"
-      :key="user.userId"
-      class="users-list__row"
-      :class="{ 'users-list__row--bordered': index !== users.length - 1 }"
-    >
-      <div class="users-list__identity">
-        <div class="users-list__avatar" aria-hidden="true">
-          {{ getUserInitials(user) }}
-        </div>
-        <div class="users-list__copy">
-          <div class="users-list__name">{{ getUserDisplayLabel(user) }}</div>
-          <div v-if="getUserTelegramLabel(user)" class="users-list__telegram">
-            {{ getUserTelegramLabel(user) }}
+  <ui-data-table
+    class="users-list"
+    :headers="userHeaders"
+    :items="userRows"
+    item-value="userId"
+    hide-default-header
+  >
+    <template #item="{ item }">
+      <tr class="users-list__row">
+        <td class="users-list__identity-cell">
+          <div class="users-list__identity">
+            <div class="users-list__avatar" aria-hidden="true">
+              {{ getUserInitials(item.user) }}
+            </div>
+            <div class="users-list__copy">
+              <div class="users-list__name">
+                {{ getUserDisplayLabel(item.user) }}
+              </div>
+              <div
+                v-if="getUserTelegramLabel(item.user)"
+                class="users-list__telegram"
+              >
+                {{ getUserTelegramLabel(item.user) }}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </td>
 
-      <div class="users-list__meta">
-        <span
-          class="users-list__badge"
-          :class="resolveUserRoleBadge(user.roles).className"
-        >
-          {{ resolveUserRoleBadge(user.roles).label }}
-        </span>
-        <span
-          class="users-list__badge users-list__status"
-          :class="resolveUserStatusBadge(user.blocked).className"
-        >
-          {{ resolveUserStatusBadge(user.blocked).label }}
-        </span>
-        <UserActionsMenu
-          :user="user"
-          :disabled="assigningUserId === user.userId"
-          @assign-role="$emit('assign-role', user)"
-        />
-      </div>
-    </div>
-  </ui-section-card>
+        <td class="users-list__badge-cell">
+          <span
+            class="users-list__badge"
+            :class="resolveUserRoleBadge(item.user.roles).className"
+          >
+            {{ resolveUserRoleBadge(item.user.roles).label }}
+          </span>
+        </td>
+
+        <td class="users-list__status-cell">
+          <span
+            class="users-list__badge users-list__status"
+            :class="resolveUserStatusBadge(item.user.blocked).className"
+          >
+            {{ resolveUserStatusBadge(item.user.blocked).label }}
+          </span>
+        </td>
+
+        <td class="users-list__actions-cell">
+          <UserActionsMenu
+            :user="item.user"
+            :disabled="assigningUserId === item.user.userId"
+            @assign-role="$emit('assign-role', item.user)"
+          />
+        </td>
+      </tr>
+    </template>
+  </ui-data-table>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import UserActionsMenu from "@/components/users/UserActionsMenu.vue";
-import UiSectionCard from "@/ui/UiSectionCard.vue";
+import UiDataTable, {
+  type UiDataTableHeader,
+  type UiDataTableRecord,
+} from "@/ui/UiDataTable.vue";
 import {
   getUserDisplayLabel,
   getUserInitials,
@@ -53,7 +73,7 @@ import {
 } from "@/modules/users/presentation";
 import type { UserManagementUser } from "@/modules/users/types";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     users: readonly UserManagementUser[];
     assigningUserId?: string | null;
@@ -66,6 +86,25 @@ withDefaults(
 defineEmits<{
   "assign-role": [user: UserManagementUser];
 }>();
+
+interface UserTableRow extends UiDataTableRecord {
+  userId: string;
+  user: UserManagementUser;
+}
+
+const userHeaders: UiDataTableHeader<UiDataTableRecord>[] = [
+  { key: "identity", title: "Пользователь", sortable: false },
+  { key: "role", title: "Роль", sortable: false },
+  { key: "status", title: "Статус", sortable: false },
+  { key: "actions", title: "Действия", align: "end", sortable: false },
+];
+
+const userRows = computed<UserTableRow[]>(() =>
+  props.users.map((user) => ({
+    userId: user.userId,
+    user,
+  })),
+);
 </script>
 
 <style scoped lang="scss">
@@ -74,16 +113,29 @@ defineEmits<{
 }
 
 .users-list__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--app-spacing-md);
-  min-height: 68px;
-  padding: 14px var(--app-spacing-md);
+  height: 68px;
 }
 
-.users-list__row--bordered {
-  border-bottom: 1px solid var(--app-color-border);
+.users-list__row td {
+  padding: 14px 0;
+  vertical-align: middle;
+}
+
+.users-list__identity-cell {
+  width: 100%;
+  padding-left: var(--app-spacing-md) !important;
+}
+
+.users-list__badge-cell,
+.users-list__status-cell,
+.users-list__actions-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.users-list__actions-cell {
+  padding-right: 8px !important;
+  text-align: right;
 }
 
 .users-list__identity {
@@ -132,13 +184,6 @@ defineEmits<{
   white-space: nowrap;
 }
 
-.users-list__meta {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
 .users-list__badge {
   display: inline-flex;
   align-items: center;
@@ -173,16 +218,25 @@ defineEmits<{
 
 @media (max-width: 599px) {
   .users-list__row {
-    align-items: flex-start;
+    height: auto;
+    min-height: 68px;
   }
 
-  .users-list__meta {
-    flex-wrap: wrap;
-    max-width: 148px;
+  .users-list__row td {
+    padding-top: 14px;
+    padding-bottom: 14px;
   }
 
-  .users-list__status {
+  .users-list__identity-cell {
+    max-width: 1px;
+  }
+
+  .users-list__status-cell {
     display: none;
+  }
+
+  .users-list__actions-cell {
+    padding-right: 4px !important;
   }
 }
 </style>
