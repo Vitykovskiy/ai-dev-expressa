@@ -4,10 +4,14 @@ import { getCatalog } from "./support/menu-catalog-api";
 import { annotateScenarioIds } from "./support/menu-catalog-auth";
 import {
   assignOptionGroupToCategory,
+  categoryRow,
   createCategory,
   createDrink,
   createRegularItem,
   expandCategory,
+  itemRow,
+  menuCatalogSection,
+  menuCatalogTable,
 } from "./support/menu-catalog-ui";
 
 test.describe("administrator menu catalog management", () => {
@@ -73,6 +77,18 @@ test.describe("administrator menu catalog management", () => {
 
     await createCategory(page, categoryName);
     await expect(page.getByText(categoryName, { exact: true })).toBeVisible();
+    await expect(menuCatalogTable(page)).toBeVisible();
+    await expect(menuCatalogSection(page, "Основное меню")).toBeVisible();
+    await categoryRow(page, categoryName)
+      .getByTitle("Редактировать группу")
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Редактировать группу" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Отмена" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Редактировать группу" }),
+    ).toBeHidden();
 
     await createRegularItem(page, {
       categoryName,
@@ -93,11 +109,20 @@ test.describe("administrator menu catalog management", () => {
     await expect(
       page.getByText("S: 190 ₽ · M: 230 ₽ · L: 270 ₽", { exact: true }),
     ).toBeVisible();
+    await itemRow(page, regularItemName).click();
+    await expect(
+      page.getByRole("heading", { name: "Редактировать товар" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Отмена" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Редактировать товар" }),
+    ).toBeHidden();
 
     await createCategory(page, optionGroupName, { isOptionGroup: true });
     await expect(
       page.getByText(optionGroupName, { exact: true }),
     ).toBeVisible();
+    await expect(menuCatalogSection(page, "Группы опций")).toBeVisible();
 
     await createRegularItem(page, {
       categoryName: optionGroupName,

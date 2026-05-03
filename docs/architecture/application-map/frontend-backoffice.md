@@ -62,16 +62,16 @@
 
 ## FEATURE-002 frontend implementation map
 
-| Путь                                                                 | Назначение                                                                                                                                               |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontend/src/ui/*.vue`                                              | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, empty states и toggle/status patterns. |
-| `frontend/src/views/MenuCatalogView.vue`                             | Экран `/menu`: категории, товары, цены, группы опций через флаг категории и назначение групп опций на категории.                                         |
-| `frontend/src/components/menu-catalog/*.vue`                         | Feature-specific компоненты каталога меню: список категорий, формы категорий и товаров.                                                                  |
-| `frontend/src/modules/menu-catalog/view-model.ts`                    | Form state, derived state и orchestration логика экрана меню без transport details.                                                                      |
-| `frontend/src/modules/menu-catalog/types.ts`                         | Клиентские типы consumer-facing contract `Manage menu catalog`.                                                                                          |
-| `frontend/src/modules/menu-catalog/api.ts`                           | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract.                                                   |
-| `frontend/src/modules/menu-catalog/store.ts`                         | Локальное состояние snapshot каталога и операции сохранения через backend contract.                                                                      |
-| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation.                                                                 |
+| Путь                                                                 | Назначение                                                                                                                                                            |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/ui/*.vue`                                              | Канонические backoffice primitives поверх `Vuetify`: shell, buttons, dialogs, field wrappers, section containers, data tables, empty states и toggle/status patterns. |
+| `frontend/src/views/MenuCatalogView.vue`                             | Экран `/menu`: категории, товары, цены, группы опций через флаг категории и назначение групп опций на категории.                                                      |
+| `frontend/src/components/menu-catalog/*.vue`                         | Feature-specific компоненты каталога меню: список категорий, формы категорий и товаров.                                                                               |
+| `frontend/src/modules/menu-catalog/view-model.ts`                    | Form state, derived state и orchestration логика экрана меню без transport details.                                                                                   |
+| `frontend/src/modules/menu-catalog/types.ts`                         | Клиентские типы consumer-facing contract `Manage menu catalog`.                                                                                                       |
+| `frontend/src/modules/menu-catalog/api.ts`                           | Client API boundary для `/backoffice/menu/*` с Telegram/test-mode headers из backoffice auth contract.                                                                |
+| `frontend/src/modules/menu-catalog/store.ts`                         | Локальное состояние snapshot каталога и операции сохранения через backend contract.                                                                                   |
+| `frontend/src/modules/menu-catalog/validation.ts`, `presentation.ts` | UI-валидация форм, mapping ошибок и presentation helpers без подмены backend validation.                                                                              |
 
 ## Code architecture standard for FEATURE-006
 

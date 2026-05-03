@@ -9,7 +9,7 @@
 - Роль: `Фронтенд`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -100,4 +100,14 @@
 
 ## Результат выполнения
 
-`не заполнено`
+2026-05-03: список групп меню переведен на `ui-data-table` с группировкой `Основное меню` и `Группы опций`; раскрытие групп, пустые состояния, счетчики, цены и edit-flow группы/товара сохранены.
+
+Проверки:
+
+- `npm run lint:frontend` — пройдена.
+- `npm run stylelint:frontend` — пройдена.
+- `npm run format:check:frontend` — пройдена.
+- `npm run typecheck:frontend` — пройдена.
+- `npm run test:frontend` — пройдена, 15 файлов и 71 тест.
+- `npm run build:frontend` — пройдена.
+- `E2E_BASE_URL=http://localhost:5173 E2E_BACKEND_BASE_URL=http://localhost:3000 npm run test:e2e -- menu-catalog/admin-menu-catalog-save.spec.ts menu-catalog/admin-menu-catalog-validation.spec.ts` — пройдена, 5 тестов.

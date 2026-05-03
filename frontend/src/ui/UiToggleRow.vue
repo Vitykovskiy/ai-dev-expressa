@@ -12,7 +12,11 @@
       hide-details
       inset
       @update:model-value="emit('update:modelValue', Boolean($event))"
-    />
+    >
+      <template v-for="(_, name) in $slots" #[name]="slotProps">
+        <slot :name="name" v-bind="slotProps" />
+      </template>
+    </v-switch>
   </div>
 </template>
 

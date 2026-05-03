@@ -91,7 +91,8 @@ async function handleAssignRoleClick(): Promise<void> {
 .user-actions-menu {
   min-width: 220px;
   padding: 4px;
-  border: 1px solid var(--app-color-border);
+  border-radius: 10px !important;
+  background: var(--app-color-background-surface);
   box-shadow: var(--app-shadow-modal);
 }
 
@@ -101,9 +102,19 @@ async function handleAssignRoleClick(): Promise<void> {
 
 .user-actions-menu__item {
   min-height: 40px;
+  padding: 10px 12px !important;
   border-radius: 8px !important;
   color: var(--app-color-text-primary);
   font-size: 14px;
+}
+
+.user-actions-menu__item :deep(.v-list-item__prepend) {
+  align-self: center;
+  margin-inline-end: 12px;
+}
+
+.user-actions-menu__item :deep(.v-list-item__spacer) {
+  width: 0;
 }
 
 .user-actions-menu__item :deep(.v-list-item-title) {
@@ -125,6 +136,7 @@ async function handleAssignRoleClick(): Promise<void> {
 
 .user-actions-menu__divider {
   margin: 4px 0;
-  color: var(--app-color-border);
+  border-color: var(--app-color-border);
+  opacity: 1;
 }
 </style>

@@ -19,6 +19,7 @@
 - `ui-empty-state`: иконка, заголовок, подзаголовок и опциональный слот `actions`.
 - `ui-section-card`: контейнер секции с `title`, `subtitle`, слотом `actions`.
 - `ui-section-list`: вариант секции со flush-body для списков и row-based layout.
+- `ui-data-table`: базовая таблица backoffice поверх Vuetify `v-data-table`. Интерфейс: `headers`, `items`, `itemValue`, `groupBy`; слоты пробрасываются в `v-data-table` без allowlist и используют имена Vuetify.
 - `ui-form-field`: label/hint/error shell для input controls.
 - `ui-text-field`: текстовый/числовой input на Vuetify с каноническими radius, border и focus styles.
 - `ui-select`: select control на Vuetify с каноническими radius, border и focus styles.
