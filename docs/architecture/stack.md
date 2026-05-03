@@ -10,6 +10,13 @@
 - React-референс `.references/Expressa_admin` является визуальным и поведенческим ориентиром, но не задаёт технологический стек реализации.
 - Сервисы должны оставаться независимыми по границам ответственности; общая авторизация не должна смешиваться с управлением меню, слотами, ролями или блокировкой.
 
+## Назначенные инструменты и official documentation routes
+
+- Клиентский контур: `Vue 3` (`https://vuejs.org/guide/`) и `Vuetify` (`https://vuetifyjs.com/en/components/all/`).
+- Серверный контур: `NestJS` (`https://docs.nestjs.com/`).
+- Runtime и delivery: `Docker Compose` (`https://docs.docker.com/compose/`), GitHub Actions (`https://docs.github.com/en/actions`), npm scripts (`https://docs.npmjs.com/cli/using-npm/scripts`), Husky (`https://typicode.github.io/husky/`) и lint-staged (`https://github.com/lint-staged/lint-staged`).
+- QA и automated tests: `Playwright` (`https://playwright.dev/docs/intro`) и `Vitest` (`https://vitest.dev/guide/`).
+
 ## Конфигурационные решения для FEATURE-001
 
 - `ADMIN_TELEGRAM_ID` — обязательное production/test значение для идемпотентного создания главного `administrator`.

@@ -6,6 +6,8 @@
 - Для backoffice UI используется `Vuetify`.
 - React-референсы из `.references/Expressa_admin` применяются как визуальный и поведенческий ориентир, но не как стек реализации.
 - Клиентский код не является источником истины по ролям, Telegram identity или test-mode доступу.
+- Official documentation route для tooling-first проверки клиентского контура: `Vue 3` — `https://vuejs.org/guide/`, `Vuetify` — `https://vuetifyjs.com/en/components/all/`, `Vitest` — `https://vitest.dev/guide/`.
+- Канонический UI primitive layer находится в `frontend/src/ui/`; рабочий каталог компонентов находится в `frontend/src/ui/README.md`.
 
 ## Для FEATURE-001
 
