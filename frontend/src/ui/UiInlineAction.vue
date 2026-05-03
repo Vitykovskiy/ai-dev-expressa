@@ -6,7 +6,7 @@
     :loading="loading"
   >
     <template v-for="(_, name) in $slots" #[name]="slotProps">
-      <slot :name="name" v-bind="slotProps" />
+      <slot :name="name" v-bind="slotProps ?? {}" />
     </template>
   </ui-button>
 </template>

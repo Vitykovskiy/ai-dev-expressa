@@ -9,14 +9,15 @@
     :type="type"
     :title="title"
   >
-    <template v-for="(_, name) in $slots" #[name]="slotProps">
-      <slot :name="name" v-bind="slotProps" />
+    <slot />
+    <template v-for="(_, name) in namedSlots" #[name]="slotProps">
+      <slot :name="name" v-bind="slotProps ?? {}" />
     </template>
   </v-btn>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 import { resolveButtonVariant, type AppButtonVariant } from "@/ui/contracts";
 
 const props = withDefaults(
@@ -38,7 +39,13 @@ const props = withDefaults(
   },
 );
 
+const slots = useSlots();
 const variantContract = computed(() => resolveButtonVariant(props.variant));
+const namedSlots = computed(() =>
+  Object.fromEntries(
+    Object.entries(slots).filter(([name]) => name !== "default"),
+  ),
+);
 </script>
 
 <style scoped lang="scss">
