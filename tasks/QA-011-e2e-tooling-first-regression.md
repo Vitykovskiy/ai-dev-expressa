@@ -161,3 +161,23 @@ Coverage mapping повторно проверен по существующим
 Shared helper location check: reused helpers are under `e2e/access/support/**`, `e2e/menu-catalog/support/**`, `e2e/slot-settings/support/**`.
 
 No new `BUG-*` task created in this step because the canonical browser e2e suite passed and no reproducible e2e defect was found.
+
+Дата повторной приемочной проверки после отклонения: `2026-05-03`
+
+Regression failure reproduced:
+
+- `npm run test:e2e` против canonical `https://expressa-e2e-test.vitykovskiy.ru`: `30 passed`, `1 failed`.
+- Failed test: `e2e/access/administrator-user-role-list.spec.ts` — `F004-SC-001 administrator sees users list`.
+- Причина: QA-owned e2e assertion использовал глобальный `getByText("Активен", { exact: true })`; текущие данные published `test-e2e` route содержат два активных пользователя, поэтому Playwright strict mode получил два совпадения.
+
+QA-owned correction:
+
+- `e2e/access/administrator-user-role-list.spec.ts` теперь находит строку пользователя по точному Telegram id из ответа `/backoffice/user-management/users` и проверяет статус внутри этой строки.
+- Product code, runtime route, contracts и system docs не изменялись.
+
+Verification after correction:
+
+- `npm --prefix e2e test -- access/administrator-user-role-list.spec.ts`: `1 passed`.
+- `npm run test:e2e` против canonical `https://expressa-e2e-test.vitykovskiy.ru`: `31 passed`.
+
+No new `BUG-*` task created in this step because the reproduced failure was limited to QA-owned e2e locator strictness and was fixed inside `e2e/**`.
