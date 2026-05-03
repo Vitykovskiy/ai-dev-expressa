@@ -1,14 +1,24 @@
 import "reflect-metadata";
 import { createHmac } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { Test, TestingModule } from "@nestjs/testing";
+import { afterEach, describe, expect, it } from "vitest";
 import { BackofficeAuthService } from "../src/identity-access/auth/backoffice-auth.service";
 import { TelegramInitDataVerifier } from "../src/identity-access/auth/telegram-init-data.verifier";
 import { BootstrapAdministratorService } from "../src/identity-access/bootstrap/bootstrap-administrator.service";
 import { AccessConfig } from "../src/identity-access/config/access-config";
+import { provideAccessConfig } from "../src/identity-access/identity-access.tokens";
 import { InMemoryUserRepository } from "../src/identity-access/users/in-memory-user.repository";
 import { IdentityAccessService } from "../src/identity-access/users/identity-access.service";
+import { USER_REPOSITORY } from "../src/identity-access/users/user.repository";
+
+let moduleRef: TestingModule | undefined;
 
 describe("BackofficeAuthService", () => {
+  afterEach(async () => {
+    await moduleRef?.close();
+    moduleRef = undefined;
+  });
+
   it("allows test-mode bypass for bootstrapped administrator in test environment", async () => {
     const { auth } = await setup({
       environment: "test",
@@ -76,14 +86,24 @@ describe("BackofficeAuthService", () => {
 async function setup(
   config: AccessConfig,
 ): Promise<{ auth: BackofficeAuthService }> {
-  const identity = new IdentityAccessService(new InMemoryUserRepository());
-  await new BootstrapAdministratorService(config, identity).bootstrap();
+  moduleRef = await Test.createTestingModule({
+    providers: [
+      provideAccessConfig(config),
+      {
+        provide: USER_REPOSITORY,
+        useClass: InMemoryUserRepository,
+      },
+      IdentityAccessService,
+      BootstrapAdministratorService,
+      TelegramInitDataVerifier,
+      BackofficeAuthService,
+    ],
+  }).compile();
+
+  await moduleRef.get(BootstrapAdministratorService).bootstrap();
+
   return {
-    auth: new BackofficeAuthService(
-      config,
-      identity,
-      new TelegramInitDataVerifier(),
-    ),
+    auth: moduleRef.get(BackofficeAuthService),
   };
 }
 

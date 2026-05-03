@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { describe, expect, it } from "vitest";
+import { Test, TestingModule } from "@nestjs/testing";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   InvalidDrinkSizeModelError,
   InvalidOptionGroupRuleError,
@@ -7,7 +8,19 @@ import {
 import { MenuCatalogValidator } from "../src/menu-catalog/domain/menu-catalog.validator";
 
 describe("MenuCatalogValidator", () => {
-  const validator = new MenuCatalogValidator();
+  let moduleRef: TestingModule;
+  let validator: MenuCatalogValidator;
+
+  beforeEach(async () => {
+    moduleRef = await Test.createTestingModule({
+      providers: [MenuCatalogValidator],
+    }).compile();
+    validator = moduleRef.get(MenuCatalogValidator);
+  });
+
+  afterEach(async () => {
+    await moduleRef.close();
+  });
 
   it("FTS-002-008 rejects a drink without the complete S/M/L price model", () => {
     expect(() =>
