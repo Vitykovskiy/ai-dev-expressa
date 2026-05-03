@@ -10,90 +10,98 @@
     </div>
 
     <div v-else class="category-list">
-      <div
-        v-for="section in visibleSections"
-        :key="section.title"
-        class="category-section"
+      <ui-data-table
+        :headers="categoryHeaders"
+        :items="categoryRows"
+        :group-by="categoryGroupBy"
+        item-value="menuCategoryId"
+        hide-default-header
       >
-        <h2 class="category-section__title">{{ section.title }}</h2>
+        <template #group-header="{ item, columns }">
+          <tr class="category-table__group-row">
+            <th :colspan="columns.length" scope="colgroup">
+              {{ sectionTitleByOrder(item.value) }}
+            </th>
+          </tr>
+        </template>
 
-        <ui-section-list class="category-section__panel">
-          <div
-            v-for="(category, categoryIndex) in section.categories"
-            :key="category.menuCategoryId"
-            class="category-block"
-            :class="{ 'category-block--divided': categoryIndex > 0 }"
-          >
-            <div class="category-row">
+        <template #item="{ item, internalItem, isExpanded, toggleExpand }">
+          <tr class="category-table__category-row">
+            <td>
               <ui-button
                 class="category-row__main"
                 variant="ghost"
-                @click="toggleCategory(category.menuCategoryId)"
+                @click="toggleExpand(internalItem)"
               >
                 <span class="category-row__content">
                   <span class="category-row__label">
                     <component
                       :is="
-                        expandedCategoryIds.has(category.menuCategoryId)
-                          ? ChevronDown
-                          : ChevronRight
+                        isExpanded(internalItem) ? ChevronDown : ChevronRight
                       "
                       :size="20"
                     />
                     <span>
-                      <strong>{{ category.name }}</strong>
+                      <strong>{{ item.category.name }}</strong>
                       <small>{{
-                        section.countLabel(
-                          categoryItemsMap[category.menuCategoryId]?.length ??
-                            0,
+                        item.countLabel(
+                          categoryItemsMap[item.menuCategoryId]?.length ?? 0,
                         )
                       }}</small>
                     </span>
                   </span>
                 </span>
               </ui-button>
+            </td>
+            <td class="category-table__edit-cell">
               <ui-icon-button
                 class="category-row__edit"
                 title="Редактировать группу"
-                @click="$emit('edit-category', category)"
+                @click="$emit('edit-category', item.category)"
               >
                 <Edit3 :size="18" />
               </ui-icon-button>
-            </div>
+            </td>
+          </tr>
+        </template>
 
-            <div
-              v-if="expandedCategoryIds.has(category.menuCategoryId)"
-              class="category-detail"
-            >
-              <div
-                v-if="
-                  (categoryItemsMap[category.menuCategoryId]?.length ?? 0) === 0
-                "
-                class="category-empty"
-              >
-                <Coffee :size="32" class="category-empty__icon" />
-                <p class="category-empty__text">{{ section.emptyText }}</p>
-              </div>
+        <template #expanded-row="{ item, columns }">
+          <tr class="category-table__detail-row">
+            <td :colspan="columns.length">
+              <div class="category-detail">
+                <div
+                  v-if="
+                    (categoryItemsMap[item.menuCategoryId]?.length ?? 0) === 0
+                  "
+                  class="category-empty"
+                >
+                  <Coffee :size="32" class="category-empty__icon" />
+                  <p class="category-empty__text">
+                    {{ item.emptyText }}
+                  </p>
+                </div>
 
-              <ui-button
-                v-for="item in categoryItemsMap[category.menuCategoryId] ?? []"
-                :key="item.menuItemId"
-                class="product-row"
-                variant="ghost"
-                @click="$emit('edit-item', item)"
-              >
-                <span class="product-row__content">
-                  <span>
-                    <strong>{{ item.name }}</strong>
-                    <small>{{ section.priceLabel(item) }}</small>
+                <ui-button
+                  v-for="menuItem in categoryItemsMap[item.menuCategoryId] ??
+                  []"
+                  :key="menuItem.menuItemId"
+                  class="product-row"
+                  variant="ghost"
+                  @click="$emit('edit-item', menuItem)"
+                >
+                  <span class="product-row__content">
+                    <span>
+                      <strong>{{ menuItem.name }}</strong>
+                      <small>{{ item.priceLabel(menuItem) }}</small>
+                    </span>
+                    <ChevronRight :size="18" />
                   </span>
-                  <ChevronRight :size="18" />
-                </span>
-              </ui-button>
-            </div>
-          </div>
-        </ui-section-list>
-      </div>
+                </ui-button>
+              </div>
+            </td>
+          </tr>
+        </template>
+      </ui-data-table>
     </div>
   </div>
 </template>
@@ -106,11 +114,15 @@ import {
   Coffee,
   Edit3,
 } from "lucide-vue-next";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import UiButton from "@/ui/UiButton.vue";
+import UiDataTable, {
+  type UiDataTableGroupBy,
+  type UiDataTableHeader,
+  type UiDataTableRecord,
+} from "@/ui/UiDataTable.vue";
 import UiEmptyState from "@/ui/UiEmptyState.vue";
 import UiIconButton from "@/ui/UiIconButton.vue";
-import UiSectionList from "@/ui/UiSectionList.vue";
 import {
   itemCountLabel,
   itemPriceLabel,
@@ -131,7 +143,6 @@ defineEmits<{
   "edit-option-group": [optionGroupId: string];
 }>();
 
-const expandedCategoryIds = ref<Set<string>>(new Set());
 const optionGroupCategoryIdSet = computed(
   () => new Set(props.optionGroupCategoryIds),
 );
@@ -145,9 +156,20 @@ const optionCategories = computed(() =>
     optionGroupCategoryIdSet.value.has(category.menuCategoryId),
   ),
 );
+
+interface CategorySection {
+  order: number;
+  title: string;
+  categories: MenuCategory[];
+  emptyText: string;
+  countLabel: (count: number) => string;
+  priceLabel: (item: MenuItem) => string;
+}
+
 const visibleSections = computed(() =>
   [
     {
+      order: 0,
       title: "Основное меню",
       categories: regularCategories.value,
       emptyText: "Товаров в этой группе пока нет",
@@ -155,6 +177,7 @@ const visibleSections = computed(() =>
       priceLabel: (item: MenuItem) => itemPriceLabel(item),
     },
     {
+      order: 1,
       title: "Группы опций",
       categories: optionCategories.value,
       emptyText: "Опций в этой группе пока нет",
@@ -165,15 +188,42 @@ const visibleSections = computed(() =>
   ].filter((section) => section.categories.length > 0),
 );
 
-function toggleCategory(menuCategoryId: string): void {
-  const next = new Set(expandedCategoryIds.value);
-  if (next.has(menuCategoryId)) {
-    next.delete(menuCategoryId);
-  } else {
-    next.add(menuCategoryId);
-  }
+interface CategoryTableRow extends UiDataTableRecord {
+  menuCategoryId: string;
+  sectionOrder: number;
+  category: MenuCategory;
+  emptyText: string;
+  countLabel: (count: number) => string;
+  priceLabel: (item: MenuItem) => string;
+}
 
-  expandedCategoryIds.value = next;
+const categoryHeaders: UiDataTableHeader<UiDataTableRecord>[] = [
+  { key: "name", title: "Группа", sortable: false },
+  { key: "actions", title: "Действия", align: "end", sortable: false },
+];
+const categoryGroupBy: UiDataTableGroupBy[] = [
+  { key: "sectionOrder", order: "asc" },
+];
+const categoryRows = computed<CategoryTableRow[]>(() =>
+  visibleSections.value.flatMap((section: CategorySection) =>
+    section.categories.map((category) => ({
+      menuCategoryId: category.menuCategoryId,
+      sectionOrder: section.order,
+      category,
+      emptyText: section.emptyText,
+      countLabel: section.countLabel,
+      priceLabel: section.priceLabel,
+    })),
+  ),
+);
+
+function sectionTitleByOrder(value: unknown): string {
+  const sectionOrder = typeof value === "number" ? value : Number(value);
+  const section = visibleSections.value.find(
+    (candidate) => candidate.order === sectionOrder,
+  );
+
+  return section?.title ?? String(value);
 }
 </script>
 
@@ -187,38 +237,32 @@ function toggleCategory(menuCategoryId: string): void {
   padding: 0;
 }
 
-.category-list,
-.category-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.category-table__group-row {
+  background: var(--app-color-background-secondary);
 }
 
-.category-section + .category-section {
-  margin-top: 12px;
-}
-
-.category-section__title {
-  margin: 0 4px;
+.category-table__group-row th {
+  padding: 10px 16px;
   color: var(--app-color-text-muted);
   font-size: 12px;
   line-height: 16px;
   font-weight: 600;
+  text-align: left;
   text-transform: uppercase;
 }
 
-.category-section__panel {
-  overflow: hidden;
-}
-
-.category-block--divided {
-  border-top: 1px solid var(--app-color-border);
-}
-
-.category-row {
-  display: flex;
-  align-items: stretch;
+.category-table__category-row {
   background: var(--app-color-background-secondary);
+}
+
+.category-table__category-row td,
+.category-table__detail-row td {
+  padding: 0;
+}
+
+.category-table__edit-cell {
+  width: 72px;
+  text-align: right;
 }
 
 .category-row__main,

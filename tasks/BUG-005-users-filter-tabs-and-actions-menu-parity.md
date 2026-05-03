@@ -9,7 +9,7 @@
 - Роль: `Фронтенд`
 - Контурная карта: `docs/architecture/application-map/frontend-backoffice.md`
 - Приоритет: `Высокий`
-- Статус: `Готова к работе`
+- Статус: `Выполнена`
 
 ## Цель
 
@@ -85,4 +85,4 @@
 
 ## Результат выполнения
 
-`не заполнено`
+`2026-05-03 16:43 MSK: исправлены frontend-компоненты фильтров и меню действий пользователей: frontend/src/components/users/UsersFilterTabs.vue и frontend/src/components/users/UserActionsMenu.vue. Автоматические проверки подтверждены worker chain: npm run test:frontend прошел, npm run typecheck:frontend прошел. Browser parity check через локальный backend 3000, frontend 5174 и Playwright подтвердил состояния filter pills, видимый разделитель меню и 12px gap между иконкой и текстом для доступных действий; пункт Разблокировать не проверен, потому что в локальных данных не было заблокированного пользователя.`

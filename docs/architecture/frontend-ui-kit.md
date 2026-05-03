@@ -6,7 +6,7 @@
 
 ## Границы
 
-- `frontend/src/ui/` содержит только backoffice-wide primitives: shell navigation, top bar, section containers, empty states, dialog shell, button variants, field shell, toggle row, status badge и близкие паттерны.
+- `frontend/src/ui/` содержит только backoffice-wide primitives: shell navigation, top bar, section containers, empty states, dialog shell, button variants, field shell, toggle row, data table, status badge и близкие паттерны.
 - `components/<feature>/` содержит только feature-specific composition и не должен заново определять базовые кнопки, панели, top bar, dialog chrome, tab bar, side nav или empty state.
 - `views/` используют `ui-*` компоненты для route-level layout и orchestration, но не владеют собственным визуальным контрактом shell.
 

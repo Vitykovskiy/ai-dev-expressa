@@ -52,34 +52,40 @@ function isUsersFilter(value: unknown): value is UsersFilter {
 <style scoped lang="scss">
 .users-filter-tabs {
   display: flex;
-  gap: 6px;
-  padding: 0 var(--app-spacing-md) var(--app-spacing-sm);
+  gap: 8px;
+  padding: 12px var(--app-spacing-md);
   overflow-x: auto;
-  background: transparent;
+  background: var(--app-color-background-primary);
+  border-bottom: 1px solid var(--app-color-border);
 }
 
 @media (min-width: 960px) {
   .users-filter-tabs {
     padding: 0;
+    border-bottom: 0;
   }
 }
 
 .users-filter-tabs__button {
   min-height: 34px;
-  border-color: var(--app-color-border);
-  background: var(--app-color-background-surface) !important;
+  padding: 0 16px !important;
+  border-color: transparent !important;
+  background: var(--app-color-background-secondary) !important;
   color: var(--app-color-text-secondary) !important;
   font-size: 13px;
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .users-filter-tabs__button.v-btn--active {
-  border-color: var(--app-color-accent) !important;
-  background: var(--app-color-accent-light) !important;
-  color: var(--app-color-accent) !important;
+  border-color: transparent !important;
+  background: var(--app-color-accent) !important;
+  color: var(--app-color-text-on-accent) !important;
 }
 
 .users-filter-tabs__button :deep(.v-btn__content) {

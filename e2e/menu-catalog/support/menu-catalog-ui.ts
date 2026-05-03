@@ -69,7 +69,7 @@ export async function assignOptionGroupToCategory(
     readonly optionGroupName: string;
   },
 ): Promise<void> {
-  await categoryBlock(page, input.categoryName)
+  await categoryRow(page, input.categoryName)
     .getByTitle("Редактировать группу")
     .click();
   await expect(
@@ -90,8 +90,8 @@ export async function expandCategory(
   page: Page,
   categoryName: string,
 ): Promise<void> {
-  const block = categoryBlock(page, categoryName);
-  const main = block
+  const row = categoryRow(page, categoryName);
+  const main = row
     .getByRole("button")
     .filter({ hasText: categoryName })
     .first();
@@ -99,9 +99,37 @@ export async function expandCategory(
 }
 
 export function categoryBlock(page: Page, categoryName: string): Locator {
-  return page.locator(".category-block").filter({
-    has: page.getByText(categoryName, { exact: true }),
+  return categoryRow(page, categoryName);
+}
+
+export function menuCatalogTable(page: Page): Locator {
+  return page.locator("table").filter({
+    has: page.getByText("Основное меню", { exact: true }),
   });
+}
+
+export function menuCatalogSection(page: Page, sectionName: string): Locator {
+  return menuCatalogTable(page)
+    .locator("tr")
+    .filter({
+      has: page.getByText(sectionName, { exact: true }),
+    });
+}
+
+export function categoryRow(page: Page, categoryName: string): Locator {
+  return menuCatalogTable(page)
+    .locator("tr")
+    .filter({
+      has: page.getByText(categoryName, { exact: true }),
+    });
+}
+
+export function itemRow(page: Page, itemName: string): Locator {
+  return menuCatalogTable(page)
+    .locator("tr")
+    .filter({
+      has: page.getByText(itemName, { exact: true }),
+    });
 }
 
 export function fieldByLabel(

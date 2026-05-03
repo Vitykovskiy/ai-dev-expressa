@@ -19,7 +19,11 @@
     variant="outlined"
     density="comfortable"
     hide-details
-  />
+  >
+    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+      <slot :name="slotName" v-bind="slotProps" />
+    </template>
+  </v-select>
 </template>
 
 <script setup lang="ts">
