@@ -77,7 +77,8 @@ NESTED_SUBAGENTS: disabled
 - создать `WORKDIR` и `<WORKDIR>/worker-results/`;
 - создать пустой или минимальный `<WORKDIR>/orchestration-checkpoint.md`;
 - запускать `Universal Worker` субагентов по одному;
-- выполнять `git status --short`, `git diff --name-only`, `git diff --stat`;
+- выполнять `git status --short`, `git diff --name-only`, `git diff --stat`, `git diff --cached --name-only`;
+- выполнять `git add <task-scoped-files>`, `git commit` и `git log -1 --oneline` для итогового commit завершенной task-card;
 - читать `execution-plan.md`, `orchestration-checkpoint.md` и последний worker-result;
 - обновлять `orchestration-checkpoint.md` кратким состоянием;
 - обновлять `execution-plan.md` только если worker явно не смог записать технический статус и это нужно для продолжения очереди;
@@ -150,6 +151,33 @@ NESTED_SUBAGENTS: disabled
 После выполнения запиши краткий результат в WORKDIR/worker-results/ и остановись.
 ```
 
+## Commit после завершения задачи
+
+Когда worker-result и `execution-plan.md` подтверждают, что все обязательные пункты выполнены, а source task-card закрыта, главный оркестратор должен создать итоговый git commit до финального ответа.
+
+Порядок:
+
+1. Выполни `git status --short` и `git diff --name-only`.
+2. Выбери task-scoped files за пределами `WORKDIR`: файлы из `Files changed` в worker-results, `<TASK_CARD>` и файлы, явно указанные в `execution-plan.md` как результат текущей задачи.
+3. Выполни `git add <task-scoped-files>`.
+4. Проверь staged-состав через `git diff --cached --name-only`.
+5. Выполни `git commit` с Conventional Commits сообщением, включающим `TASK_ID`.
+6. Выполни `git log -1 --oneline` и `git status --short`.
+7. Запиши commit hash в `orchestration-checkpoint.md` и финальный ответ.
+
+#### Scope Constraints
+
+- Итоговый commit является частью завершения каждой выполненной task-card.
+- Pre-commit hook, вызванный `git commit`, является штатной частью commit step.
+- Push выполняется после отдельного явного запроса человека.
+
+#### Safety Constraints
+
+- Итоговый commit включает только изменения текущей task-card.
+- Изменения вне текущей task-card остаются вне staging area.
+- `WORKDIR` остается временным состоянием workflow и не включается в итоговый commit.
+- Если `git commit` или pre-commit hook возвращает локальную repo-scoped ошибку, главный оркестратор должен классифицировать ее как разрешимый blocker и запустить `Universal Worker` для resolver-подзадачи.
+
 ## Hard-blocker audit before stopping
 
 Не принимай `Status: hard-blocked` от worker'а как окончательный стоп автоматически.
@@ -168,7 +196,7 @@ NESTED_SUBAGENTS: disabled
 
 Остановись, если:
 
-- все обязательные пункты `execution-plan.md` имеют статус `done` и source task-card закрыта;
+- все обязательные пункты `execution-plan.md` имеют статус `done`, source task-card закрыта и итоговый commit создан;
 - hard-blocker audit подтвердил, что blocker действительно требует человека или внешнего недоступного ресурса;
 - видимый контекст главного агента достиг `>= 40%`;
 - worker-results стали длинными и начинают раздувать основной чат;
@@ -197,6 +225,7 @@ NESTED_SUBAGENTS: disabled
 - найден воспроизводимый BUG с ясным контуром причины;
 - причина QA blocker'а неясна, но ее можно классифицировать отдельной owner-analysis resolver-подзадачей;
 - требуется локальная repo-scoped cleanup/check rerun операция;
+- `git commit` или pre-commit hook возвращает локальную repo-scoped ошибку;
 - отсутствует минимальный артефакт, который текущая процессная роль имеет право создать.
 
 Hard blocker останавливает workflow только после hard-blocker audit.
@@ -223,6 +252,7 @@ Hard blocker:
 Worker cycles:
 Измененные файлы:
 Подтвержденные проверки:
+Commit:
 Blockers:
 Следующий шаг:
 
