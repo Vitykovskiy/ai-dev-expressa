@@ -2,19 +2,19 @@
 
 ## Окружения
 
-| Environment       | Назначение                        | Ограничение                                                                    |
-| ----------------- | --------------------------------- | ------------------------------------------------------------------------------ |
-| `production`      | Рабочий контур                    | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён.                    |
-| `test`            | Проверочный контур                | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок.        |
-| `expressa-deploy` | Проверочный контур ветки `deploy` | Изолирован от `test` и `test-e2e`; использует отдельные SSH, env-файл и ports. |
+| Environment       | Назначение                                     | Ограничение                                                                    |
+| ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| `production`      | Рабочий контур                                 | Telegram auth обязательна; `DISABLE_TG_AUTH=true` запрещён.                    |
+| `test`            | Проверочный контур                             | Может использовать `DISABLE_TG_AUTH=true` для воспроизводимых проверок.        |
+| `expressa-deploy` | Предмержевый проверочный контур ветки `deploy` | Изолирован от `test` и `test-e2e`; использует отдельные SSH, env-файл и ports. |
 
 ## Branch-to-environment mapping
 
-| Source branch/event      | Target environment | Delivery rule                                                                                                  |
-| ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён.         |
-| `push`/merge -> `main`   | `test`             | Выполняется публикация versioned образов и rollout стендов `test` и `test-e2e` через deploy workflow contract. |
-| `push` -> `deploy`       | `expressa-deploy`  | Workflow `Deploy Expressa Deploy` публикует versioned образы и выполняет rollout стенда `expressa-deploy`.     |
+| Source branch/event      | Target environment | Delivery rule                                                                                                                             |
+| ------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `pull_request` -> `main` | нет                | Выполняются только обязательные проверки `quality` и `build` из workflow `PR Checks`; deploy запрещён.                                    |
+| `push`/merge -> `main`   | `test`             | Выполняется публикация versioned образов и rollout стендов `test` и `test-e2e` через deploy workflow contract.                            |
+| `push` -> `deploy`       | `expressa-deploy`  | Workflow `Deploy Expressa Deploy` публикует versioned образы и выполняет предмержевый rollout стенда `expressa-deploy` до merge в `main`. |
 
 ## PR Checks install contract
 
@@ -47,7 +47,7 @@
 
 ## Expressa deploy branch contract
 
-- Workflow `Deploy Expressa Deploy` обслуживает только route `deploy -> expressa-deploy`.
+- Workflow `Deploy Expressa Deploy` обслуживает только предмержевый route `deploy -> expressa-deploy` для проверки развернутого окружения до merge в `main`.
 - Workflow `Deploy Expressa Deploy` использует GitHub environment `expressa-deploy`.
 - Workflow `Deploy Expressa Deploy` публикует backend/frontend images в `ghcr.io` с tag `github.sha` и передаёт эти image refs в `scripts/deploy-test-vps.sh`.
 - VPS checkout для route `expressa-deploy` синхронизируется с `origin/deploy`.

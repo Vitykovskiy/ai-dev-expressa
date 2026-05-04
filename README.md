@@ -79,15 +79,15 @@
 - `WORKFLOW.md` — compatibility-shim, перенаправляющий в `process/workflow.md`.
 - `process/` — переносимая процессная документация: workflow, ролевые промпты и шаблоны.
 - `package.json` — корневой orchestration-слой репозитория: `husky`, `lint-staged`, aggregate-команды `quality` и `build`, команда `deploy:test:vps`, каноническая команда `test:e2e`, а также команды запуска и проверки отдельных контуров через `--prefix`.
-- `docker-compose.deploy.yml` — compose-манифест container-based деплоя `main -> test VPS` для frontend и backend runtime-образов; переиспользуется для двух изолированных стендов через разные `DEPLOY_PROJECT_NAME`, `ENV_FILE` и host ports.
+- `docker-compose.deploy.yml` — compose-манифест container-based деплоя frontend и backend runtime-образов для routes `main -> test/test-e2e` и `deploy -> expressa-deploy`; переиспользуется изолированными стендами через разные `DEPLOY_PROJECT_NAME`, `ENV_FILE` и host ports.
 - `terms-map.md` — карта терминов и рекомендуемых русских аналогов для проектной документации.
 - `backend/` — минимальный NestJS-контур идентификации и доступа для `FEATURE-001`, а также Docker-артефакты server runtime: bootstrap главного `administrator`, Telegram/test-mode авторизация, role guard, тесты и `Dockerfile`.
 - `frontend/` — клиентский backoffice-контур на `Vue 3`/`Vuetify`, а также Docker/Nginx-артефакты client runtime для `test` VPS: Telegram entry bootstrap, серверный authenticated actor/capabilities, role-based navigation, экран отказа доступа, тесты, `Dockerfile` и `nginx.conf`.
 - `e2e/` — QA-owned Playwright e2e-контур; по умолчанию тесты запускаются локально против `https://expressa-e2e-test.vitykovskiy.ru`.
 - `docs/` — проектные артефакты: бизнес-документы, системные документы и архитектурная навигация.
 - `tasks/` — активные task-артефакты проекта; выполненные task-артефакты могут храниться в `tasks/archive/`.
-- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на `test` VPS и параметризуется для независимых стендов `test` и `test-e2e`.
-- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов и автодеплоя `main` в два `test`-стенда на одном VPS.
+- `scripts/` — версионируемые утилиты поставки и эксплуатационные shell-скрипты, используемые GitHub Actions и VPS; `deploy-test-vps.sh` обслуживает container-based rollout на VPS и параметризуется для независимых стендов `test`, `test-e2e` и `expressa-deploy`.
+- `.github/workflows/` — GitHub Actions для обязательных PR-проверок, публикации runtime-образов, автодеплоя `main` в два `test`-стенда на одном VPS и предмержевого route `deploy -> expressa-deploy`.
 
 ## Process и project
 
@@ -112,6 +112,7 @@
 - Корневой pre-commit hook запускает `lint-staged`: форматирование и линтинг делегируются в локальные binaries `backend` и `frontend`.
 - Backend из корня запускается через `npm run dev:backend`.
 - Frontend из корня запускается через `npm run dev:frontend`.
+- Предмержевой стенд `expressa-deploy` публикуется push-событием ветки `deploy`: workflow `Deploy Expressa Deploy` использует GitHub environment `expressa-deploy`, внешний env-файл `EXPRESSA_DEPLOY_VPS_ENV_FILE`, отдельные host ports `EXPRESSA_DEPLOY_HOST_BACKEND_PORT`/`EXPRESSA_DEPLOY_HOST_FRONTEND_PORT` и public origin `https://expressa-deploy.vitykovskiy.ru`.
 - QA запускает browser e2e локально из корня через `npm run test:e2e`; Playwright по умолчанию использует опубликованный стенд `https://expressa-e2e-test.vitykovskiy.ru`.
 - `E2E_BASE_URL` задаёт локальный override frontend origin для QA; `E2E_BACKEND_BASE_URL` задаёт локальный override backend API base URL для тестов, которым нужен прямой JSON-доступ к backend API. Для published `test-e2e` стенда canonical значение `E2E_BACKEND_BASE_URL` совпадает с frontend origin `https://expressa-e2e-test.vitykovskiy.ru`, потому что `frontend/nginx.conf` проксирует `/backoffice/*` и `/customer/*` на backend.
 - Для локальной проверки backoffice нужны `backend/.env.local` для backend и `frontend/.env.local` для frontend.

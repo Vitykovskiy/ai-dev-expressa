@@ -26,7 +26,7 @@
 
 ## Deploy branch route для `expressa-deploy`
 
-- Branch-driven route `deploy -> expressa-deploy` использует workflow `Deploy Expressa Deploy`, который запускается только push-событиями ветки `deploy`.
+- Branch-driven route `deploy -> expressa-deploy` является предмержевым route проверки развернутого окружения до merge в `main` и использует workflow `Deploy Expressa Deploy`, который запускается только push-событиями ветки `deploy`.
 - Workflow `Deploy Expressa Deploy` собирает versioned frontend/backend runtime images в `ghcr.io` с tag, равным `github.sha`, и разворачивает один изолированный стенд `expressa-deploy`.
 - GitHub environment для route имеет имя `expressa-deploy`.
 - Checkout на VPS для этого route синхронизируется с `origin/deploy`; production route и `main -> test/test-e2e` route не изменяются.

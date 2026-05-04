@@ -20,7 +20,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 - Job `build` обязан независимо подтверждать сборку `backend` и `frontend`.
 - Обязательные gates не должны работать в warning-only режиме: ошибка любой команды блокирует готовность запроса на слияние.
 - Push/merge в `main` запускает `Deploy Test` workflow, публикует versioned runtime-образы и готовит rollout двух test-стендов на одном VPS.
-- Push в `deploy` запускает `Deploy Expressa Deploy` workflow, публикует versioned runtime-образы и готовит rollout стенда `expressa-deploy`.
+- Push в `deploy` запускает `Deploy Expressa Deploy` workflow, публикует versioned runtime-образы и готовит предмержевый rollout стенда `expressa-deploy` до merge в `main`.
 - Secrets для SSH-доступа к VPS, registry credentials и smoke-check overrides хранятся в GitHub Secrets.
 - Runtime переменные приложения на VPS передаются через окружение процесса или внешний env-файл стенда и не коммитятся в репозиторий.
 
@@ -66,7 +66,7 @@ Runtime configuration, deployment safety и smoke-check для входа admini
 
 ## Deploy branch stand contract
 
-- Ветка `deploy` является источником автодеплоя на VPS-стенд `expressa-deploy`.
+- Ветка `deploy` является источником предмержевого автодеплоя на VPS-стенд `expressa-deploy` для проверки развернутого окружения до merge в `main`.
 - Workflow `Deploy Expressa Deploy` запускается только для push в `deploy` и использует GitHub environment `expressa-deploy`.
 - Перед rollout workflow синхронизирует checkout на VPS с `origin/deploy`, затем вызывает `scripts/deploy-test-vps.sh` c `SKIP_GIT_PULL=true`.
 - Стенд `expressa-deploy` поднимается через `docker-compose.deploy.yml` с `DEPLOY_PROJECT_NAME=expressa-deploy` и `DEPLOY_STAND_SLUG=expressa-deploy`.
