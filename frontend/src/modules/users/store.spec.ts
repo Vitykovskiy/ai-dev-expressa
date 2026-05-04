@@ -33,12 +33,18 @@ const updatedUser: UserManagementUser = {
   capabilities: ["orders", "availability"],
 };
 
+const blockedUser: UserManagementUser = {
+  ...users[1],
+  blocked: true,
+};
+
 function createApiMock(
   overrides: Partial<UserManagementClient> = {},
 ): UserManagementClient {
   return {
     getUsers: vi.fn().mockResolvedValue(users),
     assignRole: vi.fn().mockResolvedValue(updatedUser),
+    blockUser: vi.fn().mockResolvedValue(blockedUser),
     ...overrides,
   };
 }
@@ -92,6 +98,42 @@ describe("user management store", () => {
 
     expect(store.state.assignStatus).toBe("error");
     expect(store.state.assignErrorCode).toBe("main-administrator-required");
+    expect(store.state.users).toEqual(users);
+
+    resetUserManagementStore();
+  });
+
+  it("updates only confirmed row after successful user blocking", async () => {
+    const api = createApiMock();
+    setUserManagementApiForTests(api);
+    const store = useUserManagementStore();
+
+    await store.loadUsers();
+    await store.blockUser("u-2");
+
+    expect(api.blockUser).toHaveBeenCalledWith("u-2");
+    expect(store.state.blockStatus).toBe("success");
+    expect(store.state.users).toEqual([users[0], blockedUser]);
+  });
+
+  it("preserves last confirmed state on block failure", async () => {
+    const error = new UserManagementApiError(
+      "administrator-role-required",
+      403,
+      "administrator-role-required",
+    );
+    setUserManagementApiForTests(
+      createApiMock({
+        blockUser: vi.fn().mockRejectedValue(error),
+      }),
+    );
+    const store = useUserManagementStore();
+
+    await store.loadUsers();
+    await expect(store.blockUser("u-2")).rejects.toBe(error);
+
+    expect(store.state.blockStatus).toBe("error");
+    expect(store.state.blockErrorCode).toBe("administrator-role-required");
     expect(store.state.users).toEqual(users);
 
     resetUserManagementStore();

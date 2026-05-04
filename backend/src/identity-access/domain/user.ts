@@ -42,6 +42,13 @@ export function withAssignedBackofficeRole(
   };
 }
 
+export function withBlockedAccess(user: User): User {
+  return {
+    ...user,
+    blocked: true,
+  };
+}
+
 function uniqueRoles(roles: readonly Role[]): Role[] {
   return [...new Set(roles)];
 }

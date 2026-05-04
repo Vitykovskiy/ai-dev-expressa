@@ -62,7 +62,9 @@
         v-else
         :users="filteredUsers"
         :assigning-user-id="store.state.assigningUserId"
+        :blocking-user-id="store.state.blockingUserId"
         @assign-role="openAssignRoleDialog"
+        @block="blockUser"
       />
     </div>
 
@@ -81,7 +83,16 @@
       color="success"
       :timeout="3000"
     >
-      {{ usersRoleAssignmentSuccessMessage }}
+      {{ successToastMessage }}
+    </v-snackbar>
+
+    <v-snackbar
+      v-model="errorToastOpen"
+      location="top"
+      color="error"
+      :timeout="4000"
+    >
+      {{ blockErrorMessage }}
     </v-snackbar>
   </section>
 </template>
@@ -99,6 +110,8 @@ import UiTextField from "@/ui/UiTextField.vue";
 import UiTopBar from "@/ui/UiTopBar.vue";
 import {
   filterUserManagementUsers,
+  getUsersBlockSuccessMessage,
+  mapUserManagementBlockError,
   mapUserManagementAssignError,
   mapUserManagementLoadError,
   usersRoleAssignmentSuccessMessage,
@@ -126,6 +139,8 @@ const searchQuery = ref("");
 const assignRoleDialogOpen = ref(false);
 const selectedUser = ref<UserManagementUser | null>(null);
 const successToastOpen = ref(false);
+const successToastMessage = ref(usersRoleAssignmentSuccessMessage);
+const errorToastOpen = ref(false);
 
 const filteredUsers = computed(() =>
   filterUserManagementUsers(
@@ -147,6 +162,9 @@ const loadErrorMessage = computed(() =>
 );
 const assignErrorMessage = computed(() =>
   mapUserManagementAssignError(store.state.assignErrorCode),
+);
+const blockErrorMessage = computed(() =>
+  mapUserManagementBlockError(store.state.blockErrorCode),
 );
 
 onMounted(() => {
@@ -193,11 +211,24 @@ async function submitAssignedRole(role: AssignableUserRole): Promise<void> {
 
   try {
     await store.assignRole(selectedUser.value.userId, validation.payload);
+    successToastMessage.value = usersRoleAssignmentSuccessMessage;
     successToastOpen.value = true;
     assignRoleDialogOpen.value = false;
     selectedUser.value = null;
   } catch {
     // Inline dialog error is driven by store.assignErrorCode.
+  }
+}
+
+async function blockUser(user: UserManagementUser): Promise<void> {
+  store.resetBlockState();
+
+  try {
+    const updatedUser = await store.blockUser(user.userId);
+    successToastMessage.value = getUsersBlockSuccessMessage(updatedUser);
+    successToastOpen.value = true;
+  } catch {
+    errorToastOpen.value = true;
   }
 }
 </script>

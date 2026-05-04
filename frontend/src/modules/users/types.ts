@@ -30,8 +30,11 @@ export type UserManagementErrorCode =
 export interface UserManagementState {
   loadStatus: "idle" | "loading" | "ready" | "error";
   assignStatus: "idle" | "saving" | "success" | "error";
+  blockStatus: "idle" | "saving" | "success" | "error";
   users: readonly UserManagementUser[];
   loadErrorCode: UserManagementErrorCode | null;
   assignErrorCode: UserManagementErrorCode | null;
+  blockErrorCode: UserManagementErrorCode | null;
   assigningUserId: string | null;
+  blockingUserId: string | null;
 }

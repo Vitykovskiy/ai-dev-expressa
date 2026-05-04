@@ -18,6 +18,11 @@ const updatedUser: UserManagementUser = {
   capabilities: ["orders", "availability"],
 };
 
+const blockedUser: UserManagementUser = {
+  ...users[0],
+  blocked: true,
+};
+
 describe("UserManagementApi", () => {
   it("loads users with backoffice auth headers", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
@@ -70,6 +75,26 @@ describe("UserManagementApi", () => {
     );
   });
 
+  it("patches block action to user block endpoint without request body", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ user: blockedUser }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const api = new UserManagementApi({ fetchImpl });
+
+    await expect(api.blockUser("user/1")).resolves.toEqual(blockedUser);
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "/backoffice/user-management/users/user%2F1/block",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+      },
+    );
+  });
+
   it("maps documented backend errors", async () => {
     const api = new UserManagementApi({
       fetchImpl: vi.fn().mockResolvedValue(
@@ -80,9 +105,7 @@ describe("UserManagementApi", () => {
       ),
     });
 
-    await expect(
-      api.assignRole("missing", { assignedRole: "barista" }),
-    ).rejects.toEqual(
+    await expect(api.blockUser("missing")).rejects.toEqual(
       expect.objectContaining<Partial<UserManagementApiError>>({
         status: 404,
         code: "user-not-found",

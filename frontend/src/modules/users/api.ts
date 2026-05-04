@@ -25,6 +25,7 @@ export interface UserManagementClient {
     userId: string,
     payload: AssignUserRolePayload,
   ): Promise<UserManagementUser>;
+  blockUser(userId: string): Promise<UserManagementUser>;
 }
 
 export class UserManagementApiError extends Error {
@@ -68,6 +69,24 @@ export class UserManagementApi implements UserManagementClient {
       },
     );
     if (!isAssignUserRoleResponse(body)) {
+      throw new UserManagementApiError(
+        "user-management-request-failed",
+        200,
+        "user-management-request-failed",
+      );
+    }
+
+    return body.user;
+  }
+
+  async blockUser(userId: string): Promise<UserManagementUser> {
+    const body = await this.request<unknown>(
+      `/backoffice/user-management/users/${encodePathId(userId)}/block`,
+      {
+        method: "PATCH",
+      },
+    );
+    if (!isUserMutationResponse(body)) {
       throw new UserManagementApiError(
         "user-management-request-failed",
         200,
@@ -150,6 +169,12 @@ function isUsersListResponse(
 }
 
 function isAssignUserRoleResponse(
+  value: unknown,
+): value is { readonly user: UserManagementUser } {
+  return isUserMutationResponse(value);
+}
+
+function isUserMutationResponse(
   value: unknown,
 ): value is { readonly user: UserManagementUser } {
   return isRecord(value) && isUserManagementUser(value.user);

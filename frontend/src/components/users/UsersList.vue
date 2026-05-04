@@ -48,8 +48,12 @@
         <td class="users-list__actions-cell">
           <UserActionsMenu
             :user="item.user"
-            :disabled="assigningUserId === item.user.userId"
+            :assign-role-disabled="isUserAssignRoleActionDisabled(item.user)"
+            :block-disabled="
+              isUserBlockActionDisabled(item.user, blockingUserId)
+            "
             @assign-role="$emit('assign-role', item.user)"
+            @block="$emit('block', item.user)"
           />
         </td>
       </tr>
@@ -68,6 +72,7 @@ import {
   getUserDisplayLabel,
   getUserInitials,
   getUserTelegramLabel,
+  isUserBlockActionDisabled,
   resolveUserRoleBadge,
   resolveUserStatusBadge,
 } from "@/modules/users/presentation";
@@ -77,14 +82,17 @@ const props = withDefaults(
   defineProps<{
     users: readonly UserManagementUser[];
     assigningUserId?: string | null;
+    blockingUserId?: string | null;
   }>(),
   {
     assigningUserId: null,
+    blockingUserId: null,
   },
 );
 
 defineEmits<{
   "assign-role": [user: UserManagementUser];
+  block: [user: UserManagementUser];
 }>();
 
 interface UserTableRow extends UiDataTableRecord {
@@ -105,6 +113,13 @@ const userRows = computed<UserTableRow[]>(() =>
     user,
   })),
 );
+
+function isUserAssignRoleActionDisabled(user: UserManagementUser): boolean {
+  return (
+    props.assigningUserId === user.userId ||
+    props.blockingUserId === user.userId
+  );
+}
 </script>
 
 <style scoped lang="scss">

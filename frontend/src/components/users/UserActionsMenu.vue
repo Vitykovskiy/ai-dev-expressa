@@ -9,7 +9,7 @@
         v-bind="activatorProps"
         class="user-actions-menu__trigger"
         title="Действия пользователя"
-        :disabled="disabled"
+        :disabled="isTriggerDisabled"
       >
         <MoreVertical :size="20" />
       </ui-icon-button>
@@ -19,6 +19,7 @@
       <template v-if="!user.blocked">
         <v-list-item
           class="user-actions-menu__item"
+          :disabled="assignRoleDisabled"
           @click="handleAssignRoleClick"
         >
           <template #prepend>
@@ -36,7 +37,11 @@
 
         <v-divider class="user-actions-menu__divider" />
 
-        <v-list-item class="user-actions-menu__item" disabled>
+        <v-list-item
+          class="user-actions-menu__item"
+          :disabled="blockDisabled"
+          @click="handleBlockClick"
+        >
           <template #prepend>
             <Ban :size="18" class="user-actions-menu__icon--destructive" />
           </template>
@@ -64,26 +69,46 @@ import type { UserManagementUser } from "@/modules/users/types";
 const props = withDefaults(
   defineProps<{
     user: UserManagementUser;
-    disabled?: boolean;
+    assignRoleDisabled?: boolean;
+    blockDisabled?: boolean;
   }>(),
   {
-    disabled: false,
+    assignRoleDisabled: false,
+    blockDisabled: false,
   },
 );
 
 const emit = defineEmits<{
   "assign-role": [];
+  block: [];
 }>();
 
 const isMenuOpen = ref(false);
 const isBarista = computed(
   () => getPrimaryOperationalRole(props.user.roles) === "barista",
 );
+const isTriggerDisabled = computed(
+  () => props.assignRoleDisabled && props.blockDisabled,
+);
 
 async function handleAssignRoleClick(): Promise<void> {
+  if (props.assignRoleDisabled) {
+    return;
+  }
+
   isMenuOpen.value = false;
   await nextTick();
   emit("assign-role");
+}
+
+async function handleBlockClick(): Promise<void> {
+  if (props.blockDisabled) {
+    return;
+  }
+
+  isMenuOpen.value = false;
+  await nextTick();
+  emit("block");
 }
 </script>
 

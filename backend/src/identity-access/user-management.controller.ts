@@ -55,4 +55,17 @@ export class UserManagementController {
       ),
     };
   }
+
+  @Patch(":userId/block")
+  async blockUser(
+    @Req() request: BackofficeRequest,
+    @Param("userId") userId: string,
+  ): Promise<{ readonly user: BackofficeManagedUser }> {
+    return {
+      user: await this.identity.blockUser(
+        request.actor as AuthenticatedActor,
+        userId,
+      ),
+    };
+  }
 }

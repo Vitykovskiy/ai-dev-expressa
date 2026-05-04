@@ -125,6 +125,17 @@
 | `frontend/src/modules/users/validation.ts`                        | Клиентская проверка допустимого выбора `barista` / `administrator`; backend validation и guard остаются source of truth.                                                |
 | `frontend/src/router/index.ts`, `frontend/src/modules/navigation` | Подключение `UsersView` к существующему route `/users` без изменения capability `users` и без локального вычисления прав из UI-состояния.                               |
 
+## FEATURE-005 frontend implementation map
+
+| Путь                                                     | Назначение                                                                                                                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/views/UsersView.vue`                       | Экран `/users`: route-level orchestration чтения списка пользователей, выбора target user, запуска `block_user`, success/error feedback и обновления строки пользователя. |
+| `frontend/src/components/users/**`                       | Feature-specific компоненты списка, меню действий, status badge и optional destructive confirmation pattern без transport logic.                                          |
+| `frontend/src/modules/users/api.ts`                      | Client API boundary для `GET /backoffice/user-management/users` и `PATCH /backoffice/user-management/users/:userId/block` с Telegram/test-mode headers из auth contract.  |
+| `frontend/src/modules/users/store.ts`                    | Локальное состояние users snapshot, busy/error state для block operation и замена target row по backend response.                                                         |
+| `frontend/src/modules/users/types.ts`, `presentation.ts` | Клиентские типы и presentation helpers для `blocked` state без подмены backend roles, capabilities или blocked access decision.                                           |
+| `frontend/src/modules/users/*.spec.ts`                   | Focused evidence для API binding, store update, success/error mapping и запрета acceptance `unblock_user` в `FEATURE-005`.                                                |
+
 ## Handoff route for FEATURE-004
 
 - Для управления ролями пользователей исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management/index.md`, затем `behavior.md`, `interfaces.md`, `ui-behavior.md`, `test-scenarios.md`, затем эту карту, `docs/system/ui-contracts/expressa-backoffice-ui-contract.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`, `.references/Expressa_admin/src/app/components/AssignRoleDialog.tsx` и `.references/Expressa_admin/src/app/components/UserActionsMenu.tsx`.
@@ -132,6 +143,17 @@
 - Frontend получает users list и результат назначения роли только от backend identity/access boundary; локальный store не является source of truth для ролей, blocked state или capabilities.
 - Frontend показывает `Назначить роль`, выбор `Бариста` и `Администратор`, success/error states и empty state по `.references`, но операции блокировки, разблокировки, создания пользователя и снятия роли `barista` остаются вне behavior scope FEATURE-004.
 - Frontend должен отправлять `assignedRole=administrator` как обычный input выбора роли, а окончательный guard главного administrator должен выполняться backend.
+
+## Handoff route for FEATURE-005
+
+- Для блокировки пользователя исполнитель читает `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/index.md`, затем `behavior.md`, `interfaces.md`, `ui-behavior.md`, `test-scenarios.md`, затем эту карту, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`, `.references/Expressa_admin/src/app/screens/UsersScreen.tsx` и `.references/Expressa_admin/src/app/components/ConfirmDialog.tsx`.
+- Frontend использует существующий administrator-only route `/users` и не добавляет новые top-level routes.
+- Frontend вызывает `PATCH /backoffice/user-management/users/:userId/block` без request body через `modules/users/api.ts`.
+- Frontend ожидает response `{ "user": BackofficeManagedUser }` и обновляет target row по backend response.
+- Frontend показывает success state после успешной блокировки и error state для `administrator-role-required` и `user-not-found`.
+- Frontend не вычисляет blocked access denial локально; отказ доступа для blocked actor является backend access boundary.
+- Frontend не принимает `unblock_user` и специальную ветку повторной блокировки как часть `FEATURE-005`.
+- Mandatory confirmation перед блокировкой не является системным требованием; `ConfirmDialog` можно использовать как существующий destructive pattern только если это не меняет системный scope.
 
 ## Запрещено в FEATURE-001
 
