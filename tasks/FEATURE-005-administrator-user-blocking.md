@@ -9,10 +9,13 @@
 - Единица поставки: `FEATURE-005`
 - Роль: `Системный аналитик`
 - Приоритет: `Критический`
-- Статус: `Готова к работе`
+- Статус: `Ожидает тестирования`
 
 ## Ссылки на документы
 
+- Feature package: `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/`
+- Feature package index: `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/index.md`
+- Сценарии тестирования: `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/test-scenarios.md`
 - Системные артефакты: `docs/system/domain-model/identity-and-access.md`, `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/use-cases/administrator-block-user.md`, `docs/system/ui-behavior-mapping/backoffice-ui-binding.md`
 - Архитектурные артефакты: `не требуются`
 - Контурная карта: `не требуется`
@@ -27,4 +30,5 @@
 - Проверки: `Feature spec и .test-scenarios документ созданы в docs/system/feature-specs, карточка FEATURE-005 ссылается на оба документа, сценарии содержат stable scenario IDs, manual QA route, e2e coverage expectation и required assertions; design readiness сверен с .references/Expressa_admin/src/app/screens/UsersScreen.tsx и .references/Expressa_admin/src/app/components/ConfirmDialog.tsx.`
 - Обновление карты приложения: `Обязательно в дочерних задачах, если меняются модули пользователей, клиентские маршруты, серверные API, схемы хранения, общие типы или тестовый маршрут.`
 - Критерии готовности: `Фича закрыта, когда блокировка пользователя прекращает доступ по системному контракту и дочерние AR/FE/BE/QA-* задачи завершены и проверены.`
+- Готовность к тестированию: `2026-05-04: backend, frontend, DevOps-not-applicable и actor/data route по execution-plan завершены; FEATURE-005 передана на QA handoff без закрытия фичи.`
 - Ограничение: `Действие unblock_user есть в UI-контракте, но отсутствует в утверждённых системных артефактах; не реализовывать разблокировку в рамках этой фичи без отдельного решения.`

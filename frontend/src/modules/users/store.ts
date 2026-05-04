@@ -14,10 +14,13 @@ import type {
 const state = reactive<UserManagementState>({
   loadStatus: "idle",
   assignStatus: "idle",
+  blockStatus: "idle",
   users: [],
   loadErrorCode: null,
   assignErrorCode: null,
+  blockErrorCode: null,
   assigningUserId: null,
+  blockingUserId: null,
 });
 
 let api: UserManagementClient = createUserManagementApi();
@@ -28,7 +31,9 @@ export function useUserManagementStore() {
     state: readonly(state),
     loadUsers,
     assignRole,
+    blockUser,
     resetAssignState,
+    resetBlockState,
   };
 }
 
@@ -42,10 +47,13 @@ export function setUserManagementApiForTests(
 export function resetUserManagementStore(): void {
   state.loadStatus = "idle";
   state.assignStatus = "idle";
+  state.blockStatus = "idle";
   state.users = [];
   state.loadErrorCode = null;
   state.assignErrorCode = null;
+  state.blockErrorCode = null;
   state.assigningUserId = null;
+  state.blockingUserId = null;
   pendingLoad = null;
 }
 
@@ -108,10 +116,39 @@ export async function assignRole(
   }
 }
 
+export async function blockUser(userId: string): Promise<UserManagementUser> {
+  state.blockStatus = "saving";
+  state.blockErrorCode = null;
+  state.blockingUserId = userId;
+
+  try {
+    const updatedUser = await api.blockUser(userId);
+    state.users = state.users.map((user) =>
+      user.userId === updatedUser.userId ? updatedUser : user,
+    );
+    state.loadStatus = "ready";
+    state.loadErrorCode = null;
+    state.blockStatus = "success";
+    state.blockingUserId = null;
+    return updatedUser;
+  } catch (error) {
+    state.blockStatus = "error";
+    state.blockErrorCode = resolveErrorCode(error);
+    state.blockingUserId = null;
+    throw error;
+  }
+}
+
 export function resetAssignState(): void {
   state.assignStatus = "idle";
   state.assignErrorCode = null;
   state.assigningUserId = null;
+}
+
+export function resetBlockState(): void {
+  state.blockStatus = "idle";
+  state.blockErrorCode = null;
+  state.blockingUserId = null;
 }
 
 function resolveErrorCode(error: unknown): UserManagementErrorCode {

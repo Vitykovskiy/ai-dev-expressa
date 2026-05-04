@@ -19,6 +19,7 @@ import {
   createUser,
   User,
   withAssignedBackofficeRole,
+  withBlockedAccess,
   withRoles,
 } from "../domain/user";
 import { ACCESS_CONFIG } from "../identity-access.tokens";
@@ -80,6 +81,24 @@ export class IdentityAccessService {
     const updatedUser = await this.users.save(
       withAssignedBackofficeRole(targetUser, assignedRole),
     );
+
+    return toBackofficeManagedUser(updatedUser);
+  }
+
+  async blockUser(
+    actor: AuthenticatedActor,
+    targetUserId: string,
+  ): Promise<BackofficeManagedUser> {
+    if (!canAccessBackofficeCapability(actor.roles, "users")) {
+      throw new ForbiddenException("administrator-role-required");
+    }
+
+    const targetUser = await this.users.findByUserId(targetUserId);
+    if (!targetUser) {
+      throw new NotFoundException("user-not-found");
+    }
+
+    const updatedUser = await this.users.save(withBlockedAccess(targetUser));
 
     return toBackofficeManagedUser(updatedUser);
   }

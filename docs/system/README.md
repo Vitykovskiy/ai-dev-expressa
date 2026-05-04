@@ -47,6 +47,15 @@
   - Сценарии тестирования: [feature-specs/feature-004-administrator-user-role-management/test-scenarios.md](./feature-specs/feature-004-administrator-user-role-management/test-scenarios.md)
   - Использовать для подготовки просмотра пользователей, назначения роли `barista`, назначения роли `administrator` главным administrator, пересчета доступа к вкладкам и QA handoff по stable scenario IDs. Package находится в status `ready-for-architecture`.
 
+- `FEATURE-005 Administrator User Blocking`
+  - Package root: [feature-specs/FEATURE-005-administrator-user-blocking/](./feature-specs/FEATURE-005-administrator-user-blocking/)
+  - Index: [feature-specs/FEATURE-005-administrator-user-blocking/index.md](./feature-specs/FEATURE-005-administrator-user-blocking/index.md)
+  - Behavior: [feature-specs/FEATURE-005-administrator-user-blocking/behavior.md](./feature-specs/FEATURE-005-administrator-user-blocking/behavior.md)
+  - Interfaces: [feature-specs/FEATURE-005-administrator-user-blocking/interfaces.md](./feature-specs/FEATURE-005-administrator-user-blocking/interfaces.md)
+  - UI behavior: [feature-specs/FEATURE-005-administrator-user-blocking/ui-behavior.md](./feature-specs/FEATURE-005-administrator-user-blocking/ui-behavior.md)
+  - Сценарии тестирования: [feature-specs/FEATURE-005-administrator-user-blocking/test-scenarios.md](./feature-specs/FEATURE-005-administrator-user-blocking/test-scenarios.md)
+  - Использовать для архитектурной декомпозиции блокировки пользователя administrator, прекращения доступа заблокированного пользователя и QA handoff по stable scenario IDs. Package находится в status `ready-for-architecture`.
+
 ### `system-context`
 
 - `Expressa v1 Telegram Ordering`

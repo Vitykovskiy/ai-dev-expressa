@@ -3,9 +3,12 @@ import {
   filterUserManagementUsers,
   getAssignableRoleInitialValue,
   getPrimaryOperationalRole,
+  getUsersBlockSuccessMessage,
   getUserDisplayLabel,
   getUserInitials,
   getUserTelegramLabel,
+  isUserBlockActionDisabled,
+  mapUserManagementBlockError,
   mapUserManagementAssignError,
   mapUserManagementLoadError,
   resolveUserRoleBadge,
@@ -68,5 +71,24 @@ describe("users presentation helpers", () => {
       "Назначить роль администратора может только главный администратор.",
     );
     expect(mapUserManagementAssignError(null)).toBeNull();
+  });
+
+  it("maps block operation success and documented errors", () => {
+    expect(getUsersBlockSuccessMessage(users[0])).toBe(
+      'Пользователь "Иван Петров" заблокирован',
+    );
+    expect(
+      mapUserManagementBlockError("administrator-role-required"),
+    ).toContain("администратору");
+    expect(mapUserManagementBlockError("user-not-found")).toContain(
+      "Обновите список",
+    );
+    expect(mapUserManagementBlockError(null)).toBeNull();
+  });
+
+  it("keeps block action enabled for active target users", () => {
+    expect(isUserBlockActionDisabled(users[0], null)).toBe(false);
+    expect(isUserBlockActionDisabled(users[0], "u-1")).toBe(true);
+    expect(isUserBlockActionDisabled(users[2], null)).toBe(true);
   });
 });

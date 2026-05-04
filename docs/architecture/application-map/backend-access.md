@@ -42,6 +42,19 @@
 | `backend/src/identity-access/domain/user.ts`                     | Role mutation helpers должны обновлять операционную backoffice-роль и сохранять `customer` и `blocked` как отдельные состояния.                 |
 | `backend/test/user-role-management*.spec.ts`                     | Unit/integration evidence для списка пользователей, назначения `barista`, назначения `administrator` главным administrator и error mapping.     |
 
+## FEATURE-005 backend implementation map
+
+| Путь                                                             | Назначение                                                                                                                                                       |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `backend/src/identity-access/user-management.controller.ts`      | HTTP boundary для чтения пользователей и блокировки пользователя через static backoffice endpoints с capability `users`.                                         |
+| `backend/src/identity-access/users/identity-access.service.ts`   | Application orchestration чтения списка, проверки actor capability, поиска target user, установки `blocked=true` и возврата обновленного target user.            |
+| `backend/src/identity-access/users/user.repository.ts`           | Repository contract должен поддержать поиск target user по `userId` и сохранение `blocked=true` без изменения ролей target user.                                 |
+| `backend/src/identity-access/users/in-memory-user.repository.ts` | In-memory adapter должен сохранять `blocked` в той же модели пользователя, которую используют Telegram/test-mode auth lookup и user-management lookup.           |
+| `backend/src/identity-access/domain/user.ts`                     | Domain helper должен устанавливать `blocked=true` как отдельное состояние доступа без снятия `customer`, `barista` или `administrator` ролей.                    |
+| `backend/src/identity-access/auth/backoffice-auth.service.ts`    | Backoffice session resolution должен учитывать `User.blocked` и отказывать blocked actor до успешного session response.                                          |
+| `backend/src/identity-access/auth/backoffice-auth.guard.ts`      | Guard прямых backoffice обращений должен отказывать actor с `blocked=true` до проверки requested capability.                                                     |
+| `backend/test/user-blocking*.spec.ts`                            | Unit/integration evidence для успешной блокировки, `administrator-role-required`, `user-not-found`, сохранения ролей target user и отказа доступа blocked actor. |
+
 ## Code architecture standard for FEATURE-006
 
 - Контур `identity-access` должен сохранять разделение `config`, `bootstrap`, `auth`, `users` и module boundary.
@@ -53,19 +66,20 @@
 
 ## Endpoints
 
-| Method  | Path                                             | Назначение                                                                                                               |
-| ------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `GET`   | `/health`                                        | Техническая проверка живости backend.                                                                                    |
-| `POST`  | `/backoffice/auth/session`                       | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                           |
-| `GET`   | `/backoffice/:capability`                        | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`.  |
-| `GET`   | `/backoffice/user-management/users`              | Возвращает список пользователей для вкладки `Пользователи`; endpoint использует static capability guard `users`.         |
-| `PATCH` | `/backoffice/user-management/users/:userId/role` | Назначает целевому пользователю роль `barista` или `administrator`; endpoint использует static capability guard `users`. |
+| Method  | Path                                              | Назначение                                                                                                               |
+| ------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `GET`   | `/health`                                         | Техническая проверка живости backend.                                                                                    |
+| `POST`  | `/backoffice/auth/session`                        | Создаёт backoffice session context из Telegram `initData` или test-mode входа.                                           |
+| `GET`   | `/backoffice/:capability`                         | Проверяет прямой доступ к capability `orders`, `availability`, `menu`, `users`, `settings` через `BackofficeRoleGuard`.  |
+| `GET`   | `/backoffice/user-management/users`               | Возвращает список пользователей для вкладки `Пользователи`; endpoint использует static capability guard `users`.         |
+| `PATCH` | `/backoffice/user-management/users/:userId/role`  | Назначает целевому пользователю роль `barista` или `administrator`; endpoint использует static capability guard `users`. |
+| `PATCH` | `/backoffice/user-management/users/:userId/block` | Блокирует целевого пользователя; endpoint использует static capability guard `users`.                                    |
 
 ## Auth headers and body
 
 - Production/test с включённой Telegram auth: `POST /backoffice/auth/session` принимает body `{ "initData": "<telegram-web-app-init-data>" }`; прямые capability-запросы передают то же значение в header `x-telegram-init-data`.
 - Test-mode: при `NODE_ENV=test DISABLE_TG_AUTH=true` body может содержать `{ "testTelegramId": "<id>" }`, а прямые capability-запросы могут передавать `x-test-telegram-id`. Если test id не передан, используется `ADMIN_TELEGRAM_ID`.
-- Static endpoints FEATURE-004 используют те же Telegram/test-mode headers, что и `GET /backoffice/:capability`, но capability берут из metadata decorator `users`, а не из path parameter.
+- Static endpoints FEATURE-004 и FEATURE-005 используют те же Telegram/test-mode headers, что и `GET /backoffice/:capability`, но capability берут из metadata decorator `users`, а не из path parameter.
 
 ## Server contracts for FEATURE-004
 
@@ -81,6 +95,23 @@
 - После успешного изменения роли backend возвращает target user с пересчитанными `capabilities`; frontend использует этот ответ для обновления строки и не вычисляет финальный доступ локально.
 - Error mapping FEATURE-004: `administrator-role-required` -> `403 Forbidden`; `main-administrator-required` -> `403 Forbidden`; `role-not-assignable` -> `400 Bad Request`; `user-not-found` -> `404 Not Found`.
 - FEATURE-004 не добавляет runtime variables и не меняет deployment route.
+
+## Server contracts for FEATURE-005
+
+- `GET /backoffice/user-management/users` остается source endpoint для представления пользователей и возвращает `blocked` в составе `BackofficeManagedUser`.
+- `PATCH /backoffice/user-management/users/:userId/block` принимает target user из path parameter `userId` и не требует request body.
+- `PATCH /backoffice/user-management/users/:userId/block` возвращает `{ "user": BackofficeManagedUser }` с `blocked=true`.
+- Endpoint блокировки требует authenticated actor с capability `users`.
+- Backend должен применять guard `administrator-role-required` до изменения target user.
+- Backend должен возвращать `user-not-found`, если target user отсутствует.
+- Успешная блокировка сохраняет роли target user без изменения и устанавливает только `blocked=true`.
+- Система должна применять blocked access state в backoffice session boundary `POST /backoffice/auth/session`.
+- Система должна применять blocked access state в backoffice capability boundary `GET /backoffice/:capability` и static backoffice endpoints.
+- Actor с `blocked=true` получает отказ доступа до capability-specific success response.
+- Если BE-008 обнаружит application entry boundary, который не может получить `User.blocked` из `identity-access`, BE-008 должен зафиксировать архитектурный blocker/resolver вместо локального обхода.
+- Error mapping FEATURE-005: `administrator-role-required` -> `403 Forbidden`; `user-not-found` -> `404 Not Found`; blocked actor access denial -> `403 Forbidden`.
+- FEATURE-005 не определяет accepted behavior для повторной блокировки уже `blocked=true`; специальная ветка idempotent success, conflict или восстановления требует отдельного resolver.
+- FEATURE-005 не добавляет `unblock_user`, runtime variables и deployment route.
 
 ## Server contracts for FEATURE-001
 
@@ -104,6 +135,13 @@
 - Для server-side реализации управления ролями пользователей исполнитель читает `docs/system/feature-specs/feature-004-administrator-user-role-management/index.md`, затем `behavior.md`, `interfaces.md`, `test-scenarios.md`, затем `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/domain-model/identity-and-access.md`, эту карту и `docs/system/contracts/backoffice-auth-and-capability-access.md`.
 - Реализация остается внутри `identity-access` boundary и не смешивается с меню, слотами, заказами или клиентским UI behavior.
 - Если endpoint boundary, DTO shape, error mapping или guard главного administrator меняются относительно этой карты, нужно вернуть изменение в архитектурный handoff до реализации.
+
+## Handoff route for FEATURE-005
+
+- Для server-side реализации блокировки пользователя исполнитель читает `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/index.md`, затем `behavior.md`, `interfaces.md`, `test-scenarios.md`, затем `docs/system/contracts/user-role-and-blocking-management.md`, `docs/system/domain-model/identity-and-access.md`, эту карту и `docs/system/contracts/backoffice-auth-and-capability-access.md`.
+- Реализация остается внутри `identity-access` boundary: user-management endpoint, service/domain/repository update and backoffice auth/guard blocked access enforcement.
+- Backend не восстанавливает UI state, confirmation behavior или `unblock_user` из клиентского reference source.
+- Если endpoint boundary, DTO shape, blocked access enforcement или error mapping меняются относительно этой карты, нужно вернуть изменение в архитектурный handoff до реализации.
 
 ## Env/config
 

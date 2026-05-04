@@ -44,6 +44,28 @@
 - Финальный e2e evidence выполняется командой `npm run test:e2e` против опубликованного `test-e2e` route, если QA-задача не фиксирует обоснованный локальный override.
 - Backend endpoint evidence для role-management API может подтверждать contract feedback, но не заменяет browser e2e acceptance required scenarios.
 
+## Handoff route for FEATURE-005
+
+- Manual QA читает `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/index.md`, `behavior.md`, `ui-behavior.md`, `test-scenarios.md`, `docs/architecture/qa-standards.md`, `docs/architecture/application-map/frontend-backoffice.md` и `.references/Expressa_admin/src/app/screens/UsersScreen.tsx`.
+- E2E QA читает `docs/system/feature-specs/FEATURE-005-administrator-user-blocking/index.md`, `behavior.md`, `interfaces.md`, `ui-behavior.md`, `test-scenarios.md`, `docs/architecture/qa-standards.md`, `frontend-backoffice.md`, `backend-access.md` и `delivery-and-runtime.md`.
+- Manual QA закрывает required scenarios `FEATURE-005-SC-001`, `FEATURE-005-SC-002` и `FEATURE-005-SC-005`; optional scenarios `FEATURE-005-SC-003` и `FEATURE-005-SC-004` выполняются при наличии устойчивого route and data.
+- E2E QA покрывает required scenarios `FEATURE-005-SC-001`, `FEATURE-005-SC-002` и `FEATURE-005-SC-003`; optional scenarios `FEATURE-005-SC-004` и `FEATURE-005-SC-005` покрываются при наличии устойчивого route and data.
+- Финальный e2e evidence выполняется командой `npm run test:e2e` против опубликованного `test-e2e` route, если QA-задача не фиксирует обоснованный локальный override.
+- Backend endpoint evidence для `PATCH /backoffice/user-management/users/:userId/block` может подтверждать contract feedback, но не заменяет browser e2e acceptance required scenarios.
+
+## FEATURE-005 QA actor and data route
+
+- QA target uses the published `test-e2e` stand or a local override only when backend test-mode is enabled by `NODE_ENV=test DISABLE_TG_AUTH=true`.
+- Administrator actor uses the existing test-mode route with `ADMIN_TELEGRAM_ID` or `E2E_TEST_TELEGRAM_ID` mapped to an `administrator` user; direct setup calls pass this actor through `testTelegramId` or `x-test-telegram-id`.
+- Target user for `FEATURE-005-SC-001` and `FEATURE-005-SC-002` uses a distinct non-secret Telegram identifier owned by QA evidence or QA fixtures, is authenticated through the existing test-mode session route, and is resolved to `userId` through `GET /backoffice/user-management/users`.
+- Target user must have protected application access before the block check; if the target has no such access, QA prepares it through the existing role-management route by assigning `barista` before the block and records that as setup, not as `FEATURE-005` acceptance.
+- Non-administrator actor for `FEATURE-005-SC-003` uses a second distinct test-mode Telegram identifier without role `administrator`; the actor may be a plain customer or a `barista`, but must not receive `administrator`.
+- Block operation for acceptance is initiated through the users surface; e2e setup and state verification may use the documented backend proxy route `PATCH /backoffice/user-management/users/:userId/block` with administrator test-mode auth.
+- Blocked-user access attempt uses the target user's test-mode identity after `blocked=true` and verifies denial at a protected boundary, such as `POST /backoffice/auth/session` or `GET /backoffice/orders` through the published `/backoffice/*` proxy with `x-test-telegram-id`.
+- `FEATURE-005-SC-003` verifies the non-administrator block attempt through the documented block operation boundary and then confirms the target user was not newly blocked by that attempt.
+- If the existing test-mode auth and user-management routes cannot materialize, expose or reuse the distinct target/non-administrator actors described above, QA-013 creates a backend-owner resolver or `BUG-*` under `FEATURE-005` instead of returning a hard blocker.
+- `FEATURE-005` does not require a new runtime variable, deployment route, VPS stand or `DO-*` task at architecture handoff time.
+
 ## Acceptance scenarios
 
 ### FEATURE-001
@@ -64,3 +86,11 @@
 - `F004-SC-006`: недопустимая назначаемая роль отклоняется, а роли target user остаются без изменений.
 - `F004-SC-007`: обычный administrator получает `main-administrator-required` при назначении `administrator`, а главный administrator успешно назначает роль `administrator`.
 - `F004-SC-008`: manual QA подтверждает parity вкладки `Пользователи`, меню `Назначить роль` и диалога выбора ролей с `.references/Expressa_admin`.
+
+### FEATURE-005
+
+- `FEATURE-005-SC-001`: administrator блокирует существующего target user через users surface, видит success state, а users representation показывает `blocked`.
+- `FEATURE-005-SC-002`: target user с `blocked=true` не получает доступ к защищенному application surface, при этом administrator access остается рабочим.
+- `FEATURE-005-SC-003`: actor без роли `administrator` не может выполнить block operation, а target user state не меняется.
+- `FEATURE-005-SC-004`: отсутствующий target user возвращает или показывает `user-not-found` без success confirmation.
+- `FEATURE-005-SC-005`: acceptance `FEATURE-005` не требует `unblock_user` и не считает unblock частью закрытия feature.

@@ -13,6 +13,10 @@ export interface UserBadgePresentation {
 
 export const usersRoleAssignmentSuccessMessage = "Роль назначена";
 
+export function getUsersBlockSuccessMessage(user: UserManagementUser): string {
+  return `Пользователь "${getUserDisplayLabel(user)}" заблокирован`;
+}
+
 export function filterUserManagementUsers(
   users: readonly UserManagementUser[],
   filter: UsersFilter,
@@ -35,6 +39,13 @@ export function filterUserManagementUsers(
 
     return true;
   });
+}
+
+export function isUserBlockActionDisabled(
+  user: UserManagementUser,
+  blockingUserId: string | null,
+): boolean {
+  return user.blocked || blockingUserId === user.userId;
 }
 
 export function getPrimaryOperationalRole(roles: readonly Role[]): Role {
@@ -153,6 +164,22 @@ export function mapUserManagementAssignError(
       return "Пользователь недоступен. Обновите список и попробуйте ещё раз.";
     case "user-management-request-failed":
       return "Не удалось назначить роль. Попробуйте ещё раз.";
+    default:
+      return null;
+  }
+}
+
+export function mapUserManagementBlockError(
+  code: UserManagementErrorCode | null,
+): string | null {
+  switch (code) {
+    case "administrator-role-required":
+    case "backoffice-capability-forbidden":
+      return "Блокировка пользователей доступна только администратору.";
+    case "user-not-found":
+      return "Пользователь недоступен. Обновите список и попробуйте ещё раз.";
+    case "user-management-request-failed":
+      return "Не удалось заблокировать пользователя. Попробуйте ещё раз.";
     default:
       return null;
   }
