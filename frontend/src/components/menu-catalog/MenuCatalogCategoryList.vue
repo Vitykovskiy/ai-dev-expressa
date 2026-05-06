@@ -11,16 +11,18 @@
 
     <div v-else class="category-list">
       <ui-data-table
+        v-for="section in categoryTableSections"
+        :key="section.title"
         :headers="categoryHeaders"
-        :items="categoryRows"
-        :group-by="categoryGroupBy"
+        :items="section.rows"
+        :group-by="categoryTableGroupBy"
         item-value="menuCategoryId"
         hide-default-header
       >
         <template #group-header="{ item, columns }">
           <tr class="category-table__group-row">
             <th :colspan="columns.length" scope="colgroup">
-              {{ sectionTitleByOrder(item.value) }}
+              {{ item.value }}
             </th>
           </tr>
         </template>
@@ -158,7 +160,6 @@ const optionCategories = computed(() =>
 );
 
 interface CategorySection {
-  order: number;
   title: string;
   categories: MenuCategory[];
   emptyText: string;
@@ -169,7 +170,6 @@ interface CategorySection {
 const visibleSections = computed(() =>
   [
     {
-      order: 0,
       title: "Основное меню",
       categories: regularCategories.value,
       emptyText: "Товаров в этой группе пока нет",
@@ -177,7 +177,6 @@ const visibleSections = computed(() =>
       priceLabel: (item: MenuItem) => itemPriceLabel(item),
     },
     {
-      order: 1,
       title: "Группы опций",
       categories: optionCategories.value,
       emptyText: "Опций в этой группе пока нет",
@@ -190,46 +189,49 @@ const visibleSections = computed(() =>
 
 interface CategoryTableRow extends UiDataTableRecord {
   menuCategoryId: string;
-  sectionOrder: number;
+  sectionTitle: string;
   category: MenuCategory;
   emptyText: string;
   countLabel: (count: number) => string;
   priceLabel: (item: MenuItem) => string;
 }
 
+interface CategoryTableSection {
+  title: string;
+  rows: CategoryTableRow[];
+}
+
 const categoryHeaders: UiDataTableHeader<UiDataTableRecord>[] = [
   { key: "name", title: "Группа", sortable: false },
   { key: "actions", title: "Действия", align: "end", sortable: false },
 ];
-const categoryGroupBy: UiDataTableGroupBy[] = [
-  { key: "sectionOrder", order: "asc" },
+const categoryTableGroupBy: UiDataTableGroupBy[] = [
+  { key: "sectionTitle", order: "asc" },
 ];
-const categoryRows = computed<CategoryTableRow[]>(() =>
-  visibleSections.value.flatMap((section: CategorySection) =>
-    section.categories.map((category) => ({
+const categoryTableSections = computed<CategoryTableSection[]>(() =>
+  visibleSections.value.map((section: CategorySection) => ({
+    title: section.title,
+    rows: section.categories.map((category) => ({
       menuCategoryId: category.menuCategoryId,
-      sectionOrder: section.order,
+      sectionTitle: section.title,
       category,
       emptyText: section.emptyText,
       countLabel: section.countLabel,
       priceLabel: section.priceLabel,
     })),
-  ),
+  })),
 );
-
-function sectionTitleByOrder(value: unknown): string {
-  const sectionOrder = typeof value === "number" ? value : Number(value);
-  const section = visibleSections.value.find(
-    (candidate) => candidate.order === sectionOrder,
-  );
-
-  return section?.title ?? String(value);
-}
 </script>
 
 <style scoped lang="scss">
 .catalog-panel {
   display: block;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .empty-state,
