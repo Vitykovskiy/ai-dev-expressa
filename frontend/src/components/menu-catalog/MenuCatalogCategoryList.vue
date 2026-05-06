@@ -19,8 +19,12 @@
         item-value="menuCategoryId"
         hide-default-header
       >
-        <template #group-header="{ item, columns }">
-          <tr class="category-table__group-row">
+        <template #group-header="{ item, columns, isGroupOpen, toggleGroup }">
+          <tr
+            class="category-table__group-row"
+            @vue:mounted="openCategoryGroup(item, isGroupOpen, toggleGroup)"
+            @vue:updated="openCategoryGroup(item, isGroupOpen, toggleGroup)"
+          >
             <th :colspan="columns.length" scope="colgroup">
               {{ item.value }}
             </th>
@@ -132,6 +136,13 @@ import {
 } from "@/modules/menu-catalog/presentation";
 import type { MenuCategory, MenuItem } from "@/modules/menu-catalog/types";
 
+interface DataTableGroup {
+  id: string;
+}
+
+type DataTableGroupStateGetter = (group: DataTableGroup) => boolean;
+type DataTableGroupToggle = (group: DataTableGroup) => void;
+
 const props = defineProps<{
   categories: readonly MenuCategory[];
   categoryItemsMap: Record<string, MenuItem[]>;
@@ -221,6 +232,16 @@ const categoryTableSections = computed<CategoryTableSection[]>(() =>
     })),
   })),
 );
+
+function openCategoryGroup(
+  group: DataTableGroup,
+  isGroupOpen: DataTableGroupStateGetter,
+  toggleGroup: DataTableGroupToggle,
+): void {
+  if (!isGroupOpen(group)) {
+    toggleGroup(group);
+  }
+}
 </script>
 
 <style scoped lang="scss">
